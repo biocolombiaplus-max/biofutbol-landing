@@ -142,6 +142,63 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .feat-card h3{font-size:1.08rem;margin-bottom:9px}
 .feat-card p{color:var(--gray);font-size:.92rem;line-height:1.6}
 
+/* ── SPOTLIGHT / PRO FEATURES ── */
+.spotlight{background:var(--bg2)}
+.spotlight-row{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-bottom:86px}
+.spotlight-row:last-child{margin-bottom:0}
+.spotlight-row.rev .spot-text{order:2}
+.spotlight-row.rev .spot-visual{order:1}
+.spot-tag{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:999px;margin-bottom:14px}
+.spot-tag.ia{background:linear-gradient(135deg,#7C4DFF,#4A26C9);color:#fff;box-shadow:0 8px 22px rgba(124,77,255,.4)}
+.spot-tag.auto{background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;box-shadow:0 8px 22px rgba(255,180,0,.35)}
+.spot-tag.live{background:linear-gradient(135deg,#ff5c5c,#c92a2a);color:#fff;box-shadow:0 8px 22px rgba(255,92,92,.35)}
+.spot-tag.perso{background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;box-shadow:var(--cta-shadow)}
+.spot-text h3{font-size:clamp(1.35rem,2.4vw,1.7rem);margin-bottom:14px}
+.spot-text p{color:var(--gray);font-size:1rem;line-height:1.65;margin-bottom:20px}
+.spot-list{display:flex;flex-direction:column;gap:11px}
+.spot-list li{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;color:var(--white)}
+.spot-list li i{color:var(--green-l);margin-top:3px}
+.spot-panel{background:linear-gradient(160deg,#131f18,#0a100c);border:1px solid var(--card-b);border-radius:24px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:.3s}
+.spot-panel:hover{transform:translateY(-6px)}
+.spot-panel::before{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 80% 0%,rgba(24,168,58,.14),transparent 70%);pointer-events:none}
+/* fixture IA panel */
+.fixture-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:relative}
+.fixture-head strong{font-size:.95rem}
+.ia-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(124,77,255,.18);color:#c3b2ff;border:1px solid rgba(124,77,255,.4);font-size:.66rem;font-weight:800;padding:4px 10px;border-radius:999px}
+.match-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem;position:relative}
+.match-row .eq{display:flex;align-items:center;gap:5px;color:var(--green-l);font-weight:800;font-size:.68rem}
+/* social image generator panel */
+.post-preview{background:linear-gradient(160deg,var(--green-d),var(--green-l));border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.post-preview .tag{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.35);color:#fff;font-size:.64rem;font-weight:800;padding:4px 10px;border-radius:999px}
+.post-preview h5{color:#fff;font-size:1.05rem;font-weight:900;margin-bottom:10px}
+.post-preview .match-mini{background:rgba(255,255,255,.16);border-radius:8px;padding:8px 10px;font-size:.76rem;color:#fff;margin-bottom:6px;display:flex;justify-content:space-between}
+.post-actions{display:flex;gap:10px}
+.post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+.post-actions i{color:var(--green-l)}
+/* live results panel */
+.live-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.78rem;font-weight:800;color:#ff8080;letter-spacing:.04em}
+.live-dot{width:9px;height:9px;background:#ff5c5c;border-radius:50%;animation:pulse-dot 1.4s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.score-card{background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:14px;margin-bottom:10px}
+.score-teams{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:1rem;margin-bottom:6px}
+.score-sub{display:flex;justify-content:center;font-size:.72rem;font-weight:600;color:var(--gray);margin-bottom:10px}
+.score-events{display:flex;gap:14px;font-size:.74rem;color:var(--gray)}
+.score-events span{display:flex;align-items:center;gap:5px}
+.card-y,.card-r{width:10px;height:14px;border-radius:2px;display:inline-block}
+.card-y{background:var(--gold)}
+.card-r{background:#ff5c5c}
+/* member portal panel */
+.portal-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.portal-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
+.portal-head strong{display:block;font-size:.92rem}
+.portal-head span{color:var(--gray);font-size:.74rem}
+.portal-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.portal-tabs span{font-size:.7rem;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--card-b);color:var(--gray)}
+.portal-tabs span.on{background:rgba(24,168,58,.16);border-color:var(--green);color:var(--green-l)}
+.portal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem}
+.portal-row .ok-text{color:var(--green-l);font-weight:800}
+.portal-pay{width:100%;margin-top:6px;justify-content:center;padding:11px;font-size:.85rem}
+
 /* ── PROCESS ── */
 .process{background:var(--bg2)}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;position:relative}
@@ -245,6 +302,10 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .hero-visual{order:-1;margin-bottom:10px}
   .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid{grid-template-columns:repeat(2,1fr)}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .spotlight-row,.spotlight-row.rev{grid-template-columns:1fr}
+  .spotlight-row .spot-text,.spotlight-row.rev .spot-text{order:1}
+  .spotlight-row .spot-visual,.spotlight-row.rev .spot-visual{order:2}
+  .spotlight-row{margin-bottom:56px}
   .float-chip.c1{left:0}
   .float-chip.c2{right:0}
   .wa-float{bottom:86px}
@@ -416,6 +477,123 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
         <div class="ic"><i class="fa-solid fa-palette"></i></div>
         <h3>Con tu marca y colores</h3>
         <p>App desarrollada con el logo, nombre y colores de tu club o escuela de fútbol.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPOTLIGHT / PRO FEATURES ── -->
+<section class="spotlight" id="pro">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Tecnología que marca la diferencia</span>
+      <h2>Funciones PRO que llevan tu club al siguiente nivel</h2>
+      <p>Herramientas avanzadas pensadas para que tu club se vea, se sienta y funcione como un club profesional.</p>
+    </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag ia"><i class="fa-solid fa-brain"></i> Con Inteligencia Artificial</span>
+        <h3>Fixture con equidad, generado con IA</h3>
+        <p>Nuestro algoritmo arma el calendario de partidos de tu club de forma justa, sin ventajas para ningún equipo. Fixture profesional, balanceado y listo en minutos.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Mismas condiciones de local y visitante para todos los equipos</li>
+          <li><i class="fa-solid fa-check"></i> Distribución equilibrada de fechas y rivales</li>
+          <li><i class="fa-solid fa-check"></i> Ideal para ligas, escuelas y torneos internos</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="fixture-head">
+            <strong>Jornada 8 · Categoría Sub-15</strong>
+            <span class="ia-badge"><i class="fa-solid fa-sparkles"></i> Generado con IA</span>
+          </div>
+          <div class="match-row"><span>Halcones FC vs Águilas United</span><span class="eq"><i class="fa-solid fa-scale-balanced"></i> Equidad 100%</span></div>
+          <div class="match-row"><span>Tigres del Sur vs Leones Norte</span><span class="eq"><i class="fa-solid fa-scale-balanced"></i> Equidad 100%</span></div>
+          <div class="match-row"><span>Cóndores FC vs Panteras Rojas</span><span class="eq"><i class="fa-solid fa-scale-balanced"></i> Equidad 100%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag auto"><i class="fa-solid fa-bolt"></i> Automático · 1 clic</span>
+        <h3>Imágenes para redes sociales con un solo clic</h3>
+        <p>Genera automáticamente las artes de tus partidos por semana o por día, la tabla de posiciones, goleadores y la valla menos vencida. Listas para publicar en Instagram y WhatsApp.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Fixture semanal y diario en formato de imagen</li>
+          <li><i class="fa-solid fa-check"></i> Tabla de posiciones y goleadores actualizados al instante</li>
+          <li><i class="fa-solid fa-check"></i> Imagen de la valla menos vencida en un clic</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="post-preview">
+            <span class="tag">1 CLIC</span>
+            <h5>⚽ JORNADA 8</h5>
+            <div class="match-mini"><span>Halcones FC</span><span>vs Águilas United</span></div>
+            <div class="match-mini"><span>Tigres del Sur</span><span>vs Leones Norte</span></div>
+            <div class="match-mini"><span>Cóndores FC</span><span>vs Panteras Rojas</span></div>
+          </div>
+          <div class="post-actions">
+            <span><i class="fa-solid fa-download"></i> Descargar</span>
+            <span><i class="fa-solid fa-share-nodes"></i> Compartir</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag live"><i class="fa-solid fa-tower-broadcast"></i> Tiempo real</span>
+        <h3>Resultados en vivo: goles, tarjetas y más</h3>
+        <p>Registra en tiempo real cada situación del partido: goles, tarjetas amarillas, rojas y demás eventos. Tus socios siguen el partido desde la app, minuto a minuto.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Marcador en vivo desde la cancha</li>
+          <li><i class="fa-solid fa-check"></i> Registro de amarillas, rojas y goleadores</li>
+          <li><i class="fa-solid fa-check"></i> Historial completo de cada partido</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="live-head"><span class="live-dot"></span> EN VIVO · Jornada 8</div>
+          <div class="score-card">
+            <div class="score-teams"><span>Halcones FC</span><span>2 - 1</span><span>Águilas United</span></div>
+            <div class="score-sub">Min. 78'</div>
+            <div class="score-events">
+              <span><i class="card-y"></i> 3</span>
+              <span><i class="card-r"></i> 1</span>
+              <span><i class="fa-solid fa-futbol"></i> 3 goles</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag perso"><i class="fa-solid fa-user-lock"></i> 100% personalizado</span>
+        <h3>Portal individual para cada socio</h3>
+        <p>Cada socio tiene su propio usuario y clave para personalizar su perfil y ver toda su información: partidos, tablas de posiciones y su situación financiera. Además, puede hacer pagos y llevar el control de su cuenta.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Usuario y clave individual por socio</li>
+          <li><i class="fa-solid fa-check"></i> Acceso a partidos, tablas y estadísticas</li>
+          <li><i class="fa-solid fa-check"></i> Pagos y control financiero personal</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="portal-head">
+            <div class="portal-avatar">J</div>
+            <div><strong>Juan Pérez</strong><span>Socio · Sub-15</span></div>
+          </div>
+          <div class="portal-tabs">
+            <span>Partidos</span><span>Tablas</span><span class="on">Finanzas</span>
+          </div>
+          <div class="portal-row"><span>Mensualidad</span><span class="ok-text">Al día</span></div>
+          <div class="portal-row"><span>Próximo pago</span><span>15 días</span></div>
+          <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20ver%20el%20portal%20del%20socio%20de%20BioFutbol" class="btn-ghost portal-pay" target="_blank" rel="noopener"><i class="fa-solid fa-credit-card"></i> Pagar ahora</a>
+        </div>
       </div>
     </div>
   </div>
