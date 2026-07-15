@@ -238,6 +238,8 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan .members{color:var(--gray);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .plan .setup{margin-top:12px;font-size:.82rem;color:var(--gray)}
 .plan .setup b{color:var(--white);font-size:1.05rem}
+.plan .setup-note{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:.74rem;color:var(--gray-d);line-height:1.5}
+.plan .setup-note i{color:var(--green-l);margin-top:2px;flex:none}
 .plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 2px}
 .plan .price small{font-size:.9rem;color:var(--gray);font-weight:600}
 .plan ul{margin:18px 0 24px;flex:1}
@@ -290,6 +292,9 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
 .footer-social{display:flex;gap:14px}
 .footer-social a{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--card-b);display:flex;align-items:center;justify-content:center;color:var(--white);transition:.25s}
 .footer-social a:hover{background:var(--green);border-color:var(--green)}
+.footer-credit{text-align:center;margin-top:30px;padding:24px 20px 0;border-top:1px solid var(--card-b);color:var(--gray-d);font-size:.8rem;letter-spacing:.02em}
+.footer-credit .brand{display:inline-flex;align-items:center;gap:6px;color:var(--green-l);font-weight:900;letter-spacing:.04em}
+.footer-credit .brand i{font-size:.7rem}
 
 /* ── WHATSAPP FLOAT + STICKY BAR ── */
 .wa-float{position:fixed;bottom:24px;right:22px;z-index:998;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.75rem;box-shadow:var(--cta-shadow-lg);animation:pulse 2.4s infinite}
@@ -696,6 +701,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
         <div class="setup">Implementación única: <b>$350.000</b></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
         <div class="price">$4.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
@@ -708,6 +714,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <div class="plan featured reveal">
         <span class="members">101 a 200 socios</span>
         <div class="setup">Implementación única: <b>$450.000</b></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
         <div class="price">$3.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -720,6 +727,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <div class="plan reveal">
         <span class="members">201 a 500 socios</span>
         <div class="setup">Implementación única: <b>$490.000</b></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
         <div class="price">$2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -732,6 +740,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <div class="plan reveal">
         <span class="members">Más de 1.000 socios</span>
         <div class="setup">Implementación única: <b>$750.000</b></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
         <div class="price">$2.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -867,6 +876,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <a href="https://wa.me/573505457420" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
     </div>
   </div>
+  <div class="footer-credit">Un producto de <span class="brand"><i class="fa-solid fa-star"></i> BioMarketing</span></div>
 </footer>
 
 <!-- ── WHATSAPP FLOAT + MOBILE STICKY BAR ── -->
