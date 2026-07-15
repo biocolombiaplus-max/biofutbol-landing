@@ -93,24 +93,56 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .hero-badge{display:flex;align-items:center;gap:9px;color:var(--gray);font-size:.9rem;font-weight:600}
 .hero-badge i{color:var(--green-l)}
 
-.hero-visual{position:relative;display:flex;justify-content:center}
-.phone-mock{width:min(320px,82vw);background:linear-gradient(160deg,#16241c,#0a100c);border:2px solid var(--card-b);border-radius:42px;padding:16px;box-shadow:var(--shadow);position:relative;animation:float 5s ease-in-out infinite}
+.hero-visual{position:relative;display:flex;justify-content:center;padding:0 44px}
+.device-wrap{position:relative;display:inline-block}
+.device{width:min(280px,72vw);aspect-ratio:9/19.4;background:linear-gradient(160deg,#1c1c1c,#000);border-radius:48px;padding:9px;box-shadow:var(--shadow);position:relative;animation:float 5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.phone-mock::before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:70px;height:8px;background:#000;border-radius:6px;z-index:2}
-.phone-screen{background:linear-gradient(180deg,#0c130d,#101a12);border-radius:28px;padding:26px 18px 18px;position:relative;overflow:hidden;min-height:440px}
-.pitch{position:relative;background:linear-gradient(160deg,var(--green-d),var(--green-l));border-radius:16px;height:210px;margin-bottom:16px;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18)}
-.pitch::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(255,255,255,.55)}
-.pitch::after{content:"";position:absolute;top:50%;left:50%;width:56px;height:56px;border:2px solid rgba(255,255,255,.55);border-radius:50%;transform:translate(-50%,-50%)}
-.pitch .goal-t,.pitch .goal-b{position:absolute;left:50%;width:76px;height:32px;border:2px solid rgba(255,255,255,.55);transform:translateX(-50%)}
-.pitch .goal-t{top:0;border-top:none;border-radius:0 0 6px 6px}
-.pitch .goal-b{bottom:0;border-bottom:none;border-radius:6px 6px 0 0}
-.mini-stat{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:12px 14px;margin-bottom:9px}
-.mini-stat .k{color:var(--gray);font-size:.76rem;font-weight:600}
-.mini-stat .v{font-weight:800;color:var(--green-l)}
-.float-chip{position:absolute;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:11px 15px;box-shadow:var(--shadow);font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:9px;animation:float2 4.5s ease-in-out infinite}
-.float-chip i{color:var(--green-l);font-size:1.05rem}
-.float-chip.c1{top:8%;left:-40px;animation-delay:.2s}
-.float-chip.c2{bottom:16%;right:-34px;animation-delay:1s}
+.device::before{content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:92px;height:24px;background:#000;border-radius:14px;z-index:5}
+.device-screen{width:100%;height:100%;background:linear-gradient(180deg,#0a1310,#0d1a13);border-radius:38px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.app-statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 22px 2px;font-size:.66rem;font-weight:800;color:#fff;flex:none}
+.app-statusbar .icons{display:flex;gap:5px;align-items:center;font-size:.66rem;color:#fff}
+.app-body{flex:1;overflow:hidden;padding:12px 13px;display:flex;flex-direction:column;gap:9px}
+.app-header{display:flex;align-items:center;gap:9px}
+.app-crest{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 10px rgba(24,168,58,.4);color:#fff;font-size:.8rem}
+.app-header .txt{flex:1;min-width:0}
+.app-header .txt .lg{font-size:.56rem;font-weight:800;color:var(--green-l);letter-spacing:.06em;text-transform:uppercase}
+.app-header .txt h5{font-size:.86rem;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-header .txt small{font-size:.58rem;color:var(--gray);display:block}
+.app-panel-btn{font-size:.56rem;font-weight:700;color:#fff;background:rgba(255,255,255,.08);border:1px solid var(--card-b2);padding:5px 9px;border-radius:999px;white-space:nowrap;flex:none}
+.app-chips{display:flex;gap:5px;flex-wrap:wrap}
+.app-chips span{font-size:.56rem;font-weight:700;color:var(--gray);background:rgba(255,255,255,.06);border:1px solid var(--card-b2);padding:4px 8px;border-radius:999px;display:flex;align-items:center;gap:4px}
+.app-chips span.live{color:var(--gold);border-color:rgba(255,201,51,.4)}
+.app-chips span.live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.app-nums{display:flex;justify-content:space-around;text-align:center;padding:2px 0}
+.app-nums b{display:block;font-size:1.2rem;font-weight:900;color:#fff}
+.app-nums span{font-size:.54rem;color:var(--gray);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.app-nums .blue{color:#4d9fff}
+.app-nums .orange{color:#ff9d47}
+.app-progress{height:4px;background:#1c281f;border-radius:6px;overflow:hidden;flex:none}
+.app-progress i{display:block;height:100%;width:34%;background:linear-gradient(90deg,var(--green-d),var(--green-l))}
+.app-section-lbl{font-size:.56rem;font-weight:800;color:var(--gray-d);letter-spacing:.08em;text-transform:uppercase}
+.app-quick{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.qc{border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:5px}
+.qc i{font-size:.9rem;color:#fff}
+.qc b{font-size:.7rem;font-weight:800;color:#fff}
+.qc span{font-size:.56rem;color:rgba(255,255,255,.8);font-weight:600}
+.qc.blue{background:linear-gradient(135deg,#1c3faa,#2a55d6)}
+.qc.green{background:linear-gradient(135deg,var(--green-d),var(--green))}
+.qc.gold{background:linear-gradient(135deg,#7a5a12,#a6790f)}
+.qc.purple{background:linear-gradient(135deg,#5a2fae,#7440d1)}
+.app-navbar{display:flex;justify-content:space-around;align-items:center;padding:9px 4px;border-top:1px solid var(--card-b2);background:rgba(0,0,0,.35);flex:none}
+.app-navbar div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.5rem;font-weight:700;color:var(--gray-d)}
+.app-navbar div.on{color:var(--green-l)}
+.app-navbar i{font-size:.78rem}
+.float-chip{position:absolute;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow);font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:8px;animation:float2 4.5s ease-in-out infinite;white-space:nowrap;z-index:6}
+.float-chip i{color:var(--green-l);font-size:1rem}
+.float-chip.c1{top:-3%;right:-14px;animation-delay:.2s}
+.float-chip.c2{bottom:54px;left:-18px;animation-delay:1s}
+.app-next{background:var(--card);border:1px solid var(--card-b2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.app-next-teams{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;font-weight:800;color:#fff}
+.app-next-teams .vs{font-size:.54rem;color:var(--gray);font-weight:700}
+.app-next-meta{font-size:.56rem;color:var(--gray);display:flex;align-items:center;gap:5px}
+.app-next-meta i{color:var(--green-l)}
 @keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
 /* ── STAT STRIP ── */
@@ -311,8 +343,8 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .spotlight-row .spot-text,.spotlight-row.rev .spot-text{order:1}
   .spotlight-row .spot-visual,.spotlight-row.rev .spot-visual{order:2}
   .spotlight-row{margin-bottom:56px}
-  .float-chip.c1{left:0}
-  .float-chip.c2{right:0}
+  .float-chip.c1{right:0}
+  .float-chip.c2{left:0}
   .wa-float{bottom:86px}
 }
 @media(max-width:560px){
@@ -323,6 +355,9 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .btn-mega{width:100%;justify-content:center;padding:20px 24px;font-size:1.05rem}
   .ribbon{width:110px;height:110px}
   .sticky-bar{display:block}
+  .wa-float{display:none}
+  .hero-visual{padding:0 26px}
+  .device{width:min(250px,64vw)}
 }
 </style>
 </head>
@@ -385,19 +420,59 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       </div>
     </div>
     <div class="hero-visual">
-      <div class="phone-mock">
-        <div class="phone-screen">
-          <div class="pitch">
-            <div class="goal-t"></div>
-            <div class="goal-b"></div>
+      <div class="device-wrap">
+      <div class="device">
+        <div class="device-screen">
+          <div class="app-statusbar">
+            <span>9:41</span>
+            <span class="icons"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-full"></i></span>
           </div>
-          <div class="mini-stat"><span class="k">Socios activos</span><span class="v">438</span></div>
-          <div class="mini-stat"><span class="k">Recaudo del mes</span><span class="v">$1.095.000</span></div>
-          <div class="mini-stat"><span class="k">Próximo pago</span><span class="v">2 días</span></div>
+          <div class="app-body">
+            <div class="app-header">
+              <div class="app-crest"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="txt">
+                <div class="lg">Liga interna · 2026</div>
+                <h5>Halcones FC</h5>
+                <small>Sistema de gestión del club</small>
+              </div>
+              <span class="app-panel-btn"><i class="fa-solid fa-user"></i> Panel</span>
+            </div>
+            <div class="app-chips">
+              <span><i class="fa-solid fa-futbol"></i> 10 equipos</span>
+              <span><i class="fa-solid fa-calendar-days"></i> 135 partidos</span>
+              <span class="live">En curso</span>
+            </div>
+            <div class="app-nums">
+              <div><b class="blue">5</b><span>Jugados</span></div>
+              <div><b class="orange">130</b><span>Restantes</span></div>
+              <div><b>1</b><span>Semana</span></div>
+            </div>
+            <div class="app-progress"><i></i></div>
+            <div class="app-section-lbl">Acceso rápido</div>
+            <div class="app-quick">
+              <div class="qc blue"><i class="fa-solid fa-calendar-days"></i><b>Fixture</b><span>135 partidos</span></div>
+              <div class="qc green"><i class="fa-solid fa-chart-simple"></i><b>Tabla</b><span>Posiciones</span></div>
+              <div class="qc gold"><i class="fa-solid fa-futbol"></i><b>Goles</b><span>Goleadores</span></div>
+              <div class="qc purple"><i class="fa-solid fa-trophy"></i><b>Llave</b><span>Playoffs</span></div>
+            </div>
+            <div class="app-section-lbl">Próximo partido</div>
+            <div class="app-next">
+              <div class="app-next-teams"><span>Halcones FC</span><span class="vs">VS</span><span>Águilas United</span></div>
+              <div class="app-next-meta"><i class="fa-solid fa-calendar-days"></i> Sáb · 4:00 PM · Cancha 2</div>
+            </div>
+          </div>
+          <div class="app-navbar">
+            <div class="on"><i class="fa-solid fa-house"></i>Inicio</div>
+            <div><i class="fa-solid fa-calendar-days"></i>Fixture</div>
+            <div><i class="fa-solid fa-chart-simple"></i>Tabla</div>
+            <div><i class="fa-solid fa-futbol"></i>Goles</div>
+            <div><i class="fa-solid fa-trophy"></i>Llave</div>
+          </div>
         </div>
       </div>
-      <div class="float-chip c1"><i class="fa-solid fa-bell"></i> Recordatorios automáticos</div>
+      <div class="float-chip c1"><i class="fa-solid fa-bolt"></i> Resultados en vivo</div>
       <div class="float-chip c2"><i class="fa-solid fa-money-bill-wave"></i> Cobros al día</div>
+      </div>
     </div>
   </div>
 </header>
