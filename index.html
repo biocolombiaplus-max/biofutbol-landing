@@ -70,7 +70,7 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
 .hero .pro-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;font-weight:900;font-size:.72rem;letter-spacing:.08em;padding:6px 14px;border-radius:999px;margin-bottom:16px;box-shadow:0 8px 20px rgba(255,180,0,.35)}
 .hero h1{font-size:clamp(2.2rem,4.6vw,3.7rem);margin:12px 0 20px;letter-spacing:-.01em}
-.hero h1 .accent{color:var(--green-l);position:relative;white-space:nowrap}
+.hero h1 .accent{color:var(--green-l);position:relative}
 .hero h1 .price{color:var(--gold)}
 .hero p.lead{color:var(--gray);font-size:1.16rem;max-width:540px;margin-bottom:30px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:30px}
@@ -336,6 +336,9 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
 
 @media(max-width:960px){
   .hero-grid{grid-template-columns:1fr}
+  .hero-grid>div:first-child{text-align:center}
+  .hero p.lead{margin-left:auto;margin-right:auto}
+  .hero-actions,.hero-badges{justify-content:center}
   .hero-visual{order:-1;margin-bottom:10px}
   .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid{grid-template-columns:repeat(2,1fr)}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
