@@ -236,28 +236,63 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
 .post-actions i{color:var(--green-l)}
 /* live results panel */
-.live-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.78rem;font-weight:800;color:#ff8080;letter-spacing:.04em}
-.live-dot{width:9px;height:9px;background:#ff5c5c;border-radius:50%;animation:pulse-dot 1.4s infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
-.score-card{background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:14px;margin-bottom:10px}
-.score-teams{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:1rem;margin-bottom:6px}
-.score-sub{display:flex;justify-content:center;font-size:.72rem;font-weight:600;color:var(--gray);margin-bottom:10px}
-.score-events{display:flex;gap:14px;font-size:.74rem;color:var(--gray)}
-.score-events span{display:flex;align-items:center;gap:5px}
+.live-broadcast{position:relative;overflow:hidden;border-radius:16px;padding:16px 16px 14px;margin-bottom:0;
+  background:
+    radial-gradient(120% 100% at 50% -12%,rgba(255,92,92,.16),transparent 55%),
+    repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 26px),
+    linear-gradient(165deg,#131a15,#070a08 60%,#0c0808);
+  border:1px solid rgba(255,92,92,.28);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.4)}
+.live-broadcast::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#ff5c5c,var(--gold),#ff5c5c,transparent)}
+.live-ticker{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:#ff5c5c;color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.05em;padding:4px 10px;border-radius:6px;text-transform:uppercase}
+.live-badge .dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse-dot 1.2s infinite}
+.live-min{font-size:.64rem;font-weight:800;color:var(--gray);display:flex;align-items:center;gap:5px}
+.live-min i{color:var(--gold)}
+.live-matchup{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px}
+.live-matchup .team{display:flex;flex-direction:column;align-items:center;gap:6px;width:80px}
+.live-matchup .crest{width:40px;height:46px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.74rem}
+.live-matchup .team.a .crest{background:linear-gradient(160deg,#3f6bec,#173a9c)}
+.live-matchup .team.b .crest{background:linear-gradient(160deg,#ff7a45,#a63a12)}
+.live-matchup .team span{font-size:.58rem;font-weight:800;color:#fff;text-transform:uppercase;text-align:center;line-height:1.25}
+.live-score{display:flex;align-items:baseline;gap:6px;font-size:1.7rem;font-weight:900;color:#fff;flex:none}
+.live-score small{font-size:.6rem;color:var(--gray);font-weight:700}
+.live-events{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.live-event{display:flex;align-items:center;gap:8px;font-size:.68rem;color:var(--gray);background:rgba(255,255,255,.03);border-radius:8px;padding:6px 9px}
+.live-event b{color:#fff;font-weight:700}
+.live-event .min{color:var(--gray-d);font-weight:800;width:24px;flex:none}
+.live-event i{width:13px;text-align:center}
+.live-event .ic-goal{color:var(--green-l)}
+.live-event .ic-yellow{color:var(--gold)}
+.live-event .ic-red{color:#ff5c5c}
+.live-stats{display:flex;justify-content:center;gap:16px;font-size:.66rem;color:var(--gray);font-weight:700;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
 .card-y,.card-r{width:10px;height:14px;border-radius:2px;display:inline-block}
 .card-y{background:var(--gold)}
 .card-r{background:#ff5c5c}
 /* member portal panel */
-.portal-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.portal-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
-.portal-head strong{display:block;font-size:.92rem}
-.portal-head span{color:var(--gray);font-size:.74rem}
+.member-card{position:relative;overflow:hidden;border-radius:16px;padding:18px;margin-bottom:14px;
+  background:
+    radial-gradient(130% 110% at 105% -10%,rgba(24,168,58,.4),transparent 60%),
+    linear-gradient(160deg,#132018,#080c09);
+  border:1px solid rgba(124,245,160,.24);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.35)}
+.member-card::after{content:"";position:absolute;right:-30px;bottom:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,.05),transparent 70%)}
+.member-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;position:relative}
+.member-card-label{font-size:.54rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-l);margin-bottom:4px}
+.member-name{font-size:1rem;font-weight:900;color:#fff}
+.member-meta{font-size:.64rem;color:var(--gray);margin-top:2px}
+.member-card-status{display:inline-flex;align-items:center;gap:5px;background:rgba(24,168,58,.16);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-size:.54rem;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap;flex:none}
+.member-card-id{display:flex;align-items:center;gap:12px;position:relative}
+.member-chip{width:32px;height:24px;border-radius:5px;background:linear-gradient(160deg,#e8d98a,#b89a3f);position:relative;flex:none}
+.member-chip::before{content:"";position:absolute;inset:4px;border:1px solid rgba(0,0,0,.25);border-radius:3px}
+.member-num{font-size:.6rem;color:var(--gray-d);letter-spacing:.06em;font-family:monospace}
 .portal-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .portal-tabs span{font-size:.7rem;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--card-b);color:var(--gray)}
 .portal-tabs span.on{background:rgba(24,168,58,.16);border-color:var(--green);color:var(--green-l)}
 .portal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem}
-.portal-row .ok-text{color:var(--green-l);font-weight:800}
-.portal-pay{width:100%;margin-top:6px;justify-content:center;padding:11px;font-size:.85rem}
+.ok-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(24,168,58,.16);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px}
+.portal-pay{width:100%;margin-top:6px;justify-content:center;padding:12px;font-size:.85rem}
 
 /* ── PROCESS ── */
 .process{background:var(--bg2)}
@@ -684,11 +719,22 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="live-head"><span class="live-dot"></span> EN VIVO · Jornada 8</div>
-          <div class="score-card">
-            <div class="score-teams"><span>Halcones FC</span><span>2 - 1</span><span>Águilas United</span></div>
-            <div class="score-sub">Min. 78'</div>
-            <div class="score-events">
+          <div class="live-broadcast">
+            <div class="live-ticker">
+              <span class="live-badge"><span class="dot"></span> En vivo</span>
+              <span class="live-min"><i class="fa-solid fa-stopwatch"></i> Jornada 8 · Min. 78'</span>
+            </div>
+            <div class="live-matchup">
+              <div class="team a"><div class="crest">H</div><span>Halcones FC</span></div>
+              <div class="live-score">2<small>-</small>1</div>
+              <div class="team b"><div class="crest">A</div><span>Águilas United</span></div>
+            </div>
+            <div class="live-events">
+              <div class="live-event"><span class="min">78'</span><i class="fa-solid fa-futbol ic-goal"></i> <b>Gol</b> · J. Pérez</div>
+              <div class="live-event"><span class="min">65'</span><i class="fa-solid fa-square ic-yellow"></i> <b>Amarilla</b> · A. Ruiz</div>
+              <div class="live-event"><span class="min">52'</span><i class="fa-solid fa-square ic-red"></i> <b>Roja</b> · D. Gómez</div>
+            </div>
+            <div class="live-stats">
               <span><i class="card-y"></i> 3</span>
               <span><i class="card-r"></i> 1</span>
               <span><i class="fa-solid fa-futbol"></i> 3 goles</span>
@@ -711,16 +757,26 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="portal-head">
-            <div class="portal-avatar">J</div>
-            <div><strong>Juan Pérez</strong><span>Socio · Sub-15</span></div>
+          <div class="member-card">
+            <div class="member-card-top">
+              <div>
+                <div class="member-card-label">Carnet digital</div>
+                <div class="member-name">Juan Pérez</div>
+                <div class="member-meta">Socio · Categoría Sub-15</div>
+              </div>
+              <span class="member-card-status"><i class="fa-solid fa-circle-check"></i> Activo</span>
+            </div>
+            <div class="member-card-id">
+              <div class="member-chip"></div>
+              <div class="member-num">N.° 00438 · Halcones FC</div>
+            </div>
           </div>
           <div class="portal-tabs">
             <span>Partidos</span><span>Tablas</span><span class="on">Finanzas</span>
           </div>
-          <div class="portal-row"><span>Mensualidad</span><span class="ok-text">Al día</span></div>
+          <div class="portal-row"><span>Mensualidad</span><span class="ok-pill"><i class="fa-solid fa-check"></i> Al día</span></div>
           <div class="portal-row"><span>Próximo pago</span><span>15 días</span></div>
-          <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20ver%20el%20portal%20del%20socio%20de%20BioFutbol" class="btn-ghost portal-pay" target="_blank" rel="noopener"><i class="fa-solid fa-credit-card"></i> Pagar ahora</a>
+          <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20ver%20el%20portal%20del%20socio%20de%20BioFutbol" class="btn-primary portal-pay" target="_blank" rel="noopener"><i class="fa-solid fa-credit-card"></i> Pagar ahora</a>
         </div>
       </div>
     </div>
