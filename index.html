@@ -93,6 +93,10 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .hero-badge{display:flex;align-items:center;gap:9px;color:var(--gray);font-size:.9rem;font-weight:600}
 .hero-badge i{color:var(--green-l)}
 
+.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:52px;color:var(--gray-d);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.scroll-cue i{color:var(--green-l);font-size:1rem;animation:bounce 1.8s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+
 .hero-visual{position:relative;display:flex;justify-content:center;padding:0 44px}
 .device-wrap{position:relative;display:inline-block}
 .device{width:min(280px,72vw);aspect-ratio:9/19.4;background:linear-gradient(160deg,#1c1c1c,#000);border-radius:48px;padding:9px;box-shadow:var(--shadow);position:relative;animation:float 5s ease-in-out infinite}
@@ -402,7 +406,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .hero-grid>div:first-child{text-align:center}
   .hero p.lead{margin-left:auto;margin-right:auto}
   .hero-actions,.hero-badges{justify-content:center}
-  .hero-visual{order:-1;margin-bottom:10px}
+  .hero-visual{margin-top:36px}
   .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid{grid-template-columns:repeat(2,1fr)}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .spotlight-row,.spotlight-row.rev{grid-template-columns:1fr}
@@ -541,6 +545,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       </div>
     </div>
   </div>
+  <div class="scroll-cue"><span>Descubre más</span><i class="fa-solid fa-chevron-down"></i></div>
 </header>
 
 <!-- ── STAT STRIP ── -->
