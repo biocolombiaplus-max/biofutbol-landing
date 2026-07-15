@@ -200,10 +200,38 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .match-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem;position:relative}
 .match-row .eq{display:flex;align-items:center;gap:5px;color:var(--green-l);font-weight:800;font-size:.68rem}
 /* social image generator panel */
-.post-preview{background:linear-gradient(160deg,var(--green-d),var(--green-l));border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
-.post-preview .tag{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.35);color:#fff;font-size:.64rem;font-weight:800;padding:4px 10px;border-radius:999px}
-.post-preview h5{color:#fff;font-size:1.05rem;font-weight:900;margin-bottom:10px}
-.post-preview .match-mini{background:rgba(255,255,255,.16);border-radius:8px;padding:8px 10px;font-size:.76rem;color:#fff;margin-bottom:6px;display:flex;justify-content:space-between}
+.matchday{position:relative;overflow:hidden;text-align:center;margin-bottom:14px;padding:20px 16px 16px;border-radius:18px;border:1px solid rgba(124,245,160,.22);
+  background:
+    radial-gradient(130% 80% at 12% -6%,rgba(24,168,58,.35),transparent 55%),
+    radial-gradient(120% 80% at 90% 108%,rgba(20,40,70,.9),transparent 55%),
+    repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 26px),
+    linear-gradient(165deg,#0d1f14,#070a08 55%,#08111c);
+  box-shadow:inset 0 0 46px rgba(0,0,0,.45)}
+.matchday::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--green-l),var(--gold),transparent)}
+.matchday .tag{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.6rem;font-weight:800;padding:4px 10px;border-radius:999px;z-index:2}
+.md-crest{width:50px;height:58px;margin:0 auto 8px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);background:linear-gradient(160deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 6px 16px rgba(24,168,58,.45)}
+.md-club{color:#fff;font-weight:900;font-size:.92rem;letter-spacing:.03em;text-transform:uppercase}
+.md-league{color:var(--gold);font-size:.56rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:3px 0 12px}
+.md-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:.56rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:12px}
+.md-pill i{color:var(--green-l)}
+.md-date{margin-bottom:10px}
+.md-date .dow{display:inline-block;background:rgba(255,201,51,.14);color:var(--gold);font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;border-radius:999px;margin-bottom:5px}
+.md-date .dd{font-size:2.5rem;font-weight:900;color:#fff;line-height:1}
+.md-date .mo{font-size:.58rem;font-weight:700;color:var(--gray);letter-spacing:.14em;text-transform:uppercase}
+.md-meta{display:flex;justify-content:center;gap:16px;font-size:.6rem;color:var(--gray);font-weight:700;margin-bottom:8px}
+.md-meta i{color:var(--green-l);margin-right:3px}
+.md-round{color:var(--gold);font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.md-vs{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px}
+.md-team{display:flex;flex-direction:column;align-items:center;gap:6px;width:82px}
+.md-team .crest{width:44px;height:50px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.78rem}
+.md-team.a .crest{background:linear-gradient(160deg,#3f6bec,#173a9c)}
+.md-team.b .crest{background:linear-gradient(160deg,#ff7a45,#a63a12)}
+.md-team span{font-size:.56rem;font-weight:800;color:#fff;text-transform:uppercase;line-height:1.25}
+.md-versus{width:28px;height:28px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.56rem;font-weight:900;color:var(--gold);flex:none}
+.md-footer{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.md-footer .season{font-size:.52rem;color:var(--gray-d);letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+.md-hype{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,140,60,.4);color:#ffb27a;font-size:.58rem;font-weight:800;padding:4px 12px;border-radius:999px}
+.md-watermark{margin-top:11px;font-size:.5rem;color:var(--gray-d);letter-spacing:.03em}
 .post-actions{display:flex;gap:10px}
 .post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
 .post-actions i{color:var(--green-l)}
@@ -611,12 +639,29 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="post-preview">
-            <span class="tag">1 CLIC</span>
-            <h5>⚽ JORNADA 8</h5>
-            <div class="match-mini"><span>Halcones FC</span><span>vs Águilas United</span></div>
-            <div class="match-mini"><span>Tigres del Sur</span><span>vs Leones Norte</span></div>
-            <div class="match-mini"><span>Cóndores FC</span><span>vs Panteras Rojas</span></div>
+          <div class="matchday">
+            <span class="tag"><i class="fa-solid fa-bolt"></i> 1 CLIC</span>
+            <div class="md-crest"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="md-club">Halcones FC</div>
+            <div class="md-league">Liga interna · S2 2026</div>
+            <div class="md-pill"><i class="fa-solid fa-futbol"></i> Próximo encuentro</div>
+            <div class="md-date">
+              <span class="dow">Lunes</span>
+              <div class="dd">13</div>
+              <div class="mo">Julio</div>
+            </div>
+            <div class="md-meta"><span><i class="fa-solid fa-clock"></i>16:00</span><span><i class="fa-solid fa-location-dot"></i>Cancha 2</span></div>
+            <div class="md-round">Vuelta 1</div>
+            <div class="md-vs">
+              <div class="md-team a"><div class="crest">H</div><span>Halcones FC</span></div>
+              <div class="md-versus">VS</div>
+              <div class="md-team b"><div class="crest">A</div><span>Águilas United</span></div>
+            </div>
+            <div class="md-footer">
+              <div class="season">Liga interna · Temporada S2 2026</div>
+              <span class="md-hype">¡No te lo pierdas! 🔥</span>
+              <div class="md-watermark">biofutbol.app · @halconesfc</div>
+            </div>
           </div>
           <div class="post-actions">
             <span><i class="fa-solid fa-download"></i> Descargar</span>
