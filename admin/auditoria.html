@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoría | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver al panel</a>
+  <div class="section-head" style="margin-top:0">
+    <h2 id="pageTitle"><i class="fa-solid fa-clock-rotate-left"></i> Auditoría — Actividad registrada</h2>
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar por acción, club o admin...">
+    </div>
+  </div>
+  <p id="filtroNota" style="display:none;color:var(--gray);font-size:.86rem;margin-bottom:14px"></p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha y hora</th>
+          <th>Administrador</th>
+          <th>Acción</th>
+          <th>Club</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="5" class="empty">Cargando historial...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/audit.js"></script>
+<script>
+let TODOS = [];
+const clienteFiltro = new URLSearchParams(location.search).get("cliente");
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  escuchar();
+});
+
+function escuchar() {
+  let ref = db.collection("auditoria").orderBy("fecha", "desc").limit(300);
+  ref.onSnapshot(function (snap) {
+    TODOS = [];
+    snap.forEach(function (doc) { TODOS.push(doc.data()); });
+    if (clienteFiltro) {
+      TODOS = TODOS.filter(function (a) { return a.clienteId === clienteFiltro; });
+      const nombre = TODOS.length ? TODOS[0].clienteNombre : "este cliente";
+      const nota = document.getElementById("filtroNota");
+      nota.style.display = "block";
+      nota.innerHTML = 'Mostrando solo actividad de <strong style="color:var(--white)">' + esc(nombre) + '</strong> — <a href="auditoria.html" style="color:var(--green-l)">ver todo</a>';
+    }
+    pintar(TODOS);
+  }, function (err) {
+    document.getElementById("tbody").innerHTML = '<tr><td colspan="5" class="empty">Error: ' + err.message + '</td></tr>';
+  });
+}
+
+function pintar(lista) {
+  const tbody = document.getElementById("tbody");
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Todavía no hay actividad registrada.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(function (a) {
+    return "<tr>" +
+      "<td>" + formatFechaHora(a.fecha) + "</td>" +
+      "<td>" + esc(nombreAdmin(a.adminEmail)) + "</td>" +
+      "<td><span class=\"pill ok\">" + esc(a.accion || "—") + "</span></td>" +
+      "<td>" + esc(a.clienteNombre || "—") + "</td>" +
+      "<td>" + esc(a.detalle || "—") + "</td>" +
+      "</tr>";
+  }).join("");
+}
+
+function formatFechaHora(ts) {
+  if (!ts) return "—";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) +
+    " · " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input", function (e) {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { pintar(TODOS); return; }
+  pintar(TODOS.filter(function (a) {
+    return (a.accion || "").toLowerCase().includes(q) ||
+      (a.clienteNombre || "").toLowerCase().includes(q) ||
+      (a.adminEmail || "").toLowerCase().includes(q);
+  }));
+});
+</script>
+</body>
+</html>

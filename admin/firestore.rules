@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Clientes: cualquiera puede CREAR (formulario público de registro),
+    // pero solo un admin autenticado puede leer, editar o borrar.
+    match /clientes/{clienteId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Auditoría: solo admins autenticados pueden leer o escribir.
+    match /auditoria/{entryId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}

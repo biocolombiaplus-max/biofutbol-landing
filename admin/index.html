@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel administrativo | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <a href="auditoria.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-clock-rotate-left"></i> Auditoría</a>
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="n" id="statTotal">—</div><div class="l">Clubes registrados</div></div>
+    <div class="stat ok"><div class="n" id="statActivos">—</div><div class="l">Activos y al día</div></div>
+    <div class="stat warn"><div class="n" id="statPorVencer">—</div><div class="l">Pagos por vencer (5d)</div></div>
+    <div class="stat bad"><div class="n" id="statVencidos">—</div><div class="l">Pagos vencidos</div></div>
+  </div>
+
+  <div class="section-head">
+    <h2>Clientes</h2>
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar por club o representante...">
+      <button class="btn btn-ghost btn-sm" id="copyLinkBtn"><i class="fa-solid fa-link"></i> Copiar link de registro</button>
+      <a href="cliente.html?new=1" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Nuevo cliente</a>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Club</th>
+          <th>Representante</th>
+          <th>Plan</th>
+          <th>Socios</th>
+          <th>Estado</th>
+          <th>Próximo pago</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="6" class="empty">Cargando clientes...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/audit.js"></script>
+<script>
+let TODOS = [];
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  escucharClientes();
+});
+
+function escucharClientes() {
+  db.collection("clientes").orderBy("fechaRegistro", "desc").onSnapshot(function (snap) {
+    TODOS = [];
+    snap.forEach(function (doc) { TODOS.push(Object.assign({ id: doc.id }, doc.data())); });
+    pintarStats();
+    pintarTabla(TODOS);
+  }, function (err) {
+    document.getElementById("tbody").innerHTML =
+      '<tr><td colspan="6" class="empty">Error cargando datos: ' + err.message + '</td></tr>';
+  });
+}
+
+function pintarStats() {
+  let activos = 0, porVencer = 0, vencidos = 0;
+  TODOS.forEach(function (c) {
+    if (c.estado === "pendiente" || c.estado === "inactivo") return;
+    const dias = diasHasta(c.proximoPago);
+    if (dias === null) return;
+    if (dias < 0) vencidos++;
+    else if (dias <= 5) porVencer++;
+    else activos++;
+  });
+  document.getElementById("statTotal").textContent = TODOS.length;
+  document.getElementById("statActivos").textContent = activos;
+  document.getElementById("statPorVencer").textContent = porVencer;
+  document.getElementById("statVencidos").textContent = vencidos;
+}
+
+function pintarTabla(lista) {
+  const tbody = document.getElementById("tbody");
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Todavía no hay clientes registrados. Usá "Nuevo cliente" o compartí el link de registro.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(function (c) {
+    const ep = estadoPago(c);
+    const plan = PLANES[c.plan] ? PLANES[c.plan].label : (c.plan || "—");
+    return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
+      '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong></td>' +
+      '<td>' + esc(c.repNombre || "—") + '</td>' +
+      '<td>' + esc(plan) + '</td>' +
+      '<td>' + (c.numSocios || "—") + '</td>' +
+      '<td><span class="pill ' + ep.clase + '">' + ep.texto + '</span></td>' +
+      '<td>' + formatFecha(c.proximoPago) + '</td>' +
+      '</tr>';
+  }).join("");
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input", function (e) {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { pintarTabla(TODOS); return; }
+  pintarTabla(TODOS.filter(function (c) {
+    return (c.clubNombre || "").toLowerCase().includes(q) || (c.repNombre || "").toLowerCase().includes(q);
+  }));
+});
+
+document.getElementById("copyLinkBtn").addEventListener("click", function () {
+  const url = location.origin + location.pathname.replace(/index\.html$/, "") + "registro.html";
+  navigator.clipboard.writeText(url).then(function () {
+    const btn = document.getElementById("copyLinkBtn");
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+    setTimeout(function () { btn.innerHTML = original; }, 1800);
+  });
+});
+</script>
+</body>
+</html>

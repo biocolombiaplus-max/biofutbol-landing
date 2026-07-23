@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliente | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver al panel</a>
+  <div class="section-head" style="margin-top:0">
+    <h2 id="pageTitle">Nuevo cliente</h2>
+  </div>
+
+  <div class="success-box" id="successBox"></div>
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="detail-grid">
+    <div>
+      <div class="card">
+        <h3><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
+        <div class="field"><label>Nombre del club o escuela</label><input type="text" id="clubNombre" placeholder="Ej: Halcones FC"></div>
+        <div class="field-row">
+          <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
+          <div class="field"><label>Ciudad</label><input type="text" id="clubCiudad"></div>
+        </div>
+        <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-id-card"></i> Representante legal</h3>
+        <div class="field-row">
+          <div class="field"><label>Nombre completo</label><input type="text" id="repNombre"></div>
+          <div class="field"><label>Cédula</label><input type="text" id="repCedula"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Correo</label><input type="email" id="repEmail"></div>
+          <div class="field"><label>WhatsApp (con indicativo)</label><input type="text" id="repTelefono" placeholder="573001234567"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-tags"></i> Plan y socios</h3>
+        <div class="plan-grid" id="planGrid"></div>
+        <div class="field"><label>Número de socios/deportistas</label><input type="number" id="numSocios" min="1"></div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-key"></i> Acceso a la app del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Credenciales que se le entregan al club para acceder a su app una vez esté lista.</p>
+        <div class="field-row">
+          <div class="field"><label>Usuario</label><input type="text" id="usuarioApp"></div>
+          <div class="field"><label>Clave temporal</label><input type="text" id="claveApp"></div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarCred"><i class="fa-solid fa-shuffle"></i> Generar automáticamente</button>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-circle-info"></i> Estado y notas</h3>
+        <div class="field">
+          <label>Estado</label>
+          <select id="estado">
+            <option value="pendiente">Pendiente de revisión</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="field"><label>Notas internas</label><textarea id="notas" rows="3"></textarea></div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="btnGuardar"><i class="fa-solid fa-floppy-disk"></i> Guardar cliente</button>
+    </div>
+
+    <div id="sidebar" style="display:none">
+      <div class="card">
+        <h3><i class="fa-solid fa-calendar-check"></i> Pagos</h3>
+        <div class="status-row"><span class="k">Estado actual</span><span id="pagoEstadoPill">—</span></div>
+        <div class="field" style="margin-top:14px"><label>Próximo pago</label><input type="date" id="proximoPago"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnRegistrarPago"><i class="fa-solid fa-check-double"></i> Registrar pago recibido (+30 días)</button>
+        <div id="historialPagos" style="margin-top:14px;font-size:.78rem;color:var(--gray)"></div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-file-signature"></i> Contrato</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Genera el contrato con los datos de arriba, luego envíaselo al cliente.</p>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnGenerarPdf" style="margin-bottom:10px"><i class="fa-solid fa-file-pdf"></i> Generar contrato PDF</button>
+        <div id="contratoLinkBox" style="display:none;margin-bottom:10px">
+          <a id="contratoLink" target="_blank" class="pill ok" style="display:block;text-align:center;padding:9px;text-decoration:none"><i class="fa-solid fa-download"></i> Ver / descargar contrato</a>
+        </div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnWhatsapp" style="margin-bottom:10px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEmail" disabled><i class="fa-solid fa-envelope"></i> Enviar por correo</button>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Auditoría</h3>
+        <a id="auditLink" href="#" class="btn btn-ghost btn-block btn-sm"><i class="fa-solid fa-list"></i> Ver historial de este cliente</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/audit.js"></script>
+<script src="js/contract.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const clienteId = params.get("id");
+const esNuevo = params.get("new") === "1" || !clienteId;
+let clienteActual = null;
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  pintarPlanGrid();
+  if (!esNuevo) cargarCliente();
+  else document.getElementById("estado").value = "pendiente";
+});
+
+function pintarPlanGrid() {
+  const grid = document.getElementById("planGrid");
+  grid.innerHTML = Object.keys(PLANES).map(function (key) {
+    const p = PLANES[key];
+    return '<label class="plan-opt" data-plan="' + key + '">' +
+      '<input type="radio" name="plan" value="' + key + '">' +
+      '<div class="pn">' + p.label + '</div>' +
+      '<div class="pv">' + formatCOP(p.mensual) + '/socio/mes</div>' +
+      '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>' +
+      '</label>';
+  }).join("");
+  grid.querySelectorAll(".plan-opt").forEach(function (opt) {
+    opt.addEventListener("click", function () {
+      grid.querySelectorAll(".plan-opt").forEach(function (o) { o.classList.remove("on"); });
+      opt.classList.add("on");
+      opt.querySelector("input").checked = true;
+    });
+  });
+}
+
+function marcarPlanSeleccionado(planKey) {
+  const grid = document.getElementById("planGrid");
+  grid.querySelectorAll(".plan-opt").forEach(function (o) { o.classList.remove("on"); });
+  const el = grid.querySelector('[data-plan="' + planKey + '"]');
+  if (el) { el.classList.add("on"); el.querySelector("input").checked = true; }
+}
+
+function cargarCliente() {
+  document.getElementById("pageTitle").textContent = "Cargando...";
+  db.collection("clientes").doc(clienteId).get().then(function (doc) {
+    if (!doc.exists) { document.getElementById("pageTitle").textContent = "Cliente no encontrado"; return; }
+    clienteActual = Object.assign({ id: doc.id }, doc.data());
+    document.getElementById("pageTitle").textContent = clienteActual.clubNombre || "Cliente";
+    document.getElementById("clubNombre").value = clienteActual.clubNombre || "";
+    document.getElementById("clubNit").value = clienteActual.clubNit || "";
+    document.getElementById("clubCiudad").value = clienteActual.clubCiudad || "";
+    document.getElementById("clubDireccion").value = clienteActual.clubDireccion || "";
+    document.getElementById("repNombre").value = clienteActual.repNombre || "";
+    document.getElementById("repCedula").value = clienteActual.repCedula || "";
+    document.getElementById("repEmail").value = clienteActual.repEmail || "";
+    document.getElementById("repTelefono").value = clienteActual.repTelefono || "";
+    document.getElementById("numSocios").value = clienteActual.numSocios || "";
+    document.getElementById("usuarioApp").value = clienteActual.usuarioApp || "";
+    document.getElementById("claveApp").value = clienteActual.claveApp || "";
+    document.getElementById("estado").value = clienteActual.estado || "pendiente";
+    document.getElementById("notas").value = clienteActual.notas || "";
+    if (clienteActual.plan) marcarPlanSeleccionado(clienteActual.plan);
+
+    document.getElementById("sidebar").style.display = "block";
+    document.getElementById("auditLink").href = "auditoria.html?cliente=" + clienteActual.id;
+    if (clienteActual.proximoPago) {
+      const d = clienteActual.proximoPago.toDate();
+      document.getElementById("proximoPago").value = d.toISOString().slice(0, 10);
+    }
+    const ep = estadoPago(clienteActual);
+    document.getElementById("pagoEstadoPill").innerHTML = '<span class="pill ' + ep.clase + '">' + ep.texto + '</span>';
+    pintarHistorialPagos();
+
+    if (clienteActual.contratoUrl) {
+      document.getElementById("contratoLinkBox").style.display = "block";
+      document.getElementById("contratoLink").href = clienteActual.contratoUrl;
+      document.getElementById("btnWhatsapp").disabled = false;
+      document.getElementById("btnEmail").disabled = false;
+    }
+  });
+}
+
+function pintarHistorialPagos() {
+  const box = document.getElementById("historialPagos");
+  const pagos = clienteActual.pagos || [];
+  if (!pagos.length) { box.textContent = "Sin pagos registrados todavía."; return; }
+  box.innerHTML = "<strong style='color:var(--white)'>Historial:</strong><br>" +
+    pagos.slice().reverse().slice(0, 6).map(function (p) {
+      return formatFecha(p.fecha) + " — " + formatCOP(p.valor || 0);
+    }).join("<br>");
+}
+
+function leerFormulario() {
+  const planEl = document.querySelector('input[name="plan"]:checked');
+  return {
+    clubNombre: document.getElementById("clubNombre").value.trim(),
+    clubNit: document.getElementById("clubNit").value.trim(),
+    clubCiudad: document.getElementById("clubCiudad").value.trim(),
+    clubDireccion: document.getElementById("clubDireccion").value.trim(),
+    repNombre: document.getElementById("repNombre").value.trim(),
+    repCedula: document.getElementById("repCedula").value.trim(),
+    repEmail: document.getElementById("repEmail").value.trim(),
+    repTelefono: document.getElementById("repTelefono").value.trim(),
+    plan: planEl ? planEl.value : null,
+    numSocios: Number(document.getElementById("numSocios").value) || 0,
+    usuarioApp: document.getElementById("usuarioApp").value.trim(),
+    claveApp: document.getElementById("claveApp").value.trim(),
+    estado: document.getElementById("estado").value,
+    notas: document.getElementById("notas").value.trim()
+  };
+}
+
+function mostrarError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function mostrarExito(msg) {
+  const box = document.getElementById("successBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(function () { box.style.display = "none"; }, 3500);
+}
+
+document.getElementById("btnGenerarCred").addEventListener("click", function () {
+  const nombre = document.getElementById("clubNombre").value || "club";
+  document.getElementById("usuarioApp").value = generarUsuarioApp(nombre);
+  document.getElementById("claveApp").value = generarClaveApp();
+});
+
+document.getElementById("btnGuardar").addEventListener("click", function () {
+  const data = leerFormulario();
+  if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
+  if (!data.plan) { mostrarError("Selecciona un plan."); return; }
+  if (!data.usuarioApp) data.usuarioApp = generarUsuarioApp(data.clubNombre);
+  if (!data.claveApp) data.claveApp = generarClaveApp();
+
+  const btn = document.getElementById("btnGuardar");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+  if (esNuevo) {
+    data.fechaRegistro = firebase.firestore.FieldValue.serverTimestamp();
+    data.pagos = [];
+    db.collection("clientes").add(data).then(function (ref) {
+      registrarAuditoria("Cliente creado", ref.id, data.clubNombre, "Creado desde el panel administrativo");
+      window.location.href = "cliente.html?id=" + ref.id;
+    }).catch(function (err) {
+      mostrarError("No se pudo guardar: " + err.message);
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cliente';
+    });
+  } else {
+    db.collection("clientes").doc(clienteId).update(data).then(function () {
+      registrarAuditoria("Datos editados", clienteId, data.clubNombre);
+      mostrarExito("Cambios guardados.");
+      clienteActual = Object.assign(clienteActual, data);
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cliente';
+    }).catch(function (err) {
+      mostrarError("No se pudo guardar: " + err.message);
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cliente';
+    });
+  }
+});
+
+document.getElementById("btnRegistrarPago").addEventListener("click", function () {
+  if (!clienteActual) return;
+  const plan = PLANES[clienteActual.plan];
+  const valor = plan ? plan.mensual * (clienteActual.numSocios || 0) : 0;
+  const hoy = new Date();
+  const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+
+  const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(hoy), valor: valor };
+  db.collection("clientes").doc(clienteId).update({
+    proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
+    estado: "activo",
+    pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+  }).then(function () {
+    registrarAuditoria("Pago registrado", clienteId, clienteActual.clubNombre, formatCOP(valor));
+    mostrarExito("Pago registrado. Próximo vencimiento actualizado.");
+    cargarCliente();
+  });
+});
+
+document.getElementById("btnGenerarPdf").addEventListener("click", function () {
+  if (!clienteActual) { mostrarError("Guarda el cliente antes de generar el contrato."); return; }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+
+  generarContratoPDF(clienteActual).then(function (blob) {
+    const path = "contratos/" + clienteId + ".pdf";
+    const ref = storage.ref().child(path);
+    return ref.put(blob).then(function () { return ref.getDownloadURL(); });
+  }).then(function (url) {
+    return db.collection("clientes").doc(clienteId).update({
+      contratoUrl: url,
+      contratoFecha: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function () { return url; });
+  }).then(function (url) {
+    clienteActual.contratoUrl = url;
+    document.getElementById("contratoLinkBox").style.display = "block";
+    document.getElementById("contratoLink").href = url;
+    document.getElementById("btnWhatsapp").disabled = false;
+    document.getElementById("btnEmail").disabled = false;
+    registrarAuditoria("Contrato generado", clienteId, clienteActual.clubNombre);
+    mostrarExito("Contrato generado correctamente.");
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar contrato PDF';
+  }).catch(function (err) {
+    mostrarError("No se pudo generar/subir el contrato: " + err.message);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar contrato PDF';
+  });
+});
+
+document.getElementById("btnWhatsapp").addEventListener("click", function () {
+  if (!clienteActual || !clienteActual.contratoUrl) return;
+  const tel = (clienteActual.repTelefono || "").replace(/\D/g, "");
+  const msg = "Hola " + (clienteActual.repNombre || "") + ", te compartimos el contrato de BioFutbol para " +
+    (clienteActual.clubNombre || "tu club") + ". Puedes verlo y descargarlo aquí: " + clienteActual.contratoUrl +
+    "\n\nCualquier duda, quedamos atentos.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(msg), "_blank");
+  registrarAuditoria("Contrato enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
+});
+
+document.getElementById("btnEmail").addEventListener("click", function () {
+  if (!clienteActual || !clienteActual.contratoUrl) return;
+  if (!clienteActual.repEmail) { mostrarError("Este cliente no tiene correo registrado."); return; }
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") {
+    mostrarError("Falta configurar EmailJS en js/firebase-config.js para enviar correos.");
+    return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: clienteActual.repEmail,
+    to_name: clienteActual.repNombre || "",
+    club_nombre: clienteActual.clubNombre || "",
+    contrato_url: clienteActual.contratoUrl
+  }).then(function () {
+    registrarAuditoria("Contrato enviado por correo", clienteId, clienteActual.clubNombre, clienteActual.repEmail);
+    mostrarExito("Correo enviado a " + clienteActual.repEmail);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + err.text || err.message);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
+  });
+});
+</script>
+</body>
+</html>

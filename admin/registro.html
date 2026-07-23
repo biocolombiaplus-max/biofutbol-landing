@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de club | BioFutbol</title>
+<meta name="description" content="Registra los datos de tu club o escuela de fútbol para activar tu app de BioFutbol.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-card wide" id="formCard">
+    <div class="auth-logo">
+      <svg width="40" height="49" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div class="name">Bio<b>Futbol</b></div>
+      <p>Registra tu club para activar tu app personalizada</p>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <form id="regForm">
+      <h3 style="font-size:.9rem;margin-bottom:14px;color:var(--gray)"><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
+      <div class="field"><label>Nombre del club o escuela *</label><input type="text" id="clubNombre" required></div>
+      <div class="field-row">
+        <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
+        <div class="field"><label>Ciudad *</label><input type="text" id="clubCiudad" required></div>
+      </div>
+      <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Representante legal</h3>
+      <div class="field-row">
+        <div class="field"><label>Nombre completo *</label><input type="text" id="repNombre" required></div>
+        <div class="field"><label>Cédula *</label><input type="text" id="repCedula" required></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Correo *</label><input type="email" id="repEmail" required></div>
+        <div class="field"><label>WhatsApp (con indicativo) *</label><input type="text" id="repTelefono" placeholder="573001234567" required></div>
+      </div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-tags"></i> Plan contratado</h3>
+      <div class="plan-grid" id="planGrid"></div>
+      <div class="field"><label>Número de socios/deportistas *</label><input type="number" id="numSocios" min="1" required></div>
+
+      <div class="field"><label>¿Algo más que debamos saber? (opcional)</label><textarea id="notas" rows="2"></textarea></div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+        <i class="fa-solid fa-paper-plane"></i> Enviar registro
+      </button>
+    </form>
+
+    <p class="center-note">¿Tienes dudas? <a href="https://wa.me/573505457420" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></p>
+  </div>
+
+  <div class="auth-card" id="successCard" style="display:none;text-align:center">
+    <div style="font-size:2.6rem;color:var(--green-l);margin-bottom:14px"><i class="fa-solid fa-circle-check"></i></div>
+    <h2 style="font-size:1.15rem;margin-bottom:10px">¡Registro recibido!</h2>
+    <p style="color:var(--gray);font-size:.9rem;margin-bottom:20px">Ya tenemos los datos de tu club. Nuestro equipo se pondrá en contacto muy pronto para coordinar la entrega de tu app.</p>
+    <a href="https://wa.me/573505457420" target="_blank" rel="noopener" class="btn btn-primary btn-block"><i class="fa-brands fa-whatsapp"></i> Escribirnos por WhatsApp</a>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script>
+const grid = document.getElementById("planGrid");
+grid.innerHTML = Object.keys(PLANES).map(function (key) {
+  const p = PLANES[key];
+  return '<label class="plan-opt" data-plan="' + key + '">' +
+    '<input type="radio" name="plan" value="' + key + '" required>' +
+    '<div class="pn">' + p.label + '</div>' +
+    '<div class="pv">' + formatCOP(p.mensual) + '/socio/mes</div>' +
+    '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>' +
+    '</label>';
+}).join("");
+grid.querySelectorAll(".plan-opt").forEach(function (opt) {
+  opt.addEventListener("click", function () {
+    grid.querySelectorAll(".plan-opt").forEach(function (o) { o.classList.remove("on"); });
+    opt.classList.add("on");
+    opt.querySelector("input").checked = true;
+  });
+});
+
+document.getElementById("regForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const errorBox = document.getElementById("errorBox");
+  errorBox.style.display = "none";
+
+  const planEl = document.querySelector('input[name="plan"]:checked');
+  if (!planEl) { errorBox.textContent = "Selecciona un plan."; errorBox.style.display = "block"; return; }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+  const data = {
+    clubNombre: document.getElementById("clubNombre").value.trim(),
+    clubNit: document.getElementById("clubNit").value.trim(),
+    clubCiudad: document.getElementById("clubCiudad").value.trim(),
+    clubDireccion: document.getElementById("clubDireccion").value.trim(),
+    repNombre: document.getElementById("repNombre").value.trim(),
+    repCedula: document.getElementById("repCedula").value.trim(),
+    repEmail: document.getElementById("repEmail").value.trim(),
+    repTelefono: document.getElementById("repTelefono").value.trim(),
+    plan: planEl.value,
+    numSocios: Number(document.getElementById("numSocios").value) || 0,
+    notas: document.getElementById("notas").value.trim(),
+    estado: "pendiente",
+    pagos: [],
+    fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  db.collection("clientes").add(data).then(function () {
+    document.getElementById("formCard").style.display = "none";
+    document.getElementById("successCard").style.display = "block";
+  }).catch(function (err) {
+    errorBox.textContent = "No se pudo enviar el registro: " + err.message;
+    errorBox.style.display = "block";
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar registro';
+  });
+});
+</script>
+</body>
+</html>
