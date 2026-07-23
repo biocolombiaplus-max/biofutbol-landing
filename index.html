@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BioFutbol PRO | App personalizada para clubes y escuelas de fútbol</title>
-<meta name="description" content="Gestiona y administra tu club o escuela de fútbol desde $2.500 por socio. App 100% personalizada, lista en 7 días. Cobros, socios y comunicación en un solo lugar.">
-<meta name="keywords" content="app clubes de futbol, gestion de socios futbol, software escuela de futbol Colombia, cobros mensualidad club futbol, BioFutbol, app deportiva personalizada">
-<meta property="og:title" content="BioFutbol PRO | Gestiona tu club de fútbol desde $2.500 por socio">
-<meta property="og:description" content="App 100% personalizada para tu club o escuela de fútbol. Socios, cobros y comunicación en un solo lugar. Lista en 7 días.">
+<title>BioFutbol PRO | App con IA para clubes y escuelas de fútbol</title>
+<meta name="description" content="Gestiona tu club o escuela de fútbol con Inteligencia Artificial desde 2 mil pesitos por socio. App 100% personalizada, lista en 7 días. Fixture con IA, cobros, socios y reportes mensuales.">
+<meta name="keywords" content="app clubes de futbol, gestion de socios futbol, software escuela de futbol Colombia, cobros mensualidad club futbol, BioFutbol, app deportiva personalizada, fixture con inteligencia artificial">
+<meta property="og:title" content="BioFutbol PRO | Gestiona tu club de fútbol con IA desde 2 mil pesitos por socio">
+<meta property="og:description" content="App 100% personalizada para tu club o escuela de fútbol. Fixture con IA, cobros, socios y reportes mensuales en un solo lugar. Lista en 7 días.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,6 +69,8 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 }
 .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
 .hero .pro-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;font-weight:900;font-size:.72rem;letter-spacing:.08em;padding:6px 14px;border-radius:999px;margin-bottom:16px;box-shadow:0 8px 20px rgba(255,180,0,.35)}
+.urgency-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff3b1f,#ff8a00);color:#fff;font-weight:900;font-size:.72rem;letter-spacing:.03em;padding:7px 16px;border-radius:999px;margin-bottom:14px;box-shadow:0 8px 22px rgba(255,59,31,.45);animation:pulse-urgency 2s infinite}
+@keyframes pulse-urgency{0%,100%{box-shadow:0 8px 22px rgba(255,59,31,.45)}50%{box-shadow:0 10px 30px rgba(255,59,31,.8)}}
 .hero h1{font-size:clamp(2.2rem,4.6vw,3.7rem);margin:12px 0 20px;letter-spacing:-.01em}
 .hero h1 .accent{color:var(--green-l);position:relative}
 .hero h1 .price{color:var(--gold)}
@@ -297,6 +299,25 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .portal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem}
 .ok-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(24,168,58,.16);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px}
 .portal-pay{width:100%;margin-top:6px;justify-content:center;padding:12px;font-size:.85rem}
+/* monthly AI report panel */
+.report-panel{position:relative;overflow:hidden;border-radius:16px;padding:18px;
+  background:
+    radial-gradient(120% 100% at 100% 0%,rgba(124,77,255,.28),transparent 60%),
+    linear-gradient(160deg,#161327,#080c09);
+  border:1px solid rgba(124,77,255,.3);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.35)}
+.report-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.report-head .rt{font-size:.9rem;font-weight:800;color:#fff}
+.report-head .rt small{display:block;font-size:.62rem;color:var(--gray);font-weight:600;margin-top:1px}
+.report-insight{display:flex;align-items:flex-start;gap:9px;background:rgba(46,204,85,.1);border:1px solid rgba(46,204,85,.35);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.76rem;color:#eafff0}
+.report-insight i{color:var(--green-l);margin-top:2px}
+.report-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.report-stats div{background:var(--card);border:1px solid var(--card-b2);border-radius:10px;padding:9px 6px;text-align:center}
+.report-stats b{display:block;font-size:1rem;font-weight:900;color:#fff}
+.report-stats span{font-size:.58rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.report-ai{display:flex;align-items:flex-start;gap:9px;background:rgba(124,77,255,.12);border:1px solid rgba(124,77,255,.4);border-radius:10px;padding:10px 12px;font-size:.76rem;color:#e4dbff}
+.report-ai i{color:#b39dff;margin-top:2px}
+.report-ai b{color:#fff}
 
 /* ── PROCESS ── */
 .process{background:var(--bg2)}
@@ -328,6 +349,11 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .delivery strong{font-size:1.2rem;color:#fff}
 .delivery span{opacity:.94;font-size:.96rem}
 
+.urgency-strip{display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;flex-wrap:wrap;background:linear-gradient(135deg,#ff3b1f,#ff8a00);border-radius:20px;padding:22px 26px;box-shadow:0 12px 34px rgba(255,59,31,.4);margin-bottom:44px;position:relative;overflow:hidden;animation:pulse-urgency 2.4s infinite}
+.urgency-strip i{font-size:1.5rem;color:#fff}
+.urgency-strip strong{font-size:1.08rem;color:#fff;display:block}
+.urgency-strip span{opacity:.95;font-size:.88rem;color:#fff}
+
 /* ── PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 .plan{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:30px 24px;display:flex;flex-direction:column;transition:.25s;position:relative}
@@ -341,6 +367,7 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan .setup-note i{color:var(--green-l);margin-top:2px;flex:none}
 .plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 2px}
 .plan .price small{font-size:.9rem;color:var(--gray);font-weight:600}
+.plan .price-note{font-size:.72rem;font-weight:800;color:var(--gold);margin-bottom:4px}
 .plan ul{margin:18px 0 24px;flex:1}
 .plan li{display:flex;align-items:flex-start;gap:8px;font-size:.86rem;color:var(--white);margin-bottom:9px}
 .plan li i{color:var(--green-l);margin-top:3px}
@@ -474,19 +501,20 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   <div class="ribbon br"><i><span></span><span></span><span></span></i></div>
   <div class="container hero-grid">
     <div>
+      <span class="urgency-badge"><i class="fa-solid fa-fire"></i> Escríbenos hoy y llevate 1 mes GRATIS</span>
       <span class="pro-badge"><i class="fa-solid fa-crown"></i> APP 100% PRO &amp; PREMIUM</span>
-      <h1>Gestiona y administra tu <span class="accent">club o escuela de fútbol</span> desde <span class="price">$2.500</span> por socio</h1>
-      <p class="lead">La app personalizada para tu club: controla socios, cobros mensuales y comunicación desde el celular. Diseñada a tu medida y entregada en <strong>solo 7 días</strong>.</p>
+      <h1>Gestiona tu <span class="accent">club o escuela de fútbol</span> con Inteligencia Artificial desde <span class="price">2 mil pesitos</span> por socio</h1>
+      <p class="lead">La app 100% personalizada a las características de tu club: socios, cobros, fixture con IA, resultados en vivo y reportes mensuales, todo desde el celular. Entregada en <strong>solo 7 días</strong>.</p>
       <div class="hero-actions">
-        <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20cotizar%20BioFutbol%20para%20mi%20club" class="btn-mega" target="_blank" rel="noopener">
+        <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20cotizar%20BioFutbol%20para%20mi%20club%20y%20aprovechar%20el%20mes%20gratis" class="btn-mega" target="_blank" rel="noopener">
           <span class="icon-wrap"><i class="fa-brands fa-whatsapp"></i></span>
           <span>Contáctanos por WhatsApp<small>Respuesta inmediata · Sin compromiso</small></span>
         </a>
       </div>
       <div class="hero-badges">
         <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Lista en 7 días</div>
+        <div class="hero-badge"><i class="fa-solid fa-brain"></i> Con Inteligencia Artificial</div>
         <div class="hero-badge"><i class="fa-solid fa-shirt"></i> 100% a tu medida</div>
-        <div class="hero-badge"><i class="fa-solid fa-shield-halved"></i> Fácil de mantener</div>
       </div>
     </div>
     <div class="hero-visual">
@@ -785,6 +813,36 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
         </div>
       </div>
     </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag ia"><i class="fa-solid fa-brain"></i> Con Inteligencia Artificial</span>
+        <h3>Reportes mensuales que te ayudan a mejorar tu club</h3>
+        <p>Cada mes, BioFutbol analiza con IA la información de tu club y te entrega reportes claros y accionables: asistencia, recaudo, deserción de socios y más — enfocados en mejorar los procesos de tu club o escuela, no solo en mostrar números.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Reportes generados automáticamente cada mes</li>
+          <li><i class="fa-solid fa-check"></i> Enfocados en mejorar la operación de tu club</li>
+          <li><i class="fa-solid fa-check"></i> 100% personalizables según lo que tu club necesite</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="report-panel">
+            <div class="report-head">
+              <div class="rt">Reporte de tu club<small>Enero 2026 · Generado con IA</small></div>
+              <span class="ia-badge"><i class="fa-solid fa-sparkles"></i> IA</span>
+            </div>
+            <div class="report-insight"><i class="fa-solid fa-arrow-trend-up"></i> Tu recaudo subió 12% respecto al mes anterior.</div>
+            <div class="report-stats">
+              <div><b>87%</b><span>Asistencia</span></div>
+              <div><b>3%</b><span>Deserción</span></div>
+              <div><b>+14</b><span>Socios nuevos</span></div>
+            </div>
+            <div class="report-ai"><i class="fa-solid fa-lightbulb"></i> <b>Sugerencia IA:</b> 4 socios llevan 2 meses sin pagar. Contáctalos hoy desde la app.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -881,6 +939,13 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <h2>Un plan a la medida de tu club</h2>
       <p>Pagas una sola vez la implementación de tu app y luego un valor fijo mensual por socio activo. Así de simple.</p>
     </div>
+    <div class="urgency-strip reveal">
+      <i class="fa-solid fa-fire"></i>
+      <div>
+        <strong>Oferta por tiempo limitado</strong>
+        <span>Escríbenos y cierra tu proceso hoy mismo: te llevas 1 mes GRATIS de tu plan.</span>
+      </div>
+    </div>
     <div class="pricing-grid">
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
@@ -925,6 +990,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
         <span class="members">Más de 1.000 socios</span>
         <div class="setup">Implementación única: <b>$750.000</b></div>
         <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
+        <div class="price-note"><i class="fa-solid fa-fire"></i> Tu inversión más baja: 2 mil pesitos por socio</div>
         <div class="price">$2.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
