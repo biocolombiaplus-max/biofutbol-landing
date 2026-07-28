@@ -79,8 +79,10 @@ img,svg{max-width:100%;display:block}
 .qc.purple{background:linear-gradient(135deg,#5a2fae,#7440d1)}
 
 .next-card{background:var(--card);border:1px solid var(--card-b2);border-radius:14px;padding:14px 16px;margin-bottom:24px}
-.next-teams{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:.88rem;color:#fff;margin-bottom:5px}
-.next-teams .vs{color:var(--gray);font-size:.66rem;font-weight:700}
+.next-teams{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:800;font-size:.86rem;color:#fff;margin-bottom:9px}
+.next-teams .team{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.next-teams .team.right{flex-direction:row-reverse;text-align:right}
+.next-teams .vs{color:var(--gray);font-size:.64rem;font-weight:700;flex:none;padding:0 4px}
 .next-meta{font-size:.7rem;color:var(--gray);display:flex;align-items:center;gap:6px}
 .next-meta i{color:var(--green-l)}
 
@@ -104,10 +106,28 @@ img,svg{max-width:100%;display:block}
 /* ── FIXTURE ── */
 .jornada-lbl{font-size:.72rem;font-weight:800;color:var(--green-l);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 10px}
 .jornada-lbl:first-child{margin-top:0}
-.match-card{background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:12px 14px;margin-bottom:8px}
-.match-teams{display:flex;justify-content:space-between;align-items:center;font-size:.84rem;font-weight:700;color:#fff}
-.match-teams .score{font-weight:900;color:var(--green-l);font-size:.9rem}
-.match-meta{font-size:.66rem;color:var(--gray);margin-top:6px;display:flex;gap:10px}
+.match-card{background:var(--card);border:1px solid var(--card-b);border-left:3px solid var(--card-b2);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.match-card.done{border-left-color:var(--green-l)}
+.match-card.next{border-left-color:var(--gold)}
+.match-status{display:flex;align-items:center;gap:6px;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px}
+.match-status.done{color:var(--green-l)}
+.match-status.next{color:var(--gold)}
+.match-status.future{color:var(--gray-d)}
+.match-teams{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:#fff}
+.match-teams .team{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.match-teams .team.right{flex-direction:row-reverse;text-align:right}
+.match-teams .team .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match-teams .score{font-weight:900;color:var(--green-l);font-size:.88rem;flex:none;padding:0 6px}
+.crest{width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:#fff;flex:none;box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.crest.c1{background:linear-gradient(135deg,#5c8bff,#173a9c)}
+.crest.c2{background:linear-gradient(135deg,#ff9a6b,#a63a12)}
+.crest.c3{background:linear-gradient(135deg,#f2ba5e,#8a5a12)}
+.crest.c4{background:linear-gradient(135deg,#ab84f0,#4a2691)}
+.crest.c5{background:linear-gradient(135deg,#4fd6e6,#0d6672)}
+.crest.c6{background:linear-gradient(135deg,#f0685a,#8a1f16)}
+.crest.c7{background:linear-gradient(135deg,#9aabb9,#333e48)}
+.crest.c8{background:linear-gradient(135deg,#78c8fb,#155a94)}
+.match-meta{font-size:.66rem;color:var(--gray);margin-top:9px;display:flex;gap:10px}
 
 /* ── TABLA ── */
 .tabla-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--card-b)}
@@ -221,7 +241,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 
       <div class="section-lbl">Próximo partido</div>
       <div class="next-card">
-        <div class="next-teams"><span>Halcones FC</span><span class="vs">VS</span><span>Águilas United</span></div>
+        <div class="next-teams"><span class="team"><i class="crest c1">H</i><span class="name">Halcones FC</span></span><span class="vs">VS</span><span class="team right"><i class="crest c2">A</i><span class="name">Águilas United</span></span></div>
         <div class="next-meta"><i class="fa-solid fa-calendar-days"></i> Sáb · 4:00 PM · Cancha 2</div>
       </div>
 
@@ -255,18 +275,50 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       <div class="section-lbl" style="margin-bottom:16px">Calendario de partidos</div>
 
       <div class="jornada-lbl">Jornada 4 — jugada</div>
-      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">2 - 1</span><span>Leones Norte</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
-      <div class="match-card"><div class="match-teams"><span>Águilas United</span><span class="score">0 - 0</span><span>Cóndores FC</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
-      <div class="match-card"><div class="match-teams"><span>Tigres del Sur</span><span class="score">3 - 2</span><span>Panteras Rojas</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 19 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
+      <div class="match-card done">
+        <div class="match-status done"><i class="fa-solid fa-flag-checkered"></i> Finalizado</div>
+        <div class="match-teams"><span class="team"><i class="crest c1">H</i><span class="name">Halcones FC</span></span><span class="score">2 - 1</span><span class="team right"><i class="crest c4">L</i><span class="name">Leones Norte</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div>
+      </div>
+      <div class="match-card done">
+        <div class="match-status done"><i class="fa-solid fa-flag-checkered"></i> Finalizado</div>
+        <div class="match-teams"><span class="team"><i class="crest c2">A</i><span class="name">Águilas United</span></span><span class="score">0 - 0</span><span class="team right"><i class="crest c5">C</i><span class="name">Cóndores FC</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div>
+      </div>
+      <div class="match-card done">
+        <div class="match-status done"><i class="fa-solid fa-flag-checkered"></i> Finalizado</div>
+        <div class="match-teams"><span class="team"><i class="crest c3">T</i><span class="name">Tigres del Sur</span></span><span class="score">3 - 2</span><span class="team right"><i class="crest c6">P</i><span class="name">Panteras Rojas</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 19 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div>
+      </div>
 
       <div class="jornada-lbl">Jornada 5 — esta semana</div>
-      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">VS</span><span>Águilas United</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
-      <div class="match-card"><div class="match-teams"><span>Leones Norte</span><span class="score">VS</span><span>Tigres del Sur</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
-      <div class="match-card"><div class="match-teams"><span>Cóndores FC</span><span class="score">VS</span><span>Panteras Rojas</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 26 Jul · 3:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+      <div class="match-card next">
+        <div class="match-status next"><i class="fa-solid fa-clock"></i> Próximo</div>
+        <div class="match-teams"><span class="team"><i class="crest c1">H</i><span class="name">Halcones FC</span></span><span class="score">VS</span><span class="team right"><i class="crest c2">A</i><span class="name">Águilas United</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div>
+      </div>
+      <div class="match-card next">
+        <div class="match-status next"><i class="fa-solid fa-clock"></i> Próximo</div>
+        <div class="match-teams"><span class="team"><i class="crest c4">L</i><span class="name">Leones Norte</span></span><span class="score">VS</span><span class="team right"><i class="crest c3">T</i><span class="name">Tigres del Sur</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div>
+      </div>
+      <div class="match-card next">
+        <div class="match-status next"><i class="fa-solid fa-clock"></i> Próximo</div>
+        <div class="match-teams"><span class="team"><i class="crest c5">C</i><span class="name">Cóndores FC</span></span><span class="score">VS</span><span class="team right"><i class="crest c6">P</i><span class="name">Panteras Rojas</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 26 Jul · 3:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div>
+      </div>
 
       <div class="jornada-lbl">Jornada 6 — próxima</div>
-      <div class="match-card"><div class="match-teams"><span>Águilas United</span><span class="score">VS</span><span>Leones Norte</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
-      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">VS</span><span>Tigres del Sur</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+      <div class="match-card future">
+        <div class="match-status future"><i class="fa-solid fa-calendar-days"></i> Programado</div>
+        <div class="match-teams"><span class="team"><i class="crest c2">A</i><span class="name">Águilas United</span></span><span class="score">VS</span><span class="team right"><i class="crest c4">L</i><span class="name">Leones Norte</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div>
+      </div>
+      <div class="match-card future">
+        <div class="match-status future"><i class="fa-solid fa-calendar-days"></i> Programado</div>
+        <div class="match-teams"><span class="team"><i class="crest c1">H</i><span class="name">Halcones FC</span></span><span class="score">VS</span><span class="team right"><i class="crest c3">T</i><span class="name">Tigres del Sur</span></span></div>
+        <div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div>
+      </div>
     </div>
 
     <!-- ── TABLA ── -->
