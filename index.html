@@ -58,6 +58,9 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .nav-cta{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;padding:12px 24px;border-radius:999px;font-weight:700;font-size:.92rem;box-shadow:var(--cta-shadow);transition:.25s}
 .nav-cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:var(--cta-shadow-lg)}
 .nav-cta i{animation:wiggle 2.2s infinite}
+.nav-demo{display:flex;align-items:center;gap:7px;color:var(--white);font-weight:700;font-size:.86rem;border:1.5px solid var(--card-b);padding:10px 18px;border-radius:999px;transition:.25s}
+.nav-demo:hover{border-color:var(--green);color:var(--green-l)}
+@media(max-width:560px){.nav-demo span{display:none}}
 
 /* ── HERO ── */
 .hero{padding:168px 0 100px;position:relative;background:
@@ -489,9 +492,12 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
       <svg class="logo-icon"><use href="#logoMark"></use></svg>
       <span class="bio">Bio</span><span class="fut">Futbol</span>
     </a>
-    <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20BioFutbol" class="nav-cta" target="_blank" rel="noopener">
-      <i class="fa-brands fa-whatsapp"></i> Cotizar ahora
-    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="demo.html" class="nav-demo"><i class="fa-solid fa-play"></i> Ver demo</a>
+      <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20BioFutbol" class="nav-cta" target="_blank" rel="noopener">
+        <i class="fa-brands fa-whatsapp"></i> Cotizar ahora
+      </a>
+    </div>
   </div>
 </nav>
 
@@ -509,6 +515,9 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
         <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20cotizar%20BioFutbol%20para%20mi%20club%20y%20aprovechar%20el%20mes%20gratis" class="btn-mega" target="_blank" rel="noopener">
           <span class="icon-wrap"><i class="fa-brands fa-whatsapp"></i></span>
           <span>Contáctanos por WhatsApp<small>Respuesta inmediata · Sin compromiso</small></span>
+        </a>
+        <a href="demo.html" class="btn-ghost">
+          <i class="fa-solid fa-play"></i> Ver demo interactiva
         </a>
       </div>
       <div class="hero-badges">

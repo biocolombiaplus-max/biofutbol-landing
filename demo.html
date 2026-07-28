@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo interactiva | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Prueba la demo interactiva de BioFutbol con datos ficticios: fixture, tabla de posiciones, goleadores, llave de playoffs y panel de administración.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#18A83A;--green-d:#0e7d29;--green-l:#2ecc55;
+  --navy:#0B1626;--bg:#070b10;--bg2:#0c1218;--card:#101a14;--card2:#0f1720;
+  --card-b:#1e2b23;--card-b2:#1c2733;--white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;
+  --gold:#FFC933;--blue:#2a55d6;--purple:#7440d1;--red:#ff5c5c;
+  --radius:16px;--shadow:0 14px 40px rgba(0,0,0,.5);--cta-shadow:0 10px 26px rgba(24,168,58,.4);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img,svg{max-width:100%;display:block}
+
+/* ── DEMO BANNER ── */
+.demo-banner{background:linear-gradient(135deg,#ff3b1f,#ff8a00);padding:10px 16px;text-align:center;font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:200}
+.demo-banner a{text-decoration:underline}
+
+/* ── APP SHELL ── */
+.shell{max-width:480px;margin:0 auto;min-height:100vh;position:relative;display:flex;flex-direction:column;background:linear-gradient(180deg,#0a1310,#0d1a13)}
+.app-top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--card-b);position:sticky;top:37px;background:rgba(7,11,16,.95);backdrop-filter:blur(8px);z-index:100}
+.app-top .logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1rem}
+.app-top .logo b{color:var(--green-l)}
+.app-top a.exit{font-size:.78rem;color:var(--gray);display:flex;align-items:center;gap:6px;font-weight:600}
+.app-top a.exit:hover{color:var(--green-l)}
+
+.app-body{flex:1;padding:18px 18px 140px}
+.view{display:none;animation:fadein .35s ease}
+.view.on{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── HEADER CARD (inicio) ── */
+.club-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.club-crest{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#fff;box-shadow:0 6px 18px rgba(24,168,58,.4);flex:none}
+.club-head .txt{flex:1;min-width:0}
+.club-head .lg{font-size:.66rem;font-weight:800;color:var(--green-l);letter-spacing:.06em;text-transform:uppercase}
+.club-head h1{font-size:1.15rem;font-weight:900;color:#fff}
+.club-head small{color:var(--gray);font-size:.72rem}
+.panel-btn{font-size:.7rem;font-weight:700;color:#fff;background:rgba(255,255,255,.08);border:1px solid var(--card-b2);padding:7px 12px;border-radius:999px;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px}
+
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.chips span{font-size:.68rem;font-weight:700;color:var(--gray);background:rgba(255,255,255,.06);border:1px solid var(--card-b2);padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
+.chips span.live{color:var(--gold);border-color:rgba(255,201,51,.4)}
+.chips span.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+.nums{display:flex;justify-content:space-around;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 8px;margin-bottom:18px}
+.nums div{text-align:center}
+.nums b{display:block;font-size:1.4rem;font-weight:900}
+.nums span{font-size:.62rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.nums .blue{color:#4d9fff}
+.nums .orange{color:#ff9d47}
+.progress{height:6px;background:#1c281f;border-radius:6px;overflow:hidden;margin-bottom:22px}
+.progress i{display:block;height:100%;width:43%;background:linear-gradient(90deg,var(--green-d),var(--green-l))}
+
+.section-lbl{font-size:.68rem;font-weight:800;color:var(--gray-d);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.qc{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;transition:.2s}
+.qc:active{transform:scale(.97)}
+.qc i{font-size:1.3rem;color:#fff}
+.qc b{font-size:.92rem;font-weight:800;color:#fff}
+.qc span{font-size:.68rem;color:rgba(255,255,255,.8);font-weight:600}
+.qc.blue{background:linear-gradient(135deg,#1c3faa,#2a55d6)}
+.qc.green{background:linear-gradient(135deg,var(--green-d),var(--green))}
+.qc.gold{background:linear-gradient(135deg,#7a5a12,#a6790f)}
+.qc.purple{background:linear-gradient(135deg,#5a2fae,#7440d1)}
+
+.next-card{background:var(--card);border:1px solid var(--card-b2);border-radius:14px;padding:14px 16px;margin-bottom:24px}
+.next-teams{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:.88rem;color:#fff;margin-bottom:5px}
+.next-teams .vs{color:var(--gray);font-size:.66rem;font-weight:700}
+.next-meta{font-size:.7rem;color:var(--gray);display:flex;align-items:center;gap:6px}
+.next-meta i{color:var(--green-l)}
+
+.admin-card{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px;margin-bottom:24px}
+.admin-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.admin-head h3{font-size:.86rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.admin-badge{font-size:.6rem;font-weight:800;color:var(--gold);background:rgba(255,201,51,.12);border:1px solid rgba(255,201,51,.35);padding:3px 9px;border-radius:999px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.admin-item{background:var(--card2);border:1px solid var(--card-b2);border-radius:11px;padding:12px 10px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.admin-item i{color:var(--green-l);font-size:1.05rem}
+.admin-item span{font-size:.74rem;font-weight:700;color:#fff}
+
+.draw-card{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px;margin-bottom:8px}
+.draw-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.86rem;font-weight:800}
+.draw-head span{font-size:.68rem;color:var(--gray);font-weight:600}
+.draw-grid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.draw-slot{flex:none;width:64px;text-align:center}
+.draw-slot .box{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;margin-bottom:6px;border:2px solid}
+.draw-slot span{font-size:.6rem;color:var(--gray);font-weight:700}
+
+/* ── FIXTURE ── */
+.jornada-lbl{font-size:.72rem;font-weight:800;color:var(--green-l);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 10px}
+.jornada-lbl:first-child{margin-top:0}
+.match-card{background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.match-teams{display:flex;justify-content:space-between;align-items:center;font-size:.84rem;font-weight:700;color:#fff}
+.match-teams .score{font-weight:900;color:var(--green-l);font-size:.9rem}
+.match-meta{font-size:.66rem;color:var(--gray);margin-top:6px;display:flex;gap:10px}
+
+/* ── TABLA ── */
+.tabla-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--card-b)}
+table.tabla{width:100%;border-collapse:collapse;font-size:.72rem;background:var(--card)}
+table.tabla th,table.tabla td{padding:9px 7px;text-align:center;white-space:nowrap}
+table.tabla th{background:var(--card2);color:var(--gray);font-weight:800;font-size:.62rem;text-transform:uppercase}
+table.tabla td:nth-child(2),table.tabla th:nth-child(2){text-align:left;font-weight:700}
+table.tabla tr{border-bottom:1px solid var(--card-b2)}
+table.tabla tr:last-child{border-bottom:none}
+table.tabla tr.qual td:first-child{box-shadow:inset 3px 0 0 var(--green-l)}
+table.tabla td.pts{font-weight:900;color:var(--green-l)}
+.tabla-note{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--gray);margin-top:10px}
+.tabla-note i{width:9px;height:9px;border-radius:2px;background:var(--green-l);flex:none}
+
+/* ── GOLES ── */
+.scorer-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.scorer-rank{width:24px;height:24px;border-radius:50%;background:var(--card2);border:1px solid var(--card-b2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--gray);flex:none}
+.scorer-row:nth-child(1) .scorer-rank{background:linear-gradient(135deg,var(--gold),#a6790f);color:#241800;border:none}
+.scorer-row:nth-child(2) .scorer-rank{background:#c7cbd1;color:#222;border:none}
+.scorer-row:nth-child(3) .scorer-rank{background:#c98a4b;color:#241800;border:none}
+.scorer-info{flex:1;min-width:0}
+.scorer-info b{display:block;font-size:.82rem;font-weight:800;color:#fff}
+.scorer-info span{font-size:.68rem;color:var(--gray)}
+.scorer-goals{font-size:1rem;font-weight:900;color:var(--green-l);flex:none}
+.scorer-goals small{font-size:.6rem;color:var(--gray);font-weight:600;display:block;text-align:center}
+
+/* ── LLAVE ── */
+.bracket{display:flex;flex-direction:column;gap:22px}
+.bracket-round{font-size:.7rem;font-weight:800;color:var(--gray-d);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.bracket-match{background:var(--card);border:1px solid var(--card-b);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.bracket-team{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:.8rem;font-weight:700}
+.bracket-team:first-child{border-bottom:1px solid var(--card-b2)}
+.bracket-team.win{color:var(--green-l)}
+.bracket-team .g{font-weight:900}
+.bracket-match.tbd .bracket-team{color:var(--gray-d)}
+
+/* ── BOTTOM BAR (CTA + NAV, siempre juntos, nunca se solapan) ── */
+.bottom-bar{position:sticky;bottom:0;z-index:100;background:rgba(7,11,16,.97);backdrop-filter:blur(10px);border-top:1px solid var(--card-b2)}
+.cta-strip{display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;padding:12px;font-weight:800;font-size:.86rem}
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;padding:10px 4px}
+.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.62rem;font-weight:700;color:var(--gray-d);flex:1}
+.bottom-nav button.on{color:var(--green-l)}
+.bottom-nav button i{font-size:1rem}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--card-b);border-radius:20px 20px 0 0;max-width:480px;width:100%;padding:22px 20px 28px;max-height:80vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:1rem;font-weight:800}
+.modal-head button{font-size:1.1rem;color:var(--gray)}
+.modal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b2);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:.82rem}
+.modal-row .ok{color:var(--green-l);font-weight:800;font-size:.72rem}
+.modal-row .pending{color:var(--gold);font-weight:800;font-size:.72rem}
+.modal-foot{margin-top:14px;font-size:.78rem;color:var(--gray);text-align:center}
+.modal-foot a{color:var(--green-l);font-weight:700}
+
+@media(min-width:481px){
+  .app-top{top:41px}
+  .shell{box-shadow:0 0 60px rgba(0,0,0,.5);border-left:1px solid var(--card-b);border-right:1px solid var(--card-b)}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <i class="fa-solid fa-flask"></i> Estás viendo una DEMO con datos ficticios — así se ve tu club en BioFutbol
+  <a href="index.html#planes">Ver planes</a>
+</div>
+
+<div class="shell">
+  <div class="app-top">
+    <div class="logo"><span style="color:var(--green-l)">Bio</span><b style="color:#fff">Futbol</b></div>
+    <a href="index.html" class="exit"><i class="fa-solid fa-xmark"></i> Salir de la demo</a>
+  </div>
+
+  <div class="app-body">
+
+    <!-- ── INICIO ── -->
+    <div class="view on" id="view-inicio">
+      <div class="club-head">
+        <div class="club-crest"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="txt">
+          <div class="lg">Liga interna · Demo 2026</div>
+          <h1>Halcones FC</h1>
+          <small>Sistema de gestión del club</small>
+        </div>
+        <span class="panel-btn"><i class="fa-solid fa-user"></i> Panel</span>
+      </div>
+
+      <div class="chips">
+        <span><i class="fa-solid fa-shield-halved"></i> 8 equipos</span>
+        <span><i class="fa-solid fa-calendar-days"></i> 28 partidos</span>
+        <span class="live">En curso</span>
+      </div>
+
+      <div class="nums">
+        <div><b class="blue">12</b><span>Jugados</span></div>
+        <div><b class="orange">16</b><span>Restantes</span></div>
+        <div><b>5</b><span>Semana</span></div>
+      </div>
+      <div class="progress"><i></i></div>
+
+      <div class="section-lbl">Acceso rápido</div>
+      <div class="quick-grid">
+        <button class="qc blue" onclick="goTo('fixture')"><i class="fa-solid fa-calendar-days"></i><b>Fixture</b><span>28 partidos</span></button>
+        <button class="qc green" onclick="goTo('tabla')"><i class="fa-solid fa-chart-simple"></i><b>Tabla</b><span>Posiciones</span></button>
+        <button class="qc gold" onclick="goTo('goles')"><i class="fa-solid fa-futbol"></i><b>Goles</b><span>Goleadores</span></button>
+        <button class="qc purple" onclick="goTo('llave')"><i class="fa-solid fa-trophy"></i><b>Llave</b><span>Playoffs</span></button>
+      </div>
+
+      <div class="section-lbl">Próximo partido</div>
+      <div class="next-card">
+        <div class="next-teams"><span>Halcones FC</span><span class="vs">VS</span><span>Águilas United</span></div>
+        <div class="next-meta"><i class="fa-solid fa-calendar-days"></i> Sáb · 4:00 PM · Cancha 2</div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-head">
+          <h3><i class="fa-solid fa-gear"></i> Administración</h3>
+          <span class="admin-badge">ADMINISTRADOR</span>
+        </div>
+        <div class="admin-grid">
+          <button class="admin-item" onclick="openModal('socios')"><i class="fa-solid fa-sack-dollar"></i><span>Planilla cobro</span></button>
+          <button class="admin-item" onclick="openModal('socios')"><i class="fa-solid fa-users"></i><span>Gestionar socios</span></button>
+          <button class="admin-item" onclick="openModal('escudos')"><i class="fa-solid fa-shield-halved"></i><span>Escudos equipos</span></button>
+          <button class="admin-item" onclick="openModal('export')"><i class="fa-solid fa-file-export"></i><span>Exportar CSV</span></button>
+        </div>
+      </div>
+
+      <div class="draw-card">
+        <div class="draw-head"><span>🎲 Sorteo manual</span><span>8/8</span></div>
+        <div class="draw-grid">
+          <div class="draw-slot"><div class="box" style="background:#7a1620;border-color:#ff5c5c">1</div><span>Halcones</span></div>
+          <div class="draw-slot"><div class="box" style="background:#7a5a12;border-color:var(--gold)">2</div><span>Águilas</span></div>
+          <div class="draw-slot"><div class="box" style="background:#0e7d29;border-color:var(--green-l)">3</div><span>Tigres</span></div>
+          <div class="draw-slot"><div class="box" style="background:#173a9c;border-color:#4d9fff">4</div><span>Leones</span></div>
+          <div class="draw-slot"><div class="box" style="background:#5a2fae;border-color:#b39dff">5</div><span>Cóndores</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FIXTURE ── -->
+    <div class="view" id="view-fixture">
+      <div class="section-lbl" style="margin-bottom:16px">Calendario de partidos</div>
+
+      <div class="jornada-lbl">Jornada 4 — jugada</div>
+      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">2 - 1</span><span>Leones Norte</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
+      <div class="match-card"><div class="match-teams"><span>Águilas United</span><span class="score">0 - 0</span><span>Cóndores FC</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 18 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+      <div class="match-card"><div class="match-teams"><span>Tigres del Sur</span><span class="score">3 - 2</span><span>Panteras Rojas</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 19 Jul</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
+
+      <div class="jornada-lbl">Jornada 5 — esta semana</div>
+      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">VS</span><span>Águilas United</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+      <div class="match-card"><div class="match-teams"><span>Leones Norte</span><span class="score">VS</span><span>Tigres del Sur</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 25 Jul · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
+      <div class="match-card"><div class="match-teams"><span>Cóndores FC</span><span class="score">VS</span><span>Panteras Rojas</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Dom 26 Jul · 3:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+
+      <div class="jornada-lbl">Jornada 6 — próxima</div>
+      <div class="match-card"><div class="match-teams"><span>Águilas United</span><span class="score">VS</span><span>Leones Norte</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 4:00 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 1</span></div></div>
+      <div class="match-card"><div class="match-teams"><span>Halcones FC</span><span class="score">VS</span><span>Tigres del Sur</span></div><div class="match-meta"><span><i class="fa-solid fa-calendar-days"></i> Sáb 1 Ago · 5:30 PM</span><span><i class="fa-solid fa-location-dot"></i> Cancha 2</span></div></div>
+    </div>
+
+    <!-- ── TABLA ── -->
+    <div class="view" id="view-tabla">
+      <div class="section-lbl" style="margin-bottom:16px">Tabla de posiciones</div>
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>DG</th><th>Pts</th></tr></thead>
+          <tbody>
+            <tr class="qual"><td>1</td><td>Halcones FC</td><td>12</td><td>9</td><td>2</td><td>1</td><td>+18</td><td class="pts">29</td></tr>
+            <tr class="qual"><td>2</td><td>Tigres del Sur</td><td>12</td><td>8</td><td>3</td><td>1</td><td>+14</td><td class="pts">27</td></tr>
+            <tr class="qual"><td>3</td><td>Águilas United</td><td>12</td><td>7</td><td>3</td><td>2</td><td>+9</td><td class="pts">24</td></tr>
+            <tr class="qual"><td>4</td><td>Cóndores FC</td><td>12</td><td>6</td><td>3</td><td>3</td><td>+5</td><td class="pts">21</td></tr>
+            <tr><td>5</td><td>Leones Norte</td><td>12</td><td>5</td><td>2</td><td>5</td><td>-1</td><td class="pts">17</td></tr>
+            <tr><td>6</td><td>Panteras Rojas</td><td>12</td><td>3</td><td>4</td><td>5</td><td>-6</td><td class="pts">13</td></tr>
+            <tr><td>7</td><td>Lobos FC</td><td>12</td><td>2</td><td>3</td><td>7</td><td>-15</td><td class="pts">9</td></tr>
+            <tr><td>8</td><td>Estrella Azul</td><td>12</td><td>1</td><td>2</td><td>9</td><td>-24</td><td class="pts">5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tabla-note"><i></i> Clasifican a semifinales (top 4)</div>
+    </div>
+
+    <!-- ── GOLES ── -->
+    <div class="view" id="view-goles">
+      <div class="section-lbl" style="margin-bottom:16px">Tabla de goleadores</div>
+      <div class="scorer-row"><div class="scorer-rank">1</div><div class="scorer-info"><b>J. Pérez</b><span>Halcones FC</span></div><div class="scorer-goals">14<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">2</div><div class="scorer-info"><b>A. Ruiz</b><span>Águilas United</span></div><div class="scorer-goals">11<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">3</div><div class="scorer-info"><b>D. Gómez</b><span>Tigres del Sur</span></div><div class="scorer-goals">10<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">4</div><div class="scorer-info"><b>S. Cárdenas</b><span>Cóndores FC</span></div><div class="scorer-goals">8<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">5</div><div class="scorer-info"><b>M. Torres</b><span>Leones Norte</span></div><div class="scorer-goals">7<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">6</div><div class="scorer-info"><b>C. Duarte</b><span>Halcones FC</span></div><div class="scorer-goals">6<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">7</div><div class="scorer-info"><b>F. Suárez</b><span>Panteras Rojas</span></div><div class="scorer-goals">5<small>goles</small></div></div>
+
+      <div class="section-lbl" style="margin:22px 0 12px">Valla menos vencida</div>
+      <div class="scorer-row"><div class="scorer-rank" style="background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;border:none"><i class="fa-solid fa-hand" style="font-size:.6rem"></i></div><div class="scorer-info"><b>Halcones FC</b><span>Portero: R. Salazar</span></div><div class="scorer-goals" style="color:var(--green-l)">4<small>goles recibidos</small></div></div>
+    </div>
+
+    <!-- ── LLAVE ── -->
+    <div class="view" id="view-llave">
+      <div class="section-lbl" style="margin-bottom:16px">Llave de playoffs</div>
+      <div class="bracket">
+        <div>
+          <div class="bracket-round">Semifinales</div>
+          <div class="bracket-match">
+            <div class="bracket-team win"><span>Halcones FC</span><span class="g">3</span></div>
+            <div class="bracket-team"><span>Cóndores FC</span><span class="g">1</span></div>
+          </div>
+          <div class="bracket-match tbd">
+            <div class="bracket-team"><span>Tigres del Sur</span><span class="g">—</span></div>
+            <div class="bracket-team"><span>Águilas United</span><span class="g">—</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="bracket-round">Final</div>
+          <div class="bracket-match tbd">
+            <div class="bracket-team"><span>Halcones FC</span><span class="g">—</span></div>
+            <div class="bracket-team"><span>Por definir</span><span class="g">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">
+    <a class="cta-strip" href="https://wa.me/573505457420?text=Hola%2C%20vi%20la%20demo%20de%20BioFutbol%20y%20quiero%20una%20app%20as%C3%AD%20para%20mi%20club" target="_blank" rel="noopener">
+      <i class="fa-brands fa-whatsapp"></i> Quiero esto para mi club
+    </a>
+    <div class="bottom-nav">
+      <button class="on" data-view="inicio" onclick="goTo('inicio')"><i class="fa-solid fa-house"></i>Inicio</button>
+      <button data-view="fixture" onclick="goTo('fixture')"><i class="fa-solid fa-calendar-days"></i>Fixture</button>
+      <button data-view="tabla" onclick="goTo('tabla')"><i class="fa-solid fa-chart-simple"></i>Tabla</button>
+      <button data-view="goles" onclick="goTo('goles')"><i class="fa-solid fa-futbol"></i>Goles</button>
+      <button data-view="llave" onclick="goTo('llave')"><i class="fa-solid fa-trophy"></i>Llave</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">Socios</h3><button onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="modalBody"></div>
+    <p class="modal-foot">Esto es solo una demostración con datos ficticios. <a href="index.html#planes">Cotiza tu club</a> para tener la tuya.</p>
+  </div>
+</div>
+
+<script>
+function goTo(view) {
+  document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("on"); });
+  document.getElementById("view-" + view).classList.add("on");
+  document.querySelectorAll(".bottom-nav button").forEach(function (b) {
+    b.classList.toggle("on", b.dataset.view === view);
+  });
+  document.querySelector(".app-body").scrollIntoView({ behavior: "instant", block: "start" });
+}
+
+const modalContent = {
+  socios: {
+    title: "Planilla de cobro",
+    body: [
+      { n: "Juan Pérez · Sub-15", s: "Al día", ok: true },
+      { n: "Laura Gómez · Sub-13", s: "Al día", ok: true },
+      { n: "Andrés Ruiz · Sub-17", s: "Pendiente", ok: false },
+      { n: "Camila Díaz · Sub-11", s: "Al día", ok: true },
+      { n: "Miguel Torres · Sub-15", s: "Pendiente", ok: false }
+    ]
+  },
+  escudos: {
+    title: "Escudos de equipos",
+    body: [
+      { n: "Halcones FC", s: "Sub-11 a Sub-17", ok: true },
+      { n: "Águilas United", s: "Rival frecuente", ok: true },
+      { n: "Tigres del Sur", s: "Rival frecuente", ok: true },
+      { n: "Cóndores FC", s: "Rival frecuente", ok: true }
+    ]
+  },
+  export: {
+    title: "Exportar CSV",
+    body: [
+      { n: "Socios y contactos", s: "Listo", ok: true },
+      { n: "Historial de pagos", s: "Listo", ok: true },
+      { n: "Estadísticas de la liga", s: "Listo", ok: true }
+    ]
+  }
+};
+
+function openModal(key) {
+  const data = modalContent[key];
+  document.getElementById("modalTitle").textContent = data.title;
+  document.getElementById("modalBody").innerHTML = data.body.map(function (row) {
+    return '<div class="modal-row"><span>' + row.n + '</span><span class="' + (row.ok ? "ok" : "pending") + '">' + row.s + '</span></div>';
+  }).join("");
+  document.getElementById("modalBg").classList.add("on");
+}
+function closeModal() { document.getElementById("modalBg").classList.remove("on"); }
+</script>
+</body>
+</html>
