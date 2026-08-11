@@ -164,6 +164,56 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .bracket-team .g{font-weight:900}
 .bracket-match.tbd .bracket-team{color:var(--gray-d)}
 
+/* ── LIVE MATCH WIDGET ── */
+.live-card{background:var(--card);border:1px solid rgba(255,92,92,.4);border-radius:14px;padding:14px 16px;margin-bottom:24px;position:relative;overflow:hidden}
+.live-card::before{content:"";position:absolute;inset:0;background:radial-gradient(400px 120px at 50% 0%,rgba(255,92,92,.12),transparent 70%);pointer-events:none}
+.live-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;position:relative}
+.live-badge{display:flex;align-items:center;gap:6px;font-size:.62rem;font-weight:800;color:#ff8080;text-transform:uppercase;letter-spacing:.05em}
+.live-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#ff5c5c;animation:live-pulse 1.2s infinite}
+@keyframes live-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.live-min{font-size:.68rem;color:var(--gray);font-weight:700}
+.live-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;position:relative}
+.live-team{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.live-team .name{font-size:.72rem;font-weight:800;color:#fff}
+.live-score{font-size:2rem;font-weight:900;color:#fff;flex:none;padding:0 10px;display:flex;align-items:center;gap:8px}
+.live-score span{display:inline-block;min-width:28px;text-align:center;transition:transform .25s}
+.live-score span.bump{animation:score-bump .4s ease}
+@keyframes score-bump{0%{transform:scale(1)}40%{transform:scale(1.5);color:var(--green-l)}100%{transform:scale(1)}}
+.live-actions{display:flex;gap:8px;position:relative}
+.live-actions button{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--card-b2);color:#fff;font-size:.72rem;font-weight:800;padding:9px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.live-actions button:active{transform:scale(.95);background:rgba(24,168,58,.18);border-color:var(--green)}
+.live-actions button i{color:var(--green-l)}
+
+/* ── GOAL CELEBRATION ── */
+.goal-overlay{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
+.goal-overlay.on{display:flex}
+.goal-text{font-size:2.3rem;font-weight:900;color:var(--gold);text-align:center;padding:0 20px;text-shadow:0 0 30px rgba(255,201,51,.7),0 6px 20px rgba(0,0,0,.6);letter-spacing:.02em;animation:goal-pop .9s cubic-bezier(.2,1.4,.4,1)}
+@keyframes goal-pop{0%{transform:scale(.3) rotate(-8deg);opacity:0}30%{transform:scale(1.15) rotate(2deg);opacity:1}50%{transform:scale(1) rotate(0)}80%{opacity:1}100%{transform:scale(1);opacity:0}}
+.confetti{position:absolute;top:-10%;width:9px;height:14px;opacity:0;animation:confetti-fall 1.6s ease-in forwards}
+@keyframes confetti-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(540deg);opacity:0}}
+
+/* ── ALIADOS / PATROCINADORES ── */
+.aliados-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:24px}
+.aliado-card{flex:none;width:118px;background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:14px 10px;text-align:center}
+.aliado-card .ic{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--card2),var(--card-b2));display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:1.05rem;color:var(--green-l);border:1px solid var(--card-b2)}
+.aliado-card span{font-size:.66rem;font-weight:700;color:var(--gray);line-height:1.3;display:block}
+
+/* ── CARNET DIGITAL ── */
+.carnet-card{background:linear-gradient(135deg,#0d2318,#0a1610 60%,#132b1c);border:1px solid rgba(46,204,85,.35);border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.carnet-card::before{content:"";position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(46,204,85,.18),transparent 70%)}
+.carnet-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;position:relative}
+.carnet-brand{font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--green-l)}
+.carnet-brand small{display:block;color:var(--gray);font-weight:600;text-transform:none;letter-spacing:0;font-size:.62rem;margin-top:2px}
+.carnet-status{font-size:.6rem;font-weight:800;color:#031007;background:var(--green-l);padding:4px 10px;border-radius:999px;flex:none}
+.carnet-body{display:flex;gap:16px;align-items:center;margin-bottom:16px;position:relative}
+.carnet-photo{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex:none;box-shadow:0 6px 16px rgba(24,168,58,.4)}
+.carnet-info b{display:block;font-size:1.05rem;font-weight:900;color:#fff;margin-bottom:2px}
+.carnet-info span{display:block;font-size:.72rem;color:var(--gray)}
+.carnet-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px dashed rgba(255,255,255,.15);padding-top:14px;position:relative}
+.carnet-grid div{font-size:.68rem;color:var(--gray)}
+.carnet-grid b{display:block;color:#fff;font-size:.78rem;font-weight:700;margin-top:2px}
+.carnet-qr{margin:16px auto 0;width:46px;height:46px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0a1610;font-size:1.3rem;position:relative}
+
 /* ── BOTTOM BAR (CTA + NAV, siempre juntos, nunca se solapan) ── */
 .bottom-bar{position:sticky;bottom:0;z-index:100;background:rgba(7,11,16,.97);backdrop-filter:blur(10px);border-top:1px solid var(--card-b2)}
 .cta-strip{display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;padding:12px;font-weight:800;font-size:.86rem}
@@ -182,6 +232,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .modal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b2);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:.82rem}
 .modal-row .ok{color:var(--green-l);font-weight:800;font-size:.72rem}
 .modal-row .pending{color:var(--gold);font-weight:800;font-size:.72rem}
+.modal-row .bad{color:var(--red);font-weight:800;font-size:.72rem}
 .modal-foot{margin-top:14px;font-size:.78rem;color:var(--gray);text-align:center}
 .modal-foot a{color:var(--green-l);font-weight:700}
 
@@ -245,6 +296,23 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
         <div class="next-meta"><i class="fa-solid fa-calendar-days"></i> Sáb · 4:00 PM · Cancha 2</div>
       </div>
 
+      <div class="section-lbl">Partido en vivo · simulación</div>
+      <div class="live-card">
+        <div class="live-head">
+          <span class="live-badge">En vivo</span>
+          <span class="live-min"><i class="fa-solid fa-stopwatch" style="color:var(--gray)"></i> Min 62'</span>
+        </div>
+        <div class="live-teams">
+          <div class="live-team"><i class="crest c4" style="width:34px;height:34px;font-size:.85rem;border-radius:9px">L</i><span class="name">Leones Norte</span></div>
+          <div class="live-score"><span id="scoreA">1</span><span style="color:var(--gray-d);font-size:1.1rem">-</span><span id="scoreB">1</span></div>
+          <div class="live-team"><i class="crest c5" style="width:34px;height:34px;font-size:.85rem;border-radius:9px">C</i><span class="name">Cóndores FC</span></div>
+        </div>
+        <div class="live-actions">
+          <button onclick="marcarGol('A','Leones Norte')"><i class="fa-solid fa-futbol"></i> Gol Leones</button>
+          <button onclick="marcarGol('B','Cóndores FC')"><i class="fa-solid fa-futbol"></i> Gol Cóndores</button>
+        </div>
+      </div>
+
       <div class="admin-card">
         <div class="admin-head">
           <h3><i class="fa-solid fa-gear"></i> Administración</h3>
@@ -255,6 +323,8 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
           <button class="admin-item" onclick="openModal('socios')"><i class="fa-solid fa-users"></i><span>Gestionar socios</span></button>
           <button class="admin-item" onclick="openModal('escudos')"><i class="fa-solid fa-shield-halved"></i><span>Escudos equipos</span></button>
           <button class="admin-item" onclick="openModal('export')"><i class="fa-solid fa-file-export"></i><span>Exportar CSV</span></button>
+          <button class="admin-item" onclick="openModal('carnet')"><i class="fa-solid fa-id-card"></i><span>Carnet digital</span></button>
+          <button class="admin-item" onclick="openModal('disciplina')"><i class="fa-solid fa-square"></i><span>Disciplina</span></button>
         </div>
       </div>
 
@@ -267,6 +337,15 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
           <div class="draw-slot"><div class="box" style="background:#173a9c;border-color:#4d9fff">4</div><span>Leones</span></div>
           <div class="draw-slot"><div class="box" style="background:#5a2fae;border-color:#b39dff">5</div><span>Cóndores</span></div>
         </div>
+      </div>
+
+      <div class="section-lbl" style="margin-top:24px">Aliados y patrocinadores</div>
+      <div class="aliados-scroll">
+        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-dumbbell"></i></div><span>Nutrideportiva</span></div>
+        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-shirt"></i></div><span>Almacén Deportivo Central</span></div>
+        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-briefcase-medical"></i></div><span>Clínica Vitalis</span></div>
+        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-bus"></i></div><span>Transportes Rápido Norte</span></div>
+        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-bread-slice"></i></div><span>Panadería El Trigal</span></div>
       </div>
     </div>
 
@@ -406,6 +485,8 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
   </div>
 </div>
 
+<div class="goal-overlay" id="goalOverlay"></div>
+
 <script>
 function goTo(view) {
   document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("on"); });
@@ -443,18 +524,75 @@ const modalContent = {
       { n: "Historial de pagos", s: "Listo", ok: true },
       { n: "Estadísticas de la liga", s: "Listo", ok: true }
     ]
+  },
+  disciplina: {
+    title: "Disciplina — tarjetas por equipo",
+    body: [
+      { n: "Halcones FC", s: "3 amarillas", st: "ok" },
+      { n: "Águilas United", s: "5 amarillas · 1 roja", st: "bad" },
+      { n: "Tigres del Sur", s: "2 amarillas", st: "ok" },
+      { n: "Cóndores FC", s: "4 amarillas", st: "ok" },
+      { n: "Leones Norte", s: "6 amarillas · 1 roja", st: "bad" },
+      { n: "Panteras Rojas", s: "3 amarillas", st: "ok" }
+    ]
   }
 };
+
+function carnetHTML() {
+  return '<div class="carnet-card">' +
+    '<div class="carnet-top"><div class="carnet-brand">BioFutbol<small>Carnet digital de socio</small></div><span class="carnet-status">Activo</span></div>' +
+    '<div class="carnet-body"><div class="carnet-photo"><i class="fa-solid fa-user"></i></div><div class="carnet-info"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15</span></div></div>' +
+    '<div class="carnet-grid"><div>Cédula<b>1.019.XXX.442</b></div><div>Socio desde<b>Feb 2024</b></div><div>Categoría<b>Sub-15</b></div><div>Vigente hasta<b>Dic 2026</b></div></div>' +
+    '<div class="carnet-qr"><i class="fa-solid fa-qrcode"></i></div>' +
+    '</div>' +
+    '<p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:14px">Cada socio tiene su carnet digital único, verificable con código QR en la entrada del club.</p>';
+}
 
 function openModal(key) {
   const data = modalContent[key];
   document.getElementById("modalTitle").textContent = data.title;
-  document.getElementById("modalBody").innerHTML = data.body.map(function (row) {
-    return '<div class="modal-row"><span>' + row.n + '</span><span class="' + (row.ok ? "ok" : "pending") + '">' + row.s + '</span></div>';
-  }).join("");
+  if (key === "carnet") {
+    document.getElementById("modalBody").innerHTML = carnetHTML();
+  } else {
+    document.getElementById("modalBody").innerHTML = data.body.map(function (row) {
+      const cls = row.st || (row.ok ? "ok" : "pending");
+      return '<div class="modal-row"><span>' + row.n + '</span><span class="' + cls + '">' + row.s + '</span></div>';
+    }).join("");
+  }
   document.getElementById("modalBg").classList.add("on");
 }
 function closeModal() { document.getElementById("modalBg").classList.remove("on"); }
+
+function marcarGol(equipo, nombre) {
+  const el = document.getElementById(equipo === "A" ? "scoreA" : "scoreB");
+  el.textContent = parseInt(el.textContent, 10) + 1;
+  el.classList.remove("bump");
+  void el.offsetWidth;
+  el.classList.add("bump");
+  mostrarGol(nombre);
+}
+
+function mostrarGol(nombre) {
+  const overlay = document.getElementById("goalOverlay");
+  overlay.innerHTML = "";
+  const text = document.createElement("div");
+  text.className = "goal-text";
+  text.textContent = "¡GOL DE " + nombre.toUpperCase() + "!";
+  overlay.appendChild(text);
+  const colors = ["#18A83A", "#2ecc55", "#FFC933", "#ff5c5c", "#4d9fff"];
+  for (let i = 0; i < 26; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "%";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDelay = (Math.random() * 0.3) + "s";
+    c.style.animationDuration = (1.1 + Math.random() * 0.8) + "s";
+    overlay.appendChild(c);
+  }
+  overlay.classList.add("on");
+  clearTimeout(window._goalTimer);
+  window._goalTimer = setTimeout(function () { overlay.classList.remove("on"); }, 1700);
+}
 </script>
 </body>
 </html>

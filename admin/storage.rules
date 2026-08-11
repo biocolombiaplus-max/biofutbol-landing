@@ -8,5 +8,12 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // Logos e imágenes de club: públicos para lectura (se usan en demos/landing
+    // de cada cliente), solo un admin autenticado puede subirlos.
+    match /logos/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
   }
 }

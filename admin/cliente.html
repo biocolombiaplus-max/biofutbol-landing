@@ -62,6 +62,32 @@
       </div>
 
       <div class="card">
+        <h3><i class="fa-solid fa-image"></i> Logo e imágenes del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">El logo se usa en el carnet digital, el fixture y las imágenes para redes de este club. La imagen destacada se usa como portada en su demo/landing.</p>
+        <div class="field-row">
+          <div class="field">
+            <label>Logo del club</label>
+            <div class="upload-box" id="logoBox" onclick="document.getElementById('logoInput').click()">
+              <img id="logoPreview" class="upload-preview logo-preview" style="display:none">
+              <div class="upload-empty" id="logoEmpty"><i class="fa-solid fa-shield-halved"></i><span>Subir logo</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="logoInput" accept="image/*" style="display:none">
+          </div>
+          <div class="field">
+            <label>Imagen destacada (portada)</label>
+            <div class="upload-box banner" id="bannerBox" onclick="document.getElementById('bannerInput').click()">
+              <img id="bannerPreview" class="upload-preview banner-preview" style="display:none">
+              <div class="upload-empty" id="bannerEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="bannerInput" accept="image/*" style="display:none">
+          </div>
+        </div>
+        <div id="uploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-key"></i> Acceso a la app del club</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Credenciales que se le entregan al club para acceder a su app una vez esté lista.</p>
         <div class="field-row">
@@ -202,8 +228,53 @@ function cargarCliente() {
       document.getElementById("btnWhatsapp").disabled = false;
       document.getElementById("btnEmail").disabled = false;
     }
+    if (clienteActual.logoUrl) mostrarPreview("logo", clienteActual.logoUrl);
+    if (clienteActual.bannerUrl) mostrarPreview("banner", clienteActual.bannerUrl);
   });
 }
+
+function mostrarPreview(tipo, url) {
+  document.getElementById(tipo + "Preview").src = url;
+  document.getElementById(tipo + "Preview").style.display = "block";
+  document.getElementById(tipo + "Empty").style.display = "none";
+}
+
+function subirImagen(tipo, file) {
+  if (!clienteActual || esNuevo) {
+    mostrarError("Guarda el cliente antes de subir imágenes.");
+    return;
+  }
+  if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
+  if (file.size > 5 * 1024 * 1024) { mostrarError("La imagen no puede pesar más de 5MB."); return; }
+
+  const status = document.getElementById("uploadStatus");
+  status.style.display = "block";
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = "logos/" + clienteId + "-" + tipo + "." + ext;
+  const ref = storage.ref().child(path);
+
+  ref.put(file).then(function () { return ref.getDownloadURL(); }).then(function (url) {
+    const campo = tipo + "Url";
+    return db.collection("clientes").doc(clienteId).update({ [campo]: url }).then(function () { return url; });
+  }).then(function (url) {
+    clienteActual[tipo + "Url"] = url;
+    mostrarPreview(tipo, url);
+    status.style.display = "none";
+    registrarAuditoria(tipo === "logo" ? "Logo actualizado" : "Imagen destacada actualizada", clienteId, clienteActual.clubNombre);
+    mostrarExito(tipo === "logo" ? "Logo actualizado." : "Imagen destacada actualizada.");
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo subir la imagen: " + err.message);
+  });
+}
+
+document.getElementById("logoInput").addEventListener("change", function (e) {
+  if (e.target.files[0]) subirImagen("logo", e.target.files[0]);
+});
+document.getElementById("bannerInput").addEventListener("change", function (e) {
+  if (e.target.files[0]) subirImagen("banner", e.target.files[0]);
+});
 
 function pintarHistorialPagos() {
   const box = document.getElementById("historialPagos");
