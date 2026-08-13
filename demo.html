@@ -36,6 +36,29 @@ img,svg{max-width:100%;display:block}
 .app-top .logo b{color:var(--green-l)}
 .app-top a.exit{font-size:.78rem;color:var(--gray);display:flex;align-items:center;gap:6px;font-weight:600}
 .app-top a.exit:hover{color:var(--green-l)}
+.app-top-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--card-b2);display:flex;align-items:center;justify-content:center;color:var(--gray);flex:none;font-size:.8rem}
+.icon-btn:hover{color:var(--green-l);border-color:var(--green-l)}
+@media(max-width:380px){.app-top a.exit span{display:none}}
+
+/* ── TOUR GUIADO ── */
+.tour-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(2px)}
+.tour-overlay.on{display:flex}
+.tour-card{background:var(--bg2);border:1px solid var(--card-b);border-radius:22px 22px 0 0;max-width:480px;width:100%;padding:28px 24px 26px;box-shadow:0 -10px 40px rgba(0,0,0,.5);animation:fadein .3s ease}
+.tour-icon{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin-bottom:16px;box-shadow:0 8px 20px rgba(24,168,58,.4)}
+.tour-card h3{font-size:1.1rem;font-weight:900;margin-bottom:8px;color:#fff}
+.tour-card p{font-size:.84rem;color:var(--gray);line-height:1.55;margin-bottom:20px}
+.tour-dots{display:flex;gap:6px;margin-bottom:20px}
+.tour-dots span{width:7px;height:7px;border-radius:50%;background:var(--card-b2);transition:.2s;display:block}
+.tour-dots span.on{background:var(--green-l);width:20px;border-radius:4px}
+.tour-actions{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tour-skip{font-size:.78rem;color:var(--gray);font-weight:700}
+.tour-next{background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;font-weight:800;padding:12px 26px;border-radius:12px;font-size:.86rem;box-shadow:var(--cta-shadow)}
+
+/* ── PORTAL DEL SOCIO ── */
+.portal-input{width:100%;background:var(--card2);border:1px solid var(--card-b2);color:#fff;padding:12px 14px;border-radius:10px;font-size:.92rem;margin-bottom:14px}
+.portal-label{display:block;font-size:.72rem;font-weight:700;color:var(--gray);margin-bottom:6px}
+.portal-btn-solid{width:100%;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;font-weight:800;padding:12px;border-radius:10px;font-size:.86rem;box-shadow:var(--cta-shadow);text-align:center}
 
 .app-body{flex:1;padding:18px 18px 140px}
 .view{display:none;animation:fadein .35s ease}
@@ -303,7 +326,11 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 <div class="shell">
   <div class="app-top">
     <div class="logo"><span style="color:var(--green-l)">Bio</span><b style="color:#fff">Futbol</b></div>
-    <a href="index.html" class="exit"><i class="fa-solid fa-xmark"></i> Salir de la demo</a>
+    <div class="app-top-actions">
+      <button class="icon-btn" onclick="startTour()" title="Ver tour guiado"><i class="fa-solid fa-circle-question"></i></button>
+      <button class="icon-btn" onclick="openPortal()" title="Portal del socio"><i class="fa-solid fa-address-card"></i></button>
+      <a href="index.html" class="exit"><i class="fa-solid fa-xmark"></i> <span>Salir de la demo</span></a>
+    </div>
   </div>
 
   <div class="app-body">
@@ -602,6 +629,19 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 
 <div class="goal-overlay" id="goalOverlay"></div>
 
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-card">
+    <div class="tour-icon"><i id="tourIcon" class="fa-solid fa-hand-sparkles"></i></div>
+    <h3 id="tourTitle">Bienvenido</h3>
+    <p id="tourDesc">Cargando...</p>
+    <div class="tour-dots" id="tourDots"></div>
+    <div class="tour-actions">
+      <button class="tour-skip" onclick="closeTour()">Omitir tour</button>
+      <button class="tour-next" id="tourNextBtn" onclick="tourNext()">Siguiente</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function goTo(view) {
   document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("on"); });
@@ -723,6 +763,72 @@ function mostrarGol(nombre) {
   overlay.classList.add("on");
   clearTimeout(window._goalTimer);
   window._goalTimer = setTimeout(function () { overlay.classList.remove("on"); }, 1700);
+}
+
+/* ── TOUR GUIADO ── */
+const tourSteps = [
+  { view: "inicio", icon: "fa-solid fa-hand-sparkles", title: "¡Bienvenido a BioFutbol!", desc: "Esta es una demo interactiva con datos ficticios. En menos de un minuto te mostramos todo lo que tu club o escuela de fútbol podría tener. Vamos a recorrer cada módulo." },
+  { view: "fixture", icon: "fa-solid fa-calendar-days", title: "Fixture con Inteligencia Artificial", desc: "Los partidos se organizan solos, de forma automática y equitativa entre todos los equipos de tu liga interna. Sin favoritismos ni reclamos." },
+  { view: "tabla", icon: "fa-solid fa-chart-simple", title: "Tabla de posiciones", desc: "Se actualiza sola después de cada partido: puntos, diferencia de gol y quién está clasificando a semifinales." },
+  { view: "goles", icon: "fa-solid fa-futbol", title: "Goleadores y estadísticas", desc: "Cada gol queda registrado al instante. Tus jugadores y los padres de familia pueden ver quién va liderando la tabla de goleadores." },
+  { view: "llave", icon: "fa-solid fa-trophy", title: "Llave de playoffs", desc: "Visualiza el camino a la final de forma clara, con los resultados de cada cruce de semifinales." },
+  { view: "inicio", icon: "fa-solid fa-stopwatch", title: "Marcador en vivo", desc: "Registra los goles en tiempo real desde la cancha y celebra cada gol con una animación — pruébalo tocando los botones de \"Gol\" más abajo." },
+  { view: "inicio", icon: "fa-solid fa-id-card", title: "Carnet digital de socios", desc: "Cada socio tiene su carnet digital, verificable con código QR. Actívalo desde Administración → Carnet digital." },
+  { view: "inicio", icon: "fa-solid fa-handshake", title: "Aliados y patrocinadores", desc: "Muestra los aliados y patrocinadores de tu club directamente en la app — una forma más de generar ingresos." },
+  { view: "panel", icon: "fa-solid fa-gauge-high", title: "Panel administrativo completo", desc: "Equipos, socios, cobros y equidad de minutos de juego: toda la gestión de tu club en un solo lugar, accesible desde el botón \"Panel\"." },
+  { view: "inicio", icon: "fa-solid fa-address-card", title: "Portal del socio", desc: "Cada socio o padre de familia puede entrar con su número de cédula a ver su propio carnet y estado de cuenta. Pruébalo con el ícono de tarjeta arriba." },
+  { view: "inicio", icon: "fa-solid fa-rocket", title: "¡Ahora explora tú!", desc: "Recorre la app con toda libertad. Cuando quieras esto para tu club o escuela de fútbol, escríbenos por WhatsApp." }
+];
+let tourIndex = 0;
+
+function startTour() {
+  tourIndex = 0;
+  document.getElementById("tourOverlay").classList.add("on");
+  renderTourStep();
+}
+function renderTourStep() {
+  const step = tourSteps[tourIndex];
+  goTo(step.view);
+  document.getElementById("tourIcon").className = step.icon;
+  document.getElementById("tourTitle").textContent = step.title;
+  document.getElementById("tourDesc").textContent = step.desc;
+  document.getElementById("tourDots").innerHTML = tourSteps.map(function (_, i) {
+    return '<span class="' + (i === tourIndex ? "on" : "") + '"></span>';
+  }).join("");
+  document.getElementById("tourNextBtn").textContent = tourIndex === tourSteps.length - 1 ? "Empezar a explorar" : "Siguiente";
+}
+function tourNext() {
+  if (tourIndex < tourSteps.length - 1) {
+    tourIndex++;
+    renderTourStep();
+  } else {
+    closeTour();
+  }
+}
+function closeTour() {
+  document.getElementById("tourOverlay").classList.remove("on");
+  sessionStorage.setItem("biofutbolTourSeen", "1");
+  goTo("inicio");
+}
+if (!sessionStorage.getItem("biofutbolTourSeen")) {
+  startTour();
+}
+
+/* ── PORTAL DEL SOCIO ── */
+function openPortal() {
+  document.getElementById("modalTitle").textContent = "Portal del socio";
+  document.getElementById("modalBody").innerHTML =
+    '<p style="font-size:.82rem;color:var(--gray);margin-bottom:16px">Así ingresa cada socio o padre de familia a su información personal, solo con su número de cédula. Sin usuario ni contraseñas que se les olviden.</p>' +
+    '<label class="portal-label">Número de cédula</label>' +
+    '<input class="portal-input" id="portalCedula" type="text" value="1.019.XXX.442" readonly>' +
+    '<button class="portal-btn-solid" onclick="portalLogin()">Ingresar</button>';
+  document.getElementById("modalBg").classList.add("on");
+}
+function portalLogin() {
+  document.getElementById("modalTitle").textContent = "Hola, Santiago 👋";
+  document.getElementById("modalBody").innerHTML = carnetHTML() +
+    '<div class="modal-row" style="margin-top:14px"><span>Próximo partido</span><span class="ok">Sáb 25 Jul · 4:00 PM</span></div>' +
+    '<div class="modal-row"><span>Estado de cuenta</span><span class="ok">Al día</span></div>';
 }
 </script>
 </body>
