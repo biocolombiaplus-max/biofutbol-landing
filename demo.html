@@ -53,8 +53,14 @@ img,svg{max-width:100%;display:block}
 @media(max-width:380px){.app-top a.exit span{display:none}}
 
 /* ── TOUR GUIADO ── */
-.tour-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;background:rgba(4,7,10,.86)}
+.tour-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;background:rgba(4,7,10,.58);transition:background .25s ease}
 .tour-overlay.on{display:flex}
+.tour-spotlight{position:relative;z-index:520;border-radius:14px;animation:spotlight-pulse 1.6s ease-in-out infinite}
+@keyframes spotlight-pulse{
+  0%,100%{box-shadow:0 0 0 4px rgba(46,204,85,.9),0 0 0 9999px rgba(4,7,10,.78)}
+  50%{box-shadow:0 0 0 8px rgba(46,204,85,.5),0 0 0 9999px rgba(4,7,10,.78)}
+}
+.demo-banner{transition:opacity .25s ease}
 .tour-card{background:var(--bg2);border:1px solid var(--card-b);border-radius:22px 22px 0 0;max-width:480px;width:100%;padding:26px 24px 24px;box-shadow:0 -14px 44px rgba(0,0,0,.6);animation:fadein .3s ease;max-height:92%;overflow-y:auto}
 .tour-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:#fff;margin-bottom:16px;box-shadow:0 8px 20px rgba(24,168,58,.4)}
 .tour-card h3{font-size:1.08rem;font-weight:900;margin-bottom:8px;color:#fff}
@@ -69,9 +75,10 @@ img,svg{max-width:100%;display:block}
 .tp-carnet b{font-size:.8rem;color:#fff;display:block}
 .tp-carnet span{font-size:.66rem;color:var(--gray)}
 .tp-carnet i.qr{color:var(--green-l);font-size:1.1rem;flex:none}
-.tour-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
-.tour-dots span{width:7px;height:7px;border-radius:50%;background:var(--card-b2);transition:.2s;display:block}
-.tour-dots span.on{background:var(--green-l);width:20px;border-radius:4px}
+.tour-progress{margin-bottom:20px}
+.tour-progress-label{font-size:.72rem;color:var(--gray);font-weight:700;margin-bottom:7px}
+.tour-progress-bar{height:5px;background:var(--card-b2);border-radius:4px;overflow:hidden}
+.tour-progress-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-d),var(--green-l));transition:width .3s ease}
 .tour-actions{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .tour-skip{font-size:.78rem;color:var(--gray);font-weight:700}
 .tour-next{background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;font-weight:800;padding:12px 26px;border-radius:12px;font-size:.86rem;box-shadow:var(--cta-shadow)}
@@ -361,7 +368,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
     <div class="logo"><span style="color:var(--green-l)">Bio</span><b style="color:#fff">Futbol</b></div>
     <div class="app-top-actions">
       <button class="icon-btn" onclick="startTour()" title="Ver tour guiado"><i class="fa-solid fa-circle-question"></i></button>
-      <button class="icon-btn" onclick="openPortal()" title="Portal del socio"><i class="fa-solid fa-address-card"></i></button>
+      <button class="icon-btn" id="portalIconBtn" onclick="openPortal()" title="Portal del socio"><i class="fa-solid fa-address-card"></i></button>
       <a href="index.html" class="exit"><i class="fa-solid fa-xmark"></i> <span>Salir de la demo</span></a>
     </div>
   </div>
@@ -434,9 +441,9 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
           <button class="admin-item" onclick="goToPanel('socios')"><i class="fa-solid fa-users"></i><span>Gestionar socios</span></button>
           <button class="admin-item" onclick="goToPanel('equipos')"><i class="fa-solid fa-shield-halved"></i><span>Escudos equipos</span></button>
           <button class="admin-item" onclick="openModal('export')"><i class="fa-solid fa-file-export"></i><span>Exportar CSV</span></button>
-          <button class="admin-item" onclick="openModal('carnet')"><i class="fa-solid fa-id-card"></i><span>Carnet digital</span></button>
+          <button class="admin-item" id="admCarnetBtn" onclick="openModal('carnet')"><i class="fa-solid fa-id-card"></i><span>Carnet digital</span></button>
           <button class="admin-item" onclick="openModal('disciplina')"><i class="fa-solid fa-square"></i><span>Disciplina</span></button>
-          <button class="admin-item" onclick="openModal('social')"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Diseños para redes (IA)</span></button>
+          <button class="admin-item" id="admSocialBtn" onclick="openModal('social')"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Diseños para redes (IA)</span></button>
           <button class="admin-item" onclick="openPortal()"><i class="fa-solid fa-address-card"></i><span>Portal del socio</span></button>
         </div>
         <button class="panel-link" onclick="goToPanel()">Ver panel administrativo completo <i class="fa-solid fa-arrow-right"></i></button>
@@ -669,7 +676,10 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       <h3 id="tourTitle">Bienvenido</h3>
       <p id="tourDesc">Cargando...</p>
       <div class="tour-preview" id="tourPreview"></div>
-      <div class="tour-dots" id="tourDots"></div>
+      <div class="tour-progress">
+        <div class="tour-progress-label" id="tourProgressLabel">Paso 1</div>
+        <div class="tour-progress-bar"><i id="tourProgressBar" style="width:8%"></i></div>
+      </div>
       <div class="tour-actions">
         <button class="tour-skip" onclick="closeTour()">Omitir tour</button>
         <button class="tour-next" id="tourNextBtn" onclick="tourNext()">Siguiente</button>
@@ -829,15 +839,20 @@ const tourSteps = [
   { view: "tabla", icon: "fa-solid fa-chart-simple", title: "Tabla de posiciones", desc: "Se actualiza sola después de cada partido: puntos, diferencia de gol y quién está clasificando a semifinales." },
   { view: "goles", icon: "fa-solid fa-futbol", title: "Goleadores y estadísticas", desc: "Cada gol queda registrado al instante. Tus jugadores y los padres de familia pueden ver quién va liderando la tabla de goleadores." },
   { view: "llave", icon: "fa-solid fa-trophy", title: "Llave de playoffs", desc: "Visualiza el camino a la final de forma clara, con los resultados de cada cruce de semifinales." },
-  { view: "inicio", icon: "fa-solid fa-stopwatch", title: "Marcador en vivo", desc: "Registra los goles en tiempo real desde la cancha y celebra cada gol con una animación — pruébalo tocando los botones de \"Gol\" más abajo." },
+  { view: "inicio", icon: "fa-solid fa-stopwatch", title: "Marcador en vivo", desc: "Registra los goles en tiempo real desde la cancha y celebra cada gol con una animación — pruébalo tocando los botones de \"Gol\" más abajo.",
+    target: ".live-card" },
   { view: "inicio", icon: "fa-solid fa-id-card", title: "Carnet digital de socios", desc: "Cada socio tiene su carnet digital, verificable con código QR. Actívalo desde Administración → Carnet digital.",
+    target: "#admCarnetBtn",
     preview: '<div class="tp-carnet"><div class="ph">SR</div><div class="ci"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15 · Activo</span></div><i class="fa-solid fa-qrcode qr"></i></div>' },
   { view: "inicio", icon: "fa-solid fa-handshake", title: "Aliados y patrocinadores", desc: "Muestra los aliados y patrocinadores de tu club directamente en la app — una forma más de generar ingresos.",
+    target: ".aliados-scroll",
     preview: '<div class="tour-preview-row"><div class="tp-logo" style="background-color:#0e7d29;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#2ecc55,#0e7d29)">ND</div><div class="tp-logo" style="background-color:#173a9c;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#5c8bff,#173a9c)">ADC</div><div class="tp-logo" style="background-color:#a63a12;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#ff9a6b,#a63a12)">CV</div></div>' },
   { view: "inicio", icon: "fa-solid fa-wand-magic-sparkles", title: "Diseños para redes con IA", desc: "Cada semana, la Inteligencia Artificial genera publicaciones listas para tus redes sociales: resultados, fixture, cumpleaños de socios y más. Sin diseñador.",
+    target: "#admSocialBtn",
     preview: '<div class="tour-preview-row"><div class="tp-social" style="background:linear-gradient(135deg,#2ecc55,#0e7d29)"><i class="fa-solid fa-futbol"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#FFC933,#c98a12)"><i class="fa-solid fa-calendar-days"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#ab84f0,#4a2691)"><i class="fa-solid fa-cake-candles"></i></div></div>' },
   { view: "panel", icon: "fa-solid fa-gauge-high", title: "Panel administrativo completo", desc: "Equipos, socios, cobros y equidad de minutos de juego: toda la gestión de tu club en un solo lugar, accesible desde el botón \"Panel\"." },
-  { view: "inicio", icon: "fa-solid fa-address-card", title: "Portal del socio", desc: "Cada socio o padre de familia puede entrar con su número de cédula a ver su propio carnet y estado de cuenta. Pruébalo con el ícono de tarjeta arriba." },
+  { view: "inicio", icon: "fa-solid fa-address-card", title: "Portal del socio", desc: "Cada socio o padre de familia puede entrar con su número de cédula a ver su propio carnet y estado de cuenta. Pruébalo con el ícono de tarjeta arriba.",
+    target: "#portalIconBtn" },
   { view: "inicio", icon: "fa-solid fa-rocket", title: "¡Ahora explora tú!", desc: "Recorre la app con toda libertad. Cuando quieras esto para tu club o escuela de fútbol, escríbenos por WhatsApp." }
 ];
 let tourIndex = 0;
@@ -845,19 +860,34 @@ let tourIndex = 0;
 function startTour() {
   tourIndex = 0;
   document.getElementById("tourOverlay").classList.add("on");
+  const banner = document.querySelector(".demo-banner");
+  if (banner) { banner.style.opacity = "0"; banner.style.pointerEvents = "none"; }
   renderTourStep();
+}
+function clearSpotlight() {
+  document.querySelectorAll(".tour-spotlight").forEach(function (el) { el.classList.remove("tour-spotlight"); });
 }
 function renderTourStep() {
   const step = tourSteps[tourIndex];
   goTo(step.view);
+  clearSpotlight();
   document.getElementById("tourIcon").className = step.icon;
   document.getElementById("tourTitle").textContent = step.title;
   document.getElementById("tourDesc").textContent = step.desc;
   document.getElementById("tourPreview").innerHTML = step.preview || "";
-  document.getElementById("tourDots").innerHTML = tourSteps.map(function (_, i) {
-    return '<span class="' + (i === tourIndex ? "on" : "") + '"></span>';
-  }).join("");
+  document.getElementById("tourProgressLabel").textContent = "Paso " + (tourIndex + 1) + " de " + tourSteps.length;
+  document.getElementById("tourProgressBar").style.width = Math.round(((tourIndex + 1) / tourSteps.length) * 100) + "%";
   document.getElementById("tourNextBtn").textContent = tourIndex === tourSteps.length - 1 ? "Empezar a explorar" : "Siguiente";
+
+  const overlay = document.getElementById("tourOverlay");
+  const targetEl = step.target ? document.querySelector(step.target) : null;
+  if (targetEl) {
+    targetEl.classList.add("tour-spotlight");
+    targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    overlay.style.background = "transparent";
+  } else {
+    overlay.style.background = "";
+  }
 }
 function tourNext() {
   if (tourIndex < tourSteps.length - 1) {
@@ -869,6 +899,10 @@ function tourNext() {
 }
 function closeTour() {
   document.getElementById("tourOverlay").classList.remove("on");
+  document.getElementById("tourOverlay").style.background = "";
+  clearSpotlight();
+  const banner = document.querySelector(".demo-banner");
+  if (banner) { banner.style.opacity = ""; banner.style.pointerEvents = ""; }
   sessionStorage.setItem("biofutbolTourSeen", "1");
   goTo("inicio");
 }
