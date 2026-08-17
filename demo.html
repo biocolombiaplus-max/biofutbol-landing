@@ -31,6 +31,17 @@ img,svg{max-width:100%;display:block}
 
 /* ── APP SHELL ── */
 .shell{max-width:480px;margin:0 auto;min-height:100vh;position:relative;display:flex;flex-direction:column;background:linear-gradient(180deg,#0a1310,#0d1a13)}
+@media(min-width:860px){
+  body{display:flex;flex-direction:column;justify-content:center;min-height:100vh;padding:32px 20px;
+    background:
+      radial-gradient(1100px 700px at 50% -8%,rgba(24,168,58,.14),transparent 62%),
+      radial-gradient(800px 500px at 100% 100%,rgba(255,201,51,.07),transparent 60%),
+      var(--bg)}
+  .demo-banner{flex:none;border-radius:14px;max-width:900px;margin:0 auto 22px}
+  .shell{height:min(840px,88vh);min-height:0;border-radius:32px;overflow:hidden;border:1px solid rgba(255,255,255,.08);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)}
+  .app-top{position:relative;top:auto}
+  .app-body{overflow-y:auto}
+}
 .app-top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--card-b);position:sticky;top:37px;background:rgba(7,11,16,.95);backdrop-filter:blur(8px);z-index:100}
 .app-top .logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1rem}
 .app-top .logo b{color:var(--green-l)}
@@ -42,13 +53,23 @@ img,svg{max-width:100%;display:block}
 @media(max-width:380px){.app-top a.exit span{display:none}}
 
 /* ── TOUR GUIADO ── */
-.tour-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(2px)}
+.tour-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;background:rgba(4,7,10,.86)}
 .tour-overlay.on{display:flex}
-.tour-card{background:var(--bg2);border:1px solid var(--card-b);border-radius:22px 22px 0 0;max-width:480px;width:100%;padding:28px 24px 26px;box-shadow:0 -10px 40px rgba(0,0,0,.5);animation:fadein .3s ease}
-.tour-icon{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;margin-bottom:16px;box-shadow:0 8px 20px rgba(24,168,58,.4)}
-.tour-card h3{font-size:1.1rem;font-weight:900;margin-bottom:8px;color:#fff}
-.tour-card p{font-size:.84rem;color:var(--gray);line-height:1.55;margin-bottom:20px}
-.tour-dots{display:flex;gap:6px;margin-bottom:20px}
+.tour-card{background:var(--bg2);border:1px solid var(--card-b);border-radius:22px 22px 0 0;max-width:480px;width:100%;padding:26px 24px 24px;box-shadow:0 -14px 44px rgba(0,0,0,.6);animation:fadein .3s ease;max-height:92%;overflow-y:auto}
+.tour-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:#fff;margin-bottom:16px;box-shadow:0 8px 20px rgba(24,168,58,.4)}
+.tour-card h3{font-size:1.08rem;font-weight:900;margin-bottom:8px;color:#fff}
+.tour-card p{font-size:.83rem;color:var(--gray);line-height:1.55;margin-bottom:16px}
+.tour-preview{margin-bottom:18px}
+.tour-preview-row{display:flex;gap:8px}
+.tp-logo{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:900;color:#fff;flex:none;box-shadow:0 4px 10px rgba(0,0,0,.3);background-image:linear-gradient(160deg,rgba(255,255,255,.28),transparent 45%)}
+.tp-social{flex:1;aspect-ratio:4/5;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 45%)}
+.tp-carnet{background:linear-gradient(135deg,#0d2318,#132b1c);border:1px solid rgba(46,204,85,.35);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.tp-carnet .ph{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.7rem;color:#fff;flex:none}
+.tp-carnet .ci{flex:1;min-width:0}
+.tp-carnet b{font-size:.8rem;color:#fff;display:block}
+.tp-carnet span{font-size:.66rem;color:var(--gray)}
+.tp-carnet i.qr{color:var(--green-l);font-size:1.1rem;flex:none}
+.tour-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
 .tour-dots span{width:7px;height:7px;border-radius:50%;background:var(--card-b2);transition:.2s;display:block}
 .tour-dots span.on{background:var(--green-l);width:20px;border-radius:4px}
 .tour-actions{display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -91,7 +112,8 @@ img,svg{max-width:100%;display:block}
 .section-lbl{font-size:.68rem;font-weight:800;color:var(--gray-d);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
 
 .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-.qc{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;transition:.2s}
+.qc{position:relative;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;transition:.2s}
+.ai-chip{position:absolute;top:8px;right:8px;font-size:.56rem;font-weight:800;background:rgba(0,0,0,.32);color:#fff;padding:3px 7px;border-radius:999px;display:flex;align-items:center;gap:3px;letter-spacing:.02em}
 .qc:active{transform:scale(.97)}
 .qc i{font-size:1.3rem;color:#fff}
 .qc b{font-size:.92rem;font-weight:800;color:#fff}
@@ -227,7 +249,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 /* ── ALIADOS / PATROCINADORES ── */
 .aliados-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:24px}
 .aliado-card{flex:none;width:118px;background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:14px 10px;text-align:center}
-.aliado-card .ic{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--card2),var(--card-b2));display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:1.05rem;color:var(--green-l);border:1px solid var(--card-b2)}
+.aliado-card .ic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:.76rem;font-weight:900;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.35);background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%)}
 .aliado-card span{font-size:.66rem;font-weight:700;color:var(--gray);line-height:1.3;display:block}
 
 /* ── CARNET DIGITAL ── */
@@ -248,6 +270,13 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 
 .panel-link{width:100%;margin-top:10px;background:transparent;border:1px dashed var(--card-b2);color:var(--green-l);font-size:.76rem;font-weight:700;padding:10px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px}
 .panel-link:active{background:rgba(24,168,58,.08)}
+
+/* ── DISEÑOS PARA REDES CON IA ── */
+.social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.social-tile{position:relative;aspect-ratio:4/5;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;text-align:center;overflow:hidden;background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 45%)}
+.social-tile i{font-size:1.25rem;color:#fff}
+.social-tile span{font-size:.58rem;font-weight:800;color:#fff;line-height:1.25}
+.social-tile .ai-tag{position:absolute;top:6px;right:6px;font-size:.52rem;font-weight:800;background:rgba(0,0,0,.35);color:#fff;padding:2px 6px;border-radius:999px}
 
 /* ── PANEL ADMINISTRATIVO ── */
 .panel-top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
@@ -297,9 +326,9 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .bottom-nav button i{font-size:1rem}
 
 /* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:flex-end;justify-content:center}
+.modal-bg{position:fixed;inset:0;background:rgba(4,7,10,.82);z-index:400;display:none;align-items:flex-end;justify-content:center}
 .modal-bg.on{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--card-b);border-radius:20px 20px 0 0;max-width:480px;width:100%;padding:22px 20px 28px;max-height:80vh;overflow-y:auto}
+.modal{background:var(--bg2);border:1px solid var(--card-b);border-radius:20px 20px 0 0;max-width:480px;width:100%;padding:22px 20px 28px;max-height:min(80vh,640px);overflow-y:auto}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-head h3{font-size:1rem;font-weight:800}
 .modal-head button{font-size:1.1rem;color:var(--gray)}
@@ -310,9 +339,13 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .modal-foot{margin-top:14px;font-size:.78rem;color:var(--gray);text-align:center}
 .modal-foot a{color:var(--green-l);font-weight:700}
 
-@media(min-width:481px){
+@media(min-width:481px) and (max-width:859px){
   .app-top{top:41px}
   .shell{box-shadow:0 0 60px rgba(0,0,0,.5);border-left:1px solid var(--card-b);border-right:1px solid var(--card-b)}
+}
+@media(min-width:860px){
+  /* En el marco fijo de escritorio, los overlays quedan contenidos dentro del "teléfono" */
+  .tour-overlay,.modal-bg,.goal-overlay{position:absolute}
 }
 </style>
 </head>
@@ -362,7 +395,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 
       <div class="section-lbl">Acceso rápido</div>
       <div class="quick-grid">
-        <button class="qc blue" onclick="goTo('fixture')"><i class="fa-solid fa-calendar-days"></i><b>Fixture</b><span>28 partidos</span></button>
+        <button class="qc blue" onclick="goTo('fixture')"><span class="ai-chip">✨ IA</span><i class="fa-solid fa-calendar-days"></i><b>Fixture</b><span>28 partidos</span></button>
         <button class="qc green" onclick="goTo('tabla')"><i class="fa-solid fa-chart-simple"></i><b>Tabla</b><span>Posiciones</span></button>
         <button class="qc gold" onclick="goTo('goles')"><i class="fa-solid fa-futbol"></i><b>Goles</b><span>Goleadores</span></button>
         <button class="qc purple" onclick="goTo('llave')"><i class="fa-solid fa-trophy"></i><b>Llave</b><span>Playoffs</span></button>
@@ -403,6 +436,8 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
           <button class="admin-item" onclick="openModal('export')"><i class="fa-solid fa-file-export"></i><span>Exportar CSV</span></button>
           <button class="admin-item" onclick="openModal('carnet')"><i class="fa-solid fa-id-card"></i><span>Carnet digital</span></button>
           <button class="admin-item" onclick="openModal('disciplina')"><i class="fa-solid fa-square"></i><span>Disciplina</span></button>
+          <button class="admin-item" onclick="openModal('social')"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Diseños para redes (IA)</span></button>
+          <button class="admin-item" onclick="openPortal()"><i class="fa-solid fa-address-card"></i><span>Portal del socio</span></button>
         </div>
         <button class="panel-link" onclick="goToPanel()">Ver panel administrativo completo <i class="fa-solid fa-arrow-right"></i></button>
       </div>
@@ -420,11 +455,11 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 
       <div class="section-lbl" style="margin-top:24px">Aliados y patrocinadores</div>
       <div class="aliados-scroll">
-        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-dumbbell"></i></div><span>Nutrideportiva</span></div>
-        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-shirt"></i></div><span>Almacén Deportivo Central</span></div>
-        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-briefcase-medical"></i></div><span>Clínica Vitalis</span></div>
-        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-bus"></i></div><span>Transportes Rápido Norte</span></div>
-        <div class="aliado-card"><div class="ic"><i class="fa-solid fa-bread-slice"></i></div><span>Panadería El Trigal</span></div>
+        <div class="aliado-card"><div class="ic" style="background-color:#0e7d29;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#2ecc55,#0e7d29)">ND</div><span>Nutrideportiva</span></div>
+        <div class="aliado-card"><div class="ic" style="background-color:#173a9c;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#5c8bff,#173a9c)">ADC</div><span>Almacén Deportivo Central</span></div>
+        <div class="aliado-card"><div class="ic" style="background-color:#a63a12;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#ff9a6b,#a63a12)">CV</div><span>Clínica Vitalis</span></div>
+        <div class="aliado-card"><div class="ic" style="background-color:#8a5a12;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#f2ba5e,#8a5a12)">TRN</div><span>Transportes Rápido Norte</span></div>
+        <div class="aliado-card"><div class="ic" style="background-color:#4a2691;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#ab84f0,#4a2691)">ET</div><span>Panadería El Trigal</span></div>
       </div>
     </div>
 
@@ -617,27 +652,28 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       <button data-view="llave" onclick="goTo('llave')"><i class="fa-solid fa-trophy"></i>Llave</button>
     </div>
   </div>
-</div>
 
-<div class="modal-bg" id="modalBg" onclick="if(event.target===this) closeModal()">
-  <div class="modal">
-    <div class="modal-head"><h3 id="modalTitle">Socios</h3><button onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
-    <div id="modalBody"></div>
-    <p class="modal-foot">Esto es solo una demostración con datos ficticios. <a href="index.html#planes">Cotiza tu club</a> para tener la tuya.</p>
+  <div class="modal-bg" id="modalBg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <div class="modal-head"><h3 id="modalTitle">Socios</h3><button onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+      <div id="modalBody"></div>
+      <p class="modal-foot">Esto es solo una demostración con datos ficticios. <a href="index.html#planes">Cotiza tu club</a> para tener la tuya.</p>
+    </div>
   </div>
-</div>
 
-<div class="goal-overlay" id="goalOverlay"></div>
+  <div class="goal-overlay" id="goalOverlay"></div>
 
-<div class="tour-overlay" id="tourOverlay">
-  <div class="tour-card">
-    <div class="tour-icon"><i id="tourIcon" class="fa-solid fa-hand-sparkles"></i></div>
-    <h3 id="tourTitle">Bienvenido</h3>
-    <p id="tourDesc">Cargando...</p>
-    <div class="tour-dots" id="tourDots"></div>
-    <div class="tour-actions">
-      <button class="tour-skip" onclick="closeTour()">Omitir tour</button>
-      <button class="tour-next" id="tourNextBtn" onclick="tourNext()">Siguiente</button>
+  <div class="tour-overlay" id="tourOverlay">
+    <div class="tour-card">
+      <div class="tour-icon"><i id="tourIcon" class="fa-solid fa-hand-sparkles"></i></div>
+      <h3 id="tourTitle">Bienvenido</h3>
+      <p id="tourDesc">Cargando...</p>
+      <div class="tour-preview" id="tourPreview"></div>
+      <div class="tour-dots" id="tourDots"></div>
+      <div class="tour-actions">
+        <button class="tour-skip" onclick="closeTour()">Omitir tour</button>
+        <button class="tour-next" id="tourNextBtn" onclick="tourNext()">Siguiente</button>
+      </div>
     </div>
   </div>
 </div>
@@ -696,6 +732,9 @@ const modalContent = {
   carnet: {
     title: "Carnet digital de socio"
   },
+  social: {
+    title: "Diseños para redes con IA"
+  },
   disciplina: {
     title: "Disciplina — tarjetas por equipo",
     body: [
@@ -719,11 +758,29 @@ function carnetHTML() {
     '<p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:14px">Cada socio tiene su carnet digital único, verificable con código QR en la entrada del club.</p>';
 }
 
+function socialHTML() {
+  const posts = [
+    { grad: "linear-gradient(135deg,#2ecc55,#0e7d29)", icon: "fa-futbol", label: "Resultado del partido" },
+    { grad: "linear-gradient(135deg,#FFC933,#c98a12)", icon: "fa-calendar-days", label: "Fixture de la semana" },
+    { grad: "linear-gradient(135deg,#5c8bff,#173a9c)", icon: "fa-trophy", label: "Tabla de posiciones" },
+    { grad: "linear-gradient(135deg,#ab84f0,#4a2691)", icon: "fa-cake-candles", label: "Cumpleaños de socio" },
+    { grad: "linear-gradient(135deg,#f0685a,#8a1f16)", icon: "fa-bullhorn", label: "Convocatoria" },
+    { grad: "linear-gradient(135deg,#4fd6e6,#0d6672)", icon: "fa-handshake", label: "Gracias a los aliados" }
+  ];
+  return '<p style="font-size:.82rem;color:var(--gray);margin-bottom:16px">Cada semana, la Inteligencia Artificial de BioFutbol genera automáticamente publicaciones listas para tus redes — sin diseñador y sin perder tiempo.</p>' +
+    '<div class="social-grid">' + posts.map(function (p) {
+      return '<div class="social-tile" style="background:' + p.grad + '"><i class="fa-solid ' + p.icon + '"></i><span>' + p.label + '</span><b class="ai-tag">✨ IA</b></div>';
+    }).join("") + '</div>' +
+    '<p style="font-size:.72rem;color:var(--gray);text-align:center">Se publican automáticamente o las revisas antes de compartirlas — tú decides.</p>';
+}
+
 function openModal(key) {
   const data = modalContent[key];
   document.getElementById("modalTitle").textContent = data.title;
   if (key === "carnet") {
     document.getElementById("modalBody").innerHTML = carnetHTML();
+  } else if (key === "social") {
+    document.getElementById("modalBody").innerHTML = socialHTML();
   } else {
     document.getElementById("modalBody").innerHTML = data.body.map(function (row) {
       const cls = row.st || (row.ok ? "ok" : "pending");
@@ -773,8 +830,12 @@ const tourSteps = [
   { view: "goles", icon: "fa-solid fa-futbol", title: "Goleadores y estadísticas", desc: "Cada gol queda registrado al instante. Tus jugadores y los padres de familia pueden ver quién va liderando la tabla de goleadores." },
   { view: "llave", icon: "fa-solid fa-trophy", title: "Llave de playoffs", desc: "Visualiza el camino a la final de forma clara, con los resultados de cada cruce de semifinales." },
   { view: "inicio", icon: "fa-solid fa-stopwatch", title: "Marcador en vivo", desc: "Registra los goles en tiempo real desde la cancha y celebra cada gol con una animación — pruébalo tocando los botones de \"Gol\" más abajo." },
-  { view: "inicio", icon: "fa-solid fa-id-card", title: "Carnet digital de socios", desc: "Cada socio tiene su carnet digital, verificable con código QR. Actívalo desde Administración → Carnet digital." },
-  { view: "inicio", icon: "fa-solid fa-handshake", title: "Aliados y patrocinadores", desc: "Muestra los aliados y patrocinadores de tu club directamente en la app — una forma más de generar ingresos." },
+  { view: "inicio", icon: "fa-solid fa-id-card", title: "Carnet digital de socios", desc: "Cada socio tiene su carnet digital, verificable con código QR. Actívalo desde Administración → Carnet digital.",
+    preview: '<div class="tp-carnet"><div class="ph">SR</div><div class="ci"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15 · Activo</span></div><i class="fa-solid fa-qrcode qr"></i></div>' },
+  { view: "inicio", icon: "fa-solid fa-handshake", title: "Aliados y patrocinadores", desc: "Muestra los aliados y patrocinadores de tu club directamente en la app — una forma más de generar ingresos.",
+    preview: '<div class="tour-preview-row"><div class="tp-logo" style="background-color:#0e7d29;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#2ecc55,#0e7d29)">ND</div><div class="tp-logo" style="background-color:#173a9c;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#5c8bff,#173a9c)">ADC</div><div class="tp-logo" style="background-color:#a63a12;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#ff9a6b,#a63a12)">CV</div></div>' },
+  { view: "inicio", icon: "fa-solid fa-wand-magic-sparkles", title: "Diseños para redes con IA", desc: "Cada semana, la Inteligencia Artificial genera publicaciones listas para tus redes sociales: resultados, fixture, cumpleaños de socios y más. Sin diseñador.",
+    preview: '<div class="tour-preview-row"><div class="tp-social" style="background:linear-gradient(135deg,#2ecc55,#0e7d29)"><i class="fa-solid fa-futbol"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#FFC933,#c98a12)"><i class="fa-solid fa-calendar-days"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#ab84f0,#4a2691)"><i class="fa-solid fa-cake-candles"></i></div></div>' },
   { view: "panel", icon: "fa-solid fa-gauge-high", title: "Panel administrativo completo", desc: "Equipos, socios, cobros y equidad de minutos de juego: toda la gestión de tu club en un solo lugar, accesible desde el botón \"Panel\"." },
   { view: "inicio", icon: "fa-solid fa-address-card", title: "Portal del socio", desc: "Cada socio o padre de familia puede entrar con su número de cédula a ver su propio carnet y estado de cuenta. Pruébalo con el ícono de tarjeta arriba." },
   { view: "inicio", icon: "fa-solid fa-rocket", title: "¡Ahora explora tú!", desc: "Recorre la app con toda libertad. Cuando quieras esto para tu club o escuela de fútbol, escríbenos por WhatsApp." }
@@ -792,6 +853,7 @@ function renderTourStep() {
   document.getElementById("tourIcon").className = step.icon;
   document.getElementById("tourTitle").textContent = step.title;
   document.getElementById("tourDesc").textContent = step.desc;
+  document.getElementById("tourPreview").innerHTML = step.preview || "";
   document.getElementById("tourDots").innerHTML = tourSteps.map(function (_, i) {
     return '<span class="' + (i === tourIndex ? "on" : "") + '"></span>';
   }).join("");
