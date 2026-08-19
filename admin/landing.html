@@ -96,6 +96,58 @@
   </div>
 
   <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de tabla de posiciones</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se muestra debajo de la imagen de partido, en la misma sección "Imágenes para redes sociales". Solo aparece si subes una imagen aquí.</p>
+    <div class="landing-upload" id="tablaBox" onclick="document.getElementById('tablaInput').click()">
+      <img id="tablaPreview" style="display:none">
+      <div class="upload-empty" id="tablaEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de tabla de posiciones</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="tablaInput" accept="image/*" style="display:none">
+    <div id="tablaStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('tabla')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de goleadores</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">También en la sección "Imágenes para redes sociales". Solo aparece si subes una imagen aquí.</p>
+    <div class="landing-upload" id="goleadoresBox" onclick="document.getElementById('goleadoresInput').click()">
+      <img id="goleadoresPreview" style="display:none">
+      <div class="upload-empty" id="goleadoresEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de goleadores</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="goleadoresInput" accept="image/*" style="display:none">
+    <div id="goleadoresStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('goleadores')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de valla menos vencida</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">También en la sección "Imágenes para redes sociales". Solo aparece si subes una imagen aquí.</p>
+    <div class="landing-upload" id="vallaBox" onclick="document.getElementById('vallaInput').click()">
+      <img id="vallaPreview" style="display:none">
+      <div class="upload-empty" id="vallaEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de valla menos vencida</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="vallaInput" accept="image/*" style="display:none">
+    <div id="vallaStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('valla')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de marcador en vivo (reemplaza el ejemplo "2-1")</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">En la sección "Resultados en vivo" se muestra un marcador de ejemplo. Sube aquí una captura real — la reemplaza por completo.</p>
+    <div class="landing-upload" id="liveBox" onclick="document.getElementById('liveInput').click()">
+      <img id="livePreview" style="display:none">
+      <div class="upload-empty" id="liveEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de marcador en vivo</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="liveInput" accept="image/*" style="display:none">
+    <div id="liveStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('live')"><i class="fa-solid fa-trash"></i> Quitar imagen (volver al ejemplo)</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-image"></i> Imagen real de carnet digital (reemplaza el ejemplo "Juan Pérez")</h3>
     <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">En la sección "Portal individual para cada socio" se muestra un carnet de ejemplo. Sube aquí una captura real de un carnet digital de un socio (puede ser tomada desde la app) — la reemplaza por completo.</p>
     <div class="landing-upload" id="carnetBox" onclick="document.getElementById('carnetInput').click()">
@@ -106,6 +158,19 @@
     <input type="file" id="carnetInput" accept="image/*" style="display:none">
     <div id="carnetStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
     <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('carnet')"><i class="fa-solid fa-trash"></i> Quitar imagen (volver al ejemplo)</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de patrocinadores (reemplaza el ejemplo "Halcones FC")</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">En la sección "Muestra a los patrocinadores de tu club" se muestra un ejemplo genérico. Sube aquí una captura real con los logos de patrocinadores de un club tuyo — la reemplaza por completo.</p>
+    <div class="landing-upload" id="sponsorsBox" onclick="document.getElementById('sponsorsInput').click()">
+      <img id="sponsorsPreview" style="display:none">
+      <div class="upload-empty" id="sponsorsEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de patrocinadores</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="sponsorsInput" accept="image/*" style="display:none">
+    <div id="sponsorsStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('sponsors')"><i class="fa-solid fa-trash"></i> Quitar imagen (volver al ejemplo)</button>
   </div>
 
   <div class="card" style="margin-bottom:20px">
@@ -131,7 +196,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/audit.js"></script>
 <script>
-const SLOTS = ["hero", "pain", "features", "matchday", "carnet", "cta"];
+const SLOTS = ["hero", "pain", "features", "matchday", "tabla", "goleadores", "valla", "live", "carnet", "sponsors", "cta"];
 
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";

@@ -272,6 +272,12 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
 .post-actions i{color:var(--green-l)}
 .mock-real-img{width:100%;display:block;border-radius:20px;box-shadow:var(--shadow);margin-bottom:14px;object-fit:cover}
+.social-extra-img{width:100%;display:block;border-radius:16px;box-shadow:var(--shadow);margin-top:14px;object-fit:cover}
+.sponsor-mock{background:linear-gradient(160deg,#131f18,#0a100c);border:1px solid var(--card-b);border-radius:20px;padding:28px 22px;text-align:center}
+.sponsor-mock-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-d)}
+.sponsor-mock-club{font-size:.95rem;font-weight:800;margin-top:6px;margin-bottom:22px}
+.sponsor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.sponsor-logo{aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--card-b2);display:flex;align-items:center;justify-content:center;font-size:1.05rem;color:var(--gray-d)}
 /* live results panel */
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .live-broadcast{position:relative;overflow:hidden;border-radius:16px;padding:16px 16px 14px;margin-bottom:0;
@@ -826,6 +832,9 @@ fbq('track', 'PageView');
             <span><i class="fa-solid fa-download"></i> Descargar</span>
             <span><i class="fa-solid fa-share-nodes"></i> Compartir</span>
           </div>
+          <img id="tablaImg" class="social-extra-img" style="display:none" alt="Tabla de posiciones real generada con BioFutbol">
+          <img id="goleadoresImg" class="social-extra-img" style="display:none" alt="Tabla de goleadores real generada con BioFutbol">
+          <img id="vallaImg" class="social-extra-img" style="display:none" alt="Valla menos vencida real generada con BioFutbol">
         </div>
       </div>
     </div>
@@ -843,7 +852,8 @@ fbq('track', 'PageView');
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="live-broadcast">
+          <img id="liveImg" class="mock-real-img" style="display:none" alt="Marcador en vivo real de un partido gestionado con BioFutbol">
+          <div class="live-broadcast" id="liveMock">
             <div class="live-ticker">
               <span class="live-badge"><span class="dot"></span> En vivo</span>
               <span class="live-min"><i class="fa-solid fa-stopwatch"></i> Jornada 8 · Min. 78'</span>
@@ -931,6 +941,34 @@ fbq('track', 'PageView');
               <div><b>+14</b><span>Socios nuevos</span></div>
             </div>
             <div class="report-ai"><i class="fa-solid fa-lightbulb"></i> <b>Sugerencia IA:</b> 4 socios llevan 2 meses sin pagar. Contáctalos hoy desde la app.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag auto"><i class="fa-solid fa-handshake"></i> Nuevo</span>
+        <h3>Muestra a los patrocinadores de tu club</h3>
+        <p>Destaca las marcas que patrocinan tu club o escuela directamente en la app: en el carnet digital de los socios, en las imágenes de partidos y en el portal — visibilidad real para quienes apoyan tu club.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Logos de patrocinadores en el carnet digital</li>
+          <li><i class="fa-solid fa-check"></i> También aparecen en las imágenes de partidos para redes</li>
+          <li><i class="fa-solid fa-check"></i> Ideal para conseguir y fidelizar patrocinadores</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <img id="sponsorsImg" class="mock-real-img" style="display:none" alt="Patrocinadores reales de un club mostrados en BioFutbol">
+          <div class="sponsor-mock" id="sponsorsMock">
+            <div class="sponsor-mock-label">Patrocinadores oficiales</div>
+            <div class="sponsor-mock-club">Halcones FC · Temporada 2026</div>
+            <div class="sponsor-grid">
+              <div class="sponsor-logo"><i class="fa-solid fa-shirt"></i></div>
+              <div class="sponsor-logo"><i class="fa-solid fa-shop"></i></div>
+              <div class="sponsor-logo"><i class="fa-solid fa-mug-saucer"></i></div>
+              <div class="sponsor-logo"><i class="fa-solid fa-car"></i></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1295,6 +1333,11 @@ document.addEventListener('click', function(e){
     imgEl.style.display = 'block';
     mockEl.style.display = 'none';
   }
+  function setSimpleImg(imgEl, url) {
+    if (!imgEl || !url) return;
+    imgEl.src = url;
+    imgEl.style.display = 'block';
+  }
   try {
     if (typeof firebaseWebConfig === 'undefined' || typeof firebase === 'undefined') return;
     firebase.initializeApp(firebaseWebConfig);
@@ -1308,6 +1351,11 @@ document.addEventListener('click', function(e){
       setImgPhoto(document.getElementById('featuresPhoto'), document.getElementById('featuresPhotoImg'), data.features);
       swapMock(document.getElementById('matchdayMock'), document.getElementById('matchdayImg'), data.matchday);
       swapMock(document.getElementById('carnetMock'), document.getElementById('carnetImg'), data.carnet);
+      swapMock(document.getElementById('liveMock'), document.getElementById('liveImg'), data.live);
+      swapMock(document.getElementById('sponsorsMock'), document.getElementById('sponsorsImg'), data.sponsors);
+      setSimpleImg(document.getElementById('tablaImg'), data.tabla);
+      setSimpleImg(document.getElementById('goleadoresImg'), data.goleadores);
+      setSimpleImg(document.getElementById('vallaImg'), data.valla);
     }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
   } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
 })();
