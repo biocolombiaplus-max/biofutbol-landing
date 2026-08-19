@@ -67,6 +67,8 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .nav-cta{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;padding:12px 24px;border-radius:999px;font-weight:700;font-size:.92rem;box-shadow:var(--cta-shadow);transition:.25s}
 .nav-cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:var(--cta-shadow-lg)}
 .nav-cta i{animation:wiggle 2.2s infinite}
+.btn-login{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-size:.86rem;transition:.25s;flex:none}
+.btn-login:hover{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.12)}
 .btn-demo{display:inline-flex;align-items:center;gap:9px;color:#fff;font-weight:800;font-size:.86rem;border:1.5px solid var(--gold);background:rgba(255,201,51,.12);padding:9px 20px 9px 10px;border-radius:999px;transition:.25s;white-space:nowrap}
 .btn-demo:hover{background:rgba(255,201,51,.22);transform:translateY(-2px);box-shadow:0 8px 22px rgba(255,201,51,.35)}
 .btn-demo .play-dot{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#c98a12);display:flex;align-items:center;justify-content:center;font-size:.6rem;flex:none;animation:demo-pulse 2s infinite;color:#241800}
@@ -499,6 +501,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .logo{font-size:1.1rem;gap:6px}
   .logo-icon{width:24px;height:30px}
   .nav-inner>div{gap:6px}
+  .btn-login{width:32px;height:32px;font-size:.76rem}
   .btn-demo{padding:6px 12px 6px 6px;font-size:.72rem;gap:5px}
   .btn-demo .play-dot{width:18px;height:18px;font-size:.5rem}
   .nav-cta{padding:9px 14px;font-size:.76rem;gap:5px}
@@ -562,6 +565,7 @@ fbq('track', 'PageView');
       <span class="bio">Bio</span><span class="fut">Futbol</span>
     </a>
     <div style="display:flex;align-items:center;gap:14px">
+      <a href="admin/login.html" class="btn-login" title="Ingresar al panel administrativo"><i class="fa-solid fa-user-lock"></i></a>
       <a href="demo.html" class="btn-demo"><span class="play-dot"><i class="fa-solid fa-play"></i></span> <span class="lbl">Demo</span></a>
       <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20BioFutbol" class="nav-cta" target="_blank" rel="noopener">
         <i class="fa-brands fa-whatsapp"></i> Cotizar
