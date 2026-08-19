@@ -712,6 +712,9 @@ fbq('track', 'PageView');
       <h2>Lo que BioFutbol hace por tu club</h2>
       <p>Una app pensada para directivos que quieren orden, control y una imagen profesional frente a sus socios.</p>
     </div>
+    <div class="sec-photo" id="featuresPhoto" style="display:none">
+      <img id="featuresPhotoImg" src="" alt="Directivos gestionando su club de fútbol con BioFutbol">
+    </div>
     <div class="feat-grid">
       <div class="feat-card reveal">
         <div class="ic"><i class="fa-solid fa-users"></i></div>
@@ -1293,6 +1296,7 @@ document.addEventListener('click', function(e){
       setBgPhoto(document.querySelector('.hero'), data.hero);
       setBgPhoto(document.querySelector('.cta-final'), data.cta);
       setImgPhoto(document.getElementById('painPhoto'), document.getElementById('painPhotoImg'), data.pain);
+      setImgPhoto(document.getElementById('featuresPhoto'), document.getElementById('featuresPhotoImg'), data.features);
     }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
   } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
 })();

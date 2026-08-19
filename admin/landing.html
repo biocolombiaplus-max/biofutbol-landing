@@ -70,6 +70,19 @@
   </div>
 
   <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen sección "Lo que BioFutbol hace por tu club"</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Foto que acompaña la lista de funciones (gestión de socios, cobros, reportes, etc). Ideal una foto real de directivos o del club en acción.</p>
+    <div class="landing-upload" id="featuresBox" onclick="document.getElementById('featuresInput').click()">
+      <img id="featuresPreview" style="display:none">
+      <div class="upload-empty" id="featuresEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen de esta sección</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="featuresInput" accept="image/*" style="display:none">
+    <div id="featuresStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('features')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-image"></i> Fondo del CTA final</h3>
     <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Imagen de fondo de la última sección de la página, justo antes del pie de página, donde está el botón grande para escribir por WhatsApp.</p>
     <div class="landing-upload" id="ctaBox" onclick="document.getElementById('ctaInput').click()">
@@ -92,7 +105,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/audit.js"></script>
 <script>
-const SLOTS = ["hero", "pain", "cta"];
+const SLOTS = ["hero", "pain", "features", "cta"];
 
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
