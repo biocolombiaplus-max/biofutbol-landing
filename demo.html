@@ -18,6 +18,7 @@
   --card-b:#1e2b23;--card-b2:#1c2733;--white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;
   --gold:#FFC933;--blue:#2a55d6;--purple:#7440d1;--red:#ff5c5c;
   --radius:16px;--shadow:0 14px 40px rgba(0,0,0,.5);--cta-shadow:0 10px 26px rgba(24,168,58,.4);
+  --banner-h:37px;--header-h:100px;
 }
 html{scroll-behavior:smooth}
 body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden}
@@ -42,7 +43,7 @@ img,svg{max-width:100%;display:block}
   .app-top{position:relative;top:auto}
   .app-body{overflow-y:auto}
 }
-.app-top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--card-b);position:sticky;top:37px;background:rgba(7,11,16,.95);backdrop-filter:blur(8px);z-index:100}
+.app-top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--card-b);position:sticky;top:var(--banner-h);background:rgba(7,11,16,.95);backdrop-filter:blur(8px);z-index:100}
 .app-top .logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1rem}
 .app-top .logo b{color:var(--green-l)}
 .app-top a.exit{font-size:.78rem;color:var(--gray);display:flex;align-items:center;gap:6px;font-weight:600}
@@ -68,13 +69,6 @@ img,svg{max-width:100%;display:block}
 .tour-preview{margin-bottom:18px}
 .tour-preview-row{display:flex;gap:8px}
 .tp-logo{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:900;color:#fff;flex:none;box-shadow:0 4px 10px rgba(0,0,0,.3);background-image:linear-gradient(160deg,rgba(255,255,255,.28),transparent 45%)}
-.tp-social{flex:1;aspect-ratio:4/5;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 45%)}
-.tp-carnet{background:linear-gradient(135deg,#0d2318,#132b1c);border:1px solid rgba(46,204,85,.35);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.tp-carnet .ph{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.7rem;color:#fff;flex:none}
-.tp-carnet .ci{flex:1;min-width:0}
-.tp-carnet b{font-size:.8rem;color:#fff;display:block}
-.tp-carnet span{font-size:.66rem;color:var(--gray)}
-.tp-carnet i.qr{color:var(--green-l);font-size:1.1rem;flex:none}
 .tour-progress{margin-bottom:20px}
 .tour-progress-label{font-size:.72rem;color:var(--gray);font-weight:700;margin-bottom:7px}
 .tour-progress-bar{height:5px;background:var(--card-b2);border-radius:4px;overflow:hidden}
@@ -88,7 +82,7 @@ img,svg{max-width:100%;display:block}
 .portal-label{display:block;font-size:.72rem;font-weight:700;color:var(--gray);margin-bottom:6px}
 .portal-btn-solid{width:100%;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;font-weight:800;padding:12px;border-radius:10px;font-size:.86rem;box-shadow:var(--cta-shadow);text-align:center}
 
-.app-body{flex:1;padding:18px 18px 140px}
+.app-body{flex:1;padding:18px 18px 140px;scroll-margin-top:var(--header-h)}
 .view{display:none;animation:fadein .35s ease}
 .view.on{display:block}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -279,6 +273,16 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .panel-link:active{background:rgba(24,168,58,.08)}
 
 /* ── DISEÑOS PARA REDES CON IA ── */
+.social-featured{position:relative;border-radius:18px;overflow:hidden;padding:24px 18px 20px;margin-bottom:14px;background:linear-gradient(160deg,rgba(255,255,255,.1),transparent 40%),radial-gradient(600px 300px at 50% -20%,rgba(46,204,85,.35),transparent 60%),linear-gradient(160deg,#0d2318,#081410);text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.45);border:1px solid rgba(46,204,85,.25)}
+.social-featured .sf-tag{position:absolute;top:12px;right:12px;font-size:.6rem;font-weight:800;background:rgba(0,0,0,.4);color:#fff;padding:4px 9px;border-radius:999px}
+.social-featured .sf-brand{font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green-l);margin-bottom:16px}
+.social-featured .sf-brand b{color:#fff}
+.social-featured .sf-teams{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:12px}
+.social-featured .sf-team{display:flex;flex-direction:column;align-items:center;gap:8px;width:76px}
+.social-featured .sf-team span{font-size:.68rem;font-weight:800;color:#fff;line-height:1.2}
+.social-featured .sf-score{font-size:2.3rem;font-weight:900;color:#fff;letter-spacing:.02em;flex:none}
+.social-featured .sf-meta{font-size:.7rem;color:var(--gray);margin-top:4px}
+
 .social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .social-tile{position:relative;aspect-ratio:4/5;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;text-align:center;overflow:hidden;background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 45%)}
 .social-tile i{font-size:1.25rem;color:#fff}
@@ -288,8 +292,9 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 /* ── PANEL ADMINISTRATIVO ── */
 .panel-top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .back-btn{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--card-b2);display:flex;align-items:center;justify-content:center;color:var(--white);flex:none}
-.panel-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px}
-.panel-tabs button{flex:none;font-size:.74rem;font-weight:700;color:var(--gray);background:var(--card);border:1px solid var(--card-b2);padding:9px 14px;border-radius:999px;display:flex;align-items:center;gap:6px}
+.panel-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.panel-tabs button{font-size:.68rem;font-weight:800;color:var(--gray);background:var(--card);border:1px solid var(--card-b2);padding:12px 4px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.panel-tabs button i{font-size:1.05rem}
 .panel-tabs button.on{color:#031007;background:var(--green-l);border-color:var(--green-l)}
 .panel-section{display:none}
 .panel-section.on{display:block;animation:fadein .3s ease}
@@ -347,7 +352,6 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .modal-foot a{color:var(--green-l);font-weight:700}
 
 @media(min-width:481px) and (max-width:859px){
-  .app-top{top:41px}
   .shell{box-shadow:0 0 60px rgba(0,0,0,.5);border-left:1px solid var(--card-b);border-right:1px solid var(--card-b)}
 }
 @media(min-width:860px){
@@ -593,10 +597,10 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       </div>
 
       <div class="panel-tabs">
-        <button class="on" data-ptab="equipos" onclick="panelTab('equipos')"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
-        <button data-ptab="socios" onclick="panelTab('socios')"><i class="fa-solid fa-users"></i> Socios</button>
-        <button data-ptab="cobros" onclick="panelTab('cobros')"><i class="fa-solid fa-sack-dollar"></i> Cobros</button>
-        <button data-ptab="equidad" onclick="panelTab('equidad')"><i class="fa-solid fa-scale-balanced"></i> Equidad</button>
+        <button class="on" data-ptab="equipos" onclick="panelTab('equipos')"><i class="fa-solid fa-shield-halved"></i><span>Equipos</span></button>
+        <button data-ptab="socios" onclick="panelTab('socios')"><i class="fa-solid fa-users"></i><span>Socios</span></button>
+        <button data-ptab="cobros" onclick="panelTab('cobros')"><i class="fa-solid fa-sack-dollar"></i><span>Cobros</span></button>
+        <button data-ptab="equidad" onclick="panelTab('equidad')"><i class="fa-solid fa-scale-balanced"></i><span>Equidad</span></button>
       </div>
 
       <div class="panel-section on" id="panel-equipos">
@@ -689,6 +693,19 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 </div>
 
 <script>
+function syncStickyOffsets() {
+  var banner = document.querySelector(".demo-banner");
+  var top = document.querySelector(".app-top");
+  if (!banner || !top) return;
+  var bH = banner.offsetHeight;
+  var tH = top.offsetHeight;
+  document.documentElement.style.setProperty("--banner-h", bH + "px");
+  document.documentElement.style.setProperty("--header-h", (bH + tH) + "px");
+}
+syncStickyOffsets();
+window.addEventListener("load", syncStickyOffsets);
+window.addEventListener("resize", syncStickyOffsets);
+
 function goTo(view) {
   document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("on"); });
   document.getElementById("view-" + view).classList.add("on");
@@ -768,9 +785,21 @@ function carnetHTML() {
     '<p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:14px">Cada socio tiene su carnet digital único, verificable con código QR en la entrada del club.</p>';
 }
 
+function socialFeaturedHTML() {
+  return '<div class="social-featured">' +
+    '<b class="sf-tag">✨ Generado con IA</b>' +
+    '<div class="sf-brand">Bio<b>Futbol</b></div>' +
+    '<div class="sf-teams">' +
+      '<div class="sf-team"><i class="crest c1" style="width:56px;height:56px;font-size:1.35rem">H</i><span>Halcones FC</span></div>' +
+      '<div class="sf-score">2 - 1</div>' +
+      '<div class="sf-team"><i class="crest c4" style="width:56px;height:56px;font-size:1.35rem">L</i><span>Leones Norte</span></div>' +
+    '</div>' +
+    '<div class="sf-meta">Jornada 4 · ¡Victoria en casa! 🏆</div>' +
+  '</div>';
+}
+
 function socialHTML() {
   const posts = [
-    { grad: "linear-gradient(135deg,#2ecc55,#0e7d29)", icon: "fa-futbol", label: "Resultado del partido" },
     { grad: "linear-gradient(135deg,#FFC933,#c98a12)", icon: "fa-calendar-days", label: "Fixture de la semana" },
     { grad: "linear-gradient(135deg,#5c8bff,#173a9c)", icon: "fa-trophy", label: "Tabla de posiciones" },
     { grad: "linear-gradient(135deg,#ab84f0,#4a2691)", icon: "fa-cake-candles", label: "Cumpleaños de socio" },
@@ -778,6 +807,7 @@ function socialHTML() {
     { grad: "linear-gradient(135deg,#4fd6e6,#0d6672)", icon: "fa-handshake", label: "Gracias a los aliados" }
   ];
   return '<p style="font-size:.82rem;color:var(--gray);margin-bottom:16px">Cada semana, la Inteligencia Artificial de BioFutbol genera automáticamente publicaciones listas para tus redes — sin diseñador y sin perder tiempo.</p>' +
+    socialFeaturedHTML() +
     '<div class="social-grid">' + posts.map(function (p) {
       return '<div class="social-tile" style="background:' + p.grad + '"><i class="fa-solid ' + p.icon + '"></i><span>' + p.label + '</span><b class="ai-tag">✨ IA</b></div>';
     }).join("") + '</div>' +
@@ -842,14 +872,11 @@ const tourSteps = [
   { view: "inicio", icon: "fa-solid fa-stopwatch", title: "Marcador en vivo", desc: "Registra los goles en tiempo real desde la cancha y celebra cada gol con una animación — pruébalo tocando los botones de \"Gol\" más abajo.",
     target: ".live-card" },
   { view: "inicio", icon: "fa-solid fa-id-card", title: "Carnet digital de socios", desc: "Cada socio tiene su carnet digital, verificable con código QR. Actívalo desde Administración → Carnet digital.",
-    target: "#admCarnetBtn",
-    preview: '<div class="tp-carnet"><div class="ph">SR</div><div class="ci"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15 · Activo</span></div><i class="fa-solid fa-qrcode qr"></i></div>' },
+    preview: carnetHTML() },
   { view: "inicio", icon: "fa-solid fa-handshake", title: "Aliados y patrocinadores", desc: "Muestra los aliados y patrocinadores de tu club directamente en la app — una forma más de generar ingresos.",
-    target: ".aliados-scroll",
     preview: '<div class="tour-preview-row"><div class="tp-logo" style="background-color:#0e7d29;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#2ecc55,#0e7d29)">ND</div><div class="tp-logo" style="background-color:#173a9c;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#5c8bff,#173a9c)">ADC</div><div class="tp-logo" style="background-color:#a63a12;background-image:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,#ff9a6b,#a63a12)">CV</div></div>' },
   { view: "inicio", icon: "fa-solid fa-wand-magic-sparkles", title: "Diseños para redes con IA", desc: "Cada semana, la Inteligencia Artificial genera publicaciones listas para tus redes sociales: resultados, fixture, cumpleaños de socios y más. Sin diseñador.",
-    target: "#admSocialBtn",
-    preview: '<div class="tour-preview-row"><div class="tp-social" style="background:linear-gradient(135deg,#2ecc55,#0e7d29)"><i class="fa-solid fa-futbol"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#FFC933,#c98a12)"><i class="fa-solid fa-calendar-days"></i></div><div class="tp-social" style="background:linear-gradient(135deg,#ab84f0,#4a2691)"><i class="fa-solid fa-cake-candles"></i></div></div>' },
+    preview: socialFeaturedHTML() },
   { view: "panel", icon: "fa-solid fa-gauge-high", title: "Panel administrativo completo", desc: "Equipos, socios, cobros y equidad de minutos de juego: toda la gestión de tu club en un solo lugar, accesible desde el botón \"Panel\"." },
   { view: "inicio", icon: "fa-solid fa-address-card", title: "Portal del socio", desc: "Cada socio o padre de familia puede entrar con su número de cédula a ver su propio carnet y estado de cuenta. Pruébalo con el ícono de tarjeta arriba.",
     target: "#portalIconBtn" },
