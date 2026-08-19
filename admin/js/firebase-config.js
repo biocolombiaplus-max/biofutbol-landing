@@ -2,12 +2,12 @@
 // Reemplaza estos valores con los de TU proyecto de Firebase.
 // Los obtienes en: Firebase Console > Configuración del proyecto > Tus apps > SDK setup and configuration
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyCGr1nNlrTRm6NTJvu88zNveSY_z5zG9zQ",
+  authDomain: "biofutbol-9f7c1.firebaseapp.com",
+  projectId: "biofutbol-9f7c1",
+  storageBucket: "biofutbol-9f7c1.firebasestorage.app",
+  messagingSenderId: "32468508546",
+  appId: "1:32468508546:web:c71f4960b6402fa04e799b"
 };
 
 firebase.initializeApp(firebaseConfig);
