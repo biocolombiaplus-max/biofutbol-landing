@@ -100,6 +100,7 @@ img,svg{max-width:100%;display:block}
 .chips span{font-size:.68rem;font-weight:700;color:var(--gray);background:rgba(255,255,255,.06);border:1px solid var(--card-b2);padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:5px}
 .chips span.live{color:var(--gold);border-color:rgba(255,201,51,.4)}
 .chips span.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.chips span.perso{color:var(--green-l);border-color:rgba(46,204,85,.4)}
 
 .nums{display:flex;justify-content:space-around;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 8px;margin-bottom:18px}
 .nums div{text-align:center}
@@ -206,6 +207,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .scorer-info{flex:1;min-width:0}
 .scorer-info b{display:block;font-size:.82rem;font-weight:800;color:#fff}
 .scorer-info span{font-size:.68rem;color:var(--gray)}
+.dorsal{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 4px;border-radius:6px;background:var(--card2);border:1px solid var(--card-b2);color:var(--green-l);font-size:.62rem;font-weight:800;margin-right:6px;vertical-align:middle}
 .scorer-goals{font-size:1rem;font-weight:900;color:var(--green-l);flex:none}
 .scorer-goals small{font-size:.6rem;color:var(--gray);font-weight:600;display:block;text-align:center}
 
@@ -261,7 +263,8 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
 .carnet-brand small{display:block;color:var(--gray);font-weight:600;text-transform:none;letter-spacing:0;font-size:.62rem;margin-top:2px}
 .carnet-status{font-size:.6rem;font-weight:800;color:#031007;background:var(--green-l);padding:4px 10px;border-radius:999px;flex:none}
 .carnet-body{display:flex;gap:16px;align-items:center;margin-bottom:16px;position:relative}
-.carnet-photo{width:64px;height:64px;border-radius:14px;background:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;color:#fff;flex:none;box-shadow:0 6px 16px rgba(24,168,58,.4)}
+.carnet-photo{position:relative;width:64px;height:64px;border-radius:14px;background:linear-gradient(160deg,rgba(255,255,255,.3),transparent 45%),linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;color:#fff;flex:none;box-shadow:0 6px 16px rgba(24,168,58,.4)}
+.carnet-dorsal{position:absolute;bottom:-5px;right:-5px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#241800;font-size:.62rem;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #0d2318}
 .carnet-info b{display:block;font-size:1.05rem;font-weight:900;color:#fff;margin-bottom:2px}
 .carnet-info span{display:block;font-size:.72rem;color:var(--gray)}
 .carnet-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px dashed rgba(255,255,255,.15);padding-top:14px;position:relative}
@@ -395,6 +398,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
         <span><i class="fa-solid fa-shield-halved"></i> 8 equipos</span>
         <span><i class="fa-solid fa-calendar-days"></i> 28 partidos</span>
         <span class="live">En curso</span>
+        <span class="perso"><i class="fa-solid fa-palette"></i> 100% personalizado a tu club</span>
       </div>
 
       <div class="nums">
@@ -549,16 +553,16 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
     <!-- ── GOLES ── -->
     <div class="view" id="view-goles">
       <div class="section-lbl" style="margin-bottom:16px">Tabla de goleadores</div>
-      <div class="scorer-row"><div class="scorer-rank">1</div><div class="avatar a1">JP</div><div class="scorer-info"><b>J. Pérez</b><span>Halcones FC</span></div><div class="scorer-goals">14<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">2</div><div class="avatar a2">AR</div><div class="scorer-info"><b>A. Ruiz</b><span>Águilas United</span></div><div class="scorer-goals">11<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">3</div><div class="avatar a3">DG</div><div class="scorer-info"><b>D. Gómez</b><span>Tigres del Sur</span></div><div class="scorer-goals">10<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">4</div><div class="avatar a4">SC</div><div class="scorer-info"><b>S. Cárdenas</b><span>Cóndores FC</span></div><div class="scorer-goals">8<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">5</div><div class="avatar a5">MT</div><div class="scorer-info"><b>M. Torres</b><span>Leones Norte</span></div><div class="scorer-goals">7<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">6</div><div class="avatar a6">CD</div><div class="scorer-info"><b>C. Duarte</b><span>Halcones FC</span></div><div class="scorer-goals">6<small>goles</small></div></div>
-      <div class="scorer-row"><div class="scorer-rank">7</div><div class="avatar a1">FS</div><div class="scorer-info"><b>F. Suárez</b><span>Panteras Rojas</span></div><div class="scorer-goals">5<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">1</div><div class="avatar a1">JP</div><div class="scorer-info"><b><span class="dorsal">9</span>J. Pérez</b><span>Halcones FC</span></div><div class="scorer-goals">14<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">2</div><div class="avatar a2">AR</div><div class="scorer-info"><b><span class="dorsal">11</span>A. Ruiz</b><span>Águilas United</span></div><div class="scorer-goals">11<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">3</div><div class="avatar a3">DG</div><div class="scorer-info"><b><span class="dorsal">7</span>D. Gómez</b><span>Tigres del Sur</span></div><div class="scorer-goals">10<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">4</div><div class="avatar a4">SC</div><div class="scorer-info"><b><span class="dorsal">10</span>S. Cárdenas</b><span>Cóndores FC</span></div><div class="scorer-goals">8<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">5</div><div class="avatar a5">MT</div><div class="scorer-info"><b><span class="dorsal">17</span>M. Torres</b><span>Leones Norte</span></div><div class="scorer-goals">7<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">6</div><div class="avatar a6">CD</div><div class="scorer-info"><b><span class="dorsal">5</span>C. Duarte</b><span>Halcones FC</span></div><div class="scorer-goals">6<small>goles</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank">7</div><div class="avatar a1">FS</div><div class="scorer-info"><b><span class="dorsal">23</span>F. Suárez</b><span>Panteras Rojas</span></div><div class="scorer-goals">5<small>goles</small></div></div>
 
       <div class="section-lbl" style="margin:22px 0 12px">Valla menos vencida</div>
-      <div class="scorer-row"><div class="scorer-rank" style="background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;border:none"><i class="fa-solid fa-hand" style="font-size:.6rem"></i></div><div class="avatar a2">RS</div><div class="scorer-info"><b>Halcones FC</b><span>Portero: R. Salazar</span></div><div class="scorer-goals" style="color:var(--green-l)">4<small>goles recibidos</small></div></div>
+      <div class="scorer-row"><div class="scorer-rank" style="background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;border:none"><i class="fa-solid fa-hand" style="font-size:.6rem"></i></div><div class="avatar a2">RS</div><div class="scorer-info"><b>Halcones FC</b><span><span class="dorsal">1</span>Portero: R. Salazar</span></div><div class="scorer-goals" style="color:var(--green-l)">4<small>goles recibidos</small></div></div>
     </div>
 
     <!-- ── LLAVE ── -->
@@ -604,6 +608,7 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       </div>
 
       <div class="panel-section on" id="panel-equipos">
+        <div class="equidad-note"><i class="fa-solid fa-palette"></i> Los escudos, nombres y colores de cada equipo se personalizan 100% a tu club — edítalos cuando quieras con el ícono del lápiz.</div>
         <div class="team-row"><i class="crest c1" style="width:34px;height:34px;font-size:.85rem">H</i><div class="ti"><b>Halcones FC</b><span>18 jugadores · Sub-11 a Sub-17</span></div><button class="edit-btn"><i class="fa-solid fa-pen"></i></button></div>
         <div class="team-row"><i class="crest c2" style="width:34px;height:34px;font-size:.85rem">A</i><div class="ti"><b>Águilas United</b><span>16 jugadores · Sub-13</span></div><button class="edit-btn"><i class="fa-solid fa-pen"></i></button></div>
         <div class="team-row"><i class="crest c3" style="width:34px;height:34px;font-size:.85rem">T</i><div class="ti"><b>Tigres del Sur</b><span>17 jugadores · Sub-15</span></div><button class="edit-btn"><i class="fa-solid fa-pen"></i></button></div>
@@ -615,14 +620,14 @@ table.tabla td.pts{font-weight:900;color:var(--green-l)}
       </div>
 
       <div class="panel-section" id="panel-socios">
-        <div class="member-row"><div class="avatar a1">JP</div><div class="mi"><b>Juan Pérez</b><span>Halcones FC · Sub-15</span></div><span class="pill ok">Al día</span></div>
-        <div class="member-row"><div class="avatar a2">LG</div><div class="mi"><b>Laura Gómez</b><span>Tigres del Sur · Sub-13</span></div><span class="pill ok">Al día</span></div>
-        <div class="member-row"><div class="avatar a3">AR</div><div class="mi"><b>Andrés Ruiz</b><span>Águilas United · Sub-17</span></div><span class="pill warn">Pendiente</span></div>
-        <div class="member-row"><div class="avatar a4">CD</div><div class="mi"><b>Camila Díaz</b><span>Cóndores FC · Sub-11</span></div><span class="pill ok">Al día</span></div>
-        <div class="member-row"><div class="avatar a5">MT</div><div class="mi"><b>Miguel Torres</b><span>Leones Norte · Sub-15</span></div><span class="pill warn">Pendiente</span></div>
-        <div class="member-row"><div class="avatar a6">SC</div><div class="mi"><b>Sofía Cárdenas</b><span>Cóndores FC · Sub-17</span></div><span class="pill ok">Al día</span></div>
-        <div class="member-row"><div class="avatar a1">DG</div><div class="mi"><b>Diego Gómez</b><span>Tigres del Sur · Sub-15</span></div><span class="pill ok">Al día</span></div>
-        <div class="member-row"><div class="avatar a2">VR</div><div class="mi"><b>Valentina Ramírez</b><span>Halcones FC · Sub-13</span></div><span class="pill warn">Pendiente</span></div>
+        <div class="member-row"><div class="avatar a1">JP</div><div class="mi"><b><span class="dorsal">9</span>Juan Pérez</b><span>Halcones FC · Sub-15</span></div><span class="pill ok">Al día</span></div>
+        <div class="member-row"><div class="avatar a2">LG</div><div class="mi"><b><span class="dorsal">14</span>Laura Gómez</b><span>Tigres del Sur · Sub-13</span></div><span class="pill ok">Al día</span></div>
+        <div class="member-row"><div class="avatar a3">AR</div><div class="mi"><b><span class="dorsal">11</span>Andrés Ruiz</b><span>Águilas United · Sub-17</span></div><span class="pill warn">Pendiente</span></div>
+        <div class="member-row"><div class="avatar a4">CD</div><div class="mi"><b><span class="dorsal">8</span>Camila Díaz</b><span>Cóndores FC · Sub-11</span></div><span class="pill ok">Al día</span></div>
+        <div class="member-row"><div class="avatar a5">MT</div><div class="mi"><b><span class="dorsal">17</span>Miguel Torres</b><span>Leones Norte · Sub-15</span></div><span class="pill warn">Pendiente</span></div>
+        <div class="member-row"><div class="avatar a6">SC</div><div class="mi"><b><span class="dorsal">10</span>Sofía Cárdenas</b><span>Cóndores FC · Sub-17</span></div><span class="pill ok">Al día</span></div>
+        <div class="member-row"><div class="avatar a1">DG</div><div class="mi"><b><span class="dorsal">7</span>Diego Gómez</b><span>Tigres del Sur · Sub-15</span></div><span class="pill ok">Al día</span></div>
+        <div class="member-row"><div class="avatar a2">VR</div><div class="mi"><b><span class="dorsal">4</span>Valentina Ramírez</b><span>Halcones FC · Sub-13</span></div><span class="pill warn">Pendiente</span></div>
       </div>
 
       <div class="panel-section" id="panel-cobros">
@@ -778,7 +783,7 @@ const modalContent = {
 function carnetHTML() {
   return '<div class="carnet-card">' +
     '<div class="carnet-top"><div class="carnet-brand">BioFutbol<small>Carnet digital de socio</small></div><span class="carnet-status">Activo</span></div>' +
-    '<div class="carnet-body"><div class="carnet-photo">SR</div><div class="carnet-info"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15</span></div></div>' +
+    '<div class="carnet-body"><div class="carnet-photo">SR<span class="carnet-dorsal">9</span></div><div class="carnet-info"><b>Santiago Ramírez</b><span>Halcones FC · Sub-15</span></div></div>' +
     '<div class="carnet-grid"><div>Cédula<b>1.019.XXX.442</b></div><div>Socio desde<b>Feb 2024</b></div><div>Categoría<b>Sub-15</b></div><div>Vigente hasta<b>Dic 2026</b></div></div>' +
     '<div class="carnet-qr"><i class="fa-solid fa-qrcode"></i></div>' +
     '</div>' +
