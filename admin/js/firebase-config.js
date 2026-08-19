@@ -13,7 +13,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
+// Storage ya no se usa (las imágenes se suben a Cloudinary); esto solo
+// evita romper páginas que aún no cargan el SDK de Storage.
+let storage = null;
+try { storage = firebase.storage(); } catch (e) { /* no cargado en esta página, no pasa nada */ }
 
 // ── CONFIGURACIÓN DE EMAILJS (opcional, para enviar el contrato por correo) ──
 // Crea una cuenta gratis en https://www.emailjs.com y reemplaza estos 3 valores.

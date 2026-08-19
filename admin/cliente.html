@@ -144,10 +144,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/audit.js"></script>
 <script src="js/contract.js"></script>
@@ -251,10 +251,8 @@ function subirImagen(tipo, file) {
   status.style.display = "block";
 
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = "logos/" + clienteId + "-" + tipo + "." + ext;
-  const ref = storage.ref().child(path);
 
-  ref.put(file).then(function () { return ref.getDownloadURL(); }).then(function (url) {
+  subirACloudinary(file, "logos", clienteId + "-" + tipo + "." + ext).then(function (url) {
     const campo = tipo + "Url";
     return db.collection("clientes").doc(clienteId).update({ [campo]: url }).then(function () { return url; });
   }).then(function (url) {
@@ -384,9 +382,7 @@ document.getElementById("btnGenerarPdf").addEventListener("click", function () {
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
 
   generarContratoPDF(clienteActual).then(function (blob) {
-    const path = "contratos/" + clienteId + ".pdf";
-    const ref = storage.ref().child(path);
-    return ref.put(blob).then(function () { return ref.getDownloadURL(); });
+    return subirACloudinary(blob, "contratos", clienteId + ".pdf");
   }).then(function (url) {
     return db.collection("clientes").doc(clienteId).update({
       contratoUrl: url,

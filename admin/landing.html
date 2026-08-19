@@ -88,8 +88,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
 <script src="js/audit.js"></script>
 <script>
 const SLOTS = ["hero", "pain", "cta"];
@@ -130,10 +130,8 @@ function subirImagenLanding(slot, file) {
   status.style.display = "block";
 
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = "landing/" + slot + "." + ext;
-  const ref = storage.ref().child(path);
 
-  ref.put(file).then(function () { return ref.getDownloadURL(); }).then(function (url) {
+  subirACloudinary(file, "landing", slot + "." + ext).then(function (url) {
     return db.collection("config").doc("landing").set({ [slot]: url }, { merge: true }).then(function () { return url; });
   }).then(function (url) {
     mostrarPreview(slot, url);
