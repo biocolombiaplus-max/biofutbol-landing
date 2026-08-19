@@ -271,6 +271,7 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .post-actions{display:flex;gap:10px}
 .post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
 .post-actions i{color:var(--green-l)}
+.mock-real-img{width:100%;display:block;border-radius:20px;box-shadow:var(--shadow);margin-bottom:14px;object-fit:cover}
 /* live results panel */
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .live-broadcast{position:relative;overflow:hidden;border-radius:16px;padding:16px 16px 14px;margin-bottom:0;
@@ -796,7 +797,8 @@ fbq('track', 'PageView');
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="matchday">
+          <img id="matchdayImg" class="mock-real-img" style="display:none" alt="Imagen de partido real generada por un club con BioFutbol">
+          <div class="matchday" id="matchdayMock">
             <span class="tag"><i class="fa-solid fa-bolt"></i> 1 CLIC</span>
             <div class="md-crest">H</div>
             <div class="md-club">Halcones FC</div>
@@ -879,7 +881,8 @@ fbq('track', 'PageView');
       </div>
       <div class="spot-visual reveal">
         <div class="spot-panel">
-          <div class="member-card">
+          <img id="carnetImg" class="mock-real-img" style="display:none" alt="Carnet digital real de un socio en BioFutbol">
+          <div class="member-card" id="carnetMock">
             <div class="member-card-top">
               <div>
                 <div class="member-card-label">Carnet digital</div>
@@ -1286,6 +1289,12 @@ document.addEventListener('click', function(e){
     imgEl.src = url;
     wrapEl.style.display = 'block';
   }
+  function swapMock(mockEl, imgEl, url) {
+    if (!mockEl || !imgEl || !url) return;
+    imgEl.src = url;
+    imgEl.style.display = 'block';
+    mockEl.style.display = 'none';
+  }
   try {
     if (typeof firebaseWebConfig === 'undefined' || typeof firebase === 'undefined') return;
     firebase.initializeApp(firebaseWebConfig);
@@ -1297,6 +1306,8 @@ document.addEventListener('click', function(e){
       setBgPhoto(document.querySelector('.cta-final'), data.cta);
       setImgPhoto(document.getElementById('painPhoto'), document.getElementById('painPhotoImg'), data.pain);
       setImgPhoto(document.getElementById('featuresPhoto'), document.getElementById('featuresPhotoImg'), data.features);
+      swapMock(document.getElementById('matchdayMock'), document.getElementById('matchdayImg'), data.matchday);
+      swapMock(document.getElementById('carnetMock'), document.getElementById('carnetImg'), data.carnet);
     }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
   } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
 })();

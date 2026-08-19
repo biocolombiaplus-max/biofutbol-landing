@@ -83,6 +83,32 @@
   </div>
 
   <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de partido (reemplaza el ejemplo "Halcones FC")</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">En la sección "Imágenes para redes sociales con un solo clic" se muestra un ejemplo genérico. Sube aquí una captura real de una imagen de partido que ya hayas generado para un club tuyo — la reemplaza por completo.</p>
+    <div class="landing-upload" id="matchdayBox" onclick="document.getElementById('matchdayInput').click()">
+      <img id="matchdayPreview" style="display:none">
+      <div class="upload-empty" id="matchdayEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de partido</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="matchdayInput" accept="image/*" style="display:none">
+    <div id="matchdayStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('matchday')"><i class="fa-solid fa-trash"></i> Quitar imagen (volver al ejemplo)</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen real de carnet digital (reemplaza el ejemplo "Juan Pérez")</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">En la sección "Portal individual para cada socio" se muestra un carnet de ejemplo. Sube aquí una captura real de un carnet digital de un socio (puede ser tomada desde la app) — la reemplaza por completo.</p>
+    <div class="landing-upload" id="carnetBox" onclick="document.getElementById('carnetInput').click()">
+      <img id="carnetPreview" style="display:none">
+      <div class="upload-empty" id="carnetEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen real de carnet</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="carnetInput" accept="image/*" style="display:none">
+    <div id="carnetStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('carnet')"><i class="fa-solid fa-trash"></i> Quitar imagen (volver al ejemplo)</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-image"></i> Fondo del CTA final</h3>
     <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Imagen de fondo de la última sección de la página, justo antes del pie de página, donde está el botón grande para escribir por WhatsApp.</p>
     <div class="landing-upload" id="ctaBox" onclick="document.getElementById('ctaInput').click()">
@@ -105,7 +131,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/audit.js"></script>
 <script>
-const SLOTS = ["hero", "pain", "features", "cta"];
+const SLOTS = ["hero", "pain", "features", "matchday", "carnet", "cta"];
 
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
