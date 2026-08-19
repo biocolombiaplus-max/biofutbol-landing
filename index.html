@@ -388,7 +388,9 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan .setup-note i{color:var(--green-l);margin-top:2px;flex:none}
 .plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 2px}
 .plan .price small{font-size:.9rem;color:var(--gray);font-weight:600}
-.plan .price-note{font-size:.72rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.plan .price-was{font-size:1.15rem;color:var(--gray-d);text-decoration:line-through;font-weight:700;margin-right:6px}
+.plan .price-launch{display:flex;align-items:flex-start;gap:6px;font-size:.72rem;font-weight:700;color:var(--gold);margin-top:2px;margin-bottom:4px;line-height:1.4}
+.plan .price-launch i{margin-top:2px;flex:none}
 .plan ul{margin:18px 0 24px;flex:1}
 .plan li{display:flex;align-items:flex-start;gap:8px;font-size:.86rem;color:var(--white);margin-bottom:9px}
 .plan li i{color:var(--green-l);margin-top:3px}
@@ -996,21 +998,22 @@ fbq('track', 'PageView');
       <p>Pagas una sola vez la implementación de tu app y luego un valor fijo mensual por socio activo. Así de simple.</p>
     </div>
     <div class="urgency-strip reveal">
-      <span class="ut-badge"><i class="fa-solid fa-bolt"></i> Oferta relámpago · Solo hoy</span>
-      <h3>Hoy no pagas el costo de implementación</h3>
-      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app — <strong>aplica para los 4 planes</strong>, sin importar el tamaño de tu club. Ahorras hasta <strong>$750.000</strong> en el plan más grande</p>
+      <span class="ut-badge"><i class="fa-solid fa-bolt"></i> Oferta de lanzamiento · Solo hoy</span>
+      <h3>Hoy no pagas implementación y todos los planes cuestan $2.500 por socio</h3>
+      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app, <strong>además</strong> hoy todos los planes bajan a <strong>$2.500 por socio al mes</strong> — aplica para los 4 planes, sin importar el tamaño de tu club.</p>
       <div class="ut-timer"><i class="fa-solid fa-clock"></i> Esta oferta termina en <b id="offerCountdown">--:--:--</b></div>
-      <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20oferta%20de%20hoy%3A%20implementaci%C3%B3n%20GRATIS%20en%20BioFutbol" class="btn-offer" target="_blank" rel="noopener">
-        <i class="fa-brands fa-whatsapp"></i> Quiero mi implementación gratis hoy
+      <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20oferta%20de%20lanzamiento%20de%20hoy%20en%20BioFutbol%3A%20implementaci%C3%B3n%20gratis%20y%20%242.500%20por%20socio" class="btn-offer" target="_blank" rel="noopener">
+        <i class="fa-brands fa-whatsapp"></i> Quiero el precio de lanzamiento hoy
       </a>
-      <span class="ut-fine">Mañana la implementación vuelve a tener su costo normal, desde $350.000 según el plan.</span>
+      <span class="ut-fine">Mañana la implementación y el valor mensual de cada plan vuelven a su precio normal.</span>
     </div>
     <div class="pricing-grid">
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$350.000</s> <span class="setup-free">Gratis hoy</span></div>
         <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price">$4.000 <small>/socio/mes</small></div>
+        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $4.000/socio/mes</div>
+        <div class="price"><s class="price-was">$4.000</s> $2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
           <li><i class="fa-solid fa-check"></i> Gestión de socios y cobros</li>
@@ -1023,7 +1026,8 @@ fbq('track', 'PageView');
         <span class="members">101 a 200 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$450.000</s> <span class="setup-free">Gratis hoy</span></div>
         <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price">$3.000 <small>/socio/mes</small></div>
+        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $3.000/socio/mes</div>
+        <div class="price"><s class="price-was">$3.000</s> $2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Reportes de recaudo</li>
@@ -1036,6 +1040,7 @@ fbq('track', 'PageView');
         <span class="members">201 a 500 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$490.000</s> <span class="setup-free">Gratis hoy</span></div>
         <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
+        <div class="price-launch"><i class="fa-solid fa-circle-check"></i> Ya tienes el precio de lanzamiento — se mantiene igual mañana</div>
         <div class="price">$2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -1049,8 +1054,8 @@ fbq('track', 'PageView');
         <span class="members">Más de 1.000 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$750.000</s> <span class="setup-free">Gratis hoy</span></div>
         <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price-note"><i class="fa-solid fa-fire"></i> Tu inversión más baja: 2 mil pesitos por socio</div>
-        <div class="price">$2.000 <small>/socio/mes</small></div>
+        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $2.000/socio/mes</div>
+        <div class="price"><s class="price-was">$2.000</s> $1.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Integraciones a medida</li>
