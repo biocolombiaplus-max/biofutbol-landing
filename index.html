@@ -79,14 +79,18 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 }
 
 /* ── HERO ── */
-.hero{padding:168px 0 100px;position:relative;background:
+.hero{padding:168px 0 100px;position:relative;overflow:hidden;background:
   radial-gradient(1200px 560px at 88% -8%,rgba(24,168,58,.25),transparent 60%),
   radial-gradient(800px 460px at -4% 100%,rgba(24,168,58,.14),transparent 60%),
   repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 68px),
   repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 68px);
   border-bottom:1px solid var(--card-b)
 }
-.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;opacity:0;transition:opacity 1s ease;
+  background-image:linear-gradient(180deg,rgba(7,11,16,.6),rgba(7,11,16,.9)),var(--bg-photo,none);
+  background-size:cover;background-position:center}
+.hero.has-photo::before{opacity:1}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
 .hero .pro-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;font-weight:900;font-size:.72rem;letter-spacing:.08em;padding:6px 14px;border-radius:999px;margin-bottom:16px;box-shadow:0 8px 20px rgba(255,180,0,.35)}
 .urgency-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff3b1f,#ff8a00);color:#fff;font-weight:900;font-size:.72rem;letter-spacing:.03em;padding:7px 16px;border-radius:999px;margin-bottom:14px;box-shadow:0 8px 22px rgba(255,59,31,.45);animation:pulse-urgency 2s infinite}
 @keyframes pulse-urgency{0%,100%{box-shadow:0 8px 22px rgba(255,59,31,.45)}50%{box-shadow:0 10px 30px rgba(255,59,31,.8)}}
@@ -183,6 +187,8 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 
 /* ── PAIN POINTS ── */
 .pain{background:var(--bg2)}
+.sec-photo{border-radius:22px;overflow:hidden;margin-bottom:40px;box-shadow:var(--shadow);max-height:360px}
+.sec-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:44px}
 .pain-card{background:var(--card2);border:1px solid #2a1a1a;border-radius:var(--radius);padding:26px 22px}
 .pain-card i{color:#ff5c5c;font-size:1.4rem;margin-bottom:12px}
@@ -440,7 +446,12 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .faq details p{color:var(--gray);font-size:.9rem;line-height:1.6;margin-top:14px}
 
 /* ── CTA FINAL ── */
-.cta-final{background:radial-gradient(1000px 460px at 50% 0%,rgba(24,168,58,.28),transparent 70%),var(--bg2);text-align:center;overflow:hidden}
+.cta-final{position:relative;background:radial-gradient(1000px 460px at 50% 0%,rgba(24,168,58,.28),transparent 70%),var(--bg2);text-align:center;overflow:hidden}
+.cta-final::before{content:"";position:absolute;inset:0;z-index:0;opacity:0;transition:opacity 1s ease;
+  background-image:linear-gradient(180deg,rgba(7,11,16,.68),rgba(7,11,16,.92)),var(--bg-photo,none);
+  background-size:cover;background-position:center}
+.cta-final.has-photo::before{opacity:1}
+.cta-final .container{position:relative;z-index:1}
 .cta-final h2{font-size:clamp(1.9rem,3.8vw,2.8rem);margin-bottom:16px}
 .cta-final p{color:var(--gray);max-width:580px;margin:0 auto 34px;font-size:1.08rem}
 
@@ -661,6 +672,9 @@ fbq('track', 'PageView');
       <span class="eyebrow"><i class="fa-solid fa-triangle-exclamation"></i> ¿Te suena familiar?</span>
       <h2>Así se pierde plata y tiempo administrando un club sin la herramienta correcta</h2>
       <p>Excel desordenado, socios que no pagan a tiempo y mensajes perdidos en WhatsApp. BioFutbol resuelve todo eso desde un solo lugar.</p>
+    </div>
+    <div class="sec-photo" id="painPhoto" style="display:none">
+      <img id="painPhotoImg" src="" alt="Club de fútbol gestionado con BioFutbol">
     </div>
     <div class="pain-grid">
       <div class="pain-card reveal">
@@ -1247,6 +1261,37 @@ document.addEventListener('click', function(e){
     fbq('track', 'ViewContent', { content_name: 'Demo interactiva' });
   }
 });
+</script>
+
+<!-- ── IMÁGENES DE LA LANDING (gestionadas desde el panel admin) ── -->
+<script src="firebase-web-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script>
+(function () {
+  function setBgPhoto(el, url) {
+    if (!el || !url) return;
+    el.style.setProperty('--bg-photo', 'url("' + url + '")');
+    el.classList.add('has-photo');
+  }
+  function setImgPhoto(wrapEl, imgEl, url) {
+    if (!wrapEl || !imgEl || !url) return;
+    imgEl.src = url;
+    wrapEl.style.display = 'block';
+  }
+  try {
+    if (typeof firebaseWebConfig === 'undefined' || typeof firebase === 'undefined') return;
+    firebase.initializeApp(firebaseWebConfig);
+    var db = firebase.firestore();
+    db.collection('config').doc('landing').get().then(function (doc) {
+      if (!doc.exists) return;
+      var data = doc.data() || {};
+      setBgPhoto(document.querySelector('.hero'), data.hero);
+      setBgPhoto(document.querySelector('.cta-final'), data.cta);
+      setImgPhoto(document.getElementById('painPhoto'), document.getElementById('painPhotoImg'), data.pain);
+    }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
+  } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
+})();
 </script>
 </body>
 </html>

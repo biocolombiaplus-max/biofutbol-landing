@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imágenes de la landing | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.landing-upload{position:relative;cursor:pointer;border:1.5px dashed var(--card-b2);border-radius:14px;background:var(--card2);overflow:hidden;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.landing-upload:hover{border-color:var(--green)}
+.landing-upload img{width:100%;height:100%;object-fit:cover;display:block}
+.landing-upload .upload-empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--gray-d);font-size:.8rem;font-weight:700}
+.landing-upload .upload-empty i{font-size:1.8rem;color:var(--card-b2)}
+.landing-upload .upload-overlay{position:absolute;inset:0;background:rgba(7,11,16,.75);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;opacity:0;transition:.2s}
+.landing-upload:hover .upload-overlay{opacity:1}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver al panel</a>
+  <div class="section-head" style="margin-top:0">
+    <h2>Imágenes de la landing</h2>
+  </div>
+  <p style="font-size:.86rem;color:var(--gray);margin-bottom:22px;max-width:640px">
+    Sube fotos relacionadas con fútbol para que la página principal (biofutbol) se vea más profesional. Se actualizan al instante en la landing, tanto en computador como en celular — no necesitas tocar código. Formatos JPG/PNG, ideal 1920×1080 o más grande, máximo 5MB.
+  </p>
+
+  <div class="success-box" id="successBox"></div>
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Fondo del Hero (portada principal)</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">La primera imagen que ve cualquier visitante, justo detrás del título "Gestiona tu club de fútbol con IA". Se le aplica automáticamente un degradado oscuro para que el texto se siga leyendo bien.</p>
+    <div class="landing-upload" id="heroBox" onclick="document.getElementById('heroInput').click()">
+      <img id="heroPreview" style="display:none">
+      <div class="upload-empty" id="heroEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen de fondo del Hero</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="heroInput" accept="image/*" style="display:none">
+    <div id="heroStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('hero')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Imagen sección "¿Te suena familiar?"</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Foto que acompaña la sección de problemas comunes (Excel desordenado, cobros sin control, etc). Ideal una foto real de un club, cancha o entrenamiento.</p>
+    <div class="landing-upload" id="painBox" onclick="document.getElementById('painInput').click()">
+      <img id="painPreview" style="display:none">
+      <div class="upload-empty" id="painEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen de esta sección</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="painInput" accept="image/*" style="display:none">
+    <div id="painStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('pain')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-image"></i> Fondo del CTA final</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Imagen de fondo de la última sección de la página, justo antes del pie de página, donde está el botón grande para escribir por WhatsApp.</p>
+    <div class="landing-upload" id="ctaBox" onclick="document.getElementById('ctaInput').click()">
+      <img id="ctaPreview" style="display:none">
+      <div class="upload-empty" id="ctaEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen de fondo del CTA</span></div>
+      <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+    </div>
+    <input type="file" id="ctaInput" accept="image/*" style="display:none">
+    <div id="ctaStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+    <button class="btn btn-danger btn-sm" style="margin-top:10px" onclick="quitarImagen('cta')"><i class="fa-solid fa-trash"></i> Quitar imagen</button>
+  </div>
+
+  <a href="../index.html" target="_blank" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver la landing publicada</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/audit.js"></script>
+<script>
+const SLOTS = ["hero", "pain", "cta"];
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  cargarImagenes();
+});
+
+function cargarImagenes() {
+  db.collection("config").doc("landing").get().then(function (doc) {
+    const data = doc.exists ? doc.data() : {};
+    SLOTS.forEach(function (slot) {
+      if (data[slot]) mostrarPreview(slot, data[slot]);
+    });
+  }).catch(function (err) {
+    mostrarError("No se pudieron cargar las imágenes actuales: " + err.message);
+  });
+}
+
+function mostrarPreview(slot, url) {
+  document.getElementById(slot + "Preview").src = url;
+  document.getElementById(slot + "Preview").style.display = "block";
+  document.getElementById(slot + "Empty").style.display = "none";
+}
+
+function ocultarPreview(slot) {
+  document.getElementById(slot + "Preview").style.display = "none";
+  document.getElementById(slot + "Preview").src = "";
+  document.getElementById(slot + "Empty").style.display = "flex";
+}
+
+function subirImagenLanding(slot, file) {
+  if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
+  if (file.size > 5 * 1024 * 1024) { mostrarError("La imagen no puede pesar más de 5MB."); return; }
+
+  const status = document.getElementById(slot + "Status");
+  status.style.display = "block";
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = "landing/" + slot + "." + ext;
+  const ref = storage.ref().child(path);
+
+  ref.put(file).then(function () { return ref.getDownloadURL(); }).then(function (url) {
+    return db.collection("config").doc("landing").set({ [slot]: url }, { merge: true }).then(function () { return url; });
+  }).then(function (url) {
+    mostrarPreview(slot, url);
+    status.style.display = "none";
+    registrarAuditoria("Imagen de landing actualizada (" + slot + ")", null, null);
+    mostrarExito("Imagen actualizada. Ya está visible en la landing.");
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo subir la imagen: " + err.message);
+  });
+}
+
+function quitarImagen(slot) {
+  if (!confirm("¿Quitar esta imagen de la landing? La sección volverá a su diseño sin foto.")) return;
+  db.collection("config").doc("landing").set({ [slot]: firebase.firestore.FieldValue.delete() }, { merge: true }).then(function () {
+    ocultarPreview(slot);
+    registrarAuditoria("Imagen de landing eliminada (" + slot + ")", null, null);
+    mostrarExito("Imagen eliminada.");
+  }).catch(function (err) {
+    mostrarError("No se pudo quitar la imagen: " + err.message);
+  });
+}
+
+SLOTS.forEach(function (slot) {
+  document.getElementById(slot + "Input").addEventListener("change", function (e) {
+    if (e.target.files[0]) subirImagenLanding(slot, e.target.files[0]);
+  });
+});
+
+function mostrarError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function mostrarExito(msg) {
+  const box = document.getElementById("successBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(function () { box.style.display = "none"; }, 3500);
+}
+</script>
+</body>
+</html>

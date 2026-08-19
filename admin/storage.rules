@@ -15,5 +15,12 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // Imágenes de la landing pública (hero, secciones, CTA): públicas para
+    // lectura, solo un admin autenticado puede subirlas.
+    match /landing/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
   }
 }
