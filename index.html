@@ -359,10 +359,19 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .delivery strong{font-size:1.2rem;color:#fff}
 .delivery span{opacity:.94;font-size:.96rem}
 
-.urgency-strip{display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;flex-wrap:wrap;background:linear-gradient(135deg,#ff3b1f,#ff8a00);border-radius:20px;padding:22px 26px;box-shadow:0 12px 34px rgba(255,59,31,.4);margin-bottom:44px;position:relative;overflow:hidden;animation:pulse-urgency 2.4s infinite}
-.urgency-strip i{font-size:1.5rem;color:#fff}
+.urgency-strip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;background:linear-gradient(135deg,#ff3b1f,#ff8a00);border-radius:20px;padding:30px 26px;box-shadow:0 12px 34px rgba(255,59,31,.4);margin-bottom:44px;position:relative;overflow:hidden;animation:pulse-urgency 2.4s infinite}
+.urgency-strip i{color:#fff}
 .urgency-strip strong{font-size:1.08rem;color:#fff;display:block}
 .urgency-strip span{opacity:.95;font-size:.88rem;color:#fff}
+.ut-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);color:#fff;padding:6px 16px;border-radius:999px;font-size:.72rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+.urgency-strip h3{font-size:1.35rem;color:#fff;font-weight:900;line-height:1.25}
+.ut-desc{color:rgba(255,255,255,.96);font-size:.94rem;max-width:620px;line-height:1.6}
+.ut-desc strong{color:#fff}
+.ut-timer{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);padding:9px 20px;border-radius:999px;font-weight:800;font-size:.92rem;color:#fff}
+.ut-timer b{font-variant-numeric:tabular-nums;letter-spacing:.03em;font-size:1rem}
+.btn-offer{background:#fff;color:#c62b12;font-weight:900;padding:15px 32px;border-radius:14px;font-size:1.02rem;display:inline-flex;align-items:center;gap:10px;box-shadow:0 10px 26px rgba(0,0,0,.25);transition:.2s;margin-top:4px}
+.btn-offer:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 32px rgba(0,0,0,.3)}
+.ut-fine{font-size:.76rem;color:rgba(255,255,255,.85)}
 
 /* ── PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
@@ -371,8 +380,10 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan.featured{border-color:var(--green);box-shadow:var(--cta-shadow);background:linear-gradient(180deg,rgba(24,168,58,.1),var(--card))}
 .plan.featured::before{content:"⭐ MÁS ELEGIDO";position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;font-size:.68rem;font-weight:900;letter-spacing:.03em;padding:6px 16px;border-radius:999px;white-space:nowrap}
 .plan .members{color:var(--gray);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
-.plan .setup{margin-top:12px;font-size:.82rem;color:var(--gray)}
+.plan .setup{margin-top:12px;font-size:.82rem;color:var(--gray);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .plan .setup b{color:var(--white);font-size:1.05rem}
+.plan .setup-was{color:var(--gray-d);text-decoration:line-through;font-weight:600}
+.plan .setup-free{color:var(--green-l);font-weight:900;background:rgba(24,168,58,.14);border:1px solid rgba(24,168,58,.35);padding:2px 10px;border-radius:999px;font-size:.72rem;letter-spacing:.02em;text-transform:uppercase}
 .plan .setup-note{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:.74rem;color:var(--gray-d);line-height:1.5}
 .plan .setup-note i{color:var(--green-l);margin-top:2px;flex:none}
 .plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 2px}
@@ -985,17 +996,20 @@ fbq('track', 'PageView');
       <p>Pagas una sola vez la implementación de tu app y luego un valor fijo mensual por socio activo. Así de simple.</p>
     </div>
     <div class="urgency-strip reveal">
-      <i class="fa-solid fa-fire"></i>
-      <div>
-        <strong>Oferta por tiempo limitado</strong>
-        <span>Escríbenos y cierra tu proceso hoy mismo: te llevas 1 mes GRATIS de tu plan.</span>
-      </div>
+      <span class="ut-badge"><i class="fa-solid fa-bolt"></i> Oferta relámpago · Solo hoy</span>
+      <h3>Hoy no pagas el costo de implementación</h3>
+      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app — <strong>aplica para los 4 planes</strong>, sin importar el tamaño de tu club. Ahorras hasta <strong>$750.000</strong> en el plan más grande</p>
+      <div class="ut-timer"><i class="fa-solid fa-clock"></i> Esta oferta termina en <b id="offerCountdown">--:--:--</b></div>
+      <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20oferta%20de%20hoy%3A%20implementaci%C3%B3n%20GRATIS%20en%20BioFutbol" class="btn-offer" target="_blank" rel="noopener">
+        <i class="fa-brands fa-whatsapp"></i> Quiero mi implementación gratis hoy
+      </a>
+      <span class="ut-fine">Mañana la implementación vuelve a tener su costo normal, desde $350.000 según el plan.</span>
     </div>
     <div class="pricing-grid">
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
-        <div class="setup">Implementación única: <b>$350.000</b></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
+        <div class="setup">Implementación única: <s class="setup-was">$350.000</s> <span class="setup-free">Gratis hoy</span></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
         <div class="price">$4.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
@@ -1007,8 +1021,8 @@ fbq('track', 'PageView');
       </div>
       <div class="plan featured reveal">
         <span class="members">101 a 200 socios</span>
-        <div class="setup">Implementación única: <b>$450.000</b></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
+        <div class="setup">Implementación única: <s class="setup-was">$450.000</s> <span class="setup-free">Gratis hoy</span></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
         <div class="price">$3.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -1020,8 +1034,8 @@ fbq('track', 'PageView');
       </div>
       <div class="plan reveal">
         <span class="members">201 a 500 socios</span>
-        <div class="setup">Implementación única: <b>$490.000</b></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
+        <div class="setup">Implementación única: <s class="setup-was">$490.000</s> <span class="setup-free">Gratis hoy</span></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
         <div class="price">$2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
@@ -1033,8 +1047,8 @@ fbq('track', 'PageView');
       </div>
       <div class="plan reveal">
         <span class="members">Más de 1.000 socios</span>
-        <div class="setup">Implementación única: <b>$750.000</b></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Pago único para iniciar: con esto hacemos el desarrollo inicial de tu app 100% a la medida.</div>
+        <div class="setup">Implementación única: <s class="setup-was">$750.000</s> <span class="setup-free">Gratis hoy</span></div>
+        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
         <div class="price-note"><i class="fa-solid fa-fire"></i> Tu inversión más baja: 2 mil pesitos por socio</div>
         <div class="price">$2.000 <small>/socio/mes</small></div>
         <ul>
@@ -1195,6 +1209,22 @@ var io = new IntersectionObserver(function(entries){
   entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
 },{threshold:.15});
 document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+// Cuenta regresiva de la oferta "solo hoy" (hasta medianoche, hora local del visitante)
+function updateOfferCountdown() {
+  var el = document.getElementById('offerCountdown');
+  if (!el) return;
+  var now = new Date();
+  var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  var diff = Math.max(0, midnight - now);
+  var h = Math.floor(diff / 3600000);
+  var m = Math.floor((diff % 3600000) / 60000);
+  var s = Math.floor((diff % 60000) / 1000);
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  el.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+}
+updateOfferCountdown();
+setInterval(updateOfferCountdown, 1000);
 
 // Meta Pixel: eventos de conversión para optimizar la campaña (no solo PageView)
 document.addEventListener('click', function(e){
