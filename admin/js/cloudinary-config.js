@@ -4,8 +4,8 @@
 // 2. El "Cloud name" aparece arriba en tu Dashboard.
 // 3. Ve a Settings (engranaje) > Upload > Upload presets > Add upload preset,
 //    ponle "Signing Mode: Unsigned" y guarda — copia el nombre del preset.
-const CLOUDINARY_CLOUD_NAME = "TU_CLOUD_NAME";
-const CLOUDINARY_UPLOAD_PRESET = "TU_UPLOAD_PRESET";
+const CLOUDINARY_CLOUD_NAME = "lx52fybs";
+const CLOUDINARY_UPLOAD_PRESET = "zugtzfz1";
 
 function subirACloudinary(file, folder, filename) {
   if (CLOUDINARY_CLOUD_NAME === "TU_CLOUD_NAME") {
