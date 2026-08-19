@@ -6,8 +6,8 @@
   --gold:#FFC933;--red:#ff5c5c;--radius:16px;
   --shadow:0 14px 40px rgba(0,0,0,.5);--cta-shadow:0 10px 26px rgba(24,168,58,.4);
 }
-html{scroll-behavior:smooth}
-body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font-family:inherit;font-size:inherit}
 ::selection{background:var(--green);color:#031007}
@@ -122,4 +122,16 @@ tbody tr:hover{background:rgba(24,168,58,.05);cursor:pointer}
   .detail-grid{grid-template-columns:1fr}
   .field-row,.plan-grid{grid-template-columns:1fr}
   .auth-card{padding:26px 20px}
+}
+
+@media(max-width:640px){
+  .container{padding:0 16px}
+  .topbar{flex-wrap:wrap;row-gap:10px;padding:14px 0}
+  .logo{font-size:.98rem;gap:7px;flex-wrap:wrap;row-gap:6px}
+  .logo-icon{width:26px;height:32px}
+  .badge-admin{font-size:.6rem;padding:3px 8px;margin-left:2px}
+  .top-actions{width:100%;justify-content:space-between;gap:8px}
+  .user-email{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
+  .section-head{margin:24px 0 14px}
+  .card{padding:18px}
 }
