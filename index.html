@@ -19,7 +19,7 @@
   --green:#18A83A;--green-d:#0e7d29;--green-l:#2ecc55;--green-xl:#7CF5A0;
   --navy:#0B1626;--navy2:#0f1e33;
   --bg:#070b10;--bg2:#0c1218;--card:#101a14;--card2:#0f1720;--card-b:#1e2b23;--card-b2:#1c2733;
-  --white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;--gold:#FFC933;
+  --white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;--gold:#FFC933;--red:#ff5c5c;
   --radius:18px;--shadow:0 14px 40px rgba(0,0,0,.5);
   --cta-shadow:0 12px 32px rgba(24,168,58,.45);--cta-shadow-lg:0 20px 50px rgba(24,168,58,.6);
   --glass:rgba(255,255,255,.04);
@@ -216,37 +216,40 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .match-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem;position:relative}
 .match-row .eq{display:flex;align-items:center;gap:5px;color:var(--green-l);font-weight:800;font-size:.68rem}
 /* social image generator panel */
-.matchday{position:relative;overflow:hidden;text-align:center;margin-bottom:14px;padding:20px 16px 16px;border-radius:18px;border:1px solid rgba(124,245,160,.22);
+.matchday{position:relative;overflow:hidden;text-align:center;margin-bottom:14px;padding:26px 18px 20px;border-radius:20px;border:1px solid rgba(124,245,160,.28);
   background:
-    radial-gradient(130% 80% at 12% -6%,rgba(24,168,58,.35),transparent 55%),
-    radial-gradient(120% 80% at 90% 108%,rgba(20,40,70,.9),transparent 55%),
+    radial-gradient(150% 90% at 15% -10%,rgba(24,168,58,.42),transparent 55%),
+    radial-gradient(130% 90% at 92% 112%,rgba(255,201,51,.16),transparent 50%),
     repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 26px),
     linear-gradient(165deg,#0d1f14,#070a08 55%,#08111c);
-  box-shadow:inset 0 0 46px rgba(0,0,0,.45)}
-.matchday::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--green-l),var(--gold),transparent)}
-.matchday .tag{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.6rem;font-weight:800;padding:4px 10px;border-radius:999px;z-index:2}
-.md-crest{width:50px;height:58px;margin:0 auto 8px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);background:linear-gradient(160deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 6px 16px rgba(24,168,58,.45)}
-.md-club{color:#fff;font-weight:900;font-size:.92rem;letter-spacing:.03em;text-transform:uppercase}
-.md-league{color:var(--gold);font-size:.56rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:3px 0 12px}
-.md-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:.56rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:12px}
-.md-pill i{color:var(--green-l)}
-.md-date{margin-bottom:10px}
-.md-date .dow{display:inline-block;background:rgba(255,201,51,.14);color:var(--gold);font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;border-radius:999px;margin-bottom:5px}
-.md-date .dd{font-size:2.5rem;font-weight:900;color:#fff;line-height:1}
-.md-date .mo{font-size:.58rem;font-weight:700;color:var(--gray);letter-spacing:.14em;text-transform:uppercase}
-.md-meta{display:flex;justify-content:center;gap:16px;font-size:.6rem;color:var(--gray);font-weight:700;margin-bottom:8px}
-.md-meta i{color:var(--green-l);margin-right:3px}
-.md-round{color:var(--gold);font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
-.md-vs{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px}
-.md-team{display:flex;flex-direction:column;align-items:center;gap:6px;width:82px}
-.md-team .crest{width:44px;height:50px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.78rem}
-.md-team.a .crest{background:linear-gradient(160deg,#3f6bec,#173a9c)}
-.md-team.b .crest{background:linear-gradient(160deg,#ff7a45,#a63a12)}
-.md-team span{font-size:.56rem;font-weight:800;color:#fff;text-transform:uppercase;line-height:1.25}
-.md-versus{width:28px;height:28px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.56rem;font-weight:900;color:var(--gold);flex:none}
-.md-footer{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
-.md-footer .season{font-size:.52rem;color:var(--gray-d);letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
-.md-hype{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,140,60,.4);color:#ffb27a;font-size:.58rem;font-weight:800;padding:4px 12px;border-radius:999px}
+  box-shadow:inset 0 0 60px rgba(0,0,0,.5)}
+.matchday::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),var(--green-l),var(--gold),transparent)}
+.matchday::after{content:"";position:absolute;width:220%;height:70px;top:-18px;left:-60%;background:linear-gradient(180deg,rgba(255,255,255,.06),transparent);transform:rotate(-6deg);pointer-events:none}
+.matchday .tag{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;font-size:.6rem;font-weight:900;padding:5px 12px;border-radius:999px;z-index:2;box-shadow:0 4px 12px rgba(255,201,51,.4)}
+.md-crest{width:64px;height:74px;margin:0 auto 10px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);
+  background:linear-gradient(160deg,rgba(255,255,255,.35),transparent 45%),linear-gradient(160deg,var(--green-l),var(--green-d));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;font-weight:900;box-shadow:0 10px 24px rgba(24,168,58,.5)}
+.md-club{color:#fff;font-weight:900;font-size:1.15rem;letter-spacing:.02em;text-transform:uppercase}
+.md-league{color:var(--gold);font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin:4px 0 16px}
+.md-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;font-size:.62rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:6px 16px;border-radius:999px;margin-bottom:16px;box-shadow:0 6px 16px rgba(24,168,58,.4)}
+.md-pill i{color:#fff}
+.md-date{margin-bottom:12px}
+.md-date .dow{display:inline-block;background:rgba(255,201,51,.16);color:var(--gold);font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:999px;margin-bottom:8px}
+.md-date .dd{font-size:3.4rem;font-weight:900;color:#fff;line-height:1;text-shadow:0 0 30px rgba(46,204,85,.4)}
+.md-date .mo{font-size:.64rem;font-weight:700;color:var(--gray);letter-spacing:.18em;text-transform:uppercase}
+.md-meta{display:flex;justify-content:center;gap:18px;font-size:.66rem;color:var(--gray);font-weight:700;margin-bottom:10px}
+.md-meta i{color:var(--green-l);margin-right:4px}
+.md-round{color:var(--gold);font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.md-vs{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:6px}
+.md-team{display:flex;flex-direction:column;align-items:center;gap:8px;width:96px}
+.md-team .crest{width:56px;height:64px;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:1.05rem;box-shadow:0 8px 18px rgba(0,0,0,.4)}
+.md-team.a .crest{background:linear-gradient(160deg,rgba(255,255,255,.35),transparent 45%),linear-gradient(160deg,#5c8bff,#173a9c)}
+.md-team.b .crest{background:linear-gradient(160deg,rgba(255,255,255,.35),transparent 45%),linear-gradient(160deg,#ff9a6b,#a63a12)}
+.md-team span{font-size:.66rem;font-weight:800;color:#fff;text-transform:uppercase;line-height:1.3;letter-spacing:.02em}
+.md-versus{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#c98a0f);display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:900;color:#241800;flex:none;box-shadow:0 6px 16px rgba(255,201,51,.4)}
+.md-footer{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.md-footer .season{font-size:.56rem;color:var(--gray-d);letter-spacing:.05em;text-transform:uppercase;margin-bottom:11px}
+.md-hype{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,140,60,.22),rgba(255,90,40,.12));border:1px solid rgba(255,140,60,.5);color:#ffb27a;font-size:.62rem;font-weight:800;padding:5px 14px;border-radius:999px}
 .md-watermark{margin-top:11px;font-size:.5rem;color:var(--gray-d);letter-spacing:.03em}
 .post-actions{display:flex;gap:10px}
 .post-actions span{flex:1;text-align:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:9px;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -382,15 +385,13 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan .members{color:var(--gray);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .plan .setup{margin-top:12px;font-size:.82rem;color:var(--gray);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .plan .setup b{color:var(--white);font-size:1.05rem}
-.plan .setup-was{color:var(--gray-d);text-decoration:line-through;font-weight:600}
+.plan .setup-was{color:var(--red);text-decoration:line-through;font-weight:700}
 .plan .setup-free{color:var(--green-l);font-weight:900;background:rgba(24,168,58,.14);border:1px solid rgba(24,168,58,.35);padding:2px 10px;border-radius:999px;font-size:.72rem;letter-spacing:.02em;text-transform:uppercase}
-.plan .setup-note{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-size:.74rem;color:var(--gray-d);line-height:1.5}
-.plan .setup-note i{color:var(--green-l);margin-top:2px;flex:none}
-.plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 2px}
+.plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 10px}
 .plan .price small{font-size:.9rem;color:var(--gray);font-weight:600}
-.plan .price-was{font-size:1.15rem;color:var(--gray-d);text-decoration:line-through;font-weight:700;margin-right:6px}
-.plan .price-launch{display:flex;align-items:flex-start;gap:6px;font-size:.72rem;font-weight:700;color:var(--gold);margin-top:2px;margin-bottom:4px;line-height:1.4}
-.plan .price-launch i{margin-top:2px;flex:none}
+.plan .price-was{font-size:1.15rem;color:var(--red);text-decoration:line-through;font-weight:700;margin-right:6px}
+.plan .launch-box{display:flex;align-items:flex-start;gap:8px;background:rgba(255,201,51,.08);border:1px solid rgba(255,201,51,.3);border-radius:12px;padding:10px 12px;font-size:.74rem;font-weight:700;color:var(--gold);line-height:1.5;margin-bottom:6px}
+.plan .launch-box i{margin-top:2px;flex:none}
 .plan ul{margin:18px 0 24px;flex:1}
 .plan li{display:flex;align-items:flex-start;gap:8px;font-size:.86rem;color:var(--white);margin-bottom:9px}
 .plan li i{color:var(--green-l);margin-top:3px}
@@ -767,7 +768,7 @@ fbq('track', 'PageView');
         <div class="spot-panel">
           <div class="matchday">
             <span class="tag"><i class="fa-solid fa-bolt"></i> 1 CLIC</span>
-            <div class="md-crest"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="md-crest">H</div>
             <div class="md-club">Halcones FC</div>
             <div class="md-league">Liga interna · S2 2026</div>
             <div class="md-pill"><i class="fa-solid fa-futbol"></i> Próximo encuentro</div>
@@ -999,8 +1000,8 @@ fbq('track', 'PageView');
     </div>
     <div class="urgency-strip reveal">
       <span class="ut-badge"><i class="fa-solid fa-bolt"></i> Oferta de lanzamiento · Solo hoy</span>
-      <h3>Hoy no pagas implementación y todos los planes cuestan $2.500 por socio</h3>
-      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app, <strong>además</strong> hoy todos los planes bajan a <strong>$2.500 por socio al mes</strong> — aplica para los 4 planes, sin importar el tamaño de tu club.</p>
+      <h3>Hoy no pagas implementación y todos los planes bajan de precio</h3>
+      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app, <strong>además</strong> hoy el valor mensual por socio baja en los 4 planes — desde <strong>$1.500 por socio al mes</strong> según el tamaño de tu club.</p>
       <div class="ut-timer"><i class="fa-solid fa-clock"></i> Esta oferta termina en <b id="offerCountdown">--:--:--</b></div>
       <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20oferta%20de%20lanzamiento%20de%20hoy%20en%20BioFutbol%3A%20implementaci%C3%B3n%20gratis%20y%20%242.500%20por%20socio" class="btn-offer" target="_blank" rel="noopener">
         <i class="fa-brands fa-whatsapp"></i> Quiero el precio de lanzamiento hoy
@@ -1011,9 +1012,8 @@ fbq('track', 'PageView');
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$350.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $4.000/socio/mes</div>
         <div class="price"><s class="price-was">$4.000</s> $2.500 <small>/socio/mes</small></div>
+        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $4.000/socio/mes.</div>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
           <li><i class="fa-solid fa-check"></i> Gestión de socios y cobros</li>
@@ -1025,9 +1025,8 @@ fbq('track', 'PageView');
       <div class="plan featured reveal">
         <span class="members">101 a 200 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$450.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $3.000/socio/mes</div>
         <div class="price"><s class="price-was">$3.000</s> $2.500 <small>/socio/mes</small></div>
+        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $3.000/socio/mes.</div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Reportes de recaudo</li>
@@ -1039,9 +1038,8 @@ fbq('track', 'PageView');
       <div class="plan reveal">
         <span class="members">201 a 500 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$490.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price-launch"><i class="fa-solid fa-circle-check"></i> Ya tienes el precio de lanzamiento — se mantiene igual mañana</div>
-        <div class="price">$2.500 <small>/socio/mes</small></div>
+        <div class="price"><s class="price-was">$2.500</s> $1.800 <small>/socio/mes</small></div>
+        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $2.500/socio/mes.</div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Multi-sede</li>
@@ -1053,9 +1051,8 @@ fbq('track', 'PageView');
       <div class="plan reveal">
         <span class="members">Más de 1.000 socios</span>
         <div class="setup">Implementación única: <s class="setup-was">$750.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="setup-note"><i class="fa-solid fa-circle-check"></i> Con esto hacemos el desarrollo inicial de tu app 100% a la medida — hoy no tiene costo si escribes antes de la medianoche.</div>
-        <div class="price-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento — desde mañana $2.000/socio/mes</div>
         <div class="price"><s class="price-was">$2.000</s> $1.500 <small>/socio/mes</small></div>
+        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $2.000/socio/mes.</div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Integraciones a medida</li>
