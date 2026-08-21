@@ -16,6 +16,13 @@
 .landing-upload .upload-empty i{font-size:1.8rem;color:var(--card-b2)}
 .landing-upload .upload-overlay{position:absolute;inset:0;background:rgba(7,11,16,.75);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;opacity:0;transition:.2s}
 .landing-upload:hover .upload-overlay{opacity:1}
+.trust-logo-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.trust-logo-item{position:relative;width:104px;height:72px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;display:flex;align-items:center;justify-content:center;padding:8px}
+.trust-logo-item img{max-width:100%;max-height:100%;object-fit:contain}
+.trust-logo-item .rm{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;border:2px solid var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.62rem}
+.trust-logo-add{flex:none;width:104px;height:72px;border:1.5px dashed var(--card-b2);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--gray-d);font-size:.62rem;font-weight:700;text-align:center;transition:.2s}
+.trust-logo-add:hover{border-color:var(--green);color:var(--green-l)}
+.trust-logo-add i{font-size:1.1rem}
 </style>
 </head>
 <body>
@@ -42,6 +49,16 @@
 
   <div class="success-box" id="successBox"></div>
   <div class="error-box" id="errorBox"></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-shield-heart"></i> Logos de clubes/escuelas (banner de confianza)</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Aparecen en un carrusel que rota automáticamente al inicio de la landing, con el mensaje "Clubes y escuelas que confían en BioFutbol". Si no subes ninguno, esta sección no se muestra. Ideal el logo en fondo transparente (PNG).</p>
+    <div class="trust-logo-grid" id="trustLogoGrid">
+      <div class="trust-logo-add" onclick="document.getElementById('trustLogoInput').click()"><i class="fa-solid fa-plus"></i><span>Agregar logo</span></div>
+    </div>
+    <input type="file" id="trustLogoInput" accept="image/*" style="display:none">
+    <div id="trustLogoStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo logo...</div>
+  </div>
 
   <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-image"></i> Fondo del Hero (portada principal)</h3>
@@ -209,10 +226,64 @@ function cargarImagenes() {
     SLOTS.forEach(function (slot) {
       if (data[slot]) mostrarPreview(slot, data[slot]);
     });
+    pintarLogos(data.clientLogos || []);
   }).catch(function (err) {
     mostrarError("No se pudieron cargar las imágenes actuales: " + err.message);
   });
 }
+
+function pintarLogos(logos) {
+  const grid = document.getElementById("trustLogoGrid");
+  const addBtn = '<div class="trust-logo-add" onclick="document.getElementById(\'trustLogoInput\').click()"><i class="fa-solid fa-plus"></i><span>Agregar logo</span></div>';
+  grid.innerHTML = logos.map(function (l, i) {
+    return '<div class="trust-logo-item"><img src="' + l.url + '" alt="' + (l.name || "").replace(/"/g, "") + '"><span class="rm" onclick="quitarLogo(' + i + ')" title="Quitar"><i class="fa-solid fa-xmark"></i></span></div>';
+  }).join("") + addBtn;
+}
+
+function subirLogoCliente(file) {
+  if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
+  if (file.size > 5 * 1024 * 1024) { mostrarError("La imagen no puede pesar más de 5MB."); return; }
+
+  const nombre = (prompt("¿De qué club o escuela es este logo? (opcional, solo para accesibilidad)") || "Club que usa BioFutbol").trim();
+  const status = document.getElementById("trustLogoStatus");
+  status.style.display = "block";
+
+  const ext = (file.name.split(".").pop() || "png").toLowerCase();
+  subirACloudinary(file, "landing/logos", "logo-" + Date.now() + "." + ext).then(function (url) {
+    return db.collection("config").doc("landing").set({
+      clientLogos: firebase.firestore.FieldValue.arrayUnion({ url: url, name: nombre })
+    }, { merge: true });
+  }).then(function () {
+    status.style.display = "none";
+    registrarAuditoria("Logo de cliente agregado al banner de confianza", null, nombre);
+    mostrarExito("Logo agregado. Ya está visible en la landing.");
+    cargarImagenes();
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo subir el logo: " + err.message);
+  });
+}
+
+function quitarLogo(index) {
+  if (!confirm("¿Quitar este logo del banner de confianza?")) return;
+  db.collection("config").doc("landing").get().then(function (doc) {
+    const data = doc.exists ? doc.data() : {};
+    const logos = (data.clientLogos || []).slice();
+    logos.splice(index, 1);
+    return db.collection("config").doc("landing").set({ clientLogos: logos }, { merge: true });
+  }).then(function () {
+    registrarAuditoria("Logo de cliente quitado del banner de confianza", null, null);
+    mostrarExito("Logo eliminado.");
+    cargarImagenes();
+  }).catch(function (err) {
+    mostrarError("No se pudo quitar el logo: " + err.message);
+  });
+}
+
+document.getElementById("trustLogoInput").addEventListener("change", function (e) {
+  if (e.target.files[0]) subirLogoCliente(e.target.files[0]);
+  e.target.value = "";
+});
 
 function mostrarPreview(slot, url) {
   document.getElementById(slot + "Preview").src = url;

@@ -187,6 +187,22 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .sec-head h2{font-size:clamp(1.8rem,3.6vw,2.6rem);margin-top:16px}
 .sec-head p{color:var(--gray);margin-top:14px;font-size:1.06rem}
 
+/* ── TRUST BAR (logos de clubes, banner de confianza) ── */
+.trust-bar{display:none;background:var(--bg2);border-bottom:1px solid var(--card-b);padding:40px 0 46px}
+.trust-bar.has-logos{display:block}
+.trust-bar .sec-head{margin-bottom:26px}
+.trust-track-wrap{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.trust-track{display:flex;align-items:center;gap:26px;width:max-content;animation:trust-scroll 32s linear infinite}
+.trust-track:hover{animation-play-state:paused}
+.trust-logo{flex:none;width:150px;height:92px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);border-radius:16px;display:flex;align-items:center;justify-content:center;padding:16px;transition:.25s}
+.trust-logo:hover{border-color:var(--green);background:rgba(24,168,58,.08);transform:translateY(-2px)}
+.trust-logo img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1) brightness(1.5) opacity(.72);transition:.25s}
+.trust-logo:hover img{filter:none}
+@keyframes trust-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:640px){
+  .trust-logo{width:120px;height:76px;padding:12px}
+}
+
 /* ── PAIN POINTS ── */
 .pain{background:var(--bg2)}
 .sec-photo{border-radius:22px;overflow:hidden;margin-bottom:40px;box-shadow:var(--shadow);max-height:360px}
@@ -675,6 +691,19 @@ fbq('track', 'PageView');
     <div><div class="num">24/7</div><div class="lbl">Disponible desde el celular</div></div>
   </div>
 </div>
+
+<!-- ── TRUST BAR (logos de clubes, se llena desde el panel admin) ── -->
+<section class="trust-bar" id="trustBar">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><i class="fa-solid fa-shield-heart"></i> Confianza</span>
+      <h2 style="font-size:clamp(1.3rem,2.4vw,1.7rem)">Clubes y escuelas que confían en BioFutbol</h2>
+    </div>
+  </div>
+  <div class="trust-track-wrap">
+    <div class="trust-track" id="trustTrack"></div>
+  </div>
+</section>
 
 <!-- ── PAIN POINTS ── -->
 <section class="pain">
@@ -1338,6 +1367,20 @@ document.addEventListener('click', function(e){
     imgEl.src = url;
     imgEl.style.display = 'block';
   }
+  function fillTrustBar(logos) {
+    if (!logos || !logos.length) return;
+    var track = document.getElementById('trustTrack');
+    var bar = document.getElementById('trustBar');
+    if (!track || !bar) return;
+    var html = logos.map(function (l) {
+      var name = (l && l.name) ? l.name : 'Club que usa BioFutbol';
+      var url = l && l.url ? l.url : l;
+      return '<div class="trust-logo"><img src="' + url + '" alt="' + name.replace(/"/g, '') + '" loading="lazy"></div>';
+    }).join('');
+    // se duplica la lista para que el scroll infinito sea continuo
+    track.innerHTML = html + html;
+    bar.classList.add('has-logos');
+  }
   try {
     if (typeof firebaseWebConfig === 'undefined' || typeof firebase === 'undefined') return;
     firebase.initializeApp(firebaseWebConfig);
@@ -1356,6 +1399,7 @@ document.addEventListener('click', function(e){
       setSimpleImg(document.getElementById('tablaImg'), data.tabla);
       setSimpleImg(document.getElementById('goleadoresImg'), data.goleadores);
       setSimpleImg(document.getElementById('vallaImg'), data.valla);
+      fillTrustBar(data.clientLogos);
     }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
   } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
 })();
