@@ -223,7 +223,15 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .feat-card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:30px 24px;transition:.25s;position:relative;overflow:hidden}
 .feat-card:hover{transform:translateY(-7px);border-color:var(--green);box-shadow:var(--shadow)}
-.feat-card .ic{width:56px;height:56px;border-radius:15px;background:rgba(24,168,58,.14);display:flex;align-items:center;justify-content:center;color:var(--green-l);font-size:1.4rem;margin-bottom:18px}
+.feat-card .ic{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;margin-bottom:18px;position:relative;isolation:isolate;box-shadow:0 12px 26px -8px var(--ic-shadow,rgba(24,168,58,.5))}
+.feat-card .ic::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,rgba(255,255,255,.4),transparent 55%);z-index:1}
+.feat-card .ic i{position:relative;z-index:2;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.feat-card .ic.c1{background:linear-gradient(160deg,var(--green-l),var(--green-d));--ic-shadow:rgba(24,168,58,.5)}
+.feat-card .ic.c2{background:linear-gradient(160deg,#ffd45e,#c98a0f);--ic-shadow:rgba(255,201,51,.45)}
+.feat-card .ic.c3{background:linear-gradient(160deg,#3fe27e,#0e7d29);--ic-shadow:rgba(46,204,85,.45)}
+.feat-card .ic.c4{background:linear-gradient(160deg,#a78bfa,#6d28d9);--ic-shadow:rgba(124,77,255,.45)}
+.feat-card .ic.c5{background:linear-gradient(160deg,#63a4ff,#1d4ed8);--ic-shadow:rgba(59,130,246,.45)}
+.feat-card .ic.c6{background:linear-gradient(160deg,#ff9166,#c2410c);--ic-shadow:rgba(255,124,60,.45)}
 .feat-card h3{font-size:1.08rem;margin-bottom:9px}
 .feat-card p{color:var(--gray);font-size:.92rem;line-height:1.6}
 
@@ -757,32 +765,32 @@ fbq('track', 'PageView');
     </div>
     <div class="feat-grid">
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-solid fa-users"></i></div>
+        <div class="ic c1"><i class="fa-solid fa-users"></i></div>
         <h3>Gestión de socios</h3>
         <p>Registra, organiza y consulta la información de cada socio o jugador desde un solo panel.</p>
       </div>
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <div class="ic c2"><i class="fa-solid fa-money-bill-wave"></i></div>
         <h3>Cobros mensuales al día</h3>
         <p>Controla mensualidades, pagos pendientes y recaudo total del club en tiempo real.</p>
       </div>
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-brands fa-whatsapp"></i></div>
+        <div class="ic c3"><i class="fa-brands fa-whatsapp"></i></div>
         <h3>Comunicación directa</h3>
         <p>Envía avisos, recordatorios de pago y novedades a todos tus socios en segundos.</p>
       </div>
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="ic c4"><i class="fa-solid fa-chart-line"></i></div>
         <h3>Reportes y estadísticas</h3>
         <p>Visualiza el crecimiento, recaudo y estado del club con reportes claros y automáticos.</p>
       </div>
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-solid fa-clipboard-check"></i></div>
+        <div class="ic c5"><i class="fa-solid fa-clipboard-check"></i></div>
         <h3>Control de asistencia</h3>
         <p>Lleva el registro de entrenamientos y partidos de cada categoría del club.</p>
       </div>
       <div class="feat-card reveal">
-        <div class="ic"><i class="fa-solid fa-palette"></i></div>
+        <div class="ic c6"><i class="fa-solid fa-palette"></i></div>
         <h3>100% personalizado a tu club</h3>
         <p>Escudos de cada equipo, nombres de equipos, socios y jugadores, números de camiseta, colores y logo — todo se adapta a tu club o escuela, no al revés.</p>
       </div>
