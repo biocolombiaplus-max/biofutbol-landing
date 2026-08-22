@@ -128,6 +128,23 @@
 
     <div id="sidebar" style="display:none">
       <div class="card">
+        <h3><i class="fa-solid fa-file-excel"></i> Socios / Jugadores</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Carga desde un Excel todos los socios o jugadores del club (nombre, documento, categoría, acudiente y más) para personalizar la app de este cliente.</p>
+        <div class="status-row"><span class="k">Cargados actualmente</span><span id="sociosCount" class="pill muted">—</span></div>
+        <a href="plantilla-socios.xlsx" download class="btn btn-ghost btn-block btn-sm" style="margin-top:12px"><i class="fa-solid fa-download"></i> Descargar plantilla de ejemplo</a>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarPlantilla" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviarle la plantilla por WhatsApp</button>
+        <div class="upload-box" id="excelBox" style="height:64px;margin-top:14px" onclick="document.getElementById('excelInput').click()">
+          <div class="upload-empty"><i class="fa-solid fa-file-arrow-up"></i><span>Subir Excel del club (.xlsx)</span></div>
+        </div>
+        <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
+        <div id="excelStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:8px"><span class="spinner"></span> Procesando archivo...</div>
+        <div id="excelPreview" style="display:none;margin-top:12px">
+          <p style="font-size:.8rem;color:var(--green-l);font-weight:700;margin-bottom:8px" id="excelPreviewMsg"></p>
+          <button type="button" class="btn btn-primary btn-block btn-sm" id="btnConfirmarImport"><i class="fa-solid fa-check"></i> Guardar en la app del cliente</button>
+        </div>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-calendar-check"></i> Pagos</h3>
         <div class="status-row"><span class="k">Estado actual</span><span id="pagoEstadoPill">—</span></div>
         <div class="field" style="margin-top:14px"><label>Próximo pago</label><input type="date" id="proximoPago"></div>
@@ -158,6 +175,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
@@ -258,7 +276,147 @@ function cargarCliente() {
     if (clienteActual.necesitaLogo && !clienteActual.logoUrl) {
       document.getElementById("necesitaLogoNota").style.display = "flex";
     }
+    cargarConteoSocios();
   });
+}
+
+function cargarConteoSocios() {
+  db.collection("clientes").doc(clienteId).collection("socios").get().then(function (snap) {
+    const el = document.getElementById("sociosCount");
+    el.textContent = snap.size;
+    el.className = "pill " + (snap.size > 0 ? "ok" : "muted");
+  });
+}
+
+document.getElementById("btnEnviarPlantilla").addEventListener("click", function () {
+  let tel = (clienteActual && clienteActual.repTelefono) ? clienteActual.repTelefono.replace(/[^0-9]/g, "") : "";
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se la enviamos? (con indicativo, ej: 573001234567)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const plantillaUrl = location.origin + location.pathname.replace(/cliente\.html$/, "") + "plantilla-socios.xlsx";
+  const mensaje = "¡Hola! Te comparto la plantilla en Excel para registrar a los socios o jugadores de tu club. Descárgala, complétala y devuélvenosla por este mismo chat: " + plantillaUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+});
+
+const CAMPOS_SOCIO = [
+  { header: "Nombre completo", key: "nombre" },
+  { header: "Tipo de documento (RC/TI/CC)", key: "tipoDocumento" },
+  { header: "Número de documento", key: "documento" },
+  { header: "Fecha de nacimiento (DD/MM/AAAA)", key: "fechaNacimiento" },
+  { header: "Categoría o equipo", key: "categoria" },
+  { header: "Posición", key: "posicion" },
+  { header: "Número de camiseta", key: "camiseta" },
+  { header: "Nombre del acudiente (si es menor)", key: "acudiente" },
+  { header: "Teléfono del acudiente o socio", key: "telefono" },
+  { header: "Correo (opcional)", key: "correo" },
+  { header: "Ciudad", key: "ciudad" },
+  { header: "EPS", key: "eps" },
+  { header: "Talla de uniforme", key: "talla" },
+  { header: "Fecha de inscripción (DD/MM/AAAA)", key: "fechaInscripcion" },
+  { header: "Estado (Activo/Inactivo)", key: "estado" },
+  { header: "Observaciones", key: "observaciones" }
+];
+
+let filasExcelPendientes = [];
+
+document.getElementById("excelInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de cargar el Excel."); return; }
+
+  const status = document.getElementById("excelStatus");
+  status.style.display = "block";
+  document.getElementById("excelPreview").style.display = "none";
+
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    try {
+      const wb = XLSX.read(new Uint8Array(ev.target.result), { type: "array" });
+      const hojaNombre = wb.SheetNames.includes("Socios") ? "Socios" : wb.SheetNames[0];
+      const filas = XLSX.utils.sheet_to_json(wb.Sheets[hojaNombre], { defval: "" });
+
+      filasExcelPendientes = filas.map(function (fila) {
+        const out = { crudo: fila };
+        CAMPOS_SOCIO.forEach(function (c) {
+          if (fila[c.header] !== undefined && String(fila[c.header]).trim() !== "") {
+            out[c.key] = String(fila[c.header]).trim();
+          }
+        });
+        return out;
+      }).filter(function (r) {
+        return Object.keys(r.crudo).some(function (k) { return String(r.crudo[k]).trim() !== ""; });
+      });
+
+      status.style.display = "none";
+      if (!filasExcelPendientes.length) {
+        mostrarError("No se encontraron filas con datos en el archivo.");
+        return;
+      }
+      document.getElementById("excelPreviewMsg").textContent =
+        "Se encontraron " + filasExcelPendientes.length + " socios/jugadores en el archivo.";
+      document.getElementById("excelPreview").style.display = "block";
+    } catch (err) {
+      status.style.display = "none";
+      mostrarError("No se pudo leer el archivo. Revisa que sea un Excel válido (.xlsx).");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+document.getElementById("btnConfirmarImport").addEventListener("click", function () {
+  if (!filasExcelPendientes.length) return;
+  const n = filasExcelPendientes.length;
+  if (!confirm("Se van a guardar " + n + " socios/jugadores en la app de este cliente, reemplazando cualquier lista que hubieras cargado antes. ¿Continuar?")) return;
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+  const socios = db.collection("clientes").doc(clienteId).collection("socios");
+  socios.get().then(function (snap) {
+    return borrarPorLotes(snap.docs);
+  }).then(function () {
+    return guardarPorLotes(filasExcelPendientes);
+  }).then(function () {
+    return db.collection("clientes").doc(clienteId).update({ numSocios: filasExcelPendientes.length });
+  }).then(function () {
+    document.getElementById("numSocios").value = filasExcelPendientes.length;
+    document.getElementById("excelPreview").style.display = "none";
+    filasExcelPendientes = [];
+    registrarAuditoria("Socios cargados desde Excel (" + n + ")", clienteId, clienteActual.clubNombre);
+    mostrarExito(n + " socios/jugadores guardados en la app del cliente.");
+    cargarConteoSocios();
+  }).catch(function (err) {
+    mostrarError("No se pudo guardar: " + err.message);
+  }).finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar en la app del cliente';
+  });
+});
+
+function borrarPorLotes(docs) {
+  const grupos = [];
+  for (let i = 0; i < docs.length; i += 400) grupos.push(docs.slice(i, i + 400));
+  return grupos.reduce(function (prev, grupo) {
+    return prev.then(function () {
+      const batch = db.batch();
+      grupo.forEach(function (d) { batch.delete(d.ref); });
+      return batch.commit();
+    });
+  }, Promise.resolve());
+}
+
+function guardarPorLotes(filas) {
+  const socios = db.collection("clientes").doc(clienteId).collection("socios");
+  const grupos = [];
+  for (let i = 0; i < filas.length; i += 400) grupos.push(filas.slice(i, i + 400));
+  return grupos.reduce(function (prev, grupo) {
+    return prev.then(function () {
+      const batch = db.batch();
+      grupo.forEach(function (fila) { batch.set(socios.doc(), fila); });
+      return batch.commit();
+    });
+  }, Promise.resolve());
 }
 
 function mostrarPreview(tipo, url) {
