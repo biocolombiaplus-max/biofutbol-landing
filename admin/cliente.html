@@ -31,6 +31,15 @@
   <div class="success-box" id="successBox"></div>
   <div class="error-box" id="errorBox"></div>
 
+  <div class="card" id="sendLinkCard" style="display:none;margin-bottom:22px">
+    <h3><i class="fa-brands fa-whatsapp"></i> ¿El cliente prefiere diligenciar sus propios datos?</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envíale por WhatsApp el link de registro para que él mismo complete los datos de su club, representante y plan. Cuando lo haga, va a aparecer automáticamente en tu lista de clientes como "Pendiente de revisión".</p>
+    <div class="field-row">
+      <div class="field" style="flex:1"><label>WhatsApp del interesado (con indicativo)</label><input type="text" id="leadTelefono" placeholder="573001234567"></div>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLink"><i class="fa-brands fa-whatsapp"></i> Enviar link de registro</button>
+  </div>
+
   <div class="detail-grid">
     <div>
       <div class="card">
@@ -64,6 +73,10 @@
       <div class="card">
         <h3><i class="fa-solid fa-image"></i> Logo e imágenes del club</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">El logo se usa en el carnet digital, el fixture y las imágenes para redes de este club. La imagen destacada se usa como portada en su demo/landing.</p>
+        <div id="necesitaLogoNota" style="display:none;align-items:flex-start;gap:9px;background:rgba(255,201,51,.1);border:1px solid rgba(255,201,51,.35);border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:.8rem;color:var(--gold);font-weight:700">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-top:2px"></i>
+          <span>El cliente indicó que todavía no tiene logo. Ofrécele crearlo profesional por $30.000 pesos y súbelo aquí cuando esté listo.</span>
+        </div>
         <div class="field-row">
           <div class="field">
             <label>Logo del club</label>
@@ -160,8 +173,20 @@ let clienteActual = null;
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   pintarPlanGrid();
-  if (!esNuevo) cargarCliente();
-  else document.getElementById("estado").value = "pendiente";
+  if (!esNuevo) {
+    cargarCliente();
+  } else {
+    document.getElementById("estado").value = "pendiente";
+    document.getElementById("sendLinkCard").style.display = "block";
+  }
+});
+
+document.getElementById("btnEnviarLink").addEventListener("click", function () {
+  const tel = document.getElementById("leadTelefono").value.trim().replace(/[^0-9]/g, "");
+  if (!tel) { mostrarError("Ingresa el número de WhatsApp del interesado."); return; }
+  const link = location.origin + location.pathname.replace(/cliente\.html$/, "") + "registro.html";
+  const mensaje = "¡Hola! Para activar tu app de BioFutbol, completa los datos de tu club aquí (te toma 2 minutos): " + link;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
 });
 
 function pintarPlanGrid() {
@@ -230,6 +255,9 @@ function cargarCliente() {
     }
     if (clienteActual.logoUrl) mostrarPreview("logo", clienteActual.logoUrl);
     if (clienteActual.bannerUrl) mostrarPreview("banner", clienteActual.bannerUrl);
+    if (clienteActual.necesitaLogo && !clienteActual.logoUrl) {
+      document.getElementById("necesitaLogoNota").style.display = "flex";
+    }
   });
 }
 

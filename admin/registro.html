@@ -28,6 +28,15 @@
         <div class="field"><label>Ciudad *</label><input type="text" id="clubCiudad" required></div>
       </div>
       <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+      <div class="field" style="display:flex;align-items:flex-start;gap:9px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px">
+        <input type="checkbox" id="sinLogo" style="width:17px;height:17px;margin-top:2px;flex:none;accent-color:var(--green)">
+        <label for="sinLogo" style="margin:0;cursor:pointer;font-weight:600;color:var(--white)">
+          Todavía no tengo el logo de mi club/escuela
+          <small id="sinLogoNota" style="display:none;margin-top:5px;color:var(--gold);font-weight:700">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Sin problema — te creamos uno profesional por $30.000 pesos. Te contactamos para coordinarlo.
+          </small>
+        </label>
+      </div>
 
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Representante legal</h3>
       <div class="field-row">
@@ -86,6 +95,10 @@ grid.querySelectorAll(".plan-opt").forEach(function (opt) {
   });
 });
 
+document.getElementById("sinLogo").addEventListener("change", function (e) {
+  document.getElementById("sinLogoNota").style.display = e.target.checked ? "block" : "none";
+});
+
 document.getElementById("regForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const errorBox = document.getElementById("errorBox");
@@ -109,6 +122,7 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
     repTelefono: document.getElementById("repTelefono").value.trim(),
     plan: planEl.value,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
+    necesitaLogo: document.getElementById("sinLogo").checked,
     notas: document.getElementById("notas").value.trim(),
     estado: "pendiente",
     pagos: [],
