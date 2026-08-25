@@ -205,10 +205,9 @@ const socioId = params.get("id");
 let socioActual = null;
 let clubActual = null;
 
-document.getElementById("backLink").href = "socios.html?cliente=" + clienteId;
-
-requireSuperAdmin().then(function (user) {
-  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+requireAccesoCliente(clienteId).then(function (r) {
+  document.getElementById("userLabel").textContent = r.esSuperAdmin ? (nombreAdmin(r.user.email) + " (" + r.user.email + ")") : r.user.email;
+  document.getElementById("backLink").href = r.esSuperAdmin ? ("socios.html?cliente=" + clienteId) : "club-panel.html";
   if (!clienteId || !socioId) { mostrarError("Falta información en el link."); return; }
   cargarSocio();
 });

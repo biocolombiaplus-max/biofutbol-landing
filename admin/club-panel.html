@@ -95,6 +95,7 @@
       <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
+      <button class="tab-btn" data-tab="miclub">Mi club</button>
     </div>
 
     <div class="tab-panel on" id="tab-socios">
@@ -128,6 +129,7 @@
               <button class="btn btn-primary btn-sm" id="btnFichaWhatsapp"><i class="fa-brands fa-whatsapp"></i> Recordar por WhatsApp</button>
               <button class="btn btn-ghost btn-sm" id="btnFichaCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo</button>
               <button class="btn btn-ghost btn-sm" id="btnFichaPagado"><i class="fa-solid fa-check-double"></i> Marcar pagado</button>
+              <a href="#" id="btnFichaEditar" class="btn btn-ghost btn-sm"><i class="fa-solid fa-id-card"></i> Ver ficha completa</a>
             </div>
             <div style="margin-top:18px">
               <label style="font-size:.78rem;font-weight:700;color:var(--gray);display:block;margin-bottom:6px">Agregar nota</label>
@@ -265,6 +267,63 @@
         </div>
       </div>
     </div>
+
+    <div class="tab-panel" id="tab-miclub">
+      <div class="card">
+        <h3><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
+        <div class="field"><label>Nombre del club o escuela</label><input type="text" id="mcNombre"></div>
+        <div class="field-row">
+          <div class="field"><label>NIT (opcional)</label><input type="text" id="mcNit"></div>
+          <div class="field"><label>Ciudad</label><input type="text" id="mcCiudad"></div>
+        </div>
+        <div class="field"><label>Dirección</label><input type="text" id="mcDireccion"></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarDatosClub"><i class="fa-solid fa-floppy-disk"></i> Guardar datos</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-image"></i> Escudo, imagen y colores</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se usan en el carnet digital, el fixture, las imágenes para redes y el panel del club.</p>
+        <div class="field-row">
+          <div class="field">
+            <label>Escudo del club</label>
+            <div class="upload-box" id="mcLogoBox" onclick="document.getElementById('mcLogoInput').click()">
+              <img id="mcLogoPreview" class="upload-preview logo-preview" style="display:none">
+              <div class="upload-empty" id="mcLogoEmpty"><i class="fa-solid fa-shield-halved"></i><span>Subir escudo</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="mcLogoInput" accept="image/*" style="display:none">
+          </div>
+          <div class="field">
+            <label>Imagen destacada (portada)</label>
+            <div class="upload-box banner" id="mcBannerBox" onclick="document.getElementById('mcBannerInput').click()">
+              <img id="mcBannerPreview" class="upload-preview banner-preview" style="display:none">
+              <div class="upload-empty" id="mcBannerEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="mcBannerInput" accept="image/*" style="display:none">
+          </div>
+        </div>
+        <div id="mcUploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Color principal</label><input type="color" id="mcColorPrimario" style="height:44px;padding:4px;cursor:pointer"></div>
+          <div class="field"><label>Color secundario</label><input type="color" id="mcColorSecundario" style="height:44px;padding:4px;cursor:pointer"></div>
+        </div>
+        <div class="field"><label>Color terciario (opcional)</label><input type="color" id="mcColorTerciario" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
+        <div id="mcColorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A dónde le paga cada socio. Se usa en los recordatorios de pago y en el portal del deportista.</p>
+        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
+        <div class="field-row">
+          <div class="field"><label>Nequi — número</label><input type="text" id="mcNequiNumero" placeholder="3001234567"></div>
+          <div class="field"><label>Nequi — a nombre de</label><input type="text" id="mcNequiTitular"></div>
+        </div>
+        <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -306,6 +365,7 @@ requireClub().then(function (r) {
   escucharPartidos();
   escucharSocios();
   precargarFormImagenes();
+  precargarFormMiClub();
 });
 
 // Reskin del panel completo con los colores de este club: como admin.css
@@ -589,6 +649,7 @@ function pintarFicha() {
   document.getElementById("fichaCategoria").textContent = socioSeleccionado.categoria || "—";
   document.getElementById("fichaTelefono").textContent = socioSeleccionado.telefono || "—";
   document.getElementById("fichaCorreo").textContent = socioSeleccionado.correo || "—";
+  document.getElementById("btnFichaEditar").href = "socio.html?cliente=" + clubActual.id + "&id=" + socioSeleccionado.id;
   const ep = estadoPagoSocioCrm(socioSeleccionado);
   const pill = document.getElementById("fichaPagoPill");
   pill.textContent = ep.texto;
@@ -824,6 +885,124 @@ document.getElementById("btnImgCompartir").addEventListener("click", function ()
 
 document.getElementById("btnImgCaption").addEventListener("click", function () {
   navigator.clipboard.writeText(ultimoCaptionImg).then(function () { mostrarExito("Texto copiado."); });
+});
+
+// ── Mi club: datos, escudo/colores, cobro ──
+function sincronizarMarca(id, data) {
+  return db.collection("clientes").doc(id).collection("publico").doc("marca").set({
+    clubNombre: data.clubNombre != null ? data.clubNombre : (clubActual.clubNombre || ""),
+    logoUrl: clubActual.logoUrl || "",
+    colorPrimario: data.colorPrimario || clubActual.colorPrimario || "#18A83A",
+    colorSecundario: data.colorSecundario || clubActual.colorSecundario || "#0e7d29",
+    colorTerciario: data.colorTerciario || clubActual.colorTerciario || "#FFC933",
+    pagoMensualidad: data.pagoMensualidad != null ? data.pagoMensualidad : (clubActual.pagoMensualidad || 0),
+    pagoNequiNumero: data.pagoNequiNumero != null ? data.pagoNequiNumero : (clubActual.pagoNequiNumero || ""),
+    pagoNequiTitular: data.pagoNequiTitular != null ? data.pagoNequiTitular : (clubActual.pagoNequiTitular || ""),
+    pagoWompiLink: data.pagoWompiLink != null ? data.pagoWompiLink : (clubActual.pagoWompiLink || "")
+  }, { merge: true });
+}
+
+function precargarFormMiClub() {
+  document.getElementById("mcNombre").value = clubActual.clubNombre || "";
+  document.getElementById("mcNit").value = clubActual.clubNit || "";
+  document.getElementById("mcCiudad").value = clubActual.clubCiudad || "";
+  document.getElementById("mcDireccion").value = clubActual.clubDireccion || "";
+  document.getElementById("mcColorPrimario").value = clubActual.colorPrimario || "#18A83A";
+  document.getElementById("mcColorSecundario").value = clubActual.colorSecundario || "#0e7d29";
+  document.getElementById("mcColorTerciario").value = clubActual.colorTerciario || "#FFC933";
+  document.getElementById("mcMensualidad").value = clubActual.pagoMensualidad || "";
+  document.getElementById("mcNequiNumero").value = clubActual.pagoNequiNumero || "";
+  document.getElementById("mcNequiTitular").value = clubActual.pagoNequiTitular || "";
+  document.getElementById("mcWompiLink").value = clubActual.pagoWompiLink || "";
+  if (clubActual.logoUrl) { document.getElementById("mcLogoPreview").src = clubActual.logoUrl; document.getElementById("mcLogoPreview").style.display = "block"; document.getElementById("mcLogoEmpty").style.display = "none"; }
+  if (clubActual.bannerUrl) { document.getElementById("mcBannerPreview").src = clubActual.bannerUrl; document.getElementById("mcBannerPreview").style.display = "block"; document.getElementById("mcBannerEmpty").style.display = "none"; }
+}
+
+document.getElementById("btnGuardarDatosClub").addEventListener("click", function () {
+  const data = {
+    clubNombre: document.getElementById("mcNombre").value.trim(),
+    clubNit: document.getElementById("mcNit").value.trim(),
+    clubCiudad: document.getElementById("mcCiudad").value.trim(),
+    clubDireccion: document.getElementById("mcDireccion").value.trim()
+  };
+  if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
+  db.collection("clientes").doc(clubActual.id).update(data).then(function () {
+    clubActual = Object.assign(clubActual, data);
+    document.getElementById("clubHdrNombre").textContent = clubActual.clubNombre;
+    sincronizarMarca(clubActual.id, data);
+    registrarAuditoria("Datos del club editados por el club", clubActual.id, clubActual.clubNombre);
+    mostrarExito("Datos guardados.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+function mcMostrarPreview(tipo, url) {
+  document.getElementById(tipo === "logo" ? "mcLogoPreview" : "mcBannerPreview").src = url;
+  document.getElementById(tipo === "logo" ? "mcLogoPreview" : "mcBannerPreview").style.display = "block";
+  document.getElementById(tipo === "logo" ? "mcLogoEmpty" : "mcBannerEmpty").style.display = "none";
+}
+
+function mcSubirImagen(tipo, file) {
+  if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
+  if (file.size > 5 * 1024 * 1024) { mostrarError("La imagen no puede pesar más de 5MB."); return; }
+  const status = document.getElementById("mcUploadStatus");
+  status.style.display = "block";
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  subirACloudinary(file, "logos", clubActual.id + "-" + tipo + "." + ext).then(function (url) {
+    const campo = tipo + "Url";
+    return db.collection("clientes").doc(clubActual.id).update({ [campo]: url }).then(function () { return url; });
+  }).then(function (url) {
+    clubActual[tipo + "Url"] = url;
+    mcMostrarPreview(tipo, url);
+    status.style.display = "none";
+    if (tipo === "logo") {
+      sincronizarMarca(clubActual.id, {});
+      aplicarIconoDelClub(clubActual);
+      document.getElementById("clubHdrLogo").src = url;
+      document.getElementById("clubHdrLogo").style.display = "block";
+      document.getElementById("clubHdrLogoDefault").style.display = "none";
+    }
+    registrarAuditoria(tipo === "logo" ? "Escudo actualizado por el club" : "Imagen destacada actualizada por el club", clubActual.id, clubActual.clubNombre);
+    mostrarExito(tipo === "logo" ? "Escudo actualizado." : "Imagen destacada actualizada.");
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo subir la imagen: " + err.message);
+  });
+}
+
+document.getElementById("mcLogoInput").addEventListener("change", function (e) { if (e.target.files[0]) mcSubirImagen("logo", e.target.files[0]); });
+document.getElementById("mcBannerInput").addEventListener("change", function (e) { if (e.target.files[0]) mcSubirImagen("banner", e.target.files[0]); });
+
+["mcColorPrimario", "mcColorSecundario", "mcColorTerciario"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () {
+    const data = {
+      colorPrimario: document.getElementById("mcColorPrimario").value,
+      colorSecundario: document.getElementById("mcColorSecundario").value,
+      colorTerciario: document.getElementById("mcColorTerciario").value
+    };
+    db.collection("clientes").doc(clubActual.id).update(data).then(function () {
+      clubActual = Object.assign(clubActual, data);
+      sincronizarMarca(clubActual.id, data);
+      aplicarTemaDelClub(clubActual);
+      const status = document.getElementById("mcColorStatus");
+      status.style.display = "block";
+      setTimeout(function () { status.style.display = "none"; }, 2000);
+    }).catch(function (err) { mostrarError("No se pudo guardar el color: " + err.message); });
+  });
+});
+
+document.getElementById("btnGuardarCobro").addEventListener("click", function () {
+  const data = {
+    pagoMensualidad: Number(document.getElementById("mcMensualidad").value) || 0,
+    pagoNequiNumero: document.getElementById("mcNequiNumero").value.trim(),
+    pagoNequiTitular: document.getElementById("mcNequiTitular").value.trim(),
+    pagoWompiLink: document.getElementById("mcWompiLink").value.trim()
+  };
+  db.collection("clientes").doc(clubActual.id).update(data).then(function () {
+    clubActual = Object.assign(clubActual, data);
+    sincronizarMarca(clubActual.id, data);
+    registrarAuditoria("Datos de cobro editados por el club", clubActual.id, clubActual.clubNombre);
+    mostrarExito("Datos de cobro guardados.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
 </script>
 </body>

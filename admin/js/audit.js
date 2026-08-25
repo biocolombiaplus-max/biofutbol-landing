@@ -21,15 +21,23 @@ function requireAuth() {
 function requireSuperAdmin() {
   return requireAuth().then(function (user) {
     return db.collection("admins").doc(user.uid).get().then(function (doc) {
-      if (!doc.exists) {
+      if (doc.exists) return user;
+      // No es súper-admin: puede que sea la cuenta de un club que entró por
+      // la página equivocada (login.html en vez de club-login.html). Si
+      // tiene un club a su nombre, lo mandamos derecho a su panel en vez de
+      // dejarlo en un callejón sin salida.
+      return db.collection("clientes").where("authUid", "==", user.uid).limit(1).get().then(function (snap) {
+        if (!snap.empty) {
+          window.location.href = "club-panel.html";
+          return Promise.reject(new Error("bloqueado"));
+        }
         mostrarBloqueoAcceso(
           "Tu cuenta todavía no es súper-administrador",
           "Para entrar aquí, tu cuenta debe estar registrada en la colección <b>admins</b> de Firestore. Ve a <b>Firebase Console → Firestore Database → Datos</b>, crea (o abre) la colección <b>admins</b>, y agrega un documento con este ID exacto (tu UID):",
           user.uid
         );
         return Promise.reject(new Error("bloqueado"));
-      }
-      return user;
+      });
     });
   }).catch(function (err) {
     if (err && err.message === "bloqueado") throw err;
@@ -96,6 +104,33 @@ function requireClub() {
         reject(err);
       });
     });
+  });
+}
+
+// Protege una página que pertenece a UN club puntual (ej. la ficha de un
+// socio): deja entrar al súper-admin de BioFutbol O al dueño de ese club
+// específico. Devuelve una promesa con { user, esSuperAdmin }.
+function requireAccesoCliente(clienteId) {
+  return requireAuth().then(function (user) {
+    return db.collection("admins").doc(user.uid).get().then(function (adminDoc) {
+      if (adminDoc.exists) return { user: user, esSuperAdmin: true };
+      return db.collection("clientes").doc(clienteId).get().then(function (clienteDoc) {
+        if (clienteDoc.exists && clienteDoc.data().authUid === user.uid) {
+          return { user: user, esSuperAdmin: false };
+        }
+        mostrarBloqueoAcceso("No tienes acceso a este club", "Esta ficha pertenece a otro club, o el link que usaste no es correcto.", null);
+        return Promise.reject(new Error("bloqueado"));
+      });
+    });
+  }).catch(function (err) {
+    if (err && err.message === "bloqueado") throw err;
+    mostrarBloqueoAcceso(
+      "No se pudo verificar tu acceso",
+      "Esto casi siempre pasa porque las reglas de seguridad de Firestore todavía no están publicadas. Ve a <b>Firebase Console → Firestore Database → Reglas</b>, pega el contenido completo de <code>admin/firestore.rules</code> del repositorio y publica. Luego recarga esta página." +
+        (err && err.message ? "<br><br><small style=\"color:var(--gray-d)\">Detalle técnico: " + String(err.message).replace(/[&<>]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]; }) + "</small>" : ""),
+      null
+    );
+    throw err;
   });
 }
 
