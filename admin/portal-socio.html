@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="carnet.css">
 <style>
 body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),transparent 60%),var(--bg)}
 .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
@@ -15,17 +16,6 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 .phead .name{font-size:1.1rem;font-weight:900}
 .phead .name b{color:var(--green-l)}
 .phead .tag{font-size:.72rem;color:var(--gray-d);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
-.playercard{position:relative;border-radius:24px;overflow:hidden;padding:34px 22px 26px;text-align:center;margin-bottom:20px;
-  background:linear-gradient(165deg,#132018,#0a100c);border:1px solid var(--card-b);box-shadow:var(--shadow)}
-.playercard::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),var(--green-l),var(--gold),transparent)}
-.pphoto{width:104px;height:104px;border-radius:50%;object-fit:cover;border:3px solid var(--green-l);box-shadow:0 10px 28px rgba(24,168,58,.4);margin:0 auto 14px;display:block;background:var(--card2)}
-.pphoto-empty{width:104px;height:104px;border-radius:50%;border:3px solid var(--card-b2);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:var(--card-b2);font-size:2.2rem;background:var(--card2)}
-.pname{font-size:1.35rem;font-weight:900;margin-bottom:4px}
-.pmeta{color:var(--gold);font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:18px}
-.pstats{display:flex;justify-content:center;gap:26px;flex-wrap:wrap}
-.pstats div{display:flex;flex-direction:column;align-items:center;gap:3px}
-.pstats .v{font-size:1.15rem;font-weight:900;color:#fff}
-.pstats .k{font-size:.62rem;color:var(--gray-d);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
 .pcard{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:22px;margin-bottom:18px}
 .pcard h3{font-size:.98rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:.86rem}
@@ -51,23 +41,13 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
     <p class="tag">Portal del deportista</p>
   </div>
 
-  <div class="playercard">
-    <img class="pphoto" id="pFoto" style="display:none">
-    <div class="pphoto-empty" id="pFotoEmpty"><i class="fa-solid fa-user"></i></div>
-    <div class="pname" id="pNombre">—</div>
-    <div class="pmeta" id="pClub">—</div>
-    <div class="pstats">
-      <div><div class="v" id="pCamiseta">—</div><div class="k">Camiseta</div></div>
-      <div><div class="v" id="pPosicion">—</div><div class="k">Posición</div></div>
-      <div><div class="v" id="pPie">—</div><div class="k">Pie hábil</div></div>
-      <div><div class="v" id="pEdad">—</div><div class="k">Edad</div></div>
-    </div>
-  </div>
+  <div class="carnet-wrap" id="carnetContainer"></div>
 
   <div class="pcard">
     <h3><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
     <div class="profile-grid">
       <div><div class="k">Categoría</div><div class="v" id="pCategoria">—</div></div>
+      <div><div class="k">Edad</div><div class="v" id="pEdad">—</div></div>
       <div><div class="k">Talla uniforme</div><div class="v" id="pTalla">—</div></div>
       <div><div class="k">Colegio</div><div class="v" id="pColegio">—</div></div>
       <div><div class="k">Jornada</div><div class="v" id="pJornada">—</div></div>
@@ -119,6 +99,7 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/nutricion.js"></script>
+<script src="js/carnet.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const clienteId = params.get("cliente");
@@ -127,30 +108,26 @@ const socioId = params.get("id");
 if (!clienteId || !socioId) {
   document.getElementById("errorWrap").style.display = "block";
 } else {
-  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get().then(function (doc) {
+  Promise.all([
+    db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get(),
+    db.collection("clientes").doc(clienteId).collection("publico").doc("marca").get().catch(function () { return null; })
+  ]).then(function (res) {
+    const doc = res[0], marcaDoc = res[1];
     if (!doc.exists) { document.getElementById("errorWrap").style.display = "block"; return; }
-    pintar(doc.data());
+    const club = (marcaDoc && marcaDoc.exists) ? marcaDoc.data() : {};
+    pintar(Object.assign({ id: doc.id }, doc.data()), club);
     document.getElementById("wrap").style.display = "block";
   }).catch(function () {
     document.getElementById("errorWrap").style.display = "block";
   });
 }
 
-function pintar(socio) {
-  document.getElementById("pNombre").textContent = socio.nombre || "Deportista";
-  document.getElementById("pClub").textContent = [socio.categoria, socio.posicion].filter(Boolean).join(" · ") || "BioFutbol";
+function pintar(socio, club) {
+  carnetRender(document.getElementById("carnetContainer"), socio, club, location.href, "portal");
   document.getElementById("pCategoria").textContent = socio.categoria || "—";
-  document.getElementById("pPosicion").textContent = socio.posicion || "—";
-  document.getElementById("pCamiseta").textContent = socio.camiseta ? ("#" + socio.camiseta) : "—";
-  document.getElementById("pPie").textContent = socio.pieHabil || "—";
   document.getElementById("pTalla").textContent = socio.talla || "—";
   document.getElementById("pColegio").textContent = socio.colegio || "—";
   document.getElementById("pJornada").textContent = socio.jornada || "—";
-  if (socio.fotoUrl) {
-    document.getElementById("pFoto").src = socio.fotoUrl;
-    document.getElementById("pFoto").style.display = "block";
-    document.getElementById("pFotoEmpty").style.display = "none";
-  }
   if (socio.eps || socio.grupoSanguineo || socio.alergias || socio.emergenciaNombre) {
     document.getElementById("saludCard").style.display = "block";
     document.getElementById("pEps").textContent = socio.eps || "—";

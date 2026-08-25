@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="carnet.css">
 <style>
 .growth-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:10px}
 .growth-table th{text-align:left;color:var(--gray);font-weight:700;font-size:.72rem;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--card-b2)}
@@ -154,6 +155,12 @@
       </div>
 
       <div class="card">
+        <h3><i class="fa-solid fa-id-badge"></i> Carnet digital</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Con el escudo y los colores de este club. Se actualiza solo cuando cambias la foto, el estado o los datos del socio.</p>
+        <div class="carnet-wrap" id="carnetContainer"></div>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-share-nodes"></i> Portal del deportista</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Link de solo lectura para que la familia vea los datos, el crecimiento, la nutrición y la receta de la semana — sin necesitar usuario ni contraseña.</p>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnEnviarPortal"><i class="fa-brands fa-whatsapp"></i> Enviar portal por WhatsApp</button>
@@ -169,12 +176,14 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/nutricion.js"></script>
+<script src="js/carnet.js"></script>
 <script src="js/audit.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const clienteId = params.get("cliente");
 const socioId = params.get("id");
 let socioActual = null;
+let clubActual = null;
 
 document.getElementById("backLink").href = "socios.html?cliente=" + clienteId;
 
@@ -185,8 +194,13 @@ requireAuth().then(function (user) {
 });
 
 function cargarSocio() {
-  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get().then(function (doc) {
+  Promise.all([
+    db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get(),
+    db.collection("clientes").doc(clienteId).get()
+  ]).then(function (res) {
+    const doc = res[0], clubDoc = res[1];
     if (!doc.exists) { document.getElementById("pageTitle").textContent = "Socio no encontrado"; return; }
+    clubActual = clubDoc.exists ? clubDoc.data() : {};
     socioActual = Object.assign({ id: doc.id }, doc.data());
     document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
     document.getElementById("nombre").value = socioActual.nombre || "";
@@ -223,7 +237,12 @@ function cargarSocio() {
     pintarPill("pillDatos", socioActual.autorizacionDatos);
 
     pintarCrecimientoYNutricion();
+    pintarCarnet();
   });
+}
+
+function pintarCarnet() {
+  carnetRender(document.getElementById("carnetContainer"), socioActual, clubActual, linkPortal(), "admin");
 }
 
 function edadDeSocio() {
@@ -249,6 +268,7 @@ document.getElementById("fotoInput").addEventListener("change", function (e) {
     document.getElementById("fotoPreview").style.display = "block";
     document.getElementById("fotoEmpty").style.display = "none";
     status.style.display = "none";
+    pintarCarnet();
     mostrarExito("Foto actualizada.");
   }).catch(function (err) {
     status.style.display = "none";
@@ -342,6 +362,7 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     socioActual = Object.assign(socioActual, data);
     document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
     pintarCrecimientoYNutricion();
+    pintarCarnet();
     registrarAuditoria("Datos de socio editados", clienteId, socioActual.nombre);
     mostrarExito("Cambios guardados.");
   }).catch(function (err) {

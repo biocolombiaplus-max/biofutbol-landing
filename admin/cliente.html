@@ -98,6 +98,11 @@
           </div>
         </div>
         <div id="uploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Color principal del club</label><input type="color" id="colorPrimario" value="#18A83A" style="height:44px;padding:4px;cursor:pointer"></div>
+          <div class="field"><label>Color secundario</label><input type="color" id="colorSecundario" value="#0e7d29" style="height:44px;padding:4px;cursor:pointer"></div>
+        </div>
+        <p style="font-size:.76rem;color:var(--gray-d)">Estos colores se usan en el carnet digital de cada socio de este club.</p>
       </div>
 
       <div class="card">
@@ -261,6 +266,8 @@ function cargarCliente() {
     document.getElementById("claveApp").value = clienteActual.claveApp || "";
     document.getElementById("estado").value = clienteActual.estado || "pendiente";
     document.getElementById("notas").value = clienteActual.notas || "";
+    document.getElementById("colorPrimario").value = clienteActual.colorPrimario || "#18A83A";
+    document.getElementById("colorSecundario").value = clienteActual.colorSecundario || "#0e7d29";
     if (clienteActual.plan) marcarPlanSeleccionado(clienteActual.plan);
 
     document.getElementById("sidebar").style.display = "block";
@@ -464,6 +471,7 @@ function subirImagen(tipo, file) {
     clienteActual[tipo + "Url"] = url;
     mostrarPreview(tipo, url);
     status.style.display = "none";
+    if (tipo === "logo") sincronizarMarca(clienteId, clienteActual);
     registrarAuditoria(tipo === "logo" ? "Logo actualizado" : "Imagen destacada actualizada", clienteId, clienteActual.clubNombre);
     mostrarExito(tipo === "logo" ? "Logo actualizado." : "Imagen destacada actualizada.");
   }).catch(function (err) {
@@ -505,8 +513,19 @@ function leerFormulario() {
     usuarioApp: document.getElementById("usuarioApp").value.trim(),
     claveApp: document.getElementById("claveApp").value.trim(),
     estado: document.getElementById("estado").value,
-    notas: document.getElementById("notas").value.trim()
+    notas: document.getElementById("notas").value.trim(),
+    colorPrimario: document.getElementById("colorPrimario").value,
+    colorSecundario: document.getElementById("colorSecundario").value
   };
+}
+
+function sincronizarMarca(id, data) {
+  db.collection("clientes").doc(id).collection("publico").doc("marca").set({
+    clubNombre: data.clubNombre || "",
+    logoUrl: (clienteActual && clienteActual.logoUrl) || "",
+    colorPrimario: data.colorPrimario || "#18A83A",
+    colorSecundario: data.colorSecundario || "#0e7d29"
+  }, { merge: true });
 }
 
 function mostrarError(msg) {
@@ -543,6 +562,8 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     data.fechaRegistro = firebase.firestore.FieldValue.serverTimestamp();
     data.pagos = [];
     db.collection("clientes").add(data).then(function (ref) {
+      clienteActual = { id: ref.id };
+      sincronizarMarca(ref.id, data);
       registrarAuditoria("Cliente creado", ref.id, data.clubNombre, "Creado desde el panel administrativo");
       window.location.href = "cliente.html?id=" + ref.id;
     }).catch(function (err) {
@@ -551,9 +572,10 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     });
   } else {
     db.collection("clientes").doc(clienteId).update(data).then(function () {
+      clienteActual = Object.assign(clienteActual, data);
+      sincronizarMarca(clienteId, data);
       registrarAuditoria("Datos editados", clienteId, data.clubNombre);
       mostrarExito("Cambios guardados.");
-      clienteActual = Object.assign(clienteActual, data);
       btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cliente';
     }).catch(function (err) {
       mostrarError("No se pudo guardar: " + err.message);
