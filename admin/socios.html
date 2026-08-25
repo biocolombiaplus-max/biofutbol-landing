@@ -28,6 +28,7 @@
     <h2 id="pageTitle">Socios / Jugadores</h2>
     <div class="toolbar">
       <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre o categoría...">
+      <button class="btn btn-ghost btn-sm" id="btnFiltroPendientes"><i class="fa-solid fa-filter"></i> Solo pendientes de pago</button>
     </div>
   </div>
 
@@ -41,6 +42,7 @@
           <th>Categoría</th>
           <th>Edad</th>
           <th>IMC</th>
+          <th>Pago</th>
           <th>Estado</th>
         </tr>
       </thead>
@@ -56,11 +58,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/nutricion.js"></script>
+<script src="js/plans.js"></script>
 <script src="js/audit.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const clienteId = params.get("cliente");
 let TODOS = [];
+let soloPendientes = false;
 
 document.getElementById("backLink").href = "cliente.html?id=" + clienteId;
 
@@ -93,21 +97,35 @@ function ultimoCrecimiento(socio) {
   return arr.length ? arr[arr.length - 1] : null;
 }
 
+function estadoPagoBadge(s) {
+  if (!s.pagoProximo) return { texto: "Sin definir", clase: "muted", vencido: false };
+  const dias = diasHasta(s.pagoProximo);
+  if (dias === null) return { texto: "Sin definir", clase: "muted", vencido: false };
+  if (dias < 0) return { texto: "Vencido", clase: "bad", vencido: true };
+  if (dias <= 5) return { texto: "Vence pronto", clase: "warn", vencido: true };
+  return { texto: "Al día", clase: "ok", vencido: false };
+}
+
 function pintarTabla(lista) {
   const tbody = document.getElementById("tbody");
-  if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">Todavía no hay socios cargados. Sube un Excel o envía el link de autorregistro desde la ficha del cliente.</td></tr>';
+  const filtrada = soloPendientes ? lista.filter(function (s) { return estadoPagoBadge(s).vencido; }) : lista;
+  if (!filtrada.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">' +
+      (soloPendientes ? "No hay socios pendientes de pago con esta búsqueda." : "Todavía no hay socios cargados. Sube un Excel o envía el link de autorregistro desde la ficha del cliente.") +
+      '</td></tr>';
     return;
   }
-  tbody.innerHTML = lista.map(function (s) {
+  tbody.innerHTML = filtrada.map(function (s) {
     const edad = calcularEdad(s.fechaNacimiento);
     const cred = ultimoCrecimiento(s);
     const imc = cred ? calcularIMC(cred.peso, cred.estatura) : null;
+    const pago = estadoPagoBadge(s);
     return '<tr onclick="location.href=\'socio.html?cliente=' + clienteId + '&id=' + s.id + '\'">' +
       '<td><strong>' + esc(s.nombre || "Sin nombre") + '</strong></td>' +
       '<td>' + esc(s.categoria || "—") + '</td>' +
       '<td>' + (edad !== null ? edad + " años" : "—") + '</td>' +
       '<td>' + (imc ? imc.toFixed(1) : "—") + '</td>' +
+      '<td><span class="pill ' + pago.clase + '">' + pago.texto + '</span></td>' +
       '<td><span class="pill ' + (s.estado === "Activo" ? "ok" : "muted") + '">' + esc(s.estado || "—") + '</span></td>' +
       '</tr>';
   }).join("");
@@ -119,12 +137,20 @@ function esc(s) {
   });
 }
 
-document.getElementById("searchInput").addEventListener("input", function (e) {
-  const q = e.target.value.toLowerCase().trim();
-  if (!q) { pintarTabla(TODOS); return; }
-  pintarTabla(TODOS.filter(function (s) {
+function aplicarFiltros() {
+  const q = document.getElementById("searchInput").value.toLowerCase().trim();
+  const base = q ? TODOS.filter(function (s) {
     return (s.nombre || "").toLowerCase().includes(q) || (s.categoria || "").toLowerCase().includes(q);
-  }));
+  }) : TODOS;
+  pintarTabla(base);
+}
+
+document.getElementById("searchInput").addEventListener("input", aplicarFiltros);
+
+document.getElementById("btnFiltroPendientes").addEventListener("click", function () {
+  soloPendientes = !soloPendientes;
+  this.classList.toggle("btn-primary", soloPendientes);
+  aplicarFiltros();
 });
 
 function mostrarError(msg) {

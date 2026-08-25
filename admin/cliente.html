@@ -106,6 +106,18 @@
       </div>
 
       <div class="card">
+        <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Cuánto le cobra este club a cada socio, y a dónde debe pagar. Se usa en los recordatorios de pago por WhatsApp y en el portal del deportista.</p>
+        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="pagoMensualidad" min="0" step="1000" placeholder="Ej: 50000"></div>
+        <div class="field-row">
+          <div class="field"><label>Nequi — número</label><input type="text" id="pagoNequiNumero" placeholder="3001234567"></div>
+          <div class="field"><label>Nequi — a nombre de</label><input type="text" id="pagoNequiTitular"></div>
+        </div>
+        <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="pagoWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+        <p style="font-size:.76rem;color:var(--gray-d)">Con Wompi puedes crear un link de pago gratis (sin necesitar página web) desde <a href="https://comercios.wompi.co" target="_blank" rel="noopener" style="color:var(--green-l)">comercios.wompi.co</a> — aceptan PSE, tarjeta y Nequi.</p>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-key"></i> Acceso a la app del club</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Credenciales que se le entregan al club para acceder a su app una vez esté lista.</p>
         <div class="field-row">
@@ -268,6 +280,10 @@ function cargarCliente() {
     document.getElementById("notas").value = clienteActual.notas || "";
     document.getElementById("colorPrimario").value = clienteActual.colorPrimario || "#18A83A";
     document.getElementById("colorSecundario").value = clienteActual.colorSecundario || "#0e7d29";
+    document.getElementById("pagoMensualidad").value = clienteActual.pagoMensualidad || "";
+    document.getElementById("pagoNequiNumero").value = clienteActual.pagoNequiNumero || "";
+    document.getElementById("pagoNequiTitular").value = clienteActual.pagoNequiTitular || "";
+    document.getElementById("pagoWompiLink").value = clienteActual.pagoWompiLink || "";
     if (clienteActual.plan) marcarPlanSeleccionado(clienteActual.plan);
 
     document.getElementById("sidebar").style.display = "block";
@@ -515,7 +531,11 @@ function leerFormulario() {
     estado: document.getElementById("estado").value,
     notas: document.getElementById("notas").value.trim(),
     colorPrimario: document.getElementById("colorPrimario").value,
-    colorSecundario: document.getElementById("colorSecundario").value
+    colorSecundario: document.getElementById("colorSecundario").value,
+    pagoMensualidad: Number(document.getElementById("pagoMensualidad").value) || 0,
+    pagoNequiNumero: document.getElementById("pagoNequiNumero").value.trim(),
+    pagoNequiTitular: document.getElementById("pagoNequiTitular").value.trim(),
+    pagoWompiLink: document.getElementById("pagoWompiLink").value.trim()
   };
 }
 
@@ -524,7 +544,11 @@ function sincronizarMarca(id, data) {
     clubNombre: data.clubNombre || "",
     logoUrl: (clienteActual && clienteActual.logoUrl) || "",
     colorPrimario: data.colorPrimario || "#18A83A",
-    colorSecundario: data.colorSecundario || "#0e7d29"
+    colorSecundario: data.colorSecundario || "#0e7d29",
+    pagoMensualidad: data.pagoMensualidad || 0,
+    pagoNequiNumero: data.pagoNequiNumero || "",
+    pagoNequiTitular: data.pagoNequiTitular || "",
+    pagoWompiLink: data.pagoWompiLink || ""
   }, { merge: true });
 }
 

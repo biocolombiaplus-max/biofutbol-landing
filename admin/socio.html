@@ -155,6 +155,20 @@
       </div>
 
       <div class="card">
+        <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro y pagos</h3>
+        <div class="status-row"><span class="k">Estado</span><span id="pagoSocioPill" class="pill muted">—</span></div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Mensualidad (COP)</label><input type="number" id="pagoValor" min="0" step="1000"></div>
+          <div class="field"><label>Próximo pago</label><input type="date" id="pagoProximo"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnMarcarPagado"><i class="fa-solid fa-check-double"></i> Marcar como pagado hoy (+30 días)</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecordarPago" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Recordar pago por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecibo" style="margin-top:8px"><i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago</button>
+        <div id="ultimoRecordatorio" style="font-size:.76rem;color:var(--gray-d);margin-top:10px"></div>
+        <div id="historialPagosSocio" style="margin-top:10px;font-size:.78rem;color:var(--gray)"></div>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-id-badge"></i> Carnet digital</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Con el escudo y los colores de este club. Se actualiza solo cuando cambias la foto, el estado o los datos del socio.</p>
         <div class="carnet-wrap" id="carnetContainer"></div>
@@ -173,8 +187,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
+<script src="js/plans.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/carnet.js"></script>
 <script src="js/audit.js"></script>
@@ -236,6 +252,10 @@ function cargarSocio() {
     pintarPill("pillImagen", socioActual.autorizacionImagen);
     pintarPill("pillDatos", socioActual.autorizacionDatos);
 
+    document.getElementById("pagoValor").value = socioActual.pagoValor || (clubActual && clubActual.pagoMensualidad) || "";
+    document.getElementById("pagoProximo").value = socioActual.pagoProximo || "";
+    pintarPago();
+
     pintarCrecimientoYNutricion();
     pintarCarnet();
   });
@@ -243,6 +263,142 @@ function cargarSocio() {
 
 function pintarCarnet() {
   carnetRender(document.getElementById("carnetContainer"), socioActual, clubActual, linkPortal(), "admin");
+}
+
+function estadoPagoSocio(socio) {
+  if (!socio.pagoProximo) return { texto: "Sin definir", clase: "muted", vencido: false };
+  const dias = diasHasta(socio.pagoProximo);
+  if (dias === null) return { texto: "Sin definir", clase: "muted", vencido: false };
+  if (dias < 0) return { texto: "Vencido hace " + Math.abs(dias) + "d", clase: "bad", vencido: true };
+  if (dias <= 5) return { texto: "Vence en " + dias + "d", clase: "warn", vencido: true };
+  return { texto: "Al día (" + dias + "d)", clase: "ok", vencido: false };
+}
+
+function pintarPago() {
+  const ep = estadoPagoSocio(socioActual);
+  const pill = document.getElementById("pagoSocioPill");
+  pill.textContent = ep.texto;
+  pill.className = "pill " + ep.clase;
+
+  const btnRecordar = document.getElementById("btnRecordarPago");
+  btnRecordar.disabled = !ep.vencido;
+  btnRecordar.style.opacity = ep.vencido ? "1" : ".5";
+
+  const ultimoEl = document.getElementById("ultimoRecordatorio");
+  ultimoEl.textContent = socioActual.fechaUltimoRecordatorio
+    ? "Último recordatorio enviado: " + formatFecha(new Date(socioActual.fechaUltimoRecordatorio))
+    : "";
+
+  const historial = socioActual.historialPagosSocio || [];
+  document.getElementById("historialPagosSocio").innerHTML = historial.length
+    ? "<strong style='color:var(--white)'>Historial:</strong><br>" + historial.slice().reverse().slice(0, 6).map(function (p) {
+        return formatFecha(new Date(p.fecha)) + " — " + formatCOP(p.valor || 0);
+      }).join("<br>")
+    : "Sin pagos registrados todavía.";
+}
+
+document.getElementById("btnMarcarPagado").addEventListener("click", function () {
+  const valor = Number(document.getElementById("pagoValor").value) || 0;
+  const hoy = new Date();
+  const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  const hoyStr = hoy.toISOString().slice(0, 10);
+  const proximoStr = proximo.toISOString().slice(0, 10);
+
+  const nuevoPago = { fecha: hoyStr, valor: valor };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    pagoValor: valor,
+    pagoProximo: proximoStr,
+    pagoUltimo: hoyStr,
+    fechaUltimoRecordatorio: firebase.firestore.FieldValue.delete(),
+    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+  }).then(function () {
+    socioActual.pagoValor = valor;
+    socioActual.pagoProximo = proximoStr;
+    socioActual.pagoUltimo = hoyStr;
+    socioActual.fechaUltimoRecordatorio = null;
+    socioActual.historialPagosSocio = (socioActual.historialPagosSocio || []).concat([nuevoPago]);
+    document.getElementById("pagoProximo").value = proximoStr;
+    pintarPago();
+    registrarAuditoria("Pago de socio registrado", clienteId, socioActual.nombre, formatCOP(valor));
+    mostrarExito("Pago registrado. Próximo vencimiento actualizado.");
+  }).catch(function (err) {
+    mostrarError("No se pudo registrar el pago: " + err.message);
+  });
+});
+
+document.getElementById("btnRecordarPago").addEventListener("click", function () {
+  let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+
+  const valor = Number(document.getElementById("pagoValor").value) || (clubActual && clubActual.pagoMensualidad) || 0;
+  const nombreClub = (clubActual && clubActual.clubNombre) || "tu club";
+  let mensaje = "¡Hola! Te recordamos la mensualidad de " + (socioActual.nombre || "tu deportista") + " en " + nombreClub +
+    (valor ? ": " + formatCOP(valor) : "") + ".";
+
+  if (clubActual && clubActual.pagoNequiNumero) {
+    mensaje += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+  }
+  if (clubActual && clubActual.pagoWompiLink) {
+    mensaje += "\n\nO con tarjeta/PSE aquí: " + clubActual.pagoWompiLink;
+  }
+  mensaje += "\n\nCuando pagues, envíanos el comprobante para actualizarlo. ¡Gracias!";
+
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+
+  const hoyStr = new Date().toISOString().slice(0, 10);
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    fechaUltimoRecordatorio: hoyStr
+  }).then(function () {
+    socioActual.fechaUltimoRecordatorio = hoyStr;
+    pintarPago();
+    registrarAuditoria("Recordatorio de pago enviado", clienteId, socioActual.nombre);
+  });
+});
+
+document.getElementById("btnRecibo").addEventListener("click", function () {
+  const historial = socioActual.historialPagosSocio || [];
+  const ultimo = historial.length ? historial[historial.length - 1] : null;
+  const valor = ultimo ? ultimo.valor : (Number(document.getElementById("pagoValor").value) || 0);
+  const fecha = ultimo ? ultimo.fecha : new Date().toISOString().slice(0, 10);
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: [320, 460] });
+  const nombreClub = (clubActual && clubActual.clubNombre) || "BioFutbol";
+  const c1 = (clubActual && clubActual.colorPrimario) || "#18A83A";
+  const rgb = hexToRgb(c1);
+
+  doc.setFillColor(rgb.r, rgb.g, rgb.b);
+  doc.rect(0, 0, 320, 70, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(255, 255, 255);
+  doc.text(nombreClub, 160, 40, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text("Recibo de pago", 160, 56, { align: "center" });
+
+  let y = 100;
+  doc.setTextColor(30, 30, 30);
+  function row(label, value) {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(120, 120, 120);
+    doc.text(label.toUpperCase(), 30, y);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(30, 30, 30);
+    doc.text(String(value), 30, y + 16);
+    y += 40;
+  }
+  row("Socio / deportista", socioActual.nombre || "—");
+  row("Documento", socioActual.documento || "—");
+  row("Categoría", socioActual.categoria || "—");
+  row("Valor pagado", formatCOP(valor));
+  row("Fecha de pago", formatFecha(new Date(fecha)));
+
+  doc.setDrawColor(220, 220, 220); doc.line(30, y, 290, y); y += 20;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+  doc.text("Generado con BioFutbol", 160, y, { align: "center" });
+
+  doc.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+});
+
+function hexToRgb(hex) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || "18A83A");
+  return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 24, g: 168, b: 58 };
 }
 
 function edadDeSocio() {
