@@ -6,8 +6,8 @@
   --gold:#FFC933;--red:#ff5c5c;--radius:16px;
   --shadow:0 14px 40px rgba(0,0,0,.5);--cta-shadow:0 10px 26px rgba(24,168,58,.4);
 }
-html{scroll-behavior:smooth;overflow-x:hidden}
-body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden}
+html{scroll-behavior:smooth;overflow-x:hidden;max-width:100vw}
+body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;overflow-x:hidden;max-width:100vw}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font-family:inherit;font-size:inherit}
 ::selection{background:var(--green);color:#031007}
@@ -62,20 +62,21 @@ tbody tr:hover{background:rgba(24,168,58,.05);cursor:pointer}
 .empty{text-align:center;padding:60px 20px;color:var(--gray)}
 
 /* ── LOGIN / REGISTRO (public) shared shell ── */
-.auth-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+.auth-shell{min-height:100vh;width:100%;max-width:100vw;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;
   background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),transparent 60%),var(--bg)}
-.auth-card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--card-b);border-radius:20px;padding:36px 32px;box-shadow:var(--shadow)}
+.auth-card{width:100%;max-width:420px;min-width:0;background:var(--card);border:1px solid var(--card-b);border-radius:20px;padding:36px 32px;box-shadow:var(--shadow)}
 .auth-card.wide{max-width:720px}
 .auth-logo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:26px;text-align:center}
 .auth-logo .name{font-size:1.3rem;font-weight:900}
 .auth-logo .name b{color:var(--green-l)}
 .auth-logo p{font-size:.82rem;color:var(--gray)}
 
-.field{margin-bottom:16px}
+.field{margin-bottom:16px;min-width:0}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--gray);margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;background:var(--card2);border:1px solid var(--card-b2);color:var(--white);padding:12px 14px;border-radius:10px;font-size:.92rem}
+.field input,.field select,.field textarea{width:100%;max-width:100%;min-width:0;background:var(--card2);border:1px solid var(--card-b2);color:var(--white);padding:12px 14px;border-radius:10px;font-size:.92rem;box-sizing:border-box}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
+.field-row>.field{min-width:0}
 .field small{display:block;margin-top:5px;color:var(--gray-d);font-size:.72rem}
 
 .error-box{background:rgba(255,92,92,.12);border:1px solid rgba(255,92,92,.35);color:#ffb3b3;font-size:.82rem;padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
