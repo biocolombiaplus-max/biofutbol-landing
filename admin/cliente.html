@@ -122,11 +122,13 @@
       <div class="card">
         <h3><i class="fa-solid fa-key"></i> Acceso a la app del club</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">El club entra a su propio panel (<b>club-login.html</b>) con el correo del representante (arriba) y esta clave — puede cambiarla cuando quiera desde ahí, y recuperarla sola si la olvida.</p>
-        <div class="field">
-          <label>Clave inicial</label>
-          <input type="text" id="claveApp">
+        <div id="claveInicialWrap">
+          <div class="field">
+            <label>Clave inicial</label>
+            <input type="text" id="claveApp">
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarCred"><i class="fa-solid fa-shuffle"></i> Generar clave automática</button>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarCred"><i class="fa-solid fa-shuffle"></i> Generar clave automática</button>
         <div id="accesoStatus" style="display:none;margin-top:14px"></div>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnCrearAcceso" style="margin-top:14px"><i class="fa-solid fa-user-plus"></i> Crear acceso del club</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarAcceso" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar acceso por WhatsApp</button>
@@ -574,7 +576,6 @@ function leerFormulario() {
     plan: planEl ? planEl.value : null,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
     usuarioApp: repEmail,
-    claveApp: document.getElementById("claveApp").value.trim(),
     estado: document.getElementById("estado").value,
     notas: document.getElementById("notas").value.trim(),
     colorPrimario: document.getElementById("colorPrimario").value,
@@ -655,12 +656,20 @@ function pintarAccesoStatus() {
   const box = document.getElementById("accesoStatus");
   const btnCrear = document.getElementById("btnCrearAcceso");
   const btnEnviar = document.getElementById("btnEnviarAcceso");
+  const claveWrap = document.getElementById("claveInicialWrap");
   if (clienteActual && clienteActual.authUid) {
+    // Una vez existe la cuenta, esta clave deja de ser confiable: no hay
+    // forma segura de saber cuál es la clave REAL del club desde acá (solo
+    // se puede crear una vez, o pedirle un restablecimiento). Por eso se
+    // oculta el campo — mostrarlo/editarlo antes solo confundía y llevó a
+    // enviarle al club una clave que nunca quedó realmente activa.
+    claveWrap.style.display = "none";
     box.style.display = "block";
     box.innerHTML = '<span class="pill ok"><i class="fa-solid fa-check"></i> Acceso activo</span> <span style="font-size:.78rem;color:var(--gray)">Inicia sesión en club-login.html con ' + (clienteActual.repEmail || "su correo") + '</span>';
     btnCrear.innerHTML = '<i class="fa-solid fa-rotate"></i> Restablecer clave del club';
     btnEnviar.disabled = false;
   } else {
+    claveWrap.style.display = "block";
     box.style.display = "none";
     btnCrear.innerHTML = '<i class="fa-solid fa-user-plus"></i> Crear acceso del club';
     btnEnviar.disabled = true;
@@ -677,22 +686,25 @@ function crearOResetearAcceso(email, pass) {
     // Ya tiene cuenta creada: no reescribimos la clave desde acá (no es seguro
     // sin volver a autenticar al club). Le mandamos el correo oficial de
     // Firebase para que el club mismo defina una clave nueva.
-    listo = auth.sendPasswordResetEmail(email);
+    listo = auth.sendPasswordResetEmail(email).then(function () {
+      return db.collection("clientes").doc(clienteId).update({ claveDesactualizada: true });
+    });
   } else {
     const secApp = firebase.apps.find(function (a) { return a.name === "secondary"; }) || firebase.initializeApp(firebaseConfig, "secondary");
     const secAuth = secApp.auth();
     listo = secAuth.createUserWithEmailAndPassword(email, pass).then(function (cred) {
       const uid = cred.user.uid;
       return secAuth.signOut().then(function () {
-        return db.collection("clientes").doc(clienteId).update({ authUid: uid, usuarioApp: email, claveApp: pass });
+        return db.collection("clientes").doc(clienteId).update({ authUid: uid, usuarioApp: email, claveApp: pass, claveDesactualizada: false });
       });
     });
   }
   return listo.then(function () {
     registrarAuditoria(yaExiste ? "Restablecimiento de acceso solicitado" : "Acceso del club creado", clienteId, clienteActual.clubNombre, email);
-    if (yaExiste) return { yaExiste: true };
+    if (yaExiste) { clienteActual.claveDesactualizada = true; return { yaExiste: true }; }
     clienteActual.usuarioApp = email;
     clienteActual.claveApp = pass;
+    clienteActual.claveDesactualizada = false;
     return db.collection("clientes").doc(clienteId).get().then(function (doc) {
       clienteActual = Object.assign({ id: doc.id }, doc.data());
       return { yaExiste: false };
@@ -732,10 +744,13 @@ document.getElementById("btnEnviarAcceso").addEventListener("click", function ()
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
   const link = location.origin + location.pathname.replace(/cliente\.html$/, "") + "club-login.html";
-  const mensaje = "¡Hola! Ya puedes entrar al panel de tu club en BioFutbol:\n" + link +
-    "\n\nUsuario: " + (clienteActual.repEmail || "") +
-    "\nClave: " + (clienteActual.claveApp || "") +
-    "\n\nDesde ahí puedes gestionar tus equipos, el calendario de partidos y la tabla de posiciones.";
+  let mensaje = "¡Hola! Ya puedes entrar al panel de tu club en BioFutbol:\n" + link + "\n\nUsuario: " + (clienteActual.repEmail || "");
+  if (clienteActual.claveDesactualizada) {
+    mensaje += "\n\nPara entrar por primera vez (o si no recuerdas tu clave), toca \"¿Olvidaste tu contraseña?\" en esa página — te llegará un correo para definir una clave nueva.";
+  } else {
+    mensaje += "\nClave: " + (clienteActual.claveApp || "");
+  }
+  mensaje += "\n\nDesde ahí puedes gestionar tus equipos, el calendario de partidos y la tabla de posiciones.";
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Acceso enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
 });
@@ -789,7 +804,6 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
   const data = leerFormulario();
   if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
   if (!data.plan) { mostrarError("Selecciona un plan."); return; }
-  if (!data.claveApp) data.claveApp = generarClaveApp();
 
   const btn = document.getElementById("btnGuardar");
   btn.disabled = true;

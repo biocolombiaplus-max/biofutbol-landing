@@ -92,13 +92,21 @@ function requireClub() {
     auth.onAuthStateChanged(function (user) {
       if (!user) { window.location.href = "club-login.html"; reject(new Error("sin-sesion")); return; }
       db.collection("clientes").where("authUid", "==", user.uid).limit(1).get().then(function (snap) {
-        if (snap.empty) {
-          window.location.href = "club-login.html";
-          reject(new Error("sin-club"));
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          resolve({ user: user, cliente: Object.assign({ id: doc.id }, doc.data()) });
           return;
         }
-        const doc = snap.docs[0];
-        resolve({ user: user, cliente: Object.assign({ id: doc.id }, doc.data()) });
+        // No es dueño de ningún club: si es el súper-admin de BioFutbol
+        // (por ejemplo, entró aquí por error), lo mandamos a su panel real
+        // en vez de dejarlo rebotando en el login del club.
+        db.collection("admins").doc(user.uid).get().then(function (adminDoc) {
+          window.location.href = adminDoc.exists ? "index.html" : "club-login.html";
+          reject(new Error("sin-club"));
+        }).catch(function () {
+          window.location.href = "club-login.html";
+          reject(new Error("sin-club"));
+        });
       }).catch(function (err) {
         window.location.href = "club-login.html";
         reject(err);
