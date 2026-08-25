@@ -556,6 +556,7 @@ function pintarHistorialPagos() {
 
 function leerFormulario() {
   const planEl = document.querySelector('input[name="plan"]:checked');
+  const repEmail = document.getElementById("repEmail").value.trim();
   return {
     clubNombre: document.getElementById("clubNombre").value.trim(),
     clubNit: document.getElementById("clubNit").value.trim(),
@@ -563,11 +564,11 @@ function leerFormulario() {
     clubDireccion: document.getElementById("clubDireccion").value.trim(),
     repNombre: document.getElementById("repNombre").value.trim(),
     repCedula: document.getElementById("repCedula").value.trim(),
-    repEmail: document.getElementById("repEmail").value.trim(),
+    repEmail: repEmail,
     repTelefono: document.getElementById("repTelefono").value.trim(),
     plan: planEl ? planEl.value : null,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
-    usuarioApp: document.getElementById("usuarioApp").value.trim(),
+    usuarioApp: repEmail,
     claveApp: document.getElementById("claveApp").value.trim(),
     estado: document.getElementById("estado").value,
     notas: document.getElementById("notas").value.trim(),
@@ -783,7 +784,6 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
   const data = leerFormulario();
   if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
   if (!data.plan) { mostrarError("Selecciona un plan."); return; }
-  data.usuarioApp = data.repEmail || "";
   if (!data.claveApp) data.claveApp = generarClaveApp();
 
   const btn = document.getElementById("btnGuardar");
