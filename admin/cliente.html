@@ -131,9 +131,12 @@
         <h3><i class="fa-solid fa-file-excel"></i> Socios / Jugadores</h3>
         <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Carga desde un Excel todos los socios o jugadores del club (nombre, documento, categoría, acudiente y más) para personalizar la app de este cliente.</p>
         <div class="status-row"><span class="k">Cargados actualmente</span><span id="sociosCount" class="pill muted">—</span></div>
-        <a href="plantilla-socios.xlsx" download class="btn btn-ghost btn-block btn-sm" style="margin-top:12px"><i class="fa-solid fa-download"></i> Descargar plantilla de ejemplo</a>
+        <a id="verSociosLink" href="#" class="btn btn-ghost btn-block btn-sm" style="margin-top:12px"><i class="fa-solid fa-list"></i> Ver lista de socios</a>
+
+        <p style="font-size:.74rem;color:var(--gray-d);text-transform:uppercase;font-weight:800;letter-spacing:.04em;margin:18px 0 8px">Opción 1 — Excel</p>
+        <a href="plantilla-socios.xlsx" download class="btn btn-ghost btn-block btn-sm"><i class="fa-solid fa-download"></i> Descargar plantilla de ejemplo</a>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarPlantilla" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviarle la plantilla por WhatsApp</button>
-        <div class="upload-box" id="excelBox" style="height:64px;margin-top:14px" onclick="document.getElementById('excelInput').click()">
+        <div class="upload-box" id="excelBox" style="height:64px;margin-top:8px" onclick="document.getElementById('excelInput').click()">
           <div class="upload-empty"><i class="fa-solid fa-file-arrow-up"></i><span>Subir Excel del club (.xlsx)</span></div>
         </div>
         <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none">
@@ -142,6 +145,11 @@
           <p style="font-size:.8rem;color:var(--green-l);font-weight:700;margin-bottom:8px" id="excelPreviewMsg"></p>
           <button type="button" class="btn btn-primary btn-block btn-sm" id="btnConfirmarImport"><i class="fa-solid fa-check"></i> Guardar en la app del cliente</button>
         </div>
+
+        <p style="font-size:.74rem;color:var(--gray-d);text-transform:uppercase;font-weight:800;letter-spacing:.04em;margin:18px 0 8px">Opción 2 — Sin computador</p>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:10px">Envíale a cada socio o acudiente un formulario para diligenciar desde el celular, sin necesitar Excel.</p>
+        <div class="field"><label>WhatsApp del socio/acudiente</label><input type="text" id="socioTelefono" placeholder="573001234567"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnEnviarFormSocio"><i class="fa-brands fa-whatsapp"></i> Enviar formulario de un socio</button>
       </div>
 
       <div class="card">
@@ -276,6 +284,7 @@ function cargarCliente() {
     if (clienteActual.necesitaLogo && !clienteActual.logoUrl) {
       document.getElementById("necesitaLogoNota").style.display = "flex";
     }
+    document.getElementById("verSociosLink").href = "socios.html?cliente=" + clienteId;
     cargarConteoSocios();
   });
 }
@@ -294,6 +303,16 @@ document.getElementById("btnEnviarPlantilla").addEventListener("click", function
   if (!tel) return;
   const plantillaUrl = location.origin + location.pathname.replace(/cliente\.html$/, "") + "plantilla-socios.xlsx";
   const mensaje = "¡Hola! Te comparto la plantilla en Excel para registrar a los socios o jugadores de tu club. Descárgala, complétala y devuélvenosla por este mismo chat: " + plantillaUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+});
+
+document.getElementById("btnEnviarFormSocio").addEventListener("click", function () {
+  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de enviar el formulario."); return; }
+  const tel = document.getElementById("socioTelefono").value.trim().replace(/[^0-9]/g, "");
+  if (!tel) { mostrarError("Ingresa el WhatsApp del socio o acudiente."); return; }
+  const formUrl = location.origin + location.pathname.replace(/cliente\.html$/, "") +
+    "registro-socio.html?club=" + clienteId + "&nombre=" + encodeURIComponent(clienteActual.clubNombre || "");
+  const mensaje = "¡Hola! Completa aquí los datos del socio o jugador de " + (clienteActual.clubNombre || "tu club") + " desde tu celular (te toma 2 minutos): " + formUrl;
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
 });
 

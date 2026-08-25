@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de socio | BioFutbol</title>
+<meta name="description" content="Registra tus datos como socio o jugador del club.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-card wide" id="formCard">
+    <div class="auth-logo">
+      <svg width="40" height="49" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div class="name">Bio<b>Futbol</b></div>
+      <p id="clubLabel">Registro de socio / jugador</p>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="error-box" id="sinClub" style="display:none;background:rgba(255,201,51,.12);border-color:rgba(255,201,51,.35);color:var(--gold)">Este link no tiene un club asociado. Pide a tu club el link correcto.</div>
+
+    <form id="regForm">
+      <h3 style="font-size:.9rem;margin-bottom:14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Datos del socio o jugador</h3>
+      <div class="field"><label>Nombre completo *</label><input type="text" id="nombre" required></div>
+      <div class="field-row">
+        <div class="field"><label>Tipo de documento</label>
+          <select id="tipoDocumento">
+            <option value="RC">Registro civil (RC)</option>
+            <option value="TI">Tarjeta de identidad (TI)</option>
+            <option value="CC">Cédula de ciudadanía (CC)</option>
+          </select>
+        </div>
+        <div class="field"><label>Número de documento</label><input type="text" id="documento" inputmode="numeric"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Fecha de nacimiento *</label><input type="date" id="fechaNacimiento" required></div>
+        <div class="field"><label>Ciudad</label><input type="text" id="ciudad"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria" placeholder="Ej: Sub-15"></div>
+        <div class="field"><label>Posición</label><input type="text" id="posicion" placeholder="Ej: Delantero"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Número de camiseta</label><input type="number" id="camiseta" min="0"></div>
+        <div class="field"><label>Talla de uniforme</label>
+          <select id="talla">
+            <option value="">Selecciona...</option>
+            <option>6</option><option>8</option><option>10</option><option>12</option><option>14</option><option>16</option>
+            <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-shoe-prints"></i> Peso y estatura (opcional)</h3>
+      <p style="font-size:.78rem;color:var(--gray-d);margin-top:-8px;margin-bottom:14px">Si los sabes, ayúdanos a llenarlos — el club los usa para hacer seguimiento del crecimiento y dar recomendaciones de alimentación.</p>
+      <div class="field-row">
+        <div class="field"><label>Peso (kg)</label><input type="number" id="peso" min="1" step="0.1"></div>
+        <div class="field"><label>Estatura (cm)</label><input type="number" id="estatura" min="30" step="0.1"></div>
+      </div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-user-shield"></i> Acudiente (si es menor de edad)</h3>
+      <div class="field-row">
+        <div class="field"><label>Nombre del acudiente</label><input type="text" id="acudiente"></div>
+        <div class="field"><label>Teléfono de contacto *</label><input type="text" id="telefono" placeholder="573001234567" required></div>
+      </div>
+      <div class="field"><label>Correo (opcional)</label><input type="email" id="correo"></div>
+      <div class="field"><label>EPS</label><input type="text" id="eps"></div>
+
+      <div class="field"><label>¿Algo más que debamos saber? (opcional)</label><textarea id="observaciones" rows="2"></textarea></div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+        <i class="fa-solid fa-paper-plane"></i> Enviar registro
+      </button>
+    </form>
+  </div>
+
+  <div class="auth-card" id="successCard" style="display:none;text-align:center">
+    <div style="font-size:2.6rem;color:var(--green-l);margin-bottom:14px"><i class="fa-solid fa-circle-check"></i></div>
+    <h2 style="font-size:1.15rem;margin-bottom:10px">¡Registro recibido!</h2>
+    <p style="color:var(--gray);font-size:.9rem">Ya quedaron guardados los datos. El club se pondrá en contacto si necesita algo más.</p>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nutricion.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const clubId = params.get("club");
+const clubNombre = params.get("nombre");
+
+if (!clubId) {
+  document.getElementById("formCard").style.display = "none";
+  document.getElementById("sinClub").style.display = "block";
+} else if (clubNombre) {
+  document.getElementById("clubLabel").textContent = "Registro de socio — " + decodeURIComponent(clubNombre);
+}
+
+document.getElementById("regForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const errorBox = document.getElementById("errorBox");
+  errorBox.style.display = "none";
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+  const peso = parseFloat(document.getElementById("peso").value) || null;
+  const estatura = parseFloat(document.getElementById("estatura").value) || null;
+  const fechaNacimiento = document.getElementById("fechaNacimiento").value;
+
+  const data = {
+    nombre: document.getElementById("nombre").value.trim(),
+    tipoDocumento: document.getElementById("tipoDocumento").value,
+    documento: document.getElementById("documento").value.trim(),
+    fechaNacimiento: fechaNacimiento,
+    ciudad: document.getElementById("ciudad").value.trim(),
+    categoria: document.getElementById("categoria").value.trim(),
+    posicion: document.getElementById("posicion").value.trim(),
+    camiseta: document.getElementById("camiseta").value.trim(),
+    talla: document.getElementById("talla").value,
+    acudiente: document.getElementById("acudiente").value.trim(),
+    telefono: document.getElementById("telefono").value.trim(),
+    correo: document.getElementById("correo").value.trim(),
+    eps: document.getElementById("eps").value.trim(),
+    estado: "Activo",
+    observaciones: document.getElementById("observaciones").value.trim(),
+    crecimiento: (peso && estatura) ? [{ fecha: new Date().toISOString().slice(0, 10), peso: peso, estatura: estatura }] : []
+  };
+
+  db.collection("clientes").doc(clubId).collection("socios").add(data).then(function () {
+    document.getElementById("formCard").style.display = "none";
+    document.getElementById("successCard").style.display = "block";
+  }).catch(function (err) {
+    errorBox.textContent = "No se pudo enviar el registro: " + err.message;
+    errorBox.style.display = "block";
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar registro';
+  });
+});
+</script>
+</body>
+</html>

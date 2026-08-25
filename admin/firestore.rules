@@ -9,10 +9,16 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null;
     }
 
-    // Socios/jugadores de cada club: datos sensibles (documento, acudiente,
-    // teléfono), solo un admin autenticado puede leer o escribir.
+    // Socios/jugadores de cada club: cualquiera puede CREAR (autorregistro
+    // desde el celular) o LEER un socio puntual si tiene su link exacto
+    // (portal del deportista, con el ID único como token). Pero listar
+    // TODOS los socios de un club (para el panel admin) o editar/borrar
+    // requiere estar autenticado como admin.
     match /clientes/{clienteId}/socios/{socioId} {
-      allow read, write: if request.auth != null;
+      allow create: if true;
+      allow get: if true;
+      allow list: if request.auth != null;
+      allow update, delete: if request.auth != null;
     }
 
     // Auditoría: solo admins autenticados pueden leer o escribir.

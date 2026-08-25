@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Socios | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a id="backLink" href="cliente.html" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver al cliente</a>
+  <div class="section-head" style="margin-top:0">
+    <h2 id="pageTitle">Socios / Jugadores</h2>
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre o categoría...">
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Edad</th>
+          <th>IMC</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="5" class="empty">Cargando socios...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nutricion.js"></script>
+<script src="js/audit.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const clienteId = params.get("cliente");
+let TODOS = [];
+
+document.getElementById("backLink").href = "cliente.html?id=" + clienteId;
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  if (!clienteId) { mostrarError("Falta el cliente en el link."); return; }
+  cargarClub();
+  cargarSocios();
+});
+
+function cargarClub() {
+  db.collection("clientes").doc(clienteId).get().then(function (doc) {
+    if (doc.exists) document.getElementById("pageTitle").textContent = "Socios de " + (doc.data().clubNombre || "club");
+  });
+}
+
+function cargarSocios() {
+  db.collection("clientes").doc(clienteId).collection("socios").get().then(function (snap) {
+    TODOS = [];
+    snap.forEach(function (doc) { TODOS.push(Object.assign({ id: doc.id }, doc.data())); });
+    TODOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
+    pintarTabla(TODOS);
+  }).catch(function (err) {
+    mostrarError("No se pudieron cargar los socios: " + err.message);
+  });
+}
+
+function ultimoCrecimiento(socio) {
+  const arr = socio.crecimiento || [];
+  return arr.length ? arr[arr.length - 1] : null;
+}
+
+function pintarTabla(lista) {
+  const tbody = document.getElementById("tbody");
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Todavía no hay socios cargados. Sube un Excel o envía el link de autorregistro desde la ficha del cliente.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(function (s) {
+    const edad = calcularEdad(s.fechaNacimiento);
+    const cred = ultimoCrecimiento(s);
+    const imc = cred ? calcularIMC(cred.peso, cred.estatura) : null;
+    return '<tr onclick="location.href=\'socio.html?cliente=' + clienteId + '&id=' + s.id + '\'">' +
+      '<td><strong>' + esc(s.nombre || "Sin nombre") + '</strong></td>' +
+      '<td>' + esc(s.categoria || "—") + '</td>' +
+      '<td>' + (edad !== null ? edad + " años" : "—") + '</td>' +
+      '<td>' + (imc ? imc.toFixed(1) : "—") + '</td>' +
+      '<td><span class="pill ' + (s.estado === "Activo" ? "ok" : "muted") + '">' + esc(s.estado || "—") + '</span></td>' +
+      '</tr>';
+  }).join("");
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input", function (e) {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { pintarTabla(TODOS); return; }
+  pintarTabla(TODOS.filter(function (s) {
+    return (s.nombre || "").toLowerCase().includes(q) || (s.categoria || "").toLowerCase().includes(q);
+  }));
+});
+
+function mostrarError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+}
+</script>
+</body>
+</html>

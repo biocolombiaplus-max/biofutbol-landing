@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Socio | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.growth-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:10px}
+.growth-table th{text-align:left;color:var(--gray);font-weight:700;font-size:.72rem;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--card-b2)}
+.growth-table td{padding:8px;border-bottom:1px solid var(--card-b2)}
+.tips-list{margin:0;padding-left:18px;color:var(--gray);font-size:.86rem;line-height:1.7}
+.tips-list li{margin-bottom:4px}
+.disclaimer{font-size:.76rem;color:var(--gray-d);background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+.imc-badge{display:inline-flex;align-items:center;gap:8px;font-size:1.6rem;font-weight:900;color:var(--green-l)}
+.recipe-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--card-b2);font-size:.86rem}
+.recipe-row:last-child{border-bottom:none}
+.recipe-row b{color:var(--gold);flex:none;width:80px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a id="backLink" href="#" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver a socios</a>
+  <div class="section-head" style="margin-top:0">
+    <h2 id="pageTitle">Socio</h2>
+  </div>
+
+  <div class="success-box" id="successBox"></div>
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="detail-grid">
+    <div>
+      <div class="card">
+        <h3><i class="fa-solid fa-id-card"></i> Datos del socio</h3>
+        <div class="field"><label>Nombre completo</label><input type="text" id="nombre"></div>
+        <div class="field-row">
+          <div class="field"><label>Tipo de documento</label>
+            <select id="tipoDocumento"><option value="RC">RC</option><option value="TI">TI</option><option value="CC">CC</option></select>
+          </div>
+          <div class="field"><label>Número de documento</label><input type="text" id="documento"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="fechaNacimiento"></div>
+          <div class="field"><label>Ciudad</label><input type="text" id="ciudad"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria"></div>
+          <div class="field"><label>Posición</label><input type="text" id="posicion"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Número de camiseta</label><input type="text" id="camiseta"></div>
+          <div class="field"><label>Talla de uniforme</label><input type="text" id="talla"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Acudiente</label><input type="text" id="acudiente"></div>
+          <div class="field"><label>Teléfono</label><input type="text" id="telefono"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Correo</label><input type="email" id="correo"></div>
+          <div class="field"><label>EPS</label><input type="text" id="eps"></div>
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <select id="estado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select>
+        </div>
+        <div class="field"><label>Observaciones</label><textarea id="observaciones" rows="2"></textarea></div>
+        <button class="btn btn-primary btn-block" id="btnGuardar"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+      </div>
+
+      <div class="card" id="crecimientoCard" style="display:none">
+        <h3><i class="fa-solid fa-arrow-trend-up"></i> Crecimiento y desarrollo</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Solo visible para menores de 18 años. Registra peso y estatura periódicamente para ver la evolución.</p>
+        <div class="field-row">
+          <div class="field"><label>Peso (kg)</label><input type="number" id="nuevoPeso" min="1" step="0.1"></div>
+          <div class="field"><label>Estatura (cm)</label><input type="number" id="nuevaEstatura" min="30" step="0.1"></div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnAgregarCrecimiento"><i class="fa-solid fa-plus"></i> Agregar registro de hoy</button>
+
+        <div id="imcActual" style="margin-top:18px;display:none">
+          <div class="status-row"><span class="k">IMC actual</span><span class="imc-badge" id="imcValor">—</span></div>
+        </div>
+        <table class="growth-table" id="growthTable" style="display:none">
+          <thead><tr><th>Fecha</th><th>Peso</th><th>Estatura</th><th>IMC</th></tr></thead>
+          <tbody id="growthBody"></tbody>
+        </table>
+        <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Esta información es de seguimiento general y no reemplaza una valoración médica. El peso y la estatura ideales varían según la edad exacta, el sexo y la etapa de crecimiento — para saber si el desarrollo va bien, lo mejor es consultar con el pediatra, quien usa las tablas oficiales de crecimiento (OMS/CDC) y el historial completo del niño o joven.</div>
+      </div>
+
+      <div class="card" id="nutricionCard">
+        <h3><i class="fa-solid fa-apple-whole"></i> Recomendación nutricional</h3>
+        <p style="font-size:.82rem;color:var(--gold);font-weight:700;margin-bottom:6px" id="nutricionBanda"></p>
+        <p style="font-size:.84rem;color:var(--gray);margin-bottom:12px" id="nutricionEnfoque"></p>
+        <ul class="tips-list" id="nutricionTips"></ul>
+        <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Guía general de alimentación deportiva con productos fáciles de conseguir en Colombia. No reemplaza un plan hecho por un nutricionista, sobre todo si hay alguna condición de salud particular.</div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-utensils"></i> Receta de la semana</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:10px" id="recetaTitulo"></p>
+        <div id="recetaBox"></div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-share-nodes"></i> Portal del deportista</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Link de solo lectura para que la familia vea los datos, el crecimiento, la nutrición y la receta de la semana — sin necesitar usuario ni contraseña.</p>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnEnviarPortal"><i class="fa-brands fa-whatsapp"></i> Enviar portal por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnCopiarPortal" style="margin-top:8px"><i class="fa-solid fa-link"></i> Copiar link del portal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nutricion.js"></script>
+<script src="js/audit.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const clienteId = params.get("cliente");
+const socioId = params.get("id");
+let socioActual = null;
+
+document.getElementById("backLink").href = "socios.html?cliente=" + clienteId;
+
+requireAuth().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  if (!clienteId || !socioId) { mostrarError("Falta información en el link."); return; }
+  cargarSocio();
+});
+
+function cargarSocio() {
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get().then(function (doc) {
+    if (!doc.exists) { document.getElementById("pageTitle").textContent = "Socio no encontrado"; return; }
+    socioActual = Object.assign({ id: doc.id }, doc.data());
+    document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
+    document.getElementById("nombre").value = socioActual.nombre || "";
+    document.getElementById("tipoDocumento").value = socioActual.tipoDocumento || "RC";
+    document.getElementById("documento").value = socioActual.documento || "";
+    document.getElementById("fechaNacimiento").value = socioActual.fechaNacimiento || "";
+    document.getElementById("ciudad").value = socioActual.ciudad || "";
+    document.getElementById("categoria").value = socioActual.categoria || "";
+    document.getElementById("posicion").value = socioActual.posicion || "";
+    document.getElementById("camiseta").value = socioActual.camiseta || "";
+    document.getElementById("talla").value = socioActual.talla || "";
+    document.getElementById("acudiente").value = socioActual.acudiente || "";
+    document.getElementById("telefono").value = socioActual.telefono || "";
+    document.getElementById("correo").value = socioActual.correo || "";
+    document.getElementById("eps").value = socioActual.eps || "";
+    document.getElementById("estado").value = socioActual.estado || "Activo";
+    document.getElementById("observaciones").value = socioActual.observaciones || "";
+
+    pintarCrecimientoYNutricion();
+  });
+}
+
+function edadDeSocio() {
+  return calcularEdad(socioActual.fechaNacimiento);
+}
+
+function pintarCrecimientoYNutricion() {
+  const edad = edadDeSocio();
+  const esMenor = edad !== null && edad < 18;
+  document.getElementById("crecimientoCard").style.display = esMenor ? "block" : "none";
+
+  const arr = socioActual.crecimiento || [];
+  if (arr.length) {
+    document.getElementById("growthTable").style.display = "table";
+    document.getElementById("growthBody").innerHTML = arr.slice().reverse().map(function (c) {
+      const imc = calcularIMC(c.peso, c.estatura);
+      return "<tr><td>" + (c.fecha || "—") + "</td><td>" + c.peso + " kg</td><td>" + c.estatura + " cm</td><td>" + (imc ? imc.toFixed(1) : "—") + "</td></tr>";
+    }).join("");
+    const ultimo = arr[arr.length - 1];
+    const imc = calcularIMC(ultimo.peso, ultimo.estatura);
+    if (imc) {
+      document.getElementById("imcActual").style.display = "block";
+      document.getElementById("imcValor").textContent = imc.toFixed(1);
+    }
+  }
+
+  const banda = bandaEdad(edad);
+  const guia = GUIA_NUTRICIONAL[banda];
+  document.getElementById("nutricionBanda").textContent = NOMBRE_BANDA[banda] + (edad !== null ? " · " + edad + " años" : "");
+  document.getElementById("nutricionEnfoque").textContent = guia.enfoque;
+  document.getElementById("nutricionTips").innerHTML = guia.tips.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+
+  const receta = recetaDeLaSemana();
+  document.getElementById("recetaTitulo").textContent = receta.titulo + " (cambia automáticamente cada semana)";
+  document.getElementById("recetaBox").innerHTML =
+    '<div class="recipe-row"><b>Desayuno</b><span>' + receta.desayuno + '</span></div>' +
+    '<div class="recipe-row"><b>Almuerzo</b><span>' + receta.almuerzo + '</span></div>' +
+    '<div class="recipe-row"><b>Snack</b><span>' + receta.snack + '</span></div>' +
+    '<div class="recipe-row"><b>Cena</b><span>' + receta.cena + '</span></div>';
+}
+
+document.getElementById("btnAgregarCrecimiento").addEventListener("click", function () {
+  const peso = parseFloat(document.getElementById("nuevoPeso").value);
+  const estatura = parseFloat(document.getElementById("nuevaEstatura").value);
+  if (!peso || !estatura) { mostrarError("Ingresa peso y estatura para agregar el registro."); return; }
+
+  const entrada = { fecha: new Date().toISOString().slice(0, 10), peso: peso, estatura: estatura };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    crecimiento: firebase.firestore.FieldValue.arrayUnion(entrada)
+  }).then(function () {
+    socioActual.crecimiento = (socioActual.crecimiento || []).concat([entrada]);
+    document.getElementById("nuevoPeso").value = "";
+    document.getElementById("nuevaEstatura").value = "";
+    pintarCrecimientoYNutricion();
+    registrarAuditoria("Registro de crecimiento agregado", clienteId, socioActual.nombre);
+    mostrarExito("Registro de crecimiento guardado.");
+  }).catch(function (err) {
+    mostrarError("No se pudo guardar: " + err.message);
+  });
+});
+
+document.getElementById("btnGuardar").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("nombre").value.trim(),
+    tipoDocumento: document.getElementById("tipoDocumento").value,
+    documento: document.getElementById("documento").value.trim(),
+    fechaNacimiento: document.getElementById("fechaNacimiento").value,
+    ciudad: document.getElementById("ciudad").value.trim(),
+    categoria: document.getElementById("categoria").value.trim(),
+    posicion: document.getElementById("posicion").value.trim(),
+    camiseta: document.getElementById("camiseta").value.trim(),
+    talla: document.getElementById("talla").value.trim(),
+    acudiente: document.getElementById("acudiente").value.trim(),
+    telefono: document.getElementById("telefono").value.trim(),
+    correo: document.getElementById("correo").value.trim(),
+    eps: document.getElementById("eps").value.trim(),
+    estado: document.getElementById("estado").value,
+    observaciones: document.getElementById("observaciones").value.trim()
+  };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update(data).then(function () {
+    socioActual = Object.assign(socioActual, data);
+    document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
+    pintarCrecimientoYNutricion();
+    registrarAuditoria("Datos de socio editados", clienteId, socioActual.nombre);
+    mostrarExito("Cambios guardados.");
+  }).catch(function (err) {
+    mostrarError("No se pudo guardar: " + err.message);
+  });
+});
+
+function linkPortal() {
+  return location.origin + location.pathname.replace(/socio\.html$/, "") + "portal-socio.html?cliente=" + clienteId + "&id=" + socioId;
+}
+
+document.getElementById("btnEnviarPortal").addEventListener("click", function () {
+  let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola! Aquí puedes ver la información de " + (socioActual.nombre || "tu deportista") + " en BioFutbol (datos, crecimiento y alimentación recomendada): " + linkPortal();
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+});
+
+document.getElementById("btnCopiarPortal").addEventListener("click", function () {
+  navigator.clipboard.writeText(linkPortal()).then(function () {
+    mostrarExito("Link del portal copiado.");
+  });
+});
+
+function mostrarError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function mostrarExito(msg) {
+  const box = document.getElementById("successBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(function () { box.style.display = "none"; }, 3500);
+}
+</script>
+</body>
+</html>
