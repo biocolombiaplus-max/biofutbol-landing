@@ -158,6 +158,13 @@
     </div>
 
     <div id="sidebar" style="display:none">
+      <div class="card" style="border-color:var(--green);box-shadow:0 0 0 1px rgba(24,168,58,.25)">
+        <h3><i class="fa-solid fa-bolt"></i> Activación rápida</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Un solo clic: guarda los datos, crea el acceso del club (si no existe), activa el módulo de Equipos/Fixture/Tabla y marca el cliente como activo.</p>
+        <button type="button" class="btn btn-primary btn-block" id="btnActivarTodo"><i class="fa-solid fa-bolt"></i> Activar club completo</button>
+        <div id="activarTodoStatus" style="display:none;margin-top:12px;font-size:.8rem;color:var(--green-l)"></div>
+      </div>
+
       <div class="card">
         <h3><i class="fa-solid fa-file-excel"></i> Socios / Jugadores</h3>
         <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Carga desde un Excel todos los socios o jugadores del club (nombre, documento, categoría, acudiente y más) para personalizar la app de este cliente.</p>
@@ -654,18 +661,11 @@ function pintarAccesoStatus() {
   }
 }
 
-document.getElementById("btnCrearAcceso").addEventListener("click", function () {
-  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de crear su acceso."); return; }
-  const email = (document.getElementById("repEmail").value || "").trim();
-  const pass = (document.getElementById("claveApp").value || "").trim();
-  if (!email) { mostrarError("Ingresa el correo del representante legal antes de crear el acceso."); return; }
-  if (!pass || pass.length < 6) { mostrarError("La clave debe tener al menos 6 caracteres. Usa \"Generar clave automática\" si quieres."); return; }
-
-  const btn = this;
-  btn.disabled = true;
+// Crea la cuenta real del club (o, si ya existe, envía el correo oficial de
+// restablecimiento de clave). Devuelve una promesa; no toca botones/UI, así
+// la reutilizan tanto "Crear acceso del club" como "Activar club completo".
+function crearOResetearAcceso(email, pass) {
   const yaExiste = !!clienteActual.authUid;
-  btn.innerHTML = '<span class="spinner"></span> ' + (yaExiste ? "Enviando..." : "Creando acceso...");
-
   let listo;
   if (yaExiste) {
     // Ya tiene cuenta creada: no reescribimos la clave desde acá (no es seguro
@@ -682,21 +682,38 @@ document.getElementById("btnCrearAcceso").addEventListener("click", function () 
       });
     });
   }
-
-  listo.then(function () {
-    if (yaExiste) {
-      mostrarExito("Se envió un correo a " + email + " para que el club defina su nueva clave.");
-    } else {
-      clienteActual.usuarioApp = email;
-      clienteActual.claveApp = pass;
-      db.collection("clientes").doc(clienteId).get().then(function (doc) { clienteActual = Object.assign({ id: doc.id }, doc.data()); pintarAccesoStatus(); });
-      mostrarExito("Acceso creado. El club ya puede entrar en club-login.html con ese correo y clave.");
-    }
+  return listo.then(function () {
     registrarAuditoria(yaExiste ? "Restablecimiento de acceso solicitado" : "Acceso del club creado", clienteId, clienteActual.clubNombre, email);
+    if (yaExiste) return { yaExiste: true };
+    clienteActual.usuarioApp = email;
+    clienteActual.claveApp = pass;
+    return db.collection("clientes").doc(clienteId).get().then(function (doc) {
+      clienteActual = Object.assign({ id: doc.id }, doc.data());
+      return { yaExiste: false };
+    });
   }).catch(function (err) {
     let msg = err.message;
     if (err.code === "auth/email-already-in-use") msg = "Ese correo ya tiene una cuenta de acceso creada en otro club o desde antes.";
-    mostrarError("No se pudo crear el acceso: " + msg);
+    throw new Error(msg);
+  });
+}
+
+document.getElementById("btnCrearAcceso").addEventListener("click", function () {
+  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de crear su acceso."); return; }
+  const email = (document.getElementById("repEmail").value || "").trim();
+  const pass = (document.getElementById("claveApp").value || "").trim();
+  if (!email) { mostrarError("Ingresa el correo del representante legal antes de crear el acceso."); return; }
+  if (!pass || pass.length < 6) { mostrarError("La clave debe tener al menos 6 caracteres. Usa \"Generar clave automática\" si quieres."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  const yaExiste = !!clienteActual.authUid;
+  btn.innerHTML = '<span class="spinner"></span> ' + (yaExiste ? "Enviando..." : "Creando acceso...");
+
+  crearOResetearAcceso(email, pass).then(function (r) {
+    mostrarExito(r.yaExiste ? "Se envió un correo a " + email + " para que el club defina su nueva clave." : "Acceso creado. El club ya puede entrar en club-login.html con ese correo y clave.");
+  }).catch(function (err) {
+    mostrarError("No se pudo crear el acceso: " + err.message);
   }).finally(function () {
     btn.disabled = false;
     pintarAccesoStatus();
@@ -717,6 +734,51 @@ document.getElementById("btnEnviarAcceso").addEventListener("click", function ()
   registrarAuditoria("Acceso enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
 });
 
+document.getElementById("btnActivarTodo").addEventListener("click", function () {
+  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de activarlo."); return; }
+  const email = (document.getElementById("repEmail").value || "").trim();
+  if (!email) { mostrarError("Ingresa el correo del representante legal antes de activar el club."); return; }
+  if (!document.getElementById("claveApp").value.trim()) document.getElementById("claveApp").value = generarClaveApp();
+  const pass = document.getElementById("claveApp").value.trim();
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Activando...';
+  const status = document.getElementById("activarTodoStatus");
+  status.style.display = "block";
+  status.textContent = "Guardando datos del club...";
+
+  const data = leerFormulario();
+  data.estado = "activo";
+  document.getElementById("estado").value = "activo";
+
+  db.collection("clientes").doc(clienteId).update(data).then(function () {
+    clienteActual = Object.assign(clienteActual, data);
+    sincronizarMarca(clienteId, data);
+    if (clienteActual.authUid) return null;
+    status.textContent = "Creando el acceso del club...";
+    return crearOResetearAcceso(email, pass);
+  }).then(function () {
+    status.textContent = "Activando el módulo de Equipos/Fixture/Tabla...";
+    return db.collection("clientes").doc(clienteId).update({ "modulosActivos.equipos": true });
+  }).then(function () {
+    return db.collection("clientes").doc(clienteId).get();
+  }).then(function (doc) {
+    clienteActual = Object.assign({ id: doc.id }, doc.data());
+    document.getElementById("moduloEquipos").checked = true;
+    pintarAccesoStatus();
+    registrarAuditoria("Club activado completo (datos + acceso + módulo)", clienteId, clienteActual.clubNombre);
+    status.textContent = "¡Listo! Acceso creado, módulo activado y club marcado como activo.";
+    mostrarExito("Club activado completamente.");
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo completar la activación: " + err.message);
+  }).finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Activar club completo';
+  });
+});
+
 document.getElementById("btnGuardar").addEventListener("click", function () {
   const data = leerFormulario();
   if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
@@ -731,6 +793,7 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
   if (esNuevo) {
     data.fechaRegistro = firebase.firestore.FieldValue.serverTimestamp();
     data.pagos = [];
+    data.modulosActivos = { equipos: true };
     db.collection("clientes").add(data).then(function (ref) {
       clienteActual = { id: ref.id };
       sincronizarMarca(ref.id, data);

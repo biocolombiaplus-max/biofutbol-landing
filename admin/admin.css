@@ -17,7 +17,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .logo{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:900}
 .logo .bio{color:var(--green-l)}
 .logo-icon{width:30px;height:37px;flex:none}
-.badge-admin{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green-l);background:rgba(24,168,58,.12);border:1px solid rgba(24,168,58,.35);padding:4px 10px;border-radius:999px;margin-left:8px}
+.badge-admin{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green-l);background:rgba(24,168,58,.12);background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid rgba(24,168,58,.35);border-color:color-mix(in srgb,var(--green) 35%,transparent);padding:4px 10px;border-radius:999px;margin-left:8px}
 .top-actions{display:flex;align-items:center;gap:14px}
 .user-email{font-size:.82rem;color:var(--gray)}
 
@@ -50,11 +50,11 @@ table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card
 th,td{text-align:left;padding:13px 16px;font-size:.86rem;border-bottom:1px solid var(--card-b)}
 th{background:var(--card2);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--gray);font-weight:800}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:rgba(24,168,58,.05);cursor:pointer}
+tbody tr:hover{background:rgba(24,168,58,.05);background:color-mix(in srgb,var(--green) 5%,transparent);cursor:pointer}
 .table-wrap{overflow-x:auto;border-radius:var(--radius)}
 
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap}
-.pill.ok{background:rgba(24,168,58,.14);color:var(--green-l);border:1px solid rgba(24,168,58,.35)}
+.pill.ok{background:rgba(24,168,58,.14);background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l);border:1px solid rgba(24,168,58,.35);border-color:color-mix(in srgb,var(--green) 35%,transparent)}
 .pill.warn{background:rgba(255,201,51,.14);color:var(--gold);border:1px solid rgba(255,201,51,.35)}
 .pill.bad{background:rgba(255,92,92,.14);color:var(--red);border:1px solid rgba(255,92,92,.35)}
 .pill.muted{background:rgba(255,255,255,.06);color:var(--gray);border:1px solid var(--card-b2)}
@@ -80,7 +80,7 @@ tbody tr:hover{background:rgba(24,168,58,.05);cursor:pointer}
 .field small{display:block;margin-top:5px;color:var(--gray-d);font-size:.72rem}
 
 .error-box{background:rgba(255,92,92,.12);border:1px solid rgba(255,92,92,.35);color:#ffb3b3;font-size:.82rem;padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
-.success-box{background:rgba(24,168,58,.12);border:1px solid rgba(24,168,58,.35);color:var(--green-l);font-size:.82rem;padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
+.success-box{background:rgba(24,168,58,.12);background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid rgba(24,168,58,.35);border-color:color-mix(in srgb,var(--green) 35%,transparent);color:var(--green-l);font-size:.82rem;padding:10px 14px;border-radius:10px;margin-bottom:16px;display:none}
 
 .plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
 .plan-opt{position:relative;border:1.5px solid var(--card-b2);background:var(--card2);border-radius:12px;padding:14px;cursor:pointer;transition:.2s}

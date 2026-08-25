@@ -17,8 +17,9 @@
 <link rel="stylesheet" href="admin.css">
 <style>
 .club-hdr{display:flex;align-items:center;gap:12px}
-.club-hdr img{width:38px;height:38px;border-radius:9px;object-fit:contain;background:var(--card2)}
-.club-hdr .cn{font-weight:800;font-size:1rem}
+.club-hdr img{width:42px;height:42px;border-radius:11px;object-fit:contain;background:var(--card2);flex-shrink:0}
+.club-hdr-name{font-weight:900;font-size:1.02rem;line-height:1.2}
+.club-hdr-sub{font-size:.68rem;color:var(--gray-d);font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--card-b);padding-bottom:0}
 .tab-btn{background:transparent;border:none;color:var(--gray);font-weight:800;font-size:.86rem;padding:10px 6px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
 .tab-btn.on{color:var(--green-l);border-bottom-color:var(--green-l)}
@@ -42,8 +43,8 @@
 .empty-mod.small{padding:24px 20px}
 .socio-row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--card-b2);cursor:pointer}
 .socio-row:last-child{border-bottom:none}
-.socio-row:hover{background:rgba(24,168,58,.05)}
-.socio-row.sel{background:rgba(24,168,58,.09)}
+.socio-row:hover{background:rgba(24,168,58,.05);background:color-mix(in srgb,var(--green) 6%,transparent)}
+.socio-row.sel{background:rgba(24,168,58,.09);background:color-mix(in srgb,var(--green) 10%,transparent)}
 .socio-row .sn{flex:1;min-width:0}
 .socio-row .sn b{display:block;font-size:.88rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .socio-row .sn small{color:var(--gray);font-size:.72rem}
@@ -61,7 +62,7 @@
 .comm-body .ct{color:var(--gray-d);font-size:.7rem;margin-top:2px}
 .tpl-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .tpl-pill{background:var(--card2);border:1.5px solid var(--card-b2);color:var(--gray);font-weight:800;font-size:.8rem;padding:9px 16px;border-radius:999px;cursor:pointer}
-.tpl-pill.on{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.08)}
+.tpl-pill.on{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.08);background:color-mix(in srgb,var(--green) 8%,transparent)}
 .img-preview-wrap{display:flex;justify-content:center;margin-top:16px}
 .img-preview-wrap canvas{width:100%;max-width:340px;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.5);background:#05070a}
 .img-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
@@ -71,10 +72,11 @@
 <div class="container">
   <div class="topbar">
     <div class="club-hdr" id="clubHdr">
-      <div class="logo">
-        <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
-        <span class="bio">Bio</span>Futbol
-        <span class="badge-admin" id="clubBadge">Panel del club</span>
+      <img id="clubHdrLogo" src="" alt="" style="display:none">
+      <svg id="clubHdrLogoDefault" class="logo-icon" viewBox="0 0 100 140" style="width:42px;height:52px;flex-shrink:0"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="var(--green)" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="var(--green)"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div>
+        <div class="club-hdr-name" id="clubHdrNombre">Mi club</div>
+        <div class="club-hdr-sub">Panel del club · BioFutbol</div>
       </div>
     </div>
     <div class="top-actions">
@@ -288,9 +290,15 @@ const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla"];
 requireClub().then(function (r) {
   clubActual = r.cliente;
   document.getElementById("userLabel").textContent = r.user.email;
-  document.getElementById("clubBadge").textContent = clubActual.clubNombre || "Panel del club";
+  document.getElementById("clubHdrNombre").textContent = clubActual.clubNombre || "Mi club";
+  if (clubActual.logoUrl) {
+    document.getElementById("clubHdrLogo").src = clubActual.logoUrl;
+    document.getElementById("clubHdrLogo").style.display = "block";
+    document.getElementById("clubHdrLogoDefault").style.display = "none";
+  }
 
   aplicarIconoDelClub(r.cliente);
+  aplicarTemaDelClub(r.cliente);
   moduloEquiposActivo = !!(clubActual.modulosActivos && clubActual.modulosActivos.equipos);
 
   document.getElementById("panelContent").style.display = "block";
@@ -299,6 +307,27 @@ requireClub().then(function (r) {
   escucharSocios();
   precargarFormImagenes();
 });
+
+// Reskin del panel completo con los colores de este club: como admin.css
+// construye botones, pestañas y badges a partir de estas 3 variables, con
+// solo cambiarlas todo el panel adopta la identidad del club automáticamente.
+function aplicarTemaDelClub(cliente) {
+  const root = document.documentElement.style;
+  if (cliente.colorPrimario) {
+    root.setProperty("--green", cliente.colorPrimario);
+    root.setProperty("--green-l", tonoClaro(cliente.colorPrimario, 0.32));
+    root.setProperty("--cta-shadow", "0 10px 26px " + imgRgba(cliente.colorPrimario, .4));
+  }
+  if (cliente.colorSecundario) root.setProperty("--green-d", cliente.colorSecundario);
+  if (cliente.colorTerciario) root.setProperty("--gold", cliente.colorTerciario);
+}
+function tonoClaro(hex, amt) {
+  const c = imgHexToRgb(hex);
+  const r = Math.round(c.r + (255 - c.r) * amt);
+  const g = Math.round(c.g + (255 - c.g) * amt);
+  const b = Math.round(c.b + (255 - c.b) * amt);
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
 
 // Para que cuando el club "agregue a inicio" desde su celular, salga el
 // escudo de SU club (no el logo genérico de BioFutbol). Reemplazamos el
