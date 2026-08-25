@@ -14,16 +14,66 @@ function requireAuth() {
 
 // Protege las páginas exclusivas del súper-administrador de BioFutbol.
 // Si hay sesión pero la cuenta NO es súper-admin (por ejemplo, es el login
-// de un club), la saca de aquí y la manda a su propio panel de club.
+// de un club), la saca de aquí y la manda a su propio panel de club. Si algo
+// falla (típicamente: las reglas de Firestore no están publicadas todavía),
+// en vez de dejar la página cargando para siempre, muestra una pantalla que
+// explica exactamente qué falta.
 function requireSuperAdmin() {
   return requireAuth().then(function (user) {
     return db.collection("admins").doc(user.uid).get().then(function (doc) {
       if (!doc.exists) {
-        window.location.href = "club-login.html";
-        return Promise.reject(new Error("no-es-super-admin"));
+        mostrarBloqueoAcceso(
+          "Tu cuenta todavía no es súper-administrador",
+          "Para entrar aquí, tu cuenta debe estar registrada en la colección <b>admins</b> de Firestore. Ve a <b>Firebase Console → Firestore Database → Datos</b>, crea (o abre) la colección <b>admins</b>, y agrega un documento con este ID exacto (tu UID):",
+          user.uid
+        );
+        return Promise.reject(new Error("bloqueado"));
       }
       return user;
     });
+  }).catch(function (err) {
+    if (err && err.message === "bloqueado") throw err;
+    mostrarBloqueoAcceso(
+      "No se pudo verificar tu acceso",
+      "Esto casi siempre pasa porque las reglas de seguridad de Firestore todavía no están publicadas. Ve a <b>Firebase Console → Firestore Database → Reglas</b>, pega el contenido completo de <code>admin/firestore.rules</code> del repositorio y publica. Luego recarga esta página." +
+        (err && err.message ? "<br><br><small style=\"color:var(--gray-d)\">Detalle técnico: " + String(err.message).replace(/[&<>]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]; }) + "</small>" : ""),
+      null
+    );
+    throw err;
+  });
+}
+
+// Pantalla de bloqueo a pantalla completa, reutilizable en cualquier página
+// que use requireSuperAdmin(). No depende de nada del HTML de la página.
+function mostrarBloqueoAcceso(titulo, cuerpoHtml, uid) {
+  if (document.getElementById("bloqueoAccesoOverlay")) return;
+  const div = document.createElement("div");
+  div.id = "bloqueoAccesoOverlay";
+  div.className = "auth-shell";
+  div.style.position = "fixed";
+  div.style.inset = "0";
+  div.style.zIndex = "9999";
+  div.innerHTML =
+    '<div class="auth-card wide">' +
+      '<div class="auth-logo">' +
+        '<svg width="40" height="49" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>' +
+        '<div class="name">Bio<b>Futbol</b></div>' +
+      '</div>' +
+      '<div class="error-box" style="display:block"><strong>' + titulo + '</strong><br><br>' + cuerpoHtml + '</div>' +
+      (uid ? '<div class="field"><label>Tu UID</label><input type="text" id="uidBloqueo" value="' + uid + '" readonly></div><button type="button" class="btn btn-ghost btn-block btn-sm" id="btnCopiarUidBloqueo"><i class="fa-solid fa-copy"></i> Copiar UID</button>' : "") +
+      '<button type="button" class="btn btn-primary btn-block" style="margin-top:14px" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Ya lo hice, reintentar</button>' +
+      '<p class="center-note"><a href="#" id="salirBloqueo">Cerrar sesión</a></p>' +
+    '</div>';
+  document.body.appendChild(div);
+  if (uid) {
+    document.getElementById("btnCopiarUidBloqueo").addEventListener("click", function () {
+      navigator.clipboard.writeText(uid);
+      this.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+    });
+  }
+  document.getElementById("salirBloqueo").addEventListener("click", function (e) {
+    e.preventDefault();
+    cerrarSesion();
   });
 }
 
