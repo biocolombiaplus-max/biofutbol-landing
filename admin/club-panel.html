@@ -99,6 +99,15 @@
     </div>
 
     <div class="tab-panel on" id="tab-socios">
+      <div class="card" style="margin-bottom:18px">
+        <h3><i class="fa-solid fa-user-plus"></i> Registrar un nuevo socio o jugador</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envía este link para que el jugador, su acudiente o el profesor complete los datos desde el celular. Se guarda directo en esta lista.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkSocio"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkSocio"><i class="fa-solid fa-link"></i> Copiar link</button>
+        </div>
+      </div>
+
       <div class="crm-toolbar">
         <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
         <button class="btn btn-ghost btn-sm" id="btnFiltroPend"><i class="fa-solid fa-filter"></i> Solo pendientes de pago</button>
@@ -726,6 +735,22 @@ document.getElementById("btnFichaNota").addEventListener("click", function () {
     document.getElementById("fichaNotaInput").value = "";
     mostrarExito("Nota agregada.");
   });
+});
+
+function linkRegistroSocio() {
+  return location.origin + location.pathname.replace(/club-panel\.html$/, "") +
+    "registro-socio.html?club=" + clubActual.id + "&nombre=" + encodeURIComponent(clubActual.clubNombre || "");
+}
+
+document.getElementById("btnEnviarLinkSocio").addEventListener("click", function () {
+  const tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo, ej: 573001234567)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola! Completa aquí los datos del socio o jugador de " + (clubActual.clubNombre || "tu club") + " desde tu celular (te toma 2 minutos): " + linkRegistroSocio();
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+});
+
+document.getElementById("btnCopiarLinkSocio").addEventListener("click", function () {
+  navigator.clipboard.writeText(linkRegistroSocio()).then(function () { mostrarExito("Link copiado."); });
 });
 
 document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);
