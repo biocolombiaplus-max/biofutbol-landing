@@ -68,7 +68,7 @@ let soloPendientes = false;
 
 document.getElementById("backLink").href = "cliente.html?id=" + clienteId;
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   if (!clienteId) { mostrarError("Falta el cliente en el link."); return; }
   cargarClub();

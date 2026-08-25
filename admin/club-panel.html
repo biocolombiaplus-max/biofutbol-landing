@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de tu club | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B1626">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BioFutbol">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.club-hdr{display:flex;align-items:center;gap:12px}
+.club-hdr img{width:38px;height:38px;border-radius:9px;object-fit:contain;background:var(--card2)}
+.club-hdr .cn{font-weight:800;font-size:1rem}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--card-b);padding-bottom:0}
+.tab-btn{background:transparent;border:none;color:var(--gray);font-weight:800;font-size:.86rem;padding:10px 6px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab-btn.on{color:var(--green-l);border-bottom-color:var(--green-l)}
+.tab-panel{display:none}
+.tab-panel.on{display:block}
+.team-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--card-b2)}
+.team-row:last-child{border-bottom:none}
+.team-row .tn{font-weight:700;font-size:.9rem}
+.team-row .tc{font-size:.74rem;color:var(--gray)}
+.match-card{background:var(--card2);border:1px solid var(--card-b2);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.match-teams{display:flex;align-items:center;justify-content:center;gap:14px;font-weight:800;font-size:.94rem;text-align:center}
+.match-teams .side{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match-score{display:flex;align-items:center;gap:6px}
+.match-score input{width:42px;text-align:center;background:var(--card);border:1px solid var(--card-b2);color:var(--white);border-radius:8px;padding:6px 0;font-weight:800}
+.match-meta{text-align:center;font-size:.72rem;color:var(--gray-d);margin-top:8px}
+.match-actions{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.tabla-wrap{overflow-x:auto}
+.tabla-wrap table{min-width:560px}
+.empty-mod{text-align:center;padding:60px 20px;color:var(--gray)}
+.empty-mod i{font-size:2rem;color:var(--card-b2);margin-bottom:12px;display:block}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="club-hdr" id="clubHdr">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+        <span class="bio">Bio</span>Futbol
+        <span class="badge-admin" id="clubBadge">Panel del club</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion(); window.location.href='club-login.html'"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+  <div class="success-box" id="successBox"></div>
+
+  <div id="sinModulo" class="empty-mod" style="display:none">
+    <i class="fa-solid fa-lock"></i>
+    Este módulo todavía no está activado para tu club.<br>Escríbele a BioFutbol para activarlo.
+  </div>
+
+  <div id="panelContent" style="display:none">
+    <div class="tabs">
+      <button class="tab-btn on" data-tab="equipos">Equipos</button>
+      <button class="tab-btn" data-tab="fixture">Fixture</button>
+      <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
+    </div>
+
+    <div class="tab-panel on" id="tab-equipos">
+      <div class="card">
+        <h3><i class="fa-solid fa-users"></i> Agregar equipo</h3>
+        <div class="field-row">
+          <div class="field"><label>Nombre del equipo</label><input type="text" id="equipoNombre" placeholder="Ej: Halcones Sub-12"></div>
+          <div class="field"><label>Categoría (opcional)</label><input type="text" id="equipoCategoria" placeholder="Ej: Sub-12"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAgregarEquipo"><i class="fa-solid fa-plus"></i> Agregar equipo</button>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-shield-halved"></i> Tus equipos</h3>
+        <div id="listaEquipos"><p class="empty">Todavía no has agregado equipos.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-fixture">
+      <div class="card">
+        <h3><i class="fa-solid fa-calendar-plus"></i> Programar partido</h3>
+        <div class="field-row">
+          <div class="field"><label>Equipo local</label><select id="partidoLocal"></select></div>
+          <div class="field"><label>Equipo visitante</label><select id="partidoVisitante"></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Fecha</label><input type="date" id="partidoFecha"></div>
+          <div class="field"><label>Cancha / lugar (opcional)</label><input type="text" id="partidoCancha"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAgregarPartido"><i class="fa-solid fa-plus"></i> Programar partido</button>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-futbol"></i> Calendario de partidos</h3>
+        <div id="listaPartidos"><p class="empty">Todavía no has programado partidos.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-tabla">
+      <div class="card">
+        <h3><i class="fa-solid fa-ranking-star"></i> Tabla de posiciones</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Se calcula automáticamente con los partidos que ya tienen resultado.</p>
+        <div class="tabla-wrap">
+          <table id="tablaPosiciones">
+            <thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead>
+            <tbody id="tablaBody"><tr><td colspan="10" class="empty">Sin partidos jugados todavía.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/audit.js"></script>
+<script>
+let clubActual = null;
+let EQUIPOS = [];
+let PARTIDOS = [];
+
+requireClub().then(function (r) {
+  clubActual = r.cliente;
+  document.getElementById("userLabel").textContent = r.user.email;
+  document.getElementById("clubBadge").textContent = clubActual.clubNombre || "Panel del club";
+
+  aplicarIconoDelClub(r.cliente);
+
+  if (!clubActual.modulosActivos || !clubActual.modulosActivos.equipos) {
+    document.getElementById("sinModulo").style.display = "block";
+    return;
+  }
+  document.getElementById("panelContent").style.display = "block";
+  escucharEquipos();
+  escucharPartidos();
+});
+
+// Para que cuando el club "agregue a inicio" desde su celular, salga el
+// escudo de SU club (no el logo genérico de BioFutbol). Reemplazamos el
+// manifest y los íconos por unos generados al vuelo con su logo.
+function aplicarIconoDelClub(cliente) {
+  if (!cliente.logoUrl) return;
+  document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach(function (l) {
+    l.href = cliente.logoUrl;
+  });
+  const manifest = {
+    name: (cliente.clubNombre || "BioFutbol") + " - Panel",
+    short_name: cliente.clubNombre || "BioFutbol",
+    start_url: "./club-panel.html",
+    display: "standalone",
+    background_color: "#0B1626",
+    theme_color: cliente.colorPrimario || "#18A83A",
+    icons: [
+      { src: cliente.logoUrl, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: cliente.logoUrl, sizes: "512x512", type: "image/png", purpose: "any" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+  document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta && cliente.colorPrimario) themeMeta.content = cliente.colorPrimario;
+}
+
+document.querySelectorAll(".tab-btn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("on"); });
+    document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
+    btn.classList.add("on");
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("on");
+  });
+});
+
+function esc(s) {
+  return String(s || "").replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+function mostrarError(msg) { const b = document.getElementById("errorBox"); b.textContent = msg; b.style.display = "block"; window.scrollTo({ top: 0, behavior: "smooth" }); }
+function mostrarExito(msg) { const b = document.getElementById("successBox"); b.textContent = msg; b.style.display = "block"; setTimeout(function () { b.style.display = "none"; }, 3000); }
+
+function escucharEquipos() {
+  db.collection("clientes").doc(clubActual.id).collection("equipos").orderBy("nombre").onSnapshot(function (snap) {
+    EQUIPOS = [];
+    snap.forEach(function (d) { EQUIPOS.push(Object.assign({ id: d.id }, d.data())); });
+    pintarEquipos();
+    pintarSelectsPartido();
+  });
+}
+
+function pintarEquipos() {
+  const box = document.getElementById("listaEquipos");
+  if (!EQUIPOS.length) { box.innerHTML = '<p class="empty">Todavía no has agregado equipos.</p>'; return; }
+  box.innerHTML = EQUIPOS.map(function (e) {
+    return '<div class="team-row"><div><div class="tn">' + esc(e.nombre) + '</div>' +
+      (e.categoria ? '<div class="tc">' + esc(e.categoria) + '</div>' : '') + '</div>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarEquipo(\'' + e.id + '\')"><i class="fa-solid fa-trash"></i></button></div>';
+  }).join("");
+}
+
+function pintarSelectsPartido() {
+  const opciones = EQUIPOS.map(function (e) { return '<option value="' + e.id + '">' + esc(e.nombre) + '</option>'; }).join("");
+  document.getElementById("partidoLocal").innerHTML = opciones || '<option value="">Agrega equipos primero</option>';
+  document.getElementById("partidoVisitante").innerHTML = opciones || '<option value="">Agrega equipos primero</option>';
+}
+
+document.getElementById("btnAgregarEquipo").addEventListener("click", function () {
+  const nombre = document.getElementById("equipoNombre").value.trim();
+  const categoria = document.getElementById("equipoCategoria").value.trim();
+  if (!nombre) { mostrarError("Ingresa el nombre del equipo."); return; }
+  db.collection("clientes").doc(clubActual.id).collection("equipos").add({
+    nombre: nombre, categoria: categoria, creado: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function () {
+    document.getElementById("equipoNombre").value = "";
+    document.getElementById("equipoCategoria").value = "";
+    mostrarExito("Equipo agregado.");
+  }).catch(function (err) { mostrarError("No se pudo agregar: " + err.message); });
+});
+
+function borrarEquipo(id) {
+  if (!confirm("¿Borrar este equipo? También se borrarán sus partidos programados.")) return;
+  db.collection("clientes").doc(clubActual.id).collection("equipos").doc(id).delete().then(function () {
+    const grupo = PARTIDOS.filter(function (p) { return p.local === id || p.visitante === id; });
+    return Promise.all(grupo.map(function (p) {
+      return db.collection("clientes").doc(clubActual.id).collection("partidos").doc(p.id).delete();
+    }));
+  }).then(function () { mostrarExito("Equipo borrado."); });
+}
+
+function escucharPartidos() {
+  db.collection("clientes").doc(clubActual.id).collection("partidos").orderBy("fecha", "asc").onSnapshot(function (snap) {
+    PARTIDOS = [];
+    snap.forEach(function (d) { PARTIDOS.push(Object.assign({ id: d.id }, d.data())); });
+    pintarPartidos();
+    pintarTabla();
+  });
+}
+
+function nombreEquipo(id) {
+  const e = EQUIPOS.find(function (x) { return x.id === id; });
+  return e ? e.nombre : "—";
+}
+
+function pintarPartidos() {
+  const box = document.getElementById("listaPartidos");
+  if (!PARTIDOS.length) { box.innerHTML = '<p class="empty">Todavía no has programado partidos.</p>'; return; }
+  box.innerHTML = PARTIDOS.map(function (p) {
+    const fechaTxt = p.fecha ? formatFechaSimple(p.fecha) : "Sin fecha";
+    if (p.jugado) {
+      return '<div class="match-card"><div class="match-teams">' +
+        '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
+        '<span class="match-score"><b>' + p.golesLocal + '</b> - <b>' + p.golesVisitante + '</b></span>' +
+        '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
+        '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+        '<div class="match-actions"><button class="btn btn-ghost btn-sm" onclick="borrarPartido(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i> Borrar</button></div></div>';
+    }
+    return '<div class="match-card"><div class="match-teams">' +
+      '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
+      '<span class="match-score"><input type="number" min="0" id="gl-' + p.id + '"> - <input type="number" min="0" id="gv-' + p.id + '"></span>' +
+      '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
+      '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+      '<div class="match-actions">' +
+      '<button class="btn btn-primary btn-sm" onclick="marcarResultado(\'' + p.id + '\')"><i class="fa-solid fa-check"></i> Guardar resultado</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarPartido(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i></button></div></div>';
+  }).join("");
+}
+
+function formatFechaSimple(ts) {
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+document.getElementById("btnAgregarPartido").addEventListener("click", function () {
+  const local = document.getElementById("partidoLocal").value;
+  const visitante = document.getElementById("partidoVisitante").value;
+  const fechaStr = document.getElementById("partidoFecha").value;
+  const cancha = document.getElementById("partidoCancha").value.trim();
+  if (!local || !visitante) { mostrarError("Agrega al menos dos equipos antes de programar un partido."); return; }
+  if (local === visitante) { mostrarError("El equipo local y el visitante deben ser distintos."); return; }
+  if (!fechaStr) { mostrarError("Elige la fecha del partido."); return; }
+
+  db.collection("clientes").doc(clubActual.id).collection("partidos").add({
+    local: local, visitante: visitante, cancha: cancha, jugado: false,
+    fecha: firebase.firestore.Timestamp.fromDate(new Date(fechaStr + "T12:00:00"))
+  }).then(function () {
+    document.getElementById("partidoCancha").value = "";
+    mostrarExito("Partido programado.");
+  }).catch(function (err) { mostrarError("No se pudo programar: " + err.message); });
+});
+
+function marcarResultado(id) {
+  const gl = Number(document.getElementById("gl-" + id).value);
+  const gv = Number(document.getElementById("gv-" + id).value);
+  if (isNaN(gl) || isNaN(gv) || gl < 0 || gv < 0) { mostrarError("Ingresa un marcador válido para ambos equipos."); return; }
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(id).update({
+    golesLocal: gl, golesVisitante: gv, jugado: true
+  }).then(function () { mostrarExito("Resultado guardado."); }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+}
+
+function borrarPartido(id) {
+  if (!confirm("¿Borrar este partido?")) return;
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(id).delete();
+}
+
+function pintarTabla() {
+  const stats = {};
+  EQUIPOS.forEach(function (e) {
+    stats[e.id] = { nombre: e.nombre, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0 };
+  });
+  PARTIDOS.filter(function (p) { return p.jugado; }).forEach(function (p) {
+    const L = stats[p.local], V = stats[p.visitante];
+    if (!L || !V) return;
+    L.pj++; V.pj++;
+    L.gf += p.golesLocal; L.gc += p.golesVisitante;
+    V.gf += p.golesVisitante; V.gc += p.golesLocal;
+    if (p.golesLocal > p.golesVisitante) { L.g++; V.p++; }
+    else if (p.golesLocal < p.golesVisitante) { V.g++; L.p++; }
+    else { L.e++; V.e++; }
+  });
+  const filas = Object.values(stats).map(function (s) {
+    s.dg = s.gf - s.gc;
+    s.pts = s.g * 3 + s.e;
+    return s;
+  }).sort(function (a, b) { return b.pts - a.pts || b.dg - a.dg || b.gf - a.gf; });
+
+  const tbody = document.getElementById("tablaBody");
+  if (!filas.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty">Agrega equipos para ver la tabla.</td></tr>'; return; }
+  tbody.innerHTML = filas.map(function (s, i) {
+    return '<tr><td>' + (i + 1) + '</td><td><strong>' + esc(s.nombre) + '</strong></td><td>' + s.pj + '</td><td>' + s.g + '</td><td>' + s.e + '</td><td>' + s.p + '</td><td>' + s.gf + '</td><td>' + s.gc + '</td><td>' + s.dg + '</td><td><strong>' + s.pts + '</strong></td></tr>';
+  }).join("");
+}
+</script>
+</body>
+</html>

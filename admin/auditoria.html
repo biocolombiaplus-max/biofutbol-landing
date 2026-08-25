@@ -61,7 +61,7 @@
 let TODOS = [];
 const clienteFiltro = new URLSearchParams(location.search).get("cliente");
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   escuchar();
 });

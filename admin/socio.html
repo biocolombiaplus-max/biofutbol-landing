@@ -207,7 +207,7 @@ let clubActual = null;
 
 document.getElementById("backLink").href = "socios.html?cliente=" + clienteId;
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   if (!clienteId || !socioId) { mostrarError("Falta información en el link."); return; }
   cargarSocio();

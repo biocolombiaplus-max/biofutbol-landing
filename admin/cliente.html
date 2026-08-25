@@ -121,12 +121,24 @@
 
       <div class="card">
         <h3><i class="fa-solid fa-key"></i> Acceso a la app del club</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Credenciales que se le entregan al club para acceder a su app una vez esté lista.</p>
-        <div class="field-row">
-          <div class="field"><label>Usuario</label><input type="text" id="usuarioApp"></div>
-          <div class="field"><label>Clave temporal</label><input type="text" id="claveApp"></div>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">El club entra a su propio panel (<b>club-login.html</b>) con el correo del representante (arriba) y esta clave — puede cambiarla cuando quiera desde ahí, y recuperarla sola si la olvida.</p>
+        <div class="field">
+          <label>Clave inicial</label>
+          <input type="text" id="claveApp">
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarCred"><i class="fa-solid fa-shuffle"></i> Generar automáticamente</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarCred"><i class="fa-solid fa-shuffle"></i> Generar clave automática</button>
+        <div id="accesoStatus" style="display:none;margin-top:14px"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnCrearAcceso" style="margin-top:14px"><i class="fa-solid fa-user-plus"></i> Crear acceso del club</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarAcceso" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar acceso por WhatsApp</button>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-toggle-on"></i> Módulos activos</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Actívalo para que el club administre sus equipos, el calendario de partidos y la tabla de posiciones desde su propio panel — mismo formato que Atlético Norte, con el escudo y los colores de este club.</p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="moduloEquipos" style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+          <span style="font-weight:700;font-size:.86rem">Equipos, Fixture y Tabla de posiciones</span>
+        </label>
       </div>
 
       <div class="card">
@@ -223,7 +235,7 @@ const esNuevo = params.get("new") === "1" || !clienteId;
 let clienteActual = null;
 let ultimoReciboUrl = null;
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   pintarPlanGrid();
   if (!esNuevo) {
@@ -284,8 +296,8 @@ function cargarCliente() {
     document.getElementById("repEmail").value = clienteActual.repEmail || "";
     document.getElementById("repTelefono").value = clienteActual.repTelefono || "";
     document.getElementById("numSocios").value = clienteActual.numSocios || "";
-    document.getElementById("usuarioApp").value = clienteActual.usuarioApp || "";
     document.getElementById("claveApp").value = clienteActual.claveApp || "";
+    document.getElementById("moduloEquipos").checked = !!(clienteActual.modulosActivos && clienteActual.modulosActivos.equipos);
     document.getElementById("estado").value = clienteActual.estado || "pendiente";
     document.getElementById("notas").value = clienteActual.notas || "";
     document.getElementById("colorPrimario").value = clienteActual.colorPrimario || "#18A83A";
@@ -323,6 +335,7 @@ function cargarCliente() {
     }
     document.getElementById("verSociosLink").href = "socios.html?cliente=" + clienteId;
     cargarConteoSocios();
+    pintarAccesoStatus();
   });
 }
 
@@ -609,16 +622,106 @@ function mostrarExito(msg) {
 });
 
 document.getElementById("btnGenerarCred").addEventListener("click", function () {
-  const nombre = document.getElementById("clubNombre").value || "club";
-  document.getElementById("usuarioApp").value = generarUsuarioApp(nombre);
   document.getElementById("claveApp").value = generarClaveApp();
+});
+
+document.getElementById("moduloEquipos").addEventListener("change", function () {
+  if (!clienteActual || esNuevo) return;
+  const activo = this.checked;
+  db.collection("clientes").doc(clienteId).update({ "modulosActivos.equipos": activo }).then(function () {
+    clienteActual.modulosActivos = Object.assign({}, clienteActual.modulosActivos, { equipos: activo });
+    registrarAuditoria(activo ? "Módulo Equipos/Fixture/Tabla activado" : "Módulo Equipos/Fixture/Tabla desactivado", clienteId, clienteActual.clubNombre);
+    mostrarExito(activo ? "Módulo activado. Ya aparece en el panel del club." : "Módulo desactivado.");
+  }).catch(function (err) {
+    mostrarError("No se pudo actualizar el módulo: " + err.message);
+    this.checked = !activo;
+  }.bind(this));
+});
+
+function pintarAccesoStatus() {
+  const box = document.getElementById("accesoStatus");
+  const btnCrear = document.getElementById("btnCrearAcceso");
+  const btnEnviar = document.getElementById("btnEnviarAcceso");
+  if (clienteActual && clienteActual.authUid) {
+    box.style.display = "block";
+    box.innerHTML = '<span class="pill ok"><i class="fa-solid fa-check"></i> Acceso activo</span> <span style="font-size:.78rem;color:var(--gray)">Inicia sesión en club-login.html con ' + (clienteActual.repEmail || "su correo") + '</span>';
+    btnCrear.innerHTML = '<i class="fa-solid fa-rotate"></i> Restablecer clave del club';
+    btnEnviar.disabled = false;
+  } else {
+    box.style.display = "none";
+    btnCrear.innerHTML = '<i class="fa-solid fa-user-plus"></i> Crear acceso del club';
+    btnEnviar.disabled = true;
+  }
+}
+
+document.getElementById("btnCrearAcceso").addEventListener("click", function () {
+  if (!clienteActual || esNuevo) { mostrarError("Guarda el cliente antes de crear su acceso."); return; }
+  const email = (document.getElementById("repEmail").value || "").trim();
+  const pass = (document.getElementById("claveApp").value || "").trim();
+  if (!email) { mostrarError("Ingresa el correo del representante legal antes de crear el acceso."); return; }
+  if (!pass || pass.length < 6) { mostrarError("La clave debe tener al menos 6 caracteres. Usa \"Generar clave automática\" si quieres."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  const yaExiste = !!clienteActual.authUid;
+  btn.innerHTML = '<span class="spinner"></span> ' + (yaExiste ? "Enviando..." : "Creando acceso...");
+
+  let listo;
+  if (yaExiste) {
+    // Ya tiene cuenta creada: no reescribimos la clave desde acá (no es seguro
+    // sin volver a autenticar al club). Le mandamos el correo oficial de
+    // Firebase para que el club mismo defina una clave nueva.
+    listo = auth.sendPasswordResetEmail(email);
+  } else {
+    const secApp = firebase.apps.find(function (a) { return a.name === "secondary"; }) || firebase.initializeApp(firebaseConfig, "secondary");
+    const secAuth = secApp.auth();
+    listo = secAuth.createUserWithEmailAndPassword(email, pass).then(function (cred) {
+      const uid = cred.user.uid;
+      return secAuth.signOut().then(function () {
+        return db.collection("clientes").doc(clienteId).update({ authUid: uid, usuarioApp: email, claveApp: pass });
+      });
+    });
+  }
+
+  listo.then(function () {
+    if (yaExiste) {
+      mostrarExito("Se envió un correo a " + email + " para que el club defina su nueva clave.");
+    } else {
+      clienteActual.usuarioApp = email;
+      clienteActual.claveApp = pass;
+      db.collection("clientes").doc(clienteId).get().then(function (doc) { clienteActual = Object.assign({ id: doc.id }, doc.data()); pintarAccesoStatus(); });
+      mostrarExito("Acceso creado. El club ya puede entrar en club-login.html con ese correo y clave.");
+    }
+    registrarAuditoria(yaExiste ? "Restablecimiento de acceso solicitado" : "Acceso del club creado", clienteId, clienteActual.clubNombre, email);
+  }).catch(function (err) {
+    let msg = err.message;
+    if (err.code === "auth/email-already-in-use") msg = "Ese correo ya tiene una cuenta de acceso creada en otro club o desde antes.";
+    mostrarError("No se pudo crear el acceso: " + msg);
+  }).finally(function () {
+    btn.disabled = false;
+    pintarAccesoStatus();
+  });
+});
+
+document.getElementById("btnEnviarAcceso").addEventListener("click", function () {
+  if (!clienteActual || !clienteActual.authUid) return;
+  let tel = (clienteActual.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const link = location.origin + location.pathname.replace(/cliente\.html$/, "") + "club-login.html";
+  const mensaje = "¡Hola! Ya puedes entrar al panel de tu club en BioFutbol:\n" + link +
+    "\n\nUsuario: " + (clienteActual.repEmail || "") +
+    "\nClave: " + (clienteActual.claveApp || "") +
+    "\n\nDesde ahí puedes gestionar tus equipos, el calendario de partidos y la tabla de posiciones.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Acceso enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
 });
 
 document.getElementById("btnGuardar").addEventListener("click", function () {
   const data = leerFormulario();
   if (!data.clubNombre) { mostrarError("El nombre del club es obligatorio."); return; }
   if (!data.plan) { mostrarError("Selecciona un plan."); return; }
-  if (!data.usuarioApp) data.usuarioApp = generarUsuarioApp(data.clubNombre);
+  data.usuarioApp = data.repEmail || "";
   if (!data.claveApp) data.claveApp = generarClaveApp();
 
   const btn = document.getElementById("btnGuardar");

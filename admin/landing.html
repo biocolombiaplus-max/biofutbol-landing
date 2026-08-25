@@ -215,7 +215,7 @@
 <script>
 const SLOTS = ["hero", "pain", "features", "matchday", "tabla", "goleadores", "valla", "live", "carnet", "sponsors", "cta"];
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   cargarImagenes();
 });

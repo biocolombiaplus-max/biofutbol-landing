@@ -73,7 +73,7 @@
 let TODOS = [];
 let SOCIOS_COUNT = {};
 
-requireAuth().then(function (user) {
+requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   escucharClientes();
 });
