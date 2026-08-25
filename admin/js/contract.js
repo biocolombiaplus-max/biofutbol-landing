@@ -136,8 +136,49 @@ function generarContratoPDF(cliente) {
       ". Se recomienda cambiar la clave en el primer ingreso."
     );
 
-    heading("NOVENA — PROTECCIÓN DE DATOS PERSONALES");
-    paragraph("EL PRESTADOR tratará los datos personales de EL CLIENTE y sus socios conforme a la Ley 1581 de 2012 y demás normas aplicables en Colombia sobre protección de datos personales, utilizándolos exclusivamente para la prestación del presente servicio.");
+    heading("NOVENA — PROTECCIÓN Y TRATAMIENTO DE DATOS PERSONALES");
+    paragraph(
+      "EL PRESTADOR actúa como encargado del tratamiento de los datos personales de EL CLIENTE y de los socios o " +
+      "deportistas registrados en la aplicación (nombres, documentos de identidad, fecha de nacimiento, datos de " +
+      "contacto, información básica de salud cuando aplique, y fotografías), conforme a la Ley 1581 de 2012, el " +
+      "Decreto 1377 de 2013 y demás normas vigentes en Colombia sobre protección de datos personales — o, si " +
+      (cliente.clubNombre || "el club") + " opera fuera de Colombia, conforme a la normativa de protección de datos " +
+      "vigente en su país."
+    );
+    paragraph(
+      "Estos datos se usan única y exclusivamente para la operación de la aplicación (gestión deportiva y " +
+      "administrativa del club) y no serán usados para fines distintos. EL PRESTADOR NO comparte, vende, alquila " +
+      "ni cede estas bases de datos a terceros bajo ninguna circunstancia."
+    );
+    paragraph(
+      "La información se almacena en infraestructura en la nube de Google Cloud / Firebase, con acceso restringido " +
+      "solo a personal autorizado, cifrado en tránsito y buenas prácticas de seguridad informática. Los titulares " +
+      "de los datos (socios, deportistas o sus acudientes, si son menores de edad) pueden ejercer en cualquier " +
+      "momento sus derechos de acceso, actualización, rectificación y supresión (habeas data) contactando a EL " +
+      "CLIENTE o directamente a EL PRESTADOR. Los datos se conservan mientras dure la relación contractual y el " +
+      "tiempo adicional que exija la ley."
+    );
+
+    heading("DÉCIMA — POLÍTICA DE USO DE IMÁGENES Y CONTENIDO AUDIOVISUAL");
+    paragraph(
+      "EL CLIENTE es responsable de contar con la autorización expresa de cada socio o deportista — o de su " +
+      "padre, madre o acudiente, si es menor de edad — para el uso de sus fotografías, videos y demás datos " +
+      "dentro de la aplicación, así como para su eventual publicación en redes sociales o material promocional " +
+      "del club."
+    );
+    paragraph(
+      "EL PRESTADOR únicamente aloja y procesa las imágenes que EL CLIENTE decide cargar en la plataforma para " +
+      "el funcionamiento de la aplicación (carnet digital, portal del socio, imágenes de partidos), y no las " +
+      "usará con fines distintos ni las publicará por fuera de la plataforma del club, salvo autorización " +
+      "expresa y adicional de EL CLIENTE (por ejemplo, para casos de éxito o material promocional de BioFutbol)."
+    );
+
+    heading("UNDÉCIMA — PRINCIPIOS Y COMPROMISO CORPORATIVO");
+    paragraph(
+      "BioFutbol se compromete a actuar con transparencia, confidencialidad, seguridad de la información y " +
+      "responsabilidad en el manejo de los datos de EL CLIENTE y sus socios, como parte de sus principios y " +
+      "valores corporativos."
+    );
 
     // ── Firmas ──
     checkPageBreak(120);

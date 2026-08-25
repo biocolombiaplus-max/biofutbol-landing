@@ -172,8 +172,14 @@
       <div class="card">
         <h3><i class="fa-solid fa-calendar-check"></i> Pagos</h3>
         <div class="status-row"><span class="k">Estado actual</span><span id="pagoEstadoPill">—</span></div>
-        <div class="field" style="margin-top:14px"><label>Próximo pago</label><input type="date" id="proximoPago"></div>
-        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnRegistrarPago"><i class="fa-solid fa-check-double"></i> Registrar pago recibido (+30 días)</button>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Valor recibido (COP)</label><input type="number" id="valorPago" min="0" step="1000"></div>
+          <div class="field"><label>Fecha de pago</label><input type="date" id="fechaPago"></div>
+        </div>
+        <div class="field"><label>Próximo pago</label><input type="date" id="proximoPago"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnRegistrarPago"><i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboWhatsapp" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar recibo por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboCorreo" style="margin-top:8px" disabled><i class="fa-solid fa-envelope"></i> Enviar recibo por correo</button>
         <div id="historialPagos" style="margin-top:14px;font-size:.78rem;color:var(--gray)"></div>
       </div>
 
@@ -207,11 +213,13 @@
 <script src="js/plans.js"></script>
 <script src="js/audit.js"></script>
 <script src="js/contract.js"></script>
+<script src="js/recibo.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const clienteId = params.get("id");
 const esNuevo = params.get("new") === "1" || !clienteId;
 let clienteActual = null;
+let ultimoReciboUrl = null;
 
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
@@ -292,6 +300,9 @@ function cargarCliente() {
       const d = clienteActual.proximoPago.toDate();
       document.getElementById("proximoPago").value = d.toISOString().slice(0, 10);
     }
+    const planCalc = PLANES[clienteActual.plan];
+    document.getElementById("valorPago").value = planCalc ? planCalc.mensual * (clienteActual.numSocios || 0) : "";
+    document.getElementById("fechaPago").value = new Date().toISOString().slice(0, 10);
     const ep = estadoPago(clienteActual);
     document.getElementById("pagoEstadoPill").innerHTML = '<span class="pill ' + ep.clase + '">' + ep.texto + '</span>';
     pintarHistorialPagos();
@@ -511,6 +522,13 @@ function pintarHistorialPagos() {
     pagos.slice().reverse().slice(0, 6).map(function (p) {
       return formatFecha(p.fecha) + " — " + formatCOP(p.valor || 0);
     }).join("<br>");
+
+  const ultimo = pagos[pagos.length - 1];
+  if (ultimo && ultimo.reciboUrl) {
+    ultimoReciboUrl = ultimo.reciboUrl;
+    document.getElementById("btnReciboWhatsapp").disabled = false;
+    document.getElementById("btnReciboCorreo").disabled = false;
+  }
 }
 
 function leerFormulario() {
@@ -610,20 +628,75 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
 
 document.getElementById("btnRegistrarPago").addEventListener("click", function () {
   if (!clienteActual) return;
-  const plan = PLANES[clienteActual.plan];
-  const valor = plan ? plan.mensual * (clienteActual.numSocios || 0) : 0;
-  const hoy = new Date();
-  const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  const valor = Number(document.getElementById("valorPago").value) || 0;
+  const fechaStr = document.getElementById("fechaPago").value || new Date().toISOString().slice(0, 10);
+  const fechaPago = new Date(fechaStr + "T12:00:00");
+  const proximo = new Date(fechaPago); proximo.setDate(proximo.getDate() + 30);
 
-  const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(hoy), valor: valor };
-  db.collection("clientes").doc(clienteId).update({
-    proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
-    estado: "activo",
-    pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Registrando...';
+
+  const pdf = generarReciboPDF({
+    emisorNombre: "BioFutbol",
+    colorPrimario: "#18A83A",
+    pagadorNombre: clienteActual.clubNombre || "—",
+    pagadorDoc: clienteActual.clubNit || "",
+    concepto: "Mensualidad de la app BioFutbol",
+    valor: valor,
+    fecha: fechaPago,
+    numSocios: clienteActual.numSocios || 0
+  });
+
+  subirReciboPDF(pdf, "recibo-" + clienteId + "-" + Date.now() + ".pdf").then(function (url) {
+    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
+    return db.collection("clientes").doc(clienteId).update({
+      proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
+      estado: "activo",
+      pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+    });
   }).then(function () {
     registrarAuditoria("Pago registrado", clienteId, clienteActual.clubNombre, formatCOP(valor));
-    mostrarExito("Pago registrado. Próximo vencimiento actualizado.");
+    mostrarExito("Pago registrado y recibo generado.");
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
     cargarCliente();
+  }).catch(function (err) {
+    mostrarError("No se pudo registrar el pago: " + err.message);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
+  });
+});
+
+document.getElementById("btnReciboWhatsapp").addEventListener("click", function () {
+  if (!ultimoReciboUrl) return;
+  let tel = (clienteActual.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola! Aquí tienes el recibo de tu pago a BioFutbol: " + ultimoReciboUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Recibo enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
+});
+
+document.getElementById("btnReciboCorreo").addEventListener("click", function () {
+  if (!ultimoReciboUrl) return;
+  if (!clienteActual.repEmail) { mostrarError("Este cliente no tiene correo registrado."); return; }
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") {
+    mostrarError("Falta configurar EmailJS en js/firebase-config.js para enviar correos.");
+    return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: clienteActual.repEmail,
+    to_name: clienteActual.repNombre || "",
+    club_nombre: clienteActual.clubNombre || "",
+    contrato_url: ultimoReciboUrl
+  }).then(function () {
+    registrarAuditoria("Recibo enviado por correo", clienteId, clienteActual.clubNombre, clienteActual.repEmail);
+    mostrarExito("Correo enviado a " + clienteActual.repEmail);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar recibo por correo';
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar recibo por correo';
   });
 });
 

@@ -164,6 +164,8 @@
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnMarcarPagado"><i class="fa-solid fa-check-double"></i> Marcar como pagado hoy (+30 días)</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecordarPago" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Recordar pago por WhatsApp</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecibo" style="margin-top:8px"><i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboSocioWhatsapp" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar recibo por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboSocioCorreo" style="margin-top:8px" disabled><i class="fa-solid fa-envelope"></i> Enviar recibo por correo</button>
         <div id="ultimoRecordatorio" style="font-size:.76rem;color:var(--gray-d);margin-top:10px"></div>
         <div id="historialPagosSocio" style="margin-top:10px;font-size:.78rem;color:var(--gray)"></div>
       </div>
@@ -188,11 +190,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/carnet.js"></script>
+<script src="js/recibo.js"></script>
 <script src="js/audit.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
@@ -356,50 +360,75 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
   });
 });
 
+let ultimoReciboSocioUrl = null;
+
 document.getElementById("btnRecibo").addEventListener("click", function () {
   const historial = socioActual.historialPagosSocio || [];
   const ultimo = historial.length ? historial[historial.length - 1] : null;
   const valor = ultimo ? ultimo.valor : (Number(document.getElementById("pagoValor").value) || 0);
-  const fecha = ultimo ? ultimo.fecha : new Date().toISOString().slice(0, 10);
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "pt", format: [320, 460] });
+  const fecha = ultimo ? new Date(ultimo.fecha + "T12:00:00") : new Date();
   const nombreClub = (clubActual && clubActual.clubNombre) || "BioFutbol";
-  const c1 = (clubActual && clubActual.colorPrimario) || "#18A83A";
-  const rgb = hexToRgb(c1);
 
-  doc.setFillColor(rgb.r, rgb.g, rgb.b);
-  doc.rect(0, 0, 320, 70, "F");
-  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(255, 255, 255);
-  doc.text(nombreClub, 160, 40, { align: "center" });
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text("Recibo de pago", 160, 56, { align: "center" });
+  const pdf = generarReciboPDF({
+    emisorNombre: nombreClub,
+    colorPrimario: (clubActual && clubActual.colorPrimario) || "#18A83A",
+    pagadorNombre: socioActual.nombre || "—",
+    pagadorDoc: socioActual.documento || "",
+    concepto: "Mensualidad — " + (socioActual.categoria || "socio"),
+    valor: valor,
+    fecha: fecha
+  });
 
-  let y = 100;
-  doc.setTextColor(30, 30, 30);
-  function row(label, value) {
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(120, 120, 120);
-    doc.text(label.toUpperCase(), 30, y);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(30, 30, 30);
-    doc.text(String(value), 30, y + 16);
-    y += 40;
-  }
-  row("Socio / deportista", socioActual.nombre || "—");
-  row("Documento", socioActual.documento || "—");
-  row("Categoría", socioActual.categoria || "—");
-  row("Valor pagado", formatCOP(valor));
-  row("Fecha de pago", formatFecha(new Date(fecha)));
-
-  doc.setDrawColor(220, 220, 220); doc.line(30, y, 290, y); y += 20;
-  doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
-  doc.text("Generado con BioFutbol", 160, y, { align: "center" });
-
-  doc.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+  subirReciboPDF(pdf, "recibo-" + socioId + "-" + Date.now() + ".pdf").then(function (url) {
+    ultimoReciboSocioUrl = url;
+    document.getElementById("btnReciboSocioWhatsapp").disabled = false;
+    document.getElementById("btnReciboSocioCorreo").disabled = false;
+    pdf.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+    registrarAuditoria("Recibo de socio generado", clienteId, socioActual.nombre, formatCOP(valor));
+    mostrarExito("Recibo generado. Ya lo puedes enviar por WhatsApp o correo.");
+  }).catch(function (err) {
+    mostrarError("No se pudo generar el recibo: " + err.message);
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago';
+  });
 });
 
-function hexToRgb(hex) {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || "18A83A");
-  return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 24, g: 168, b: 58 };
-}
+document.getElementById("btnReciboSocioWhatsapp").addEventListener("click", function () {
+  if (!ultimoReciboSocioUrl) return;
+  let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola! Aquí tienes el recibo de pago de " + (socioActual.nombre || "tu deportista") + ": " + ultimoReciboSocioUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Recibo de socio enviado por WhatsApp", clienteId, socioActual.nombre, tel);
+});
+
+document.getElementById("btnReciboSocioCorreo").addEventListener("click", function () {
+  if (!ultimoReciboSocioUrl) return;
+  if (!socioActual.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") {
+    mostrarError("Falta configurar EmailJS en js/firebase-config.js para enviar correos.");
+    return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: socioActual.correo,
+    to_name: socioActual.nombre || "",
+    club_nombre: (clubActual && clubActual.clubNombre) || "",
+    contrato_url: ultimoReciboSocioUrl
+  }).then(function () {
+    registrarAuditoria("Recibo de socio enviado por correo", clienteId, socioActual.nombre, socioActual.correo);
+    mostrarExito("Correo enviado a " + socioActual.correo);
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar recibo por correo';
+  });
+});
 
 function edadDeSocio() {
   return calcularEdad(socioActual.fechaNacimiento);
