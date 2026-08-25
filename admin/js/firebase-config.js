@@ -11,7 +11,12 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+// auth puede no estar disponible en páginas públicas que no cargan el SDK
+// de Authentication (registro-socio.html, portal-socio.html): si no se
+// captura el error acá, la línea siguiente (db) nunca se ejecuta y toda la
+// página queda rota sin ningún aviso claro.
+let auth = null;
+try { auth = firebase.auth(); } catch (e) { /* no cargado en esta página, no pasa nada */ }
 const db = firebase.firestore();
 // Storage ya no se usa (las imágenes se suben a Cloudinary); esto solo
 // evita romper páginas que aún no cargan el SDK de Storage.
