@@ -442,14 +442,18 @@ document.getElementById("excelInput").addEventListener("change", function (e) {
 document.getElementById("btnConfirmarImport").addEventListener("click", function () {
   if (!filasExcelPendientes.length) return;
   const n = filasExcelPendientes.length;
-  if (!confirm("Se van a guardar " + n + " socios/jugadores en la app de este cliente, reemplazando cualquier lista que hubieras cargado antes. ¿Continuar?")) return;
-
   const btn = this;
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Guardando...';
+  btn.innerHTML = '<span class="spinner"></span> Verificando...';
 
   const socios = db.collection("clientes").doc(clienteId).collection("socios");
   socios.get().then(function (snap) {
+    const actuales = snap.size;
+    const advertencia = actuales > 0
+      ? "Ya hay " + actuales + " socio(s)/jugador(es) cargados actualmente en este club (pueden incluir autorregistros desde el link). Se van a BORRAR TODOS y reemplazar por los " + n + " del Excel. ¿Continuar?"
+      : "Se van a guardar " + n + " socios/jugadores en la app de este cliente. ¿Continuar?";
+    if (!confirm(advertencia)) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar en la app del cliente'; return Promise.reject(new Error("cancelado")); }
+    btn.innerHTML = '<span class="spinner"></span> Guardando...';
     return borrarPorLotes(snap.docs);
   }).then(function () {
     return guardarPorLotes(filasExcelPendientes);
@@ -463,6 +467,7 @@ document.getElementById("btnConfirmarImport").addEventListener("click", function
     mostrarExito(n + " socios/jugadores guardados en la app del cliente.");
     cargarConteoSocios();
   }).catch(function (err) {
+    if (err && err.message === "cancelado") return;
     mostrarError("No se pudo guardar: " + err.message);
   }).finally(function () {
     btn.disabled = false;
