@@ -39,6 +39,32 @@
 .tabla-wrap table{min-width:560px}
 .empty-mod{text-align:center;padding:60px 20px;color:var(--gray)}
 .empty-mod i{font-size:2rem;color:var(--card-b2);margin-bottom:12px;display:block}
+.empty-mod.small{padding:24px 20px}
+.socio-row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--card-b2);cursor:pointer}
+.socio-row:last-child{border-bottom:none}
+.socio-row:hover{background:rgba(24,168,58,.05)}
+.socio-row.sel{background:rgba(24,168,58,.09)}
+.socio-row .sn{flex:1;min-width:0}
+.socio-row .sn b{display:block;font-size:.88rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.socio-row .sn small{color:var(--gray);font-size:.72rem}
+.crm-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.crm-toolbar .search-input{flex:1;min-width:160px}
+.ficha-box{display:none}
+.ficha-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.ficha-hdr img{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--card2);flex-shrink:0}
+.ficha-hdr .fn{font-weight:900;font-size:1rem}
+.ficha-hdr .fc{font-size:.78rem;color:var(--gray)}
+.comm-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--card-b2);font-size:.82rem}
+.comm-item:last-child{border-bottom:none}
+.comm-ico{width:30px;height:30px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem}
+.comm-body{flex:1;min-width:0}
+.comm-body .ct{color:var(--gray-d);font-size:.7rem;margin-top:2px}
+.tpl-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tpl-pill{background:var(--card2);border:1.5px solid var(--card-b2);color:var(--gray);font-weight:800;font-size:.8rem;padding:9px 16px;border-radius:999px;cursor:pointer}
+.tpl-pill.on{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.08)}
+.img-preview-wrap{display:flex;justify-content:center;margin-top:16px}
+.img-preview-wrap canvas{width:100%;max-width:340px;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.5);background:#05070a}
+.img-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 </style>
 </head>
 <body>
@@ -60,19 +86,138 @@
   <div class="error-box" id="errorBox"></div>
   <div class="success-box" id="successBox"></div>
 
-  <div id="sinModulo" class="empty-mod" style="display:none">
-    <i class="fa-solid fa-lock"></i>
-    Este módulo todavía no está activado para tu club.<br>Escríbele a BioFutbol para activarlo.
-  </div>
-
   <div id="panelContent" style="display:none">
     <div class="tabs">
-      <button class="tab-btn on" data-tab="equipos">Equipos</button>
+      <button class="tab-btn on" data-tab="socios">Socios</button>
+      <button class="tab-btn" data-tab="imagenes">Imágenes</button>
+      <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
     </div>
 
-    <div class="tab-panel on" id="tab-equipos">
+    <div class="tab-panel on" id="tab-socios">
+      <div class="crm-toolbar">
+        <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
+        <button class="btn btn-ghost btn-sm" id="btnFiltroPend"><i class="fa-solid fa-filter"></i> Solo pendientes de pago</button>
+        <button class="btn btn-primary btn-sm" id="btnRecordarMasivoCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes</button>
+      </div>
+      <div class="detail-grid">
+        <div class="card" style="margin-bottom:0">
+          <h3><i class="fa-solid fa-users"></i> Tus socios / jugadores</h3>
+          <div id="listaSocios"><p class="empty">Cargando...</p></div>
+        </div>
+        <div>
+          <div class="card empty-mod small" id="fichaVacia">
+            <i class="fa-solid fa-hand-pointer"></i>
+            Selecciona un socio para ver su ficha y comunicarte con él.
+          </div>
+          <div class="card ficha-box" id="fichaBox">
+            <div class="ficha-hdr">
+              <img id="fichaFoto" src="">
+              <div>
+                <div class="fn" id="fichaNombre">—</div>
+                <div class="fc" id="fichaCategoria">—</div>
+              </div>
+            </div>
+            <div class="status-row"><span class="k">Estado de pago</span><span id="fichaPagoPill" class="pill muted">—</span></div>
+            <div class="status-row"><span class="k">Teléfono</span><span id="fichaTelefono">—</span></div>
+            <div class="status-row"><span class="k">Correo</span><span id="fichaCorreo">—</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-primary btn-sm" id="btnFichaWhatsapp"><i class="fa-brands fa-whatsapp"></i> Recordar por WhatsApp</button>
+              <button class="btn btn-ghost btn-sm" id="btnFichaCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo</button>
+              <button class="btn btn-ghost btn-sm" id="btnFichaPagado"><i class="fa-solid fa-check-double"></i> Marcar pagado</button>
+            </div>
+            <div style="margin-top:18px">
+              <label style="font-size:.78rem;font-weight:700;color:var(--gray);display:block;margin-bottom:6px">Agregar nota</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="fichaNotaInput" placeholder="Ej: llamó y dijo que paga el viernes" style="flex:1;background:var(--card2);border:1px solid var(--card-b2);color:var(--white);padding:10px 12px;border-radius:10px;font-size:.86rem">
+                <button class="btn btn-ghost btn-sm" id="btnFichaNota"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+            <h3 style="margin-top:20px;font-size:.86rem"><i class="fa-solid fa-comments"></i> Historial de comunicación</h3>
+            <div id="fichaComunicaciones"><p class="empty" style="padding:20px">Sin comunicaciones registradas todavía.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-imagenes">
+      <div class="card">
+        <h3><i class="fa-solid fa-image"></i> Crear imagen para redes sociales</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Genera gráficas con el escudo y los colores de tu club, listas para compartir en WhatsApp, Instagram o Facebook.</p>
+        <div class="tpl-pills">
+          <button class="tpl-pill on" data-tpl="partido">Próximo partido</button>
+          <button class="tpl-pill" data-tpl="resultado">Resultado final</button>
+          <button class="tpl-pill" data-tpl="tabla_img">Tabla de posiciones</button>
+          <button class="tpl-pill" data-tpl="aliado">Patrocinador / Aliado</button>
+        </div>
+
+        <div id="form-partido" class="tpl-form">
+          <div class="field-row">
+            <div class="field"><label>Nuestro equipo</label><input type="text" id="pImgPropio" placeholder="Ej: Halcones FC"></div>
+            <div class="field"><label>Rival</label><input type="text" id="pImgRival" placeholder="Ej: Águilas FC"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Fecha</label><input type="text" id="pImgFecha" placeholder="Ej: Sábado 30 de agosto"></div>
+            <div class="field"><label>Hora</label><input type="text" id="pImgHora" placeholder="Ej: 3:00 PM"></div>
+          </div>
+          <div class="field"><label>Lugar</label><input type="text" id="pImgLugar" placeholder="Ej: Cancha Municipal"></div>
+        </div>
+
+        <div id="form-resultado" class="tpl-form" style="display:none">
+          <div class="field-row">
+            <div class="field"><label>Nuestro equipo</label><input type="text" id="rImgPropio" placeholder="Ej: Halcones FC"></div>
+            <div class="field"><label>Rival</label><input type="text" id="rImgRival" placeholder="Ej: Águilas FC"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Nuestros goles</label><input type="number" min="0" id="rImgGolesPropio"></div>
+            <div class="field"><label>Goles rival</label><input type="number" min="0" id="rImgGolesRival"></div>
+          </div>
+          <div class="field"><label>Fecha (opcional)</label><input type="text" id="rImgFecha" placeholder="Ej: Sábado 30 de agosto"></div>
+        </div>
+
+        <div id="form-tabla_img" class="tpl-form" style="display:none">
+          <p style="font-size:.82rem;color:var(--gray)">Se genera con la tabla de posiciones actual del módulo de Equipos y Fixture.</p>
+        </div>
+
+        <div id="form-aliado" class="tpl-form" style="display:none">
+          <div class="field"><label>Nombre del patrocinador</label><input type="text" id="aImgNombre" placeholder="Ej: Almacén Deportivo El Gol"></div>
+          <div class="field-row">
+            <div class="field"><label>Oferta destacada (opcional)</label><input type="text" id="aImgOferta" placeholder="Ej: 20% de descuento"></div>
+            <div class="field"><label>Texto del botón (opcional)</label><input type="text" id="aImgCta" placeholder="Ej: Visítanos"></div>
+          </div>
+          <div class="field"><label>Descripción corta</label><input type="text" id="aImgDescripcion" placeholder="Ej: Uniformes, balones y más cerca de ti"></div>
+          <div class="field">
+            <label>Logo del patrocinador (opcional)</label>
+            <div class="upload-box" id="aImgLogoBox" style="height:90px" onclick="document.getElementById('aImgLogoInput').click()">
+              <img id="aImgLogoPreview" class="upload-preview" style="display:none;object-fit:contain">
+              <div class="upload-empty" id="aImgLogoEmpty"><i class="fa-solid fa-image"></i><span>Subir logo</span></div>
+            </div>
+            <input type="file" id="aImgLogoInput" accept="image/*" style="display:none">
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:10px">
+            <input type="checkbox" id="aImgEscudo" checked style="width:18px;height:18px;accent-color:var(--green-l)">
+            <span style="font-size:.84rem;font-weight:700">Mostrar el escudo de mi club</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block" id="btnGenerarImagen" style="margin-top:18px"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen</button>
+
+        <div class="img-preview-wrap"><canvas id="imgCanvas"></canvas></div>
+        <div class="img-actions" id="imgActions" style="display:none">
+          <button class="btn btn-primary btn-sm" id="btnImgCompartir"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+          <button class="btn btn-ghost btn-sm" id="btnImgDescargar"><i class="fa-solid fa-download"></i> Descargar</button>
+          <button class="btn btn-ghost btn-sm" id="btnImgCaption"><i class="fa-solid fa-copy"></i> Copiar texto</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sinModulo" class="tab-panel empty-mod">
+      <i class="fa-solid fa-lock"></i>
+      El módulo de Equipos, Fixture y Tabla de posiciones todavía no está activado para tu club.<br>Escríbele a BioFutbol para activarlo.
+    </div>
+
+    <div class="tab-panel" id="tab-equipos">
       <div class="card">
         <h3><i class="fa-solid fa-users"></i> Agregar equipo</h3>
         <div class="field-row">
@@ -124,12 +269,21 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/imagenes.js"></script>
 <script src="js/audit.js"></script>
 <script>
 let clubActual = null;
 let EQUIPOS = [];
 let PARTIDOS = [];
+let SOCIOS = [];
+let socioSeleccionado = null;
+let soloPendientesCrm = false;
+let moduloEquiposActivo = false;
+const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla"];
 
 requireClub().then(function (r) {
   clubActual = r.cliente;
@@ -137,14 +291,13 @@ requireClub().then(function (r) {
   document.getElementById("clubBadge").textContent = clubActual.clubNombre || "Panel del club";
 
   aplicarIconoDelClub(r.cliente);
+  moduloEquiposActivo = !!(clubActual.modulosActivos && clubActual.modulosActivos.equipos);
 
-  if (!clubActual.modulosActivos || !clubActual.modulosActivos.equipos) {
-    document.getElementById("sinModulo").style.display = "block";
-    return;
-  }
   document.getElementById("panelContent").style.display = "block";
   escucharEquipos();
   escucharPartidos();
+  escucharSocios();
+  precargarFormImagenes();
 });
 
 // Para que cuando el club "agregue a inicio" desde su celular, salga el
@@ -178,7 +331,12 @@ document.querySelectorAll(".tab-btn").forEach(function (btn) {
     document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("on"); });
     document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
     btn.classList.add("on");
-    document.getElementById("tab-" + btn.dataset.tab).classList.add("on");
+    const tab = btn.dataset.tab;
+    if (TABS_MODULO_EQUIPOS.indexOf(tab) !== -1 && !moduloEquiposActivo) {
+      document.getElementById("sinModulo").classList.add("on");
+    } else {
+      document.getElementById("tab-" + tab).classList.add("on");
+    }
   });
 });
 
@@ -313,7 +471,7 @@ function borrarPartido(id) {
   db.collection("clientes").doc(clubActual.id).collection("partidos").doc(id).delete();
 }
 
-function pintarTabla() {
+function calcularTabla() {
   const stats = {};
   EQUIPOS.forEach(function (e) {
     stats[e.id] = { nombre: e.nombre, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0 };
@@ -328,18 +486,316 @@ function pintarTabla() {
     else if (p.golesLocal < p.golesVisitante) { V.g++; L.p++; }
     else { L.e++; V.e++; }
   });
-  const filas = Object.values(stats).map(function (s) {
+  return Object.values(stats).map(function (s) {
     s.dg = s.gf - s.gc;
     s.pts = s.g * 3 + s.e;
     return s;
   }).sort(function (a, b) { return b.pts - a.pts || b.dg - a.dg || b.gf - a.gf; });
+}
 
+function pintarTabla() {
+  const filas = calcularTabla();
   const tbody = document.getElementById("tablaBody");
   if (!filas.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty">Agrega equipos para ver la tabla.</td></tr>'; return; }
   tbody.innerHTML = filas.map(function (s, i) {
     return '<tr><td>' + (i + 1) + '</td><td><strong>' + esc(s.nombre) + '</strong></td><td>' + s.pj + '</td><td>' + s.g + '</td><td>' + s.e + '</td><td>' + s.p + '</td><td>' + s.gf + '</td><td>' + s.gc + '</td><td>' + s.dg + '</td><td><strong>' + s.pts + '</strong></td></tr>';
   }).join("");
 }
+
+// ── CRM: socios, estado de pago, comunicaciones ──
+function estadoPagoSocioCrm(socio) {
+  if (!socio.pagoProximo) return { texto: "Sin definir", clase: "muted", vencido: false };
+  const dias = diasHasta(socio.pagoProximo);
+  if (dias === null) return { texto: "Sin definir", clase: "muted", vencido: false };
+  if (dias < 0) return { texto: "Vencido hace " + Math.abs(dias) + "d", clase: "bad", vencido: true };
+  if (dias <= 5) return { texto: "Vence en " + dias + "d", clase: "warn", vencido: true };
+  return { texto: "Al día (" + dias + "d)", clase: "ok", vencido: false };
+}
+
+function escucharSocios() {
+  db.collection("clientes").doc(clubActual.id).collection("socios").onSnapshot(function (snap) {
+    SOCIOS = [];
+    snap.forEach(function (d) { SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
+    SOCIOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
+    pintarListaSocios();
+    if (socioSeleccionado) {
+      const actualizado = SOCIOS.find(function (s) { return s.id === socioSeleccionado.id; });
+      if (actualizado) { socioSeleccionado = actualizado; pintarFicha(); }
+    }
+  }, function (err) {
+    document.getElementById("listaSocios").innerHTML = '<p class="empty">Error cargando socios: ' + esc(err.message) + '</p>';
+  });
+}
+
+function pintarListaSocios() {
+  const box = document.getElementById("listaSocios");
+  const q = (document.getElementById("crmBuscar").value || "").toLowerCase().trim();
+  let lista = SOCIOS.filter(function (s) { return !q || (s.nombre || "").toLowerCase().includes(q); });
+  if (soloPendientesCrm) lista = lista.filter(function (s) { return estadoPagoSocioCrm(s).vencido; });
+
+  if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
+  box.innerHTML = lista.map(function (s) {
+    const ep = estadoPagoSocioCrm(s);
+    return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
+      '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
+      '<span class="pill ' + ep.clase + '">' + ep.texto + '</span></div>';
+  }).join("");
+}
+
+function seleccionarSocio(id) {
+  socioSeleccionado = SOCIOS.find(function (s) { return s.id === id; }) || null;
+  pintarListaSocios();
+  pintarFicha();
+}
+
+function pintarFicha() {
+  const vacia = document.getElementById("fichaVacia");
+  const box = document.getElementById("fichaBox");
+  if (!socioSeleccionado) { vacia.style.display = "block"; box.style.display = "none"; return; }
+  vacia.style.display = "none";
+  box.style.display = "block";
+
+  document.getElementById("fichaFoto").src = socioSeleccionado.fotoUrl || "";
+  document.getElementById("fichaNombre").textContent = socioSeleccionado.nombre || "Sin nombre";
+  document.getElementById("fichaCategoria").textContent = socioSeleccionado.categoria || "—";
+  document.getElementById("fichaTelefono").textContent = socioSeleccionado.telefono || "—";
+  document.getElementById("fichaCorreo").textContent = socioSeleccionado.correo || "—";
+  const ep = estadoPagoSocioCrm(socioSeleccionado);
+  const pill = document.getElementById("fichaPagoPill");
+  pill.textContent = ep.texto;
+  pill.className = "pill " + ep.clase;
+
+  const comms = (socioSeleccionado.comunicaciones || []).slice().reverse();
+  const cont = document.getElementById("fichaComunicaciones");
+  if (!comms.length) {
+    cont.innerHTML = '<p class="empty" style="padding:20px">Sin comunicaciones registradas todavía.</p>';
+  } else {
+    const iconos = { whatsapp: "💬", correo: "✉️", nota: "📝" };
+    cont.innerHTML = comms.map(function (c) {
+      const fecha = new Date(c.fecha);
+      return '<div class="comm-item"><div class="comm-ico">' + (iconos[c.tipo] || "•") + '</div>' +
+        '<div class="comm-body">' + esc(c.resumen || "") + '<div class="ct">' + fecha.toLocaleString("es-CO") + '</div></div></div>';
+    }).join("");
+  }
+}
+
+function registrarComunicacion(socioId, tipo, resumen) {
+  const entrada = { tipo: tipo, resumen: resumen, fecha: new Date().toISOString() };
+  const data = { comunicaciones: firebase.firestore.FieldValue.arrayUnion(entrada) };
+  if (tipo !== "nota") data.fechaUltimoRecordatorio = new Date().toISOString().slice(0, 10);
+  return db.collection("clientes").doc(clubActual.id).collection("socios").doc(socioId).update(data);
+}
+
+function mensajeRecordatorioWhatsapp(socio) {
+  const valor = socio.pagoValor || clubActual.pagoMensualidad || 0;
+  let msg = "¡Hola! Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " +
+    (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
+  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+  if (clubActual.pagoWompiLink) msg += "\n\nO con tarjeta/PSE aquí: " + clubActual.pagoWompiLink;
+  msg += "\n\nCuando pagues, envíanos el comprobante para actualizarlo. ¡Gracias!";
+  return msg;
+}
+
+document.getElementById("btnFichaWhatsapp").addEventListener("click", function () {
+  if (!socioSeleccionado) return;
+  let tel = (socioSeleccionado.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRecordatorioWhatsapp(socioSeleccionado)), "_blank");
+  registrarComunicacion(socioSeleccionado.id, "whatsapp", "Recordatorio de pago enviado por WhatsApp").then(function () {
+    mostrarExito("Recordatorio enviado y registrado.");
+  });
+});
+
+document.getElementById("btnFichaCorreo").addEventListener("click", function () {
+  if (!socioSeleccionado) return;
+  if (!socioSeleccionado.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
+  enviarRecordatorioCorreo(socioSeleccionado).then(function () {
+    mostrarExito("Correo enviado a " + socioSeleccionado.correo);
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+  });
+});
+
+document.getElementById("btnFichaPagado").addEventListener("click", function () {
+  if (!socioSeleccionado) return;
+  const hoy = new Date(); const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  const proximoStr = proximo.toISOString().slice(0, 10);
+  db.collection("clientes").doc(clubActual.id).collection("socios").doc(socioSeleccionado.id).update({
+    pagoProximo: proximoStr,
+    pagoUltimo: hoy.toISOString().slice(0, 10),
+    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: socioSeleccionado.pagoValor || clubActual.pagoMensualidad || 0 })
+  }).then(function () { mostrarExito("Pago registrado."); });
+});
+
+document.getElementById("btnFichaNota").addEventListener("click", function () {
+  if (!socioSeleccionado) return;
+  const texto = document.getElementById("fichaNotaInput").value.trim();
+  if (!texto) return;
+  registrarComunicacion(socioSeleccionado.id, "nota", texto).then(function () {
+    document.getElementById("fichaNotaInput").value = "";
+    mostrarExito("Nota agregada.");
+  });
+});
+
+document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);
+document.getElementById("btnFiltroPend").addEventListener("click", function () {
+  soloPendientesCrm = !soloPendientesCrm;
+  this.classList.toggle("btn-primary", soloPendientesCrm);
+  this.classList.toggle("btn-ghost", !soloPendientesCrm);
+  pintarListaSocios();
+});
+
+function enviarRecordatorioCorreo(socio) {
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
+  const valor = socio.pagoValor || clubActual.pagoMensualidad || 0;
+  let mensaje = "Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " + (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
+  if (clubActual.pagoNequiNumero) mensaje += " Puedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: socio.correo,
+    to_name: socio.nombre || "",
+    club_nombre: clubActual.clubNombre || "",
+    asunto: "Recordatorio de pago — " + (clubActual.clubNombre || "BioFutbol"),
+    mensaje: mensaje,
+    boton_texto: clubActual.pagoWompiLink ? "Pagar ahora" : "",
+    boton_url: clubActual.pagoWompiLink || "",
+    contrato_url: clubActual.pagoWompiLink || ""
+  }).then(function () {
+    return registrarComunicacion(socio.id, "correo", "Recordatorio de pago enviado por correo");
+  });
+}
+
+document.getElementById("btnRecordarMasivoCorreo").addEventListener("click", function () {
+  const pendientes = SOCIOS.filter(function (s) { return estadoPagoSocioCrm(s).vencido && s.correo; });
+  if (!pendientes.length) { mostrarError("No hay socios pendientes de pago con correo registrado."); return; }
+  if (!confirm("Se enviará un correo de recordatorio a " + pendientes.length + " socio(s) pendientes de pago. ¿Continuar?")) return;
+
+  const btn = this;
+  btn.disabled = true;
+  let enviados = 0, fallidos = 0;
+
+  function siguiente(i) {
+    if (i >= pendientes.length) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes';
+      mostrarExito("Enviados: " + enviados + (fallidos ? " · Fallaron: " + fallidos : ""));
+      return;
+    }
+    btn.innerHTML = '<span class="spinner"></span> Enviando ' + (i + 1) + "/" + pendientes.length + "...";
+    enviarRecordatorioCorreo(pendientes[i]).then(function () { enviados++; }).catch(function () { fallidos++; }).finally(function () {
+      setTimeout(function () { siguiente(i + 1); }, 700);
+    });
+  }
+  siguiente(0);
+});
+
+// ── Imágenes para redes sociales ──
+let tplActual = "partido";
+let ultimoCaptionImg = "";
+let aImgLogoUrl = "";
+
+document.querySelectorAll(".tpl-pill").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".tpl-pill").forEach(function (b) { b.classList.remove("on"); });
+    document.querySelectorAll(".tpl-form").forEach(function (f) { f.style.display = "none"; });
+    btn.classList.add("on");
+    tplActual = btn.dataset.tpl;
+    document.getElementById("form-" + tplActual).style.display = "block";
+    document.getElementById("imgActions").style.display = "none";
+  });
+});
+
+function precargarFormImagenes() {
+  document.getElementById("pImgPropio").value = clubActual.clubNombre || "";
+  document.getElementById("rImgPropio").value = clubActual.clubNombre || "";
+}
+
+document.getElementById("aImgLogoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "patrocinadores", clubActual.id + "-pat-" + Date.now() + "." + (file.name.split(".").pop() || "png")).then(function (url) {
+    aImgLogoUrl = url;
+    document.getElementById("aImgLogoPreview").src = url;
+    document.getElementById("aImgLogoPreview").style.display = "block";
+    document.getElementById("aImgLogoEmpty").style.display = "none";
+  }).catch(function (err) { mostrarError("No se pudo subir el logo: " + err.message); });
+});
+
+document.getElementById("btnGenerarImagen").addEventListener("click", function () {
+  const canvas = document.getElementById("imgCanvas");
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+
+  let tarea, caption;
+  if (tplActual === "partido") {
+    const d = {
+      club: clubActual,
+      propio: document.getElementById("pImgPropio").value.trim() || clubActual.clubNombre,
+      rival: document.getElementById("pImgRival").value.trim(),
+      fecha: document.getElementById("pImgFecha").value.trim(),
+      hora: document.getElementById("pImgHora").value.trim(),
+      lugar: document.getElementById("pImgLugar").value.trim()
+    };
+    if (!d.rival) { mostrarError("Ingresa el equipo rival."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    tarea = generarImagenPartido(canvas, d);
+    caption = "🔥 ¡Próximo partido! " + d.propio + " vs " + d.rival + (d.fecha ? " — " + d.fecha : "") + (d.hora ? " " + d.hora : "") + (d.lugar ? " en " + d.lugar : "") + " ⚽ #BioFutbol";
+  } else if (tplActual === "resultado") {
+    const d = {
+      club: clubActual,
+      propio: document.getElementById("rImgPropio").value.trim() || clubActual.clubNombre,
+      rival: document.getElementById("rImgRival").value.trim(),
+      golesPropio: Number(document.getElementById("rImgGolesPropio").value) || 0,
+      golesRival: Number(document.getElementById("rImgGolesRival").value) || 0,
+      fecha: document.getElementById("rImgFecha").value.trim()
+    };
+    if (!d.rival) { mostrarError("Ingresa el equipo rival."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    tarea = generarImagenResultado(canvas, d);
+    caption = "⚽ Resultado final: " + d.propio + " " + d.golesPropio + " - " + d.golesRival + " " + d.rival + " #BioFutbol";
+  } else if (tplActual === "tabla_img") {
+    const filas = calcularTabla();
+    if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas });
+    caption = "📊 Así va la tabla de posiciones de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
+  } else {
+    const d = {
+      club: clubActual,
+      nombre: document.getElementById("aImgNombre").value.trim(),
+      oferta: document.getElementById("aImgOferta").value.trim(),
+      ctaTexto: document.getElementById("aImgCta").value.trim(),
+      descripcion: document.getElementById("aImgDescripcion").value.trim(),
+      logoUrl: aImgLogoUrl,
+      mostrarEscudo: document.getElementById("aImgEscudo").checked
+    };
+    if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    tarea = generarImagenAliado(canvas, d);
+    caption = "🤝 Gracias a nuestro aliado " + d.nombre + (d.oferta ? " — " + d.oferta : "") + " #BioFutbol";
+  }
+
+  tarea.then(function () {
+    ultimoCaptionImg = caption;
+    document.getElementById("imgActions").style.display = "flex";
+    mostrarExito("Imagen generada.");
+  }).catch(function (err) {
+    mostrarError("No se pudo generar la imagen: " + err.message);
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen';
+  });
+});
+
+document.getElementById("btnImgDescargar").addEventListener("click", function () {
+  imgDescargar(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png")
+    .catch(function (err) { mostrarError("No se pudo descargar: " + err.message); });
+});
+
+document.getElementById("btnImgCompartir").addEventListener("click", function () {
+  imgCompartir(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png", ultimoCaptionImg)
+    .catch(function (err) { mostrarError("No se pudo compartir: " + err.message); });
+});
+
+document.getElementById("btnImgCaption").addEventListener("click", function () {
+  navigator.clipboard.writeText(ultimoCaptionImg).then(function () { mostrarExito("Texto copiado."); });
+});
 </script>
 </body>
 </html>

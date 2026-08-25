@@ -817,6 +817,10 @@ document.getElementById("btnReciboCorreo").addEventListener("click", function ()
     to_email: clienteActual.repEmail,
     to_name: clienteActual.repNombre || "",
     club_nombre: clienteActual.clubNombre || "",
+    asunto: "Recibo de pago — BioFutbol",
+    mensaje: "Aquí tienes el recibo de tu pago a BioFutbol.",
+    boton_texto: "Ver recibo",
+    boton_url: ultimoReciboUrl,
     contrato_url: ultimoReciboUrl
   }).then(function () {
     registrarAuditoria("Recibo enviado por correo", clienteId, clienteActual.clubNombre, clienteActual.repEmail);
@@ -879,6 +883,10 @@ document.getElementById("btnEmail").addEventListener("click", function () {
     to_email: clienteActual.repEmail,
     to_name: clienteActual.repNombre || "",
     club_nombre: clienteActual.clubNombre || "",
+    asunto: "Contrato BioFutbol — " + (clienteActual.clubNombre || ""),
+    mensaje: "Te compartimos el contrato de BioFutbol para " + (clienteActual.clubNombre || "tu club") + ".",
+    boton_texto: "Ver contrato",
+    boton_url: clienteActual.contratoUrl,
     contrato_url: clienteActual.contratoUrl
   }).then(function () {
     registrarAuditoria("Contrato enviado por correo", clienteId, clienteActual.clubNombre, clienteActual.repEmail);

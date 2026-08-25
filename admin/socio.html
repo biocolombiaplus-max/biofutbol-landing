@@ -352,7 +352,8 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
 
   const hoyStr = new Date().toISOString().slice(0, 10);
   db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
-    fechaUltimoRecordatorio: hoyStr
+    fechaUltimoRecordatorio: hoyStr,
+    comunicaciones: firebase.firestore.FieldValue.arrayUnion({ tipo: "whatsapp", resumen: "Recordatorio de pago enviado por WhatsApp", fecha: new Date().toISOString() })
   }).then(function () {
     socioActual.fechaUltimoRecordatorio = hoyStr;
     pintarPago();
@@ -419,6 +420,10 @@ document.getElementById("btnReciboSocioCorreo").addEventListener("click", functi
     to_email: socioActual.correo,
     to_name: socioActual.nombre || "",
     club_nombre: (clubActual && clubActual.clubNombre) || "",
+    asunto: "Recibo de pago — " + ((clubActual && clubActual.clubNombre) || "BioFutbol"),
+    mensaje: "Aquí tienes el recibo de pago de " + (socioActual.nombre || "tu deportista") + ".",
+    boton_texto: "Ver recibo",
+    boton_url: ultimoReciboSocioUrl,
     contrato_url: ultimoReciboSocioUrl
   }).then(function () {
     registrarAuditoria("Recibo de socio enviado por correo", clienteId, socioActual.nombre, socioActual.correo);

@@ -48,7 +48,7 @@ Si quieres que el botón "Enviar por correo" funcione:
 
 1. Crea una cuenta gratis en https://www.emailjs.com
 2. Conecta tu correo (Gmail u otro) como "Email Service".
-3. Crea una plantilla ("Email Template") con estas variables: `{{to_email}}`, `{{to_name}}`, `{{club_nombre}}`, `{{contrato_url}}`.
+3. Crea una plantilla ("Email Template") con estas variables: `{{to_email}}`, `{{to_name}}`, `{{club_nombre}}`, `{{asunto}}`, `{{mensaje}}`, `{{boton_texto}}`, `{{boton_url}}` (deja también `{{contrato_url}}` por si alguna plantilla vieja la usa). El cuerpo del correo puede ser tan simple como: "Hola {{to_name}}, {{mensaje}}" y un botón con texto `{{boton_texto}}` que enlace a `{{boton_url}}`. Con esta única plantilla se envían contratos, recibos y recordatorios de pago.
 4. En "Account" copia tu **Public Key**, y del servicio/plantilla copia el **Service ID** y **Template ID**.
 5. Pégalos en `admin/js/firebase-config.js` en las 3 variables `EMAILJS_...`.
 
