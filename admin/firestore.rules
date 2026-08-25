@@ -17,7 +17,7 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    function esDueñoDelClub(clienteId) {
+    function esDuenoDelClub(clienteId) {
       return request.auth != null &&
         get(/databases/$(database)/documents/clientes/$(clienteId)).data.authUid == request.auth.uid;
     }
@@ -38,7 +38,7 @@ service cloud.firestore {
     // propio club dueño pueden escribirla.
     match /clientes/{clienteId}/publico/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDueñoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
     // Socios/jugadores de cada club: cualquiera puede CREAR (autorregistro
@@ -49,7 +49,7 @@ service cloud.firestore {
     match /clientes/{clienteId}/socios/{socioId} {
       allow create: if true;
       allow get: if true;
-      allow list, update, delete: if esSuperAdmin() || esDueñoDelClub(clienteId);
+      allow list, update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
     // Módulos activados por club (equipos, fixture, tabla, etc.) y sus
@@ -57,15 +57,15 @@ service cloud.firestore {
     // hinchas y familias), escritura solo del súper-admin o el club dueño.
     match /clientes/{clienteId}/modulos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDueñoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
     match /clientes/{clienteId}/equipos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDueñoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
     match /clientes/{clienteId}/partidos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDueñoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
     // Auditoría: solo admins autenticados (súper-admin o club) pueden leer
