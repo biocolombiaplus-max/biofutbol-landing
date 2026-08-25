@@ -32,7 +32,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .btn-danger{background:rgba(255,92,92,.14);color:#ff8080;border:1px solid rgba(255,92,92,.4)}
 
 .card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:24px}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:28px 0}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:28px 0}
 .stat{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:18px 20px}
 .stat .n{font-size:1.7rem;font-weight:900}
 .stat .l{font-size:.76rem;color:var(--gray);font-weight:600;margin-top:2px}

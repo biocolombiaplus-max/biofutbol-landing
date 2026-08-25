@@ -30,6 +30,7 @@
     <div class="stat ok"><div class="n" id="statActivos">—</div><div class="l">Activos y al día</div></div>
     <div class="stat warn"><div class="n" id="statPorVencer">—</div><div class="l">Pagos por vencer (5d)</div></div>
     <div class="stat bad"><div class="n" id="statVencidos">—</div><div class="l">Pagos vencidos</div></div>
+    <div class="stat"><div class="n" id="statSociosTotal">—</div><div class="l">Deportistas registrados</div></div>
   </div>
 
   <div class="section-head">
@@ -49,12 +50,13 @@
           <th>Representante</th>
           <th>Plan</th>
           <th>Socios</th>
+          <th>Registrados</th>
           <th>Estado</th>
           <th>Próximo pago</th>
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="6" class="empty">Cargando clientes...</td></tr>
+        <tr><td colspan="7" class="empty">Cargando clientes...</td></tr>
       </tbody>
     </table>
   </div>
@@ -69,6 +71,7 @@
 <script src="js/audit.js"></script>
 <script>
 let TODOS = [];
+let SOCIOS_COUNT = {};
 
 requireAuth().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
@@ -81,42 +84,60 @@ function escucharClientes() {
     snap.forEach(function (doc) { TODOS.push(Object.assign({ id: doc.id }, doc.data())); });
     pintarStats();
     pintarTabla(TODOS);
+    cargarConteosSocios();
   }, function (err) {
     document.getElementById("tbody").innerHTML =
-      '<tr><td colspan="6" class="empty">Error cargando datos: ' + err.message + '</td></tr>';
+      '<tr><td colspan="7" class="empty">Error cargando datos: ' + err.message + '</td></tr>';
+  });
+}
+
+function cargarConteosSocios() {
+  Promise.all(TODOS.map(function (c) {
+    return db.collection("clientes").doc(c.id).collection("socios").get().then(function (snap) {
+      SOCIOS_COUNT[c.id] = snap.size;
+    }).catch(function () { SOCIOS_COUNT[c.id] = null; });
+  })).then(function () {
+    pintarStats();
+    pintarTabla(TODOS);
   });
 }
 
 function pintarStats() {
-  let activos = 0, porVencer = 0, vencidos = 0;
+  let activos = 0, porVencer = 0, vencidos = 0, sociosTotal = 0;
   TODOS.forEach(function (c) {
-    if (c.estado === "pendiente" || c.estado === "inactivo") return;
-    const dias = diasHasta(c.proximoPago);
-    if (dias === null) return;
-    if (dias < 0) vencidos++;
-    else if (dias <= 5) porVencer++;
-    else activos++;
+    if (c.estado !== "pendiente" && c.estado !== "inactivo") {
+      const dias = diasHasta(c.proximoPago);
+      if (dias !== null) {
+        if (dias < 0) vencidos++;
+        else if (dias <= 5) porVencer++;
+        else activos++;
+      }
+    }
+    sociosTotal += SOCIOS_COUNT[c.id] || 0;
   });
   document.getElementById("statTotal").textContent = TODOS.length;
   document.getElementById("statActivos").textContent = activos;
   document.getElementById("statPorVencer").textContent = porVencer;
   document.getElementById("statVencidos").textContent = vencidos;
+  document.getElementById("statSociosTotal").textContent = sociosTotal;
 }
 
 function pintarTabla(lista) {
   const tbody = document.getElementById("tbody");
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">Todavía no hay clientes registrados. Usá "Nuevo cliente" o compartí el link de registro.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">Todavía no hay clientes registrados. Usá "Nuevo cliente" o compartí el link de registro.</td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(function (c) {
     const ep = estadoPago(c);
+    const registrados = SOCIOS_COUNT[c.id];
     const plan = PLANES[c.plan] ? PLANES[c.plan].label : (c.plan || "—");
     return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
       '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong></td>' +
       '<td>' + esc(c.repNombre || "—") + '</td>' +
       '<td>' + esc(plan) + '</td>' +
       '<td>' + (c.numSocios || "—") + '</td>' +
+      '<td>' + (registrados === undefined ? '<span class="spinner"></span>' : (registrados === null ? "—" : registrados)) + '</td>' +
       '<td><span class="pill ' + ep.clase + '">' + ep.texto + '</span></td>' +
       '<td>' + formatFecha(c.proximoPago) + '</td>' +
       '</tr>';

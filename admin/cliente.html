@@ -98,11 +98,13 @@
           </div>
         </div>
         <div id="uploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
-        <div class="field-row" style="margin-top:14px">
+        <div class="field-row">
           <div class="field"><label>Color principal del club</label><input type="color" id="colorPrimario" value="#18A83A" style="height:44px;padding:4px;cursor:pointer"></div>
           <div class="field"><label>Color secundario</label><input type="color" id="colorSecundario" value="#0e7d29" style="height:44px;padding:4px;cursor:pointer"></div>
         </div>
-        <p style="font-size:.76rem;color:var(--gray-d)">Estos colores se usan en el carnet digital de cada socio de este club.</p>
+        <div class="field"><label>Color terciario (opcional, si el club tiene 3 colores)</label><input type="color" id="colorTerciario" value="#FFC933" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
+        <p style="font-size:.76rem;color:var(--gray-d)">Estos colores se usan en el carnet digital de cada socio de este club. Se guardan automáticamente apenas los eliges, no hace falta bajar hasta "Guardar cliente".</p>
+        <div id="colorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
       </div>
 
       <div class="card">
@@ -288,6 +290,7 @@ function cargarCliente() {
     document.getElementById("notas").value = clienteActual.notas || "";
     document.getElementById("colorPrimario").value = clienteActual.colorPrimario || "#18A83A";
     document.getElementById("colorSecundario").value = clienteActual.colorSecundario || "#0e7d29";
+    document.getElementById("colorTerciario").value = clienteActual.colorTerciario || "#FFC933";
     document.getElementById("pagoMensualidad").value = clienteActual.pagoMensualidad || "";
     document.getElementById("pagoNequiNumero").value = clienteActual.pagoNequiNumero || "";
     document.getElementById("pagoNequiTitular").value = clienteActual.pagoNequiTitular || "";
@@ -550,6 +553,7 @@ function leerFormulario() {
     notas: document.getElementById("notas").value.trim(),
     colorPrimario: document.getElementById("colorPrimario").value,
     colorSecundario: document.getElementById("colorSecundario").value,
+    colorTerciario: document.getElementById("colorTerciario").value,
     pagoMensualidad: Number(document.getElementById("pagoMensualidad").value) || 0,
     pagoNequiNumero: document.getElementById("pagoNequiNumero").value.trim(),
     pagoNequiTitular: document.getElementById("pagoNequiTitular").value.trim(),
@@ -563,6 +567,7 @@ function sincronizarMarca(id, data) {
     logoUrl: (clienteActual && clienteActual.logoUrl) || "",
     colorPrimario: data.colorPrimario || "#18A83A",
     colorSecundario: data.colorSecundario || "#0e7d29",
+    colorTerciario: data.colorTerciario || "#FFC933",
     pagoMensualidad: data.pagoMensualidad || 0,
     pagoNequiNumero: data.pagoNequiNumero || "",
     pagoNequiTitular: data.pagoNequiTitular || "",
@@ -582,6 +587,26 @@ function mostrarExito(msg) {
   box.style.display = "block";
   setTimeout(function () { box.style.display = "none"; }, 3500);
 }
+
+["colorPrimario", "colorSecundario", "colorTerciario"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () {
+    if (!clienteActual || esNuevo) return;
+    const data = {
+      colorPrimario: document.getElementById("colorPrimario").value,
+      colorSecundario: document.getElementById("colorSecundario").value,
+      colorTerciario: document.getElementById("colorTerciario").value
+    };
+    db.collection("clientes").doc(clienteId).update(data).then(function () {
+      clienteActual = Object.assign(clienteActual, data);
+      sincronizarMarca(clienteId, Object.assign({}, clienteActual, data));
+      const status = document.getElementById("colorStatus");
+      status.style.display = "block";
+      setTimeout(function () { status.style.display = "none"; }, 2000);
+    }).catch(function (err) {
+      mostrarError("No se pudo guardar el color: " + err.message);
+    });
+  });
+});
 
 document.getElementById("btnGenerarCred").addEventListener("click", function () {
   const nombre = document.getElementById("clubNombre").value || "club";

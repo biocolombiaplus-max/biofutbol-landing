@@ -71,11 +71,12 @@ function carnetSeed(codigo) {
   return s;
 }
 
-// club = { clubNombre, logoUrl, colorPrimario, colorSecundario }
+// club = { clubNombre, logoUrl, colorPrimario, colorSecundario, colorTerciario }
 // socio = { nombre, documento, posicion, categoria, estado, fotoUrl, id }
 function carnetHtml(socio, club, verUrl, idSuffix) {
   var c1 = (club && club.colorPrimario) || "#18A83A";
   var c2 = (club && club.colorSecundario) || "#0e7d29";
+  var c3 = (club && club.colorTerciario) || c1;
   var activo = (socio.estado || "Activo") === "Activo";
   var sufijo = idSuffix || "card";
   var photoHtml = socio.fotoUrl
@@ -86,7 +87,7 @@ function carnetHtml(socio, club, verUrl, idSuffix) {
     : '<div class="carnet-crest">' + carnetEscHtml((club && club.clubNombre) ? club.clubNombre.charAt(0) : "B") + '</div>';
   var nombreClub = (club && club.clubNombre) || "BioFutbol";
 
-  return '<div class="carnet-card" style="--c1:' + c1 + ';--c2:' + c2 + '" id="carnetCard_' + sufijo + '">'
+  return '<div class="carnet-card" style="--c1:' + c1 + ';--c2:' + c2 + ';--c3:' + c3 + '" id="carnetCard_' + sufijo + '">'
     + '<div class="carnet-stripe"><div class="carnet-stripe-txt">Carnet Digital de Socio</div><div class="carnet-stripe-bars"><div class="carnet-stripe-bar"></div><div class="carnet-stripe-bar"></div><div class="carnet-stripe-bar"></div></div></div>'
     + '<div class="carnet-tab"><div class="carnet-tab-dot" style="background:' + (activo ? "#22c55e" : "#ef4444") + ';box-shadow:0 0 6px ' + (activo ? "#22c55e" : "#ef4444") + '"></div><div class="carnet-tab-txt">' + (activo ? "Socio Activo" : "Inactivo") + '</div></div>'
     + '<div class="carnet-hdr">' + crestHtml
