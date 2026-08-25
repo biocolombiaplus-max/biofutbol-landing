@@ -46,7 +46,16 @@
   <div class="detail-grid">
     <div>
       <div class="card">
-        <h3><i class="fa-solid fa-id-card"></i> Datos del socio</h3>
+        <h3><i class="fa-solid fa-id-card"></i> Datos personales</h3>
+        <div style="display:flex;justify-content:center;margin-bottom:16px">
+          <div class="upload-box" id="fotoBox" style="width:96px;height:96px;border-radius:50%" onclick="document.getElementById('fotoInput').click()">
+            <img id="fotoPreview" class="upload-preview logo-preview" style="display:none">
+            <div class="upload-empty" id="fotoEmpty"><i class="fa-solid fa-camera"></i><span>Foto</span></div>
+            <div class="upload-overlay" style="border-radius:50%"><i class="fa-solid fa-camera"></i></div>
+          </div>
+          <input type="file" id="fotoInput" accept="image/*" style="display:none">
+        </div>
+        <div id="fotoStatus" style="display:none;text-align:center;font-size:.78rem;color:var(--green-l);margin-bottom:12px"><span class="spinner"></span> Subiendo foto...</div>
         <div class="field"><label>Nombre completo</label><input type="text" id="nombre"></div>
         <div class="field-row">
           <div class="field"><label>Tipo de documento</label>
@@ -58,28 +67,57 @@
           <div class="field"><label>Fecha de nacimiento</label><input type="date" id="fechaNacimiento"></div>
           <div class="field"><label>Ciudad</label><input type="text" id="ciudad"></div>
         </div>
+        <div class="field"><label>Dirección</label><input type="text" id="direccion"></div>
+        <div class="field">
+          <label>Estado</label>
+          <select id="estado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
         <div class="field-row">
           <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria"></div>
           <div class="field"><label>Posición</label><input type="text" id="posicion"></div>
         </div>
         <div class="field-row">
+          <div class="field"><label>Pie hábil</label><input type="text" id="pieHabil"></div>
           <div class="field"><label>Número de camiseta</label><input type="text" id="camiseta"></div>
-          <div class="field"><label>Talla de uniforme</label><input type="text" id="talla"></div>
         </div>
+        <div class="field-row">
+          <div class="field"><label>Talla de uniforme</label><input type="text" id="talla"></div>
+          <div class="field"><label>Club o experiencia anterior</label><input type="text" id="experiencia"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Colegio</label><input type="text" id="colegio"></div>
+          <div class="field"><label>Jornada escolar</label><input type="text" id="jornada"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-kit-medical"></i> Salud y emergencia</h3>
+        <div class="field-row">
+          <div class="field"><label>EPS</label><input type="text" id="eps"></div>
+          <div class="field"><label>Grupo sanguíneo</label><input type="text" id="grupoSanguineo"></div>
+        </div>
+        <div class="field"><label>Alergias o condiciones médicas</label><input type="text" id="alergias"></div>
+        <div class="field-row">
+          <div class="field"><label>Contacto de emergencia</label><input type="text" id="emergenciaNombre"></div>
+          <div class="field"><label>Teléfono de emergencia</label><input type="text" id="emergenciaTelefono"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-user-shield"></i> Acudiente y autorizaciones</h3>
         <div class="field-row">
           <div class="field"><label>Acudiente</label><input type="text" id="acudiente"></div>
           <div class="field"><label>Teléfono</label><input type="text" id="telefono"></div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>Correo</label><input type="email" id="correo"></div>
-          <div class="field"><label>EPS</label><input type="text" id="eps"></div>
-        </div>
-        <div class="field">
-          <label>Estado</label>
-          <select id="estado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select>
-        </div>
-        <div class="field"><label>Observaciones</label><textarea id="observaciones" rows="2"></textarea></div>
-        <button class="btn btn-primary btn-block" id="btnGuardar"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
+        <div class="field"><label>Correo</label><input type="email" id="correo"></div>
+        <div class="status-row"><span class="k">Autorización de imagen</span><span id="pillImagen" class="pill muted">—</span></div>
+        <div class="status-row"><span class="k">Autorización de datos</span><span id="pillDatos" class="pill muted">—</span></div>
+        <div class="field" style="margin-top:14px"><label>Observaciones</label><textarea id="observaciones" rows="2"></textarea></div>
+        <button class="btn btn-primary btn-block" id="btnGuardar" style="margin-top:6px"><i class="fa-solid fa-floppy-disk"></i> Guardar cambios</button>
       </div>
 
       <div class="card" id="crecimientoCard" style="display:none">
@@ -129,6 +167,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/audit.js"></script>
 <script>
@@ -155,16 +194,33 @@ function cargarSocio() {
     document.getElementById("documento").value = socioActual.documento || "";
     document.getElementById("fechaNacimiento").value = socioActual.fechaNacimiento || "";
     document.getElementById("ciudad").value = socioActual.ciudad || "";
+    document.getElementById("direccion").value = socioActual.direccion || "";
     document.getElementById("categoria").value = socioActual.categoria || "";
     document.getElementById("posicion").value = socioActual.posicion || "";
+    document.getElementById("pieHabil").value = socioActual.pieHabil || "";
     document.getElementById("camiseta").value = socioActual.camiseta || "";
     document.getElementById("talla").value = socioActual.talla || "";
+    document.getElementById("experiencia").value = socioActual.experiencia || "";
+    document.getElementById("colegio").value = socioActual.colegio || "";
+    document.getElementById("jornada").value = socioActual.jornada || "";
     document.getElementById("acudiente").value = socioActual.acudiente || "";
     document.getElementById("telefono").value = socioActual.telefono || "";
     document.getElementById("correo").value = socioActual.correo || "";
     document.getElementById("eps").value = socioActual.eps || "";
+    document.getElementById("grupoSanguineo").value = socioActual.grupoSanguineo || "";
+    document.getElementById("alergias").value = socioActual.alergias || "";
+    document.getElementById("emergenciaNombre").value = socioActual.emergenciaNombre || "";
+    document.getElementById("emergenciaTelefono").value = socioActual.emergenciaTelefono || "";
     document.getElementById("estado").value = socioActual.estado || "Activo";
     document.getElementById("observaciones").value = socioActual.observaciones || "";
+
+    if (socioActual.fotoUrl) {
+      document.getElementById("fotoPreview").src = socioActual.fotoUrl;
+      document.getElementById("fotoPreview").style.display = "block";
+      document.getElementById("fotoEmpty").style.display = "none";
+    }
+    pintarPill("pillImagen", socioActual.autorizacionImagen);
+    pintarPill("pillDatos", socioActual.autorizacionDatos);
 
     pintarCrecimientoYNutricion();
   });
@@ -173,6 +229,32 @@ function cargarSocio() {
 function edadDeSocio() {
   return calcularEdad(socioActual.fechaNacimiento);
 }
+
+function pintarPill(id, valor) {
+  const el = document.getElementById(id);
+  el.textContent = valor ? "Sí" : "No registrada";
+  el.className = "pill " + (valor ? "ok" : "muted");
+}
+
+document.getElementById("fotoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById("fotoStatus");
+  status.style.display = "block";
+  subirACloudinary(file, "socios", "foto-" + socioId + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    return db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ fotoUrl: url }).then(function () { return url; });
+  }).then(function (url) {
+    socioActual.fotoUrl = url;
+    document.getElementById("fotoPreview").src = url;
+    document.getElementById("fotoPreview").style.display = "block";
+    document.getElementById("fotoEmpty").style.display = "none";
+    status.style.display = "none";
+    mostrarExito("Foto actualizada.");
+  }).catch(function (err) {
+    status.style.display = "none";
+    mostrarError("No se pudo subir la foto: " + err.message);
+  });
+});
 
 function pintarCrecimientoYNutricion() {
   const edad = edadDeSocio();
@@ -236,14 +318,23 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     documento: document.getElementById("documento").value.trim(),
     fechaNacimiento: document.getElementById("fechaNacimiento").value,
     ciudad: document.getElementById("ciudad").value.trim(),
+    direccion: document.getElementById("direccion").value.trim(),
     categoria: document.getElementById("categoria").value.trim(),
     posicion: document.getElementById("posicion").value.trim(),
+    pieHabil: document.getElementById("pieHabil").value.trim(),
     camiseta: document.getElementById("camiseta").value.trim(),
     talla: document.getElementById("talla").value.trim(),
+    experiencia: document.getElementById("experiencia").value.trim(),
+    colegio: document.getElementById("colegio").value.trim(),
+    jornada: document.getElementById("jornada").value.trim(),
     acudiente: document.getElementById("acudiente").value.trim(),
     telefono: document.getElementById("telefono").value.trim(),
     correo: document.getElementById("correo").value.trim(),
     eps: document.getElementById("eps").value.trim(),
+    grupoSanguineo: document.getElementById("grupoSanguineo").value.trim(),
+    alergias: document.getElementById("alergias").value.trim(),
+    emergenciaNombre: document.getElementById("emergenciaNombre").value.trim(),
+    emergenciaTelefono: document.getElementById("emergenciaTelefono").value.trim(),
     estado: document.getElementById("estado").value,
     observaciones: document.getElementById("observaciones").value.trim()
   };

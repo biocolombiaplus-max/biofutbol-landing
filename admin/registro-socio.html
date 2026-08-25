@@ -8,6 +8,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
+<style>
+.foto-upload{position:relative;cursor:pointer;width:110px;height:110px;border-radius:50%;border:2px dashed var(--card-b2);background:var(--card2);display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto 18px}
+.foto-upload:hover{border-color:var(--green)}
+.foto-upload img{width:100%;height:100%;object-fit:cover;display:none}
+.foto-upload .foto-empty{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--gray-d);font-size:.66rem;font-weight:700;text-align:center;padding:0 8px}
+.foto-upload .foto-empty i{font-size:1.3rem}
+.foto-status{text-align:center;font-size:.76rem;color:var(--green-l);margin:-10px 0 16px;display:none}
+.who-note{display:flex;gap:10px;background:rgba(24,168,58,.08);border:1px solid rgba(24,168,58,.3);border-radius:12px;padding:12px 14px;font-size:.82rem;color:var(--gray);margin-bottom:22px;line-height:1.5}
+.who-note i{color:var(--green-l);margin-top:2px;flex:none}
+.consent{display:flex;align-items:flex-start;gap:9px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.consent input{width:17px;height:17px;margin-top:2px;flex:none;accent-color:var(--green)}
+.consent label{margin:0;cursor:pointer;font-size:.82rem;color:var(--white);font-weight:500;line-height:1.5}
+</style>
 </head>
 <body>
 <div class="auth-shell">
@@ -15,14 +28,23 @@
     <div class="auth-logo">
       <svg width="40" height="49" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
       <div class="name">Bio<b>Futbol</b></div>
-      <p id="clubLabel">Registro de socio / jugador</p>
+      <p id="clubLabel">Ficha de inscripción deportiva</p>
     </div>
 
     <div class="error-box" id="errorBox"></div>
     <div class="error-box" id="sinClub" style="display:none;background:rgba(255,201,51,.12);border-color:rgba(255,201,51,.35);color:var(--gold)">Este link no tiene un club asociado. Pide a tu club el link correcto.</div>
 
+    <div class="who-note"><i class="fa-solid fa-circle-info"></i> <span>Este formulario lo puede llenar el profesor, director o encargado del club — si no tienes todos los datos a la mano, también puedes reenviar este mismo link a los papás para que ellos lo completen.</span></div>
+
     <form id="regForm">
-      <h3 style="font-size:.9rem;margin-bottom:14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Datos del socio o jugador</h3>
+      <div class="foto-upload" id="fotoBox" onclick="document.getElementById('fotoInput').click()">
+        <img id="fotoPreview">
+        <div class="foto-empty" id="fotoEmpty"><i class="fa-solid fa-camera"></i><span>Foto del<br>deportista</span></div>
+      </div>
+      <input type="file" id="fotoInput" accept="image/*" style="display:none">
+      <div class="foto-status" id="fotoStatus"><span class="spinner"></span> Subiendo foto...</div>
+
+      <h3 style="font-size:.9rem;margin-bottom:14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Datos personales</h3>
       <div class="field"><label>Nombre completo *</label><input type="text" id="nombre" required></div>
       <div class="field-row">
         <div class="field"><label>Tipo de documento</label>
@@ -38,12 +60,23 @@
         <div class="field"><label>Fecha de nacimiento *</label><input type="date" id="fechaNacimiento" required></div>
         <div class="field"><label>Ciudad</label><input type="text" id="ciudad"></div>
       </div>
+      <div class="field"><label>Dirección</label><input type="text" id="direccion"></div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
       <div class="field-row">
         <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria" placeholder="Ej: Sub-15"></div>
-        <div class="field"><label>Posición</label><input type="text" id="posicion" placeholder="Ej: Delantero"></div>
+        <div class="field"><label>Posición principal</label><input type="text" id="posicion" placeholder="Ej: Delantero"></div>
       </div>
       <div class="field-row">
+        <div class="field"><label>Pie hábil</label>
+          <select id="pieHabil">
+            <option value="">Selecciona...</option>
+            <option>Derecho</option><option>Izquierdo</option><option>Ambidiestro</option>
+          </select>
+        </div>
         <div class="field"><label>Número de camiseta</label><input type="number" id="camiseta" min="0"></div>
+      </div>
+      <div class="field-row">
         <div class="field"><label>Talla de uniforme</label>
           <select id="talla">
             <option value="">Selecciona...</option>
@@ -51,6 +84,7 @@
             <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
           </select>
         </div>
+        <div class="field"><label>Club o experiencia anterior</label><input type="text" id="experiencia" placeholder="Opcional"></div>
       </div>
 
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-shoe-prints"></i> Peso y estatura (opcional)</h3>
@@ -60,15 +94,53 @@
         <div class="field"><label>Estatura (cm)</label><input type="number" id="estatura" min="30" step="0.1"></div>
       </div>
 
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-school"></i> Colegio (opcional)</h3>
+      <div class="field-row">
+        <div class="field"><label>Institución educativa</label><input type="text" id="colegio"></div>
+        <div class="field"><label>Jornada escolar</label>
+          <select id="jornada">
+            <option value="">Selecciona...</option>
+            <option>Mañana</option><option>Tarde</option><option>Única</option><option>No aplica</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-kit-medical"></i> Salud y emergencia</h3>
+      <div class="field-row">
+        <div class="field"><label>EPS</label><input type="text" id="eps"></div>
+        <div class="field"><label>Grupo sanguíneo (RH)</label>
+          <select id="grupoSanguineo">
+            <option value="">Selecciona...</option>
+            <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+            <option>No sé</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Alergias o condiciones médicas</label><input type="text" id="alergias" placeholder="Ej: asma, alergia a la penicilina — o déjalo en blanco"></div>
+      <div class="field-row">
+        <div class="field"><label>Contacto de emergencia</label><input type="text" id="emergenciaNombre" placeholder="Nombre"></div>
+        <div class="field"><label>Teléfono de emergencia</label><input type="text" id="emergenciaTelefono" placeholder="573001234567"></div>
+      </div>
+
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-user-shield"></i> Acudiente (si es menor de edad)</h3>
       <div class="field-row">
         <div class="field"><label>Nombre del acudiente</label><input type="text" id="acudiente"></div>
         <div class="field"><label>Teléfono de contacto *</label><input type="text" id="telefono" placeholder="573001234567" required></div>
       </div>
       <div class="field"><label>Correo (opcional)</label><input type="email" id="correo"></div>
-      <div class="field"><label>EPS</label><input type="text" id="eps"></div>
 
       <div class="field"><label>¿Algo más que debamos saber? (opcional)</label><textarea id="observaciones" rows="2"></textarea></div>
+
+      <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-file-signature"></i> Autorizaciones</h3>
+      <div class="consent">
+        <input type="checkbox" id="autImagen" required>
+        <label for="autImagen">Autorizo al club a usar fotos y videos del deportista en redes sociales, imágenes de partidos y material del club.</label>
+      </div>
+      <div class="consent">
+        <input type="checkbox" id="autDatos" required>
+        <label for="autDatos">Autorizo el tratamiento de estos datos personales para la gestión administrativa y deportiva del club, conforme a la ley de protección de datos.</label>
+      </div>
 
       <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
         <i class="fa-solid fa-paper-plane"></i> Enviar registro
@@ -86,6 +158,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
 <script src="js/nutricion.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
@@ -96,8 +169,27 @@ if (!clubId) {
   document.getElementById("formCard").style.display = "none";
   document.getElementById("sinClub").style.display = "block";
 } else if (clubNombre) {
-  document.getElementById("clubLabel").textContent = "Registro de socio — " + decodeURIComponent(clubNombre);
+  document.getElementById("clubLabel").textContent = "Ficha de inscripción — " + decodeURIComponent(clubNombre);
 }
+
+let fotoUrl = "";
+
+document.getElementById("fotoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) return;
+  const status = document.getElementById("fotoStatus");
+  status.style.display = "block";
+  subirACloudinary(file, "socios", "foto-" + Date.now() + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    fotoUrl = url;
+    document.getElementById("fotoPreview").src = url;
+    document.getElementById("fotoPreview").style.display = "block";
+    document.getElementById("fotoEmpty").style.display = "none";
+    status.style.display = "none";
+  }).catch(function () {
+    status.style.display = "none";
+  });
+});
 
 document.getElementById("regForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -113,21 +205,33 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
   const fechaNacimiento = document.getElementById("fechaNacimiento").value;
 
   const data = {
+    fotoUrl: fotoUrl,
     nombre: document.getElementById("nombre").value.trim(),
     tipoDocumento: document.getElementById("tipoDocumento").value,
     documento: document.getElementById("documento").value.trim(),
     fechaNacimiento: fechaNacimiento,
     ciudad: document.getElementById("ciudad").value.trim(),
+    direccion: document.getElementById("direccion").value.trim(),
     categoria: document.getElementById("categoria").value.trim(),
     posicion: document.getElementById("posicion").value.trim(),
+    pieHabil: document.getElementById("pieHabil").value,
     camiseta: document.getElementById("camiseta").value.trim(),
     talla: document.getElementById("talla").value,
+    experiencia: document.getElementById("experiencia").value.trim(),
+    colegio: document.getElementById("colegio").value.trim(),
+    jornada: document.getElementById("jornada").value,
+    eps: document.getElementById("eps").value.trim(),
+    grupoSanguineo: document.getElementById("grupoSanguineo").value,
+    alergias: document.getElementById("alergias").value.trim(),
+    emergenciaNombre: document.getElementById("emergenciaNombre").value.trim(),
+    emergenciaTelefono: document.getElementById("emergenciaTelefono").value.trim(),
     acudiente: document.getElementById("acudiente").value.trim(),
     telefono: document.getElementById("telefono").value.trim(),
     correo: document.getElementById("correo").value.trim(),
-    eps: document.getElementById("eps").value.trim(),
     estado: "Activo",
     observaciones: document.getElementById("observaciones").value.trim(),
+    autorizacionImagen: document.getElementById("autImagen").checked,
+    autorizacionDatos: document.getElementById("autDatos").checked,
     crecimiento: (peso && estatura) ? [{ fecha: new Date().toISOString().slice(0, 10), peso: peso, estatura: estatura }] : []
   };
 
