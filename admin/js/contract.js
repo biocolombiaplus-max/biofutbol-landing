@@ -13,16 +13,21 @@ function generarContratoPDF(cliente) {
     let y = margin;
 
     function checkPageBreak(extra) {
-      if (y + (extra || 0) > pageHeight - margin) { doc.addPage(); y = margin; }
+      if (y + (extra || 0) > pageHeight - margin - 20) { doc.addPage(); y = margin; }
     }
 
     function heading(text) {
-      checkPageBreak(30);
+      checkPageBreak(34);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(11, 22, 38);
       doc.text(text, margin, y);
-      y += 16;
+      y += 6;
+      doc.setDrawColor(24, 168, 58);
+      doc.setLineWidth(1.2);
+      doc.line(margin, y, margin + 34, y);
+      doc.setLineWidth(0.6);
+      y += 14;
     }
 
     function paragraph(text) {
@@ -110,12 +115,36 @@ function generarContratoPDF(cliente) {
 
     heading("TERCERA — VALOR Y FORMA DE PAGO");
     paragraph(
-      "El valor de la implementación inicial es de " + formatCOP(plan.implementacion) +
-      ", pagadero por una única vez al inicio del contrato. Adicionalmente, EL CLIENTE pagará mensualmente la suma de " +
-      formatCOP(plan.mensual) + " por cada socio o deportista activo, equivalente a " +
-      formatCOP(plan.mensual * (cliente.numSocios || 0)) + " mensuales para " + (cliente.numSocios || 0) +
-      " socios registrados a la fecha de firma. Este valor se ajustará según el número real de socios activos cada mes."
+      "EL CLIENTE pagará a EL PRESTADOR los siguientes valores, según el plan " + plan.label + " contratado:"
     );
+
+    (function () {
+      const filas = [
+        ["Implementación inicial (pago único)", formatCOP(plan.implementacion)],
+        ["Mensualidad por socio/deportista activo", formatCOP(plan.mensual)],
+        [(cliente.numSocios || 0) + " socios registrados a la fecha de firma — total mensual estimado", formatCOP(plan.mensual * (cliente.numSocios || 0))]
+      ];
+      const boxH = filas.length * 22 + 16;
+      checkPageBreak(boxH + 10);
+      doc.setFillColor(244, 249, 246);
+      doc.setDrawColor(210, 228, 218);
+      doc.roundedRect(margin, y, usableWidth, boxH, 4, 4, "FD");
+      let fy = y + 22;
+      filas.forEach(function (f, i) {
+        doc.setFont("helvetica", i === filas.length - 1 ? "bold" : "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(40, 40, 40);
+        const lbl = doc.splitTextToSize(f[0], usableWidth - 130);
+        doc.text(lbl, margin + 14, fy);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(11, 22, 38);
+        doc.text(f[1], margin + usableWidth - 14, fy, { align: "right" });
+        fy += 22;
+      });
+      y += boxH + 14;
+    })();
+
+    paragraph("Este valor se ajustará automáticamente según el número real de socios activos cada mes, de acuerdo con lo registrado en la plataforma.");
 
     heading("CUARTA — PLAZO DE ENTREGA");
     paragraph("EL PRESTADOR entregará la aplicación funcionando en un plazo máximo de siete (7) días hábiles, contados a partir de la recepción de la información completa y el pago de la implementación inicial.");
@@ -181,7 +210,7 @@ function generarContratoPDF(cliente) {
     );
 
     // ── Firmas ──
-    checkPageBreak(120);
+    checkPageBreak(130);
     y += 30;
     doc.setDrawColor(150, 150, 150);
     doc.line(margin, y, margin + 200, y);
@@ -198,12 +227,36 @@ function generarContratoPDF(cliente) {
     doc.text("BioMarketing · BioFutbol", margin, y);
     doc.text((cliente.repNombre || "—") + (cliente.repCedula ? " · C.C. " + cliente.repCedula : ""), pageWidth - margin - 200, y, { maxWidth: 200 });
 
-    // ── Nota legal ──
-    y = pageHeight - 40;
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(7.5);
-    doc.setTextColor(140, 140, 140);
-    doc.text("Documento generado automáticamente por el panel de BioFutbol a partir de una plantilla. No constituye asesoría legal; se recomienda su revisión por un abogado.", pageWidth / 2, y, { align: "center", maxWidth: usableWidth });
+    // ── Encabezado delgado (páginas 2 en adelante) y pie de página en todas ──
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPaginas; p++) {
+      doc.setPage(p);
+
+      if (p > 1) {
+        doc.setFillColor(11, 22, 38);
+        doc.rect(0, 0, pageWidth, 30, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(24, 168, 58);
+        doc.text("Bio", margin, 20);
+        doc.setTextColor(255, 255, 255);
+        doc.text("Futbol", margin + doc.getTextWidth("Bio"), 20);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(210, 210, 210);
+        doc.text("Contrato de prestación de servicios", pageWidth - margin, 20, { align: "right" });
+      }
+
+      doc.setDrawColor(225, 225, 225);
+      doc.setLineWidth(0.6);
+      doc.line(margin, pageHeight - 46, pageWidth - margin, pageHeight - 46);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(140, 140, 140);
+      doc.text((cliente.clubNombre || "BioFutbol") + " · Contrato de prestación de servicios", margin, pageHeight - 34);
+      doc.text("Página " + p + " de " + totalPaginas, pageWidth - margin, pageHeight - 34, { align: "right" });
+      doc.text("Documento generado automáticamente por el panel de BioFutbol a partir de una plantilla. No constituye asesoría legal; se recomienda su revisión por un abogado.", pageWidth / 2, pageHeight - 22, { align: "center", maxWidth: usableWidth });
+    }
 
     resolve(doc.output("blob"));
   });
