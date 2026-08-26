@@ -17,6 +17,7 @@ const TOUR_PASOS = [
   { tab: "tabla", selector: "#tab-tabla #tablaPosiciones", titulo: "Tabla de posiciones siempre actualizada", texto: "Se calcula sola con cada resultado que registras — cero cálculos a mano." },
   { tab: "torneos", selector: "#tab-torneos #listaTorneos", titulo: "Controla cada torneo de principio a fin", texto: "Inscripciones, tarjetas, sanciones y recordatorios de pago — con imágenes que incluyen el logo del torneo." },
   { tab: "informes", selector: "#tab-informes #excSocio", titulo: "Hasta las excusas del colegio, resueltas", texto: "Genera una constancia deportiva profesional en PDF y envíasela al papá o la mamá por WhatsApp en segundos." },
+  { tab: "informes", selector: "#tab-informes #nutriTabla", titulo: "El estado nutricional de todo tu club, de un vistazo", texto: "Detecta a tiempo si el peso o la talla de algún deportista pueden estar afectando su rendimiento, con recomendaciones listas para compartir con los padres." },
   { tab: "miclub", selector: "#tab-miclub #mcLogoBox", titulo: "100% personalizable a tu club", texto: "Tu escudo, tus colores, tu mensualidad, tus datos de pago — la app se adapta a ti, no al revés." }
 ];
 

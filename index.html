@@ -246,6 +246,7 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .spot-tag.auto{background:linear-gradient(135deg,var(--gold),#ff9d1f);color:#241800;box-shadow:0 8px 22px rgba(255,180,0,.35)}
 .spot-tag.live{background:linear-gradient(135deg,#ff5c5c,#c92a2a);color:#fff;box-shadow:0 8px 22px rgba(255,92,92,.35)}
 .spot-tag.perso{background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;box-shadow:var(--cta-shadow)}
+.spot-tag.salud{background:linear-gradient(135deg,#ff6b8b,#c9184a);color:#fff;box-shadow:0 8px 22px rgba(255,107,139,.35)}
 .spot-text h3{font-size:clamp(1.35rem,2.4vw,1.7rem);margin-bottom:14px}
 .spot-text p{color:var(--gray);font-size:1rem;line-height:1.65;margin-bottom:20px}
 .spot-list{display:flex;flex-direction:column;gap:11px}
@@ -301,6 +302,10 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .post-actions i{color:var(--green-l)}
 .mock-real-img{width:100%;display:block;border-radius:20px;box-shadow:var(--shadow);margin-bottom:14px;object-fit:cover}
 .social-extra-img{width:100%;display:block;border-radius:16px;box-shadow:var(--shadow);margin-top:14px;object-fit:cover}
+.real-shot{width:100%;display:block;border-radius:18px;box-shadow:var(--shadow);object-fit:cover;object-position:top}
+.real-shot.tall{max-height:480px}
+.real-shot + .real-shot{margin-top:14px}
+.shot-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(24,168,58,.14);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-size:.66rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:12px}
 .sponsor-mock{background:linear-gradient(160deg,#131f18,#0a100c);border:1px solid var(--card-b);border-radius:20px;padding:28px 22px;text-align:center}
 .sponsor-mock-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-d)}
 .sponsor-mock-club{font-size:.95rem;font-weight:800;margin-top:6px;margin-bottom:22px}
@@ -794,6 +799,21 @@ fbq('track', 'PageView');
         <h3>100% personalizado a tu club</h3>
         <p>Escudos de cada equipo, nombres de equipos, socios y jugadores, números de camiseta, colores y logo — todo se adapta a tu club o escuela, no al revés.</p>
       </div>
+      <div class="feat-card reveal">
+        <div class="ic c1"><i class="fa-solid fa-whistle"></i></div>
+        <h3>Profesores y entrenadores</h3>
+        <p>Cada profesor entra con su propio usuario, toma asistencia y ve solo a los alumnos de sus categorías.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="ic c2"><i class="fa-solid fa-medal"></i></div>
+        <h3>Torneos y competencias</h3>
+        <p>Inscripciones, tarjetas y sanciones automáticas de cada torneo en el que participa tu escuela.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="ic c3"><i class="fa-solid fa-heart-pulse"></i></div>
+        <h3>Salud y nutrición de tus deportistas</h3>
+        <p>Reporte del estado nutricional de todo el club, con recomendaciones para mejorar el rendimiento del equipo.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1011,6 +1031,82 @@ fbq('track', 'PageView');
               <div class="sponsor-logo"><i class="fa-solid fa-car"></i></div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag auto"><i class="fa-solid fa-whistle"></i> Nuevo</span>
+        <h3>Cada profesor con su propio acceso a la app</h3>
+        <p>Registra a tus entrenadores y asígnale a cada uno las categorías que dirige. Entran con su propio usuario y clave, toman asistencia desde su celular y ven solo a sus alumnos — sin tocar nada administrativo del club.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Acceso independiente por profesor, categoría por categoría</li>
+          <li><i class="fa-solid fa-check"></i> Asistencia en vivo tomada por el mismo entrenador</li>
+          <li><i class="fa-solid fa-check"></i> Ideal para escuelas con varios profesores y sedes</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <span class="shot-badge"><i class="fa-solid fa-circle-play"></i> Captura real de la app</span>
+          <img class="real-shot" src="img/screenshots/profesores.png" alt="Módulo de profesores real de BioFutbol, mostrando el equipo de entrenadores de un club">
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag auto"><i class="fa-solid fa-medal"></i> Nuevo</span>
+        <h3>Torneos bajo control, de principio a fin</h3>
+        <p>Registra cada torneo o campeonato en el que participa tu escuela: inscripciones pagadas, tarjetas acumuladas y jugadores sancionados — todo calculado automáticamente, sin planillas ni cuadernos.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Alerta automática de sanción por acumulación de tarjetas</li>
+          <li><i class="fa-solid fa-check"></i> Control de inscripciones pagadas y recordatorio a los padres</li>
+          <li><i class="fa-solid fa-check"></i> Imágenes del torneo con su propio logo, listas para compartir</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <span class="shot-badge"><i class="fa-solid fa-circle-play"></i> Captura real de la app</span>
+          <img class="real-shot" src="img/screenshots/torneos-disciplina.png" alt="Control disciplinario real de un torneo en BioFutbol, con tarjetas y jugadores sancionados">
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag salud"><i class="fa-solid fa-heart-pulse"></i> Nuevo · Gratis al registrarte</span>
+        <h3>El estado nutricional de todo tu club, en un solo reporte</h3>
+        <p>BioFutbol cruza el peso, la talla y la edad de cada deportista y te dice, de un vistazo, quién está al día y quién necesita atención nutricional que puede estar afectando su rendimiento — con recomendaciones prácticas para cada rango de edad y un PDF profesional listo para tu cuerpo técnico.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Tabla y gráfica del club completo, fáciles de entender por cualquier entrenador</li>
+          <li><i class="fa-solid fa-check"></i> Recomendaciones nutricionales automáticas por edad</li>
+          <li><i class="fa-solid fa-check"></i> Reporte en PDF, listo para compartir con tu cuerpo técnico</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <span class="shot-badge"><i class="fa-solid fa-circle-play"></i> Captura real de la app</span>
+          <img class="real-shot tall" src="img/screenshots/nutricion-dashboard.png" alt="Reporte real del estado nutricional del club en BioFutbol, con tabla, gráfica y recomendaciones">
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag perso"><i class="fa-solid fa-file-shield"></i> Nuevo</span>
+        <h3>Excusas y constancias deportivas en un clic</h3>
+        <p>¿Tu deportista necesita presentar una excusa en el colegio o en el trabajo por un partido o torneo? Genera una constancia deportiva profesional en PDF, con el nombre de tu club y firma del responsable, y envíasela al padre de familia por WhatsApp o correo al instante.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Constancia formal, lista para presentar en colegio o trabajo</li>
+          <li><i class="fa-solid fa-check"></i> Se envía directo por WhatsApp o correo al padre o deportista</li>
+          <li><i class="fa-solid fa-check"></i> Diseño profesional con el nombre de tu club</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <span class="shot-badge"><i class="fa-solid fa-circle-play"></i> Captura real de la app</span>
+          <img class="real-shot" src="img/screenshots/excusa-pdf.png" alt="Constancia deportiva real en PDF generada con BioFutbol para presentar en el colegio o el trabajo">
         </div>
       </div>
     </div>
