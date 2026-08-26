@@ -141,6 +141,24 @@ function imgTeamBadge(ctx, cx, cy, r, letra, colorHex) {
   ctx.restore();
 }
 
+// Igual que imgTeamBadge, pero si el equipo tiene escudo propio lo usa en
+// vez del círculo con iniciales.
+async function imgEquipoBadge(ctx, cx, cy, r, logoUrl, letra, colorHex) {
+  const img = await imgLoadImage(logoUrl);
+  if (img) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff"; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    const scale = Math.min((r * 1.8) / img.width, (r * 1.8) / img.height);
+    const w = img.width * scale, h = img.height * scale;
+    ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+    ctx.restore();
+  } else {
+    imgTeamBadge(ctx, cx, cy, r, letra, colorHex);
+  }
+}
+
 async function generarImagenPartido(canvas, d) {
   const ctx = canvas.getContext("2d");
   canvas.width = IMG_W; canvas.height = IMG_H;
@@ -155,8 +173,8 @@ async function generarImagenPartido(canvas, d) {
   ctx.fillText("PRÓXIMO PARTIDO", IMG_W / 2, 400);
 
   const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
-  imgTeamBadge(ctx, IMG_W / 2 - 240, 620, 100, d.propio, (d.club && d.club.colorPrimario) || "#18A83A");
-  imgTeamBadge(ctx, IMG_W / 2 + 240, 620, 100, d.rival, c2);
+  await imgEquipoBadge(ctx, IMG_W / 2 - 240, 620, 100, d.propioLogoUrl, d.propio, (d.club && d.club.colorPrimario) || "#18A83A");
+  await imgEquipoBadge(ctx, IMG_W / 2 + 240, 620, 100, d.rivalLogoUrl, d.rival, c2);
 
   ctx.fillStyle = "#fff";
   ctx.font = "900 46px Poppins, sans-serif";
@@ -195,8 +213,8 @@ async function generarImagenResultado(canvas, d) {
 
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
   const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
-  imgTeamBadge(ctx, IMG_W / 2 - 260, 560, 100, d.propio, c1);
-  imgTeamBadge(ctx, IMG_W / 2 + 260, 560, 100, d.rival, c2);
+  await imgEquipoBadge(ctx, IMG_W / 2 - 260, 560, 100, d.propioLogoUrl, d.propio, c1);
+  await imgEquipoBadge(ctx, IMG_W / 2 + 260, 560, 100, d.rivalLogoUrl, d.rival, c2);
 
   ctx.fillStyle = "#fff";
   ctx.font = "800 38px Poppins, sans-serif";
@@ -216,6 +234,130 @@ async function generarImagenResultado(canvas, d) {
     ctx.fillStyle = "rgba(255,255,255,.75)";
     ctx.fillText(d.fecha, IMG_W / 2, 1080);
   }
+
+  imgBarraInferior(ctx, d.club);
+}
+
+async function generarImagenJornada(canvas, d) {
+  const ctx = canvas.getContext("2d");
+  canvas.width = IMG_W; canvas.height = IMG_H;
+  imgFondoBase(ctx, d.club);
+
+  const logo = await imgLoadImage(d.club && d.club.logoUrl);
+  imgEscudo(ctx, logo, IMG_W / 2, 155, 62);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.font = "800 28px Poppins, sans-serif";
+  ctx.fillText("PRÓXIMA JORNADA", IMG_W / 2, 270);
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 42px Poppins, sans-serif";
+  imgWrapText(ctx, (d.club && d.club.clubNombre ? d.club.clubNombre.toUpperCase() : "NUESTROS PARTIDOS"), IMG_W / 2, 328, 900, 46, 1);
+
+  const partidos = (d.partidos || []).slice(0, 5);
+  const ROW_H_BY_COUNT = { 1: 340, 2: 300, 3: 260, 4: 210, 5: 180 };
+  const rowH = ROW_H_BY_COUNT[partidos.length] || 210;
+  const zonaTop = 420, zonaBottom = IMG_H - 210 - 40;
+  const startY = zonaTop + Math.max(0, (zonaBottom - zonaTop - rowH * partidos.length) / 2);
+  const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
+  const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
+
+  if (!partidos.length) {
+    ctx.fillStyle = "rgba(255,255,255,.7)";
+    ctx.font = "700 32px Poppins, sans-serif";
+    ctx.fillText("Muy pronto anunciaremos la próxima jornada.", IMG_W / 2, 700);
+  }
+
+  for (let i = 0; i < partidos.length; i++) {
+    const p = partidos[i];
+    const y = startY + i * rowH;
+    const boxH = rowH - 26;
+
+    imgRoundRect(ctx, 70, y, IMG_W - 140, boxH, 22);
+    ctx.fillStyle = "rgba(255,255,255,.06)"; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = imgRgba(c1, .35); ctx.stroke();
+
+    const badgeCy = y + boxH / 2 + 6;
+    const badgeR = boxH >= 200 ? 58 : 48;
+    await imgEquipoBadge(ctx, 195, badgeCy, badgeR, p.localLogoUrl, p.local, c1);
+    await imgEquipoBadge(ctx, IMG_W - 195, badgeCy, badgeR, p.visitanteLogoUrl, p.visitante, c2);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "800 24px Poppins, sans-serif";
+    ctx.textAlign = "center";
+    imgWrapText(ctx, (p.local || "").toUpperCase(), 195, badgeCy + badgeR + 34, 200, 26, 1);
+    imgWrapText(ctx, (p.visitante || "").toUpperCase(), IMG_W - 195, badgeCy + badgeR + 34, 200, 26, 1);
+
+    ctx.font = "800 32px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText("VS", IMG_W / 2, badgeCy + 10);
+
+    ctx.font = "700 23px Poppins, sans-serif";
+    ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+    const infoTxt = [p.fecha, p.hora].filter(Boolean).join(" · ");
+    if (infoTxt) ctx.fillText(infoTxt, IMG_W / 2, y + 34);
+    if (p.cancha) {
+      ctx.font = "600 19px Poppins, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.fillText(p.cancha, IMG_W / 2, y + boxH - 12);
+    }
+  }
+
+  imgBarraInferior(ctx, d.club);
+}
+
+async function generarImagenGoleadores(canvas, d) {
+  const ctx = canvas.getContext("2d");
+  canvas.width = IMG_W; canvas.height = IMG_H;
+  imgFondoBase(ctx, d.club);
+
+  const logo = await imgLoadImage(d.club && d.club.logoUrl);
+  imgEscudo(ctx, logo, IMG_W / 2, 175, 70);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 44px Poppins, sans-serif";
+  ctx.fillText("TABLA DE GOLEADORES", IMG_W / 2, 310);
+
+  const medallas = ["🥇", "🥈", "🥉"];
+  const filas = (d.filas || []).slice(0, 10);
+  const startY = 410, rowH = 128, padX = 60;
+  const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
+  const cOro = (d.club && d.club.colorTerciario) || "#FFC933";
+
+  if (!filas.length) {
+    ctx.fillStyle = "rgba(255,255,255,.7)";
+    ctx.font = "700 32px Poppins, sans-serif";
+    ctx.fillText("Todavía no hay goles registrados.", IMG_W / 2, 700);
+  }
+
+  filas.forEach(function (s, i) {
+    const y = startY + i * rowH;
+    imgRoundRect(ctx, padX - 20, y, IMG_W - (padX - 20) * 2, rowH - 18, 18);
+    ctx.fillStyle = i < 3 ? imgRgba(cOro, .14) : "rgba(255,255,255,.05)";
+    ctx.fill();
+    if (i < 3) { ctx.lineWidth = 1.5; ctx.strokeStyle = imgRgba(cOro, .5); ctx.stroke(); }
+
+    ctx.textAlign = "left";
+    ctx.font = "900 38px Poppins, sans-serif";
+    ctx.fillStyle = i < 3 ? "#fff" : "rgba(255,255,255,.85)";
+    ctx.fillText(i < 3 ? medallas[i] : String(i + 1), padX, y + 68);
+
+    ctx.font = "800 32px Poppins, sans-serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText((s.nombre || "").length > 16 ? s.nombre.slice(0, 15) + "…" : (s.nombre || ""), padX + 90, y + 50);
+    ctx.font = "600 22px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.6)";
+    ctx.fillText(s.equipoNombre || "", padX + 90, y + 84);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = c1;
+    ctx.font = "900 44px Poppins, sans-serif";
+    ctx.fillText(String(s.goles), IMG_W - padX, y + 68);
+    ctx.font = "700 19px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText("GOLES", IMG_W - padX, y + 92);
+  });
 
   imgBarraInferior(ctx, d.club);
 }

@@ -71,6 +71,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
+    match /clientes/{clienteId}/patrocinadores/{docId} {
+      allow read: if true;
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+    }
 
     // Auditoría: solo admins autenticados (súper-admin o club) pueden leer
     // o escribir, nunca editar/borrar lo ya registrado.

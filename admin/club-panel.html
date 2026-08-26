@@ -25,7 +25,8 @@
 .tab-btn.on{color:var(--green-l);border-bottom-color:var(--green-l)}
 .tab-panel{display:none}
 .tab-panel.on{display:block}
-.team-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--card-b2)}
+.team-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--card-b2)}
+.team-logo{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--card2);flex-shrink:0;cursor:pointer;border:1px solid var(--card-b2)}
 .team-row:last-child{border-bottom:none}
 .team-row .tn{font-weight:700;font-size:.9rem}
 .team-row .tc{font-size:.74rem;color:var(--gray)}
@@ -132,6 +133,19 @@
 .qt-6{background:linear-gradient(135deg,#eab308,#854d0e)}
 .qt-7{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
 .qt-8{background:linear-gradient(135deg,#7c3aed,#3b0764)}
+.qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
+.pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
+.pat-card.off{opacity:.5}
+.pat-logo{width:56px;height:56px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);flex-shrink:0}
+.pat-logo-empty{width:56px;height:56px;border-radius:12px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:1.2rem;flex-shrink:0}
+.pat-info{flex:1;min-width:0}
+.pat-name{font-weight:800;font-size:.94rem}
+.pat-meta{font-size:.76rem;color:var(--gray);margin-top:2px}
+.pat-tier{display:inline-block;font-size:.68rem;font-weight:800;padding:2px 9px;border-radius:20px;margin-top:5px}
+.pat-tier.oro{background:rgba(255,201,51,.18);color:#FFC933}
+.pat-tier.plata{background:rgba(203,213,225,.18);color:#cbd5e1}
+.pat-tier.bronce{background:rgba(217,119,6,.2);color:#d97706}
+.pat-actions{display:flex;gap:6px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -164,6 +178,7 @@
       <button class="tab-btn on" data-tab="inicio">Inicio</button>
       <button class="tab-btn" data-tab="socios">Socios</button>
       <button class="tab-btn" data-tab="imagenes">Imágenes</button>
+      <button class="tab-btn" data-tab="patrocinadores">Patrocinadores</button>
       <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
@@ -223,6 +238,11 @@
           <div class="qt-ico"><i class="fa-solid fa-trophy"></i></div>
           <div class="qt-title">Llave</div>
           <div class="qt-sub">Playoffs</div>
+        </button>
+        <button type="button" class="quick-tile qt-9" data-goto="patrocinadores">
+          <div class="qt-ico"><i class="fa-solid fa-handshake"></i></div>
+          <div class="qt-title">Patrocinadores</div>
+          <div class="qt-sub" id="qtPatrocinadoresSub">—</div>
         </button>
         <button type="button" class="quick-tile qt-6" data-goto="miclub">
           <div class="qt-ico"><i class="fa-solid fa-gear"></i></div>
@@ -293,13 +313,21 @@
         <h3><i class="fa-solid fa-image"></i> Crear imagen para redes sociales</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Genera gráficas con el escudo y los colores de tu club, listas para compartir en WhatsApp, Instagram o Facebook.</p>
         <div class="tpl-pills">
-          <button class="tpl-pill on" data-tpl="partido">Próximo partido</button>
+          <button class="tpl-pill on" data-tpl="jornada">Jornada</button>
+          <button class="tpl-pill" data-tpl="partido">Próximo partido</button>
           <button class="tpl-pill" data-tpl="resultado">Resultado final</button>
           <button class="tpl-pill" data-tpl="tabla_img">Tabla de posiciones</button>
+          <button class="tpl-pill" data-tpl="goleadores_img">Goleadores</button>
           <button class="tpl-pill" data-tpl="aliado">Patrocinador / Aliado</button>
         </div>
 
-        <div id="form-partido" class="tpl-form">
+        <div id="form-jornada" class="tpl-form">
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:10px">Elige hasta 5 partidos próximos para anunciarlos juntos en una sola imagen tipo cartelera.</p>
+          <div id="jornadaPartidosList"><p class="empty">No tienes partidos programados todavía.</p></div>
+        </div>
+
+        <div id="form-partido" class="tpl-form" style="display:none">
+          <div class="field"><label>Selecciona el partido (opcional)</label><select id="pImgPartido"><option value="">— Escribir a mano —</option></select></div>
           <div class="field-row">
             <div class="field"><label>Nuestro equipo</label><input type="text" id="pImgPropio" placeholder="Ej: Halcones FC"></div>
             <div class="field"><label>Rival</label><input type="text" id="pImgRival" placeholder="Ej: Águilas FC"></div>
@@ -312,6 +340,7 @@
         </div>
 
         <div id="form-resultado" class="tpl-form" style="display:none">
+          <div class="field"><label>Selecciona el partido jugado (opcional)</label><select id="rImgPartido"><option value="">— Escribir a mano —</option></select></div>
           <div class="field-row">
             <div class="field"><label>Nuestro equipo</label><input type="text" id="rImgPropio" placeholder="Ej: Halcones FC"></div>
             <div class="field"><label>Rival</label><input type="text" id="rImgRival" placeholder="Ej: Águilas FC"></div>
@@ -327,7 +356,12 @@
           <p style="font-size:.82rem;color:var(--gray)">Se genera con la tabla de posiciones actual del módulo de Equipos y Fixture.</p>
         </div>
 
+        <div id="form-goleadores_img" class="tpl-form" style="display:none">
+          <p style="font-size:.82rem;color:var(--gray)">Se genera con el ranking actual de goleadores.</p>
+        </div>
+
         <div id="form-aliado" class="tpl-form" style="display:none">
+          <div class="field"><label>Elige un patrocinador guardado (opcional)</label><select id="aImgPatrocinador"><option value="">— Escribir a mano —</option></select></div>
           <div class="field"><label>Nombre del patrocinador</label><input type="text" id="aImgNombre" placeholder="Ej: Almacén Deportivo El Gol"></div>
           <div class="field-row">
             <div class="field"><label>Oferta destacada (opcional)</label><input type="text" id="aImgOferta" placeholder="Ej: 20% de descuento"></div>
@@ -356,6 +390,41 @@
           <button class="btn btn-ghost btn-sm" id="btnImgDescargar"><i class="fa-solid fa-download"></i> Descargar</button>
           <button class="btn btn-ghost btn-sm" id="btnImgCaption"><i class="fa-solid fa-copy"></i> Copiar texto</button>
         </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-patrocinadores">
+      <div class="card">
+        <h3><i class="fa-solid fa-handshake"></i> <span id="patFormTitulo">Agregar patrocinador / aliado</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Empresas y negocios que apoyan a tu club. Aparecen disponibles para la plantilla de imagen "Patrocinador / Aliado" y, próximamente, en el panel público de tu comunidad.</p>
+        <div class="field"><label>Nombre del patrocinador</label><input type="text" id="patNombre" placeholder="Ej: Almacén Deportivo El Gol"></div>
+        <div class="field-row">
+          <div class="field"><label>Nivel</label>
+            <select id="patTier"><option value="oro">Oro</option><option value="plata" selected>Plata</option><option value="bronce">Bronce</option></select>
+          </div>
+          <div class="field"><label>Contacto / link (opcional)</label><input type="text" id="patContacto" placeholder="WhatsApp, Instagram o web"></div>
+        </div>
+        <div class="field"><label>Descripción corta / oferta (opcional)</label><input type="text" id="patDescripcion" placeholder="Ej: 20% de descuento para socios del club"></div>
+        <div class="field">
+          <label>Logo (opcional)</label>
+          <div class="upload-box" id="patLogoBox" style="height:90px" onclick="document.getElementById('patLogoInput').click()">
+            <img id="patLogoPreview" class="upload-preview" style="display:none;object-fit:contain">
+            <div class="upload-empty" id="patLogoEmpty"><i class="fa-solid fa-image"></i><span>Subir logo</span></div>
+          </div>
+          <input type="file" id="patLogoInput" accept="image/*" style="display:none">
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:10px 0 16px">
+          <input type="checkbox" id="patActivo" checked style="width:18px;height:18px;accent-color:var(--green-l)">
+          <span style="font-size:.84rem;font-weight:700">Activo (se muestra disponible para compartir)</span>
+        </label>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarPatrocinador"><i class="fa-solid fa-plus"></i> Guardar patrocinador</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionPat" style="display:none">Cancelar edición</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-store"></i> Tus patrocinadores y aliados</h3>
+        <div id="listaPatrocinadores"><p class="empty">Todavía no has agregado patrocinadores.</p></div>
       </div>
     </div>
 
@@ -513,6 +582,9 @@ let EQUIPOS = [];
 let PARTIDOS = [];
 let SOCIOS = [];
 let LLAVE = null;
+let PATROCINADORES = [];
+let patrocinadorEnEdicion = null;
+let patLogoUrl = "";
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
@@ -537,6 +609,7 @@ requireClub().then(function (r) {
   escucharPartidos();
   escucharSocios();
   escucharLlave();
+  escucharPatrocinadores();
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
@@ -702,16 +775,30 @@ function pintarInicio() {
   document.getElementById("qtFixtureSub").textContent = moduloEquiposActivo ? (PARTIDOS.length + " partidos") : "Módulo inactivo";
   const totalGoles = PARTIDOS.reduce(function (acc, p) { return acc + ((p.goleadores || []).reduce(function (a, g) { return a + (g.goles || 1); }, 0)); }, 0);
   document.getElementById("qtGoleadoresSub").textContent = moduloEquiposActivo ? (totalGoles + " goles") : "Módulo inactivo";
+  document.getElementById("qtPatrocinadoresSub").textContent = PATROCINADORES.length ? (PATROCINADORES.length + " aliados") : "Súmalos aquí";
 }
 
 function pintarEquipos() {
   const box = document.getElementById("listaEquipos");
   if (!EQUIPOS.length) { box.innerHTML = '<p class="empty">Todavía no has agregado equipos.</p>'; return; }
   box.innerHTML = EQUIPOS.map(function (e) {
-    return '<div class="team-row"><div><div class="tn">' + esc(e.nombre) + '</div>' +
+    return '<div class="team-row">' +
+      '<img class="team-logo" src="' + (e.logoUrl || avatarJerseyDataUrl(clubActual, "")) + '" alt="" onclick="document.getElementById(\'eqLogoInput-' + e.id + '\').click()">' +
+      '<input type="file" accept="image/*" id="eqLogoInput-' + e.id + '" style="display:none" onchange="subirLogoEquipo(\'' + e.id + '\', this.files[0])">' +
+      '<div style="flex:1;min-width:0"><div class="tn">' + esc(e.nombre) + '</div>' +
       (e.categoria ? '<div class="tc">' + esc(e.categoria) + '</div>' : '') + '</div>' +
       '<button class="btn btn-ghost btn-sm" onclick="borrarEquipo(\'' + e.id + '\')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join("");
+}
+
+function subirLogoEquipo(equipoId, file) {
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
+  subirACloudinary(file, "equipos", clubActual.id + "-" + equipoId + "." + (file.name.split(".").pop() || "png")).then(function (url) {
+    return db.collection("clientes").doc(clubActual.id).collection("equipos").doc(equipoId).update({ logoUrl: url });
+  }).then(function () {
+    mostrarExito("Escudo del equipo actualizado.");
+  }).catch(function (err) { mostrarError("No se pudo subir el escudo: " + err.message); });
 }
 
 function pintarSelectsPartido() {
@@ -751,6 +838,7 @@ function escucharPartidos() {
     pintarTabla();
     pintarGoleadores();
     pintarInicio();
+    if (clubActual) { pintarSelectsImagenes(); pintarJornadaChecklist(); }
   });
 }
 
@@ -1220,7 +1308,7 @@ document.getElementById("btnRecordarMasivoCorreo").addEventListener("click", fun
 });
 
 // ── Imágenes para redes sociales ──
-let tplActual = "partido";
+let tplActual = "jornada";
 let ultimoCaptionImg = "";
 let aImgLogoUrl = "";
 
@@ -1238,7 +1326,80 @@ document.querySelectorAll(".tpl-pill").forEach(function (btn) {
 function precargarFormImagenes() {
   document.getElementById("pImgPropio").value = clubActual.clubNombre || "";
   document.getElementById("rImgPropio").value = clubActual.clubNombre || "";
+  pintarSelectsImagenes();
+  pintarJornadaChecklist();
 }
+
+function pintarSelectsImagenes() {
+  const pendientes = PARTIDOS.filter(function (p) { return !p.jugado; });
+  const jugados = PARTIDOS.filter(function (p) { return p.jugado; });
+  document.getElementById("pImgPartido").innerHTML = '<option value="">— Escribir a mano —</option>' +
+    pendientes.map(function (p) {
+      return '<option value="' + p.id + '">' + esc(nombreEquipo(p.local)) + " vs " + esc(nombreEquipo(p.visitante)) + (p.fecha ? " — " + formatFechaSimple(p.fecha) : "") + "</option>";
+    }).join("");
+  document.getElementById("rImgPartido").innerHTML = '<option value="">— Escribir a mano —</option>' +
+    jugados.map(function (p) {
+      return '<option value="' + p.id + '">' + esc(nombreEquipo(p.local)) + " " + p.golesLocal + "-" + p.golesVisitante + " " + esc(nombreEquipo(p.visitante)) + "</option>";
+    }).join("");
+}
+
+function pintarJornadaChecklist() {
+  const box = document.getElementById("jornadaPartidosList");
+  const pendientes = PARTIDOS.filter(function (p) { return !p.jugado; });
+  if (!pendientes.length) { box.innerHTML = '<p class="empty">No tienes partidos programados todavía.</p>'; return; }
+  box.innerHTML = pendientes.map(function (p) {
+    return '<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--card-b2);cursor:pointer">' +
+      '<input type="checkbox" class="jornada-check" value="' + p.id + '" style="width:18px;height:18px;accent-color:var(--green-l);flex-shrink:0">' +
+      '<span style="font-size:.86rem"><b>' + esc(nombreEquipo(p.local)) + '</b> vs <b>' + esc(nombreEquipo(p.visitante)) + '</b>' +
+      (p.fecha ? '<br><small style="color:var(--gray)">' + formatFechaSimple(p.fecha) + (p.cancha ? " · " + esc(p.cancha) : "") + "</small>" : "") + "</span></label>";
+  }).join("");
+}
+
+function pintarSelectAliados() {
+  const sel = document.getElementById("aImgPatrocinador");
+  if (!sel) return;
+  const activos = PATROCINADORES.filter(function (p) { return p.activo !== false; });
+  sel.innerHTML = '<option value="">— Escribir a mano —</option>' +
+    activos.map(function (p) { return '<option value="' + p.id + '">' + esc(p.nombre) + '</option>'; }).join("");
+}
+
+document.getElementById("aImgPatrocinador").addEventListener("change", function () {
+  const val = this.value;
+  const p = PATROCINADORES.find(function (x) { return x.id === val; });
+  if (!p) return;
+  document.getElementById("aImgNombre").value = p.nombre || "";
+  document.getElementById("aImgOferta").value = p.descripcion || "";
+  document.getElementById("aImgCta").value = p.contacto || "";
+  document.getElementById("aImgDescripcion").value = p.descripcion || "";
+  aImgLogoUrl = p.logoUrl || "";
+  if (p.logoUrl) {
+    document.getElementById("aImgLogoPreview").src = p.logoUrl;
+    document.getElementById("aImgLogoPreview").style.display = "block";
+    document.getElementById("aImgLogoEmpty").style.display = "none";
+  } else {
+    document.getElementById("aImgLogoPreview").style.display = "none";
+    document.getElementById("aImgLogoEmpty").style.display = "flex";
+  }
+});
+
+document.getElementById("pImgPartido").addEventListener("change", function () {
+  const p = PARTIDOS.find(function (x) { return x.id === document.getElementById("pImgPartido").value; });
+  if (!p) return;
+  document.getElementById("pImgPropio").value = nombreEquipo(p.local);
+  document.getElementById("pImgRival").value = nombreEquipo(p.visitante);
+  if (p.fecha) document.getElementById("pImgFecha").value = formatFechaSimple(p.fecha);
+  if (p.cancha) document.getElementById("pImgLugar").value = p.cancha;
+});
+
+document.getElementById("rImgPartido").addEventListener("change", function () {
+  const p = PARTIDOS.find(function (x) { return x.id === document.getElementById("rImgPartido").value; });
+  if (!p) return;
+  document.getElementById("rImgPropio").value = nombreEquipo(p.local);
+  document.getElementById("rImgRival").value = nombreEquipo(p.visitante);
+  document.getElementById("rImgGolesPropio").value = p.golesLocal;
+  document.getElementById("rImgGolesRival").value = p.golesVisitante;
+  if (p.fecha) document.getElementById("rImgFecha").value = formatFechaSimple(p.fecha);
+});
 
 document.getElementById("aImgLogoInput").addEventListener("change", function (e) {
   const file = e.target.files[0];
@@ -1256,8 +1417,25 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
   const btn = this;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
 
+  function cancelar() { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; }
+
   let tarea, caption;
-  if (tplActual === "partido") {
+  if (tplActual === "jornada") {
+    const ids = Array.prototype.slice.call(document.querySelectorAll(".jornada-check:checked")).map(function (c) { return c.value; }).slice(0, 5);
+    if (!ids.length) { mostrarError("Selecciona al menos un partido de la jornada."); cancelar(); return; }
+    const partidos = ids.map(function (id) {
+      const p = PARTIDOS.find(function (x) { return x.id === id; });
+      const eqLocal = EQUIPOS.find(function (x) { return x.id === p.local; });
+      const eqVisit = EQUIPOS.find(function (x) { return x.id === p.visitante; });
+      return {
+        local: eqLocal ? eqLocal.nombre : "Local", localLogoUrl: eqLocal ? eqLocal.logoUrl : "",
+        visitante: eqVisit ? eqVisit.nombre : "Visitante", visitanteLogoUrl: eqVisit ? eqVisit.logoUrl : "",
+        fecha: p.fecha ? formatFechaSimple(p.fecha) : "", cancha: p.cancha || ""
+      };
+    });
+    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos });
+    caption = "📅 Así queda nuestra próxima jornada — " + (clubActual.clubNombre || "el club") + " ⚽ #BioFutbol";
+  } else if (tplActual === "partido") {
     const d = {
       club: clubActual,
       propio: document.getElementById("pImgPropio").value.trim() || clubActual.clubNombre,
@@ -1266,7 +1444,10 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       hora: document.getElementById("pImgHora").value.trim(),
       lugar: document.getElementById("pImgLugar").value.trim()
     };
-    if (!d.rival) { mostrarError("Ingresa el equipo rival."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
+    const eqRival = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
+    d.rivalLogoUrl = eqRival ? eqRival.logoUrl : "";
+    d.propioLogoUrl = clubActual.logoUrl || "";
     tarea = generarImagenPartido(canvas, d);
     caption = "🔥 ¡Próximo partido! " + d.propio + " vs " + d.rival + (d.fecha ? " — " + d.fecha : "") + (d.hora ? " " + d.hora : "") + (d.lugar ? " en " + d.lugar : "") + " ⚽ #BioFutbol";
   } else if (tplActual === "resultado") {
@@ -1278,14 +1459,24 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       golesRival: Number(document.getElementById("rImgGolesRival").value) || 0,
       fecha: document.getElementById("rImgFecha").value.trim()
     };
-    if (!d.rival) { mostrarError("Ingresa el equipo rival."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
+    const eqRival2 = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
+    d.rivalLogoUrl = eqRival2 ? eqRival2.logoUrl : "";
+    d.propioLogoUrl = clubActual.logoUrl || "";
     tarea = generarImagenResultado(canvas, d);
     caption = "⚽ Resultado final: " + d.propio + " " + d.golesPropio + " - " + d.golesRival + " " + d.rival + " #BioFutbol";
   } else if (tplActual === "tabla_img") {
     const filas = calcularTabla();
-    if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); cancelar(); return; }
     tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas });
     caption = "📊 Así va la tabla de posiciones de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
+  } else if (tplActual === "goleadores_img") {
+    const filas = calcularGoleadores().slice(0, 10).map(function (g) {
+      return { nombre: g.nombre, goles: g.goles, equipoNombre: nombreEquipo(g.equipoId) };
+    });
+    if (!filas.length) { mostrarError("Todavía no hay goles registrados para generar la imagen."); cancelar(); return; }
+    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas });
+    caption = "🥇 Tabla de goleadores de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else {
     const d = {
       club: clubActual,
@@ -1324,6 +1515,117 @@ document.getElementById("btnImgCompartir").addEventListener("click", function ()
 
 document.getElementById("btnImgCaption").addEventListener("click", function () {
   navigator.clipboard.writeText(ultimoCaptionImg).then(function () { mostrarExito("Texto copiado."); });
+});
+
+// ── Patrocinadores / aliados ──
+function escucharPatrocinadores() {
+  db.collection("clientes").doc(clubActual.id).collection("patrocinadores").onSnapshot(function (snap) {
+    PATROCINADORES = [];
+    snap.forEach(function (d) { PATROCINADORES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarPatrocinadores();
+    pintarSelectAliados();
+    pintarInicio();
+  });
+}
+
+const PAT_TIER_LABEL = { oro: "Oro", plata: "Plata", bronce: "Bronce" };
+
+function pintarPatrocinadores() {
+  const box = document.getElementById("listaPatrocinadores");
+  if (!PATROCINADORES.length) { box.innerHTML = '<p class="empty">Todavía no has agregado patrocinadores.</p>'; return; }
+  const orden = { oro: 0, plata: 1, bronce: 2 };
+  const lista = PATROCINADORES.slice().sort(function (a, b) { return (orden[a.tier] || 9) - (orden[b.tier] || 9); });
+  box.innerHTML = lista.map(function (p) {
+    return '<div class="pat-card' + (p.activo === false ? ' off' : '') + '">' +
+      (p.logoUrl ? '<img class="pat-logo" src="' + p.logoUrl + '">' : '<div class="pat-logo-empty"><i class="fa-solid fa-store"></i></div>') +
+      '<div class="pat-info"><div class="pat-name">' + esc(p.nombre) + '</div>' +
+      (p.descripcion ? '<div class="pat-meta">' + esc(p.descripcion) + '</div>' : '') +
+      '<span class="pat-tier ' + (p.tier || "plata") + '">' + (PAT_TIER_LABEL[p.tier] || "Plata") + (p.activo === false ? ' · Inactivo' : '') + '</span></div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarPatrocinador(\'' + p.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarPatrocinador(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("patLogoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "patrocinadores", clubActual.id + "-pat-" + Date.now() + "." + (file.name.split(".").pop() || "png")).then(function (url) {
+    patLogoUrl = url;
+    document.getElementById("patLogoPreview").src = url;
+    document.getElementById("patLogoPreview").style.display = "block";
+    document.getElementById("patLogoEmpty").style.display = "none";
+  }).catch(function (err) { mostrarError("No se pudo subir el logo: " + err.message); });
+});
+
+function limpiarFormPatrocinador() {
+  patrocinadorEnEdicion = null;
+  patLogoUrl = "";
+  document.getElementById("patNombre").value = "";
+  document.getElementById("patTier").value = "plata";
+  document.getElementById("patContacto").value = "";
+  document.getElementById("patDescripcion").value = "";
+  document.getElementById("patActivo").checked = true;
+  document.getElementById("patLogoPreview").style.display = "none";
+  document.getElementById("patLogoEmpty").style.display = "flex";
+  document.getElementById("patFormTitulo").textContent = "Agregar patrocinador / aliado";
+  document.getElementById("btnGuardarPatrocinador").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar patrocinador';
+  document.getElementById("btnCancelarEdicionPat").style.display = "none";
+}
+
+function editarPatrocinador(id) {
+  const p = PATROCINADORES.find(function (x) { return x.id === id; });
+  if (!p) return;
+  patrocinadorEnEdicion = id;
+  patLogoUrl = p.logoUrl || "";
+  document.getElementById("patNombre").value = p.nombre || "";
+  document.getElementById("patTier").value = p.tier || "plata";
+  document.getElementById("patContacto").value = p.contacto || "";
+  document.getElementById("patDescripcion").value = p.descripcion || "";
+  document.getElementById("patActivo").checked = p.activo !== false;
+  if (p.logoUrl) {
+    document.getElementById("patLogoPreview").src = p.logoUrl;
+    document.getElementById("patLogoPreview").style.display = "block";
+    document.getElementById("patLogoEmpty").style.display = "none";
+  } else {
+    document.getElementById("patLogoPreview").style.display = "none";
+    document.getElementById("patLogoEmpty").style.display = "flex";
+  }
+  document.getElementById("patFormTitulo").textContent = "Editando: " + p.nombre;
+  document.getElementById("btnGuardarPatrocinador").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionPat").style.display = "inline-flex";
+  document.getElementById("tab-patrocinadores").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.getElementById("btnCancelarEdicionPat").addEventListener("click", limpiarFormPatrocinador);
+
+function borrarPatrocinador(id) {
+  const p = PATROCINADORES.find(function (x) { return x.id === id; });
+  if (!p || !confirm('¿Borrar el patrocinador "' + p.nombre + '"?')) return;
+  db.collection("clientes").doc(clubActual.id).collection("patrocinadores").doc(id).delete()
+    .then(function () { mostrarExito("Patrocinador eliminado."); if (patrocinadorEnEdicion === id) limpiarFormPatrocinador(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarPatrocinador").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("patNombre").value.trim(),
+    tier: document.getElementById("patTier").value,
+    contacto: document.getElementById("patContacto").value.trim(),
+    descripcion: document.getElementById("patDescripcion").value.trim(),
+    logoUrl: patLogoUrl,
+    activo: document.getElementById("patActivo").checked
+  };
+  if (!data.nombre) { mostrarError("Ingresa el nombre del patrocinador."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("patrocinadores");
+  const tarea = patrocinadorEnEdicion
+    ? ref.doc(patrocinadorEnEdicion).update(data)
+    : ref.add(Object.assign({ creado: firebase.firestore.FieldValue.serverTimestamp() }, data));
+  tarea.then(function () {
+    mostrarExito(patrocinadorEnEdicion ? "Patrocinador actualizado." : "Patrocinador agregado.");
+    limpiarFormPatrocinador();
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
 
 // ── Mi club: datos, escudo/colores, cobro ──
