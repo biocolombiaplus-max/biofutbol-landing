@@ -136,6 +136,7 @@
 .qt-7{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
 .qt-8{background:linear-gradient(135deg,#7c3aed,#3b0764)}
 .qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
+.qt-10{background:linear-gradient(135deg,#0891b2,#164e63)}
 .pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
 .pat-card.off{opacity:.5}
 .pat-logo{width:56px;height:56px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);flex-shrink:0}
@@ -186,6 +187,7 @@
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
       <button class="tab-btn" data-tab="goleadores">Goleadores</button>
       <button class="tab-btn" data-tab="llave">Llave</button>
+      <button class="tab-btn" data-tab="informes">Informes</button>
       <button class="tab-btn" data-tab="miclub">Mi club</button>
     </div>
 
@@ -245,6 +247,11 @@
           <div class="qt-ico"><i class="fa-solid fa-handshake"></i></div>
           <div class="qt-title">Patrocinadores</div>
           <div class="qt-sub" id="qtPatrocinadoresSub">—</div>
+        </button>
+        <button type="button" class="quick-tile qt-10" data-goto="informes">
+          <div class="qt-ico"><i class="fa-solid fa-file-pdf"></i></div>
+          <div class="qt-title">Informes</div>
+          <div class="qt-sub">Jugadores y cartera</div>
         </button>
         <button type="button" class="quick-tile qt-6" data-goto="miclub">
           <div class="qt-ico"><i class="fa-solid fa-gear"></i></div>
@@ -509,6 +516,39 @@
       </div>
     </div>
 
+    <div class="tab-panel" id="tab-informes">
+      <div class="card">
+        <h3><i class="fa-solid fa-users-line"></i> Reporte de jugadores</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF organizado por categoría con los datos clave de cada jugador. Filtra por categoría o por fecha de inscripción si lo necesitas.</p>
+        <div class="field-row">
+          <div class="field"><label>Categoría (opcional)</label>
+            <select id="repJugCategoria"><option value="">Todas las categorías</option></select>
+          </div>
+          <div class="field"><label>Inscritos desde (opcional)</label><input type="date" id="repJugDesde"></div>
+        </div>
+        <div class="field"><label>Inscritos hasta (opcional)</label><input type="date" id="repJugHasta"></div>
+        <p style="font-size:.72rem;color:var(--gray-d);margin-bottom:14px">El filtro de fechas solo aplica a jugadores registrados desde que existe este reporte — los registrados antes siempre aparecen si no filtras por fecha.</p>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteJugadores"><i class="fa-solid fa-file-pdf"></i> Generar PDF de jugadores</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-sack-dollar"></i> Reporte de cartera</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con quién debe, cuánto y hace cuánto está vencido, más un resumen para saber cómo va la cartera del club de un vistazo.</p>
+        <div class="field-row">
+          <div class="field"><label>Estado</label>
+            <select id="repCarEstado">
+              <option value="todos">Todos los socios con cobro definido</option>
+              <option value="mora" selected>Solo en mora / por vencer</option>
+              <option value="aldia">Solo al día</option>
+            </select>
+          </div>
+          <div class="field"><label>Vence desde (opcional)</label><input type="date" id="repCarDesde"></div>
+        </div>
+        <div class="field"><label>Vence hasta (opcional)</label><input type="date" id="repCarHasta"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteCartera"><i class="fa-solid fa-file-pdf"></i> Generar PDF de cartera</button>
+      </div>
+    </div>
+
     <div class="tab-panel" id="tab-miclub">
       <div class="card">
         <h3><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
@@ -572,9 +612,12 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/categorias.js"></script>
+<script src="js/informes.js"></script>
 <script src="js/imagenes.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
@@ -615,6 +658,8 @@ requireClub().then(function (r) {
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
+  document.getElementById("repJugCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
+    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
 });
 
 // Reskin del panel completo con los colores de este club: como admin.css
@@ -1632,6 +1677,90 @@ document.getElementById("btnGuardarPatrocinador").addEventListener("click", func
     mostrarExito(patrocinadorEnEdicion ? "Patrocinador actualizado." : "Patrocinador agregado.");
     limpiarFormPatrocinador();
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Informes en PDF ──
+document.getElementById("btnReporteJugadores").addEventListener("click", function () {
+  const catFiltro = document.getElementById("repJugCategoria").value;
+  const desde = document.getElementById("repJugDesde").value;
+  const hasta = document.getElementById("repJugHasta").value;
+
+  let lista = SOCIOS.slice();
+  if (catFiltro) lista = lista.filter(function (s) { return s.categoria === catFiltro; });
+  if (desde || hasta) {
+    lista = lista.filter(function (s) {
+      if (!s.creado || !s.creado.toDate) return false;
+      const f = s.creado.toDate();
+      if (desde && f < new Date(desde + "T00:00:00")) return false;
+      if (hasta && f > new Date(hasta + "T23:59:59")) return false;
+      return true;
+    });
+  }
+
+  const mapa = {};
+  lista.forEach(function (s) {
+    const cat = s.categoria || "Sin categoría";
+    if (!mapa[cat]) mapa[cat] = [];
+    mapa[cat].push(s);
+  });
+  const grupos = Object.keys(mapa).sort(function (a, b) { return ordenCategoria(a) - ordenCategoria(b); })
+    .map(function (cat) {
+      return { categoria: cat, socios: mapa[cat].slice().sort(function (x, y) { return (x.nombre || "").localeCompare(y.nombre || ""); }) };
+    });
+
+  const filtroPartes = [];
+  if (catFiltro) filtroPartes.push(catFiltro);
+  if (desde) filtroPartes.push("desde " + desde);
+  if (hasta) filtroPartes.push("hasta " + hasta);
+
+  const doc = generarReporteJugadoresPDF({
+    club: clubActual,
+    filtroTexto: filtroPartes.length ? filtroPartes.join(" · ") : "Todos los jugadores",
+    totalSocios: lista.length,
+    grupos: grupos
+  });
+  doc.save("jugadores-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+  registrarAuditoria("Reporte de jugadores generado", clubActual.id, clubActual.clubNombre);
+});
+
+document.getElementById("btnReporteCartera").addEventListener("click", function () {
+  const estadoFiltro = document.getElementById("repCarEstado").value;
+  const desde = document.getElementById("repCarDesde").value;
+  const hasta = document.getElementById("repCarHasta").value;
+
+  let lista = SOCIOS.filter(function (s) { return !!s.pagoProximo; });
+  if (desde) lista = lista.filter(function (s) { return s.pagoProximo >= desde; });
+  if (hasta) lista = lista.filter(function (s) { return s.pagoProximo <= hasta; });
+
+  const totalEsperado = lista.reduce(function (acc, s) { return acc + (s.pagoValor || clubActual.pagoMensualidad || 0); }, 0);
+  const morosos = lista.filter(function (s) { return estadoPagoSocioCrm(s).vencido; });
+  const totalPendiente = morosos.reduce(function (acc, s) { return acc + (s.pagoValor || clubActual.pagoMensualidad || 0); }, 0);
+
+  let filtrada = lista;
+  if (estadoFiltro === "mora") filtrada = morosos;
+  else if (estadoFiltro === "aldia") filtrada = lista.filter(function (s) { return !estadoPagoSocioCrm(s).vencido; });
+  filtrada = filtrada.slice().sort(function (a, b) { return (a.pagoProximo || "").localeCompare(b.pagoProximo || ""); });
+
+  const filas = filtrada.map(function (s) {
+    return {
+      nombre: s.nombre, categoria: s.categoria, telefono: s.telefono,
+      valor: s.pagoValor || clubActual.pagoMensualidad || 0,
+      vence: s.pagoProximo, estadoTexto: estadoPagoSocioCrm(s).texto
+    };
+  });
+
+  const filtroPartes = [estadoFiltro === "mora" ? "En mora / por vencer" : estadoFiltro === "aldia" ? "Al día" : "Todos los socios con cobro definido"];
+  if (desde) filtroPartes.push("vence desde " + desde);
+  if (hasta) filtroPartes.push("hasta " + hasta);
+
+  const doc = generarReporteCarteraPDF({
+    club: clubActual,
+    filtroTexto: filtroPartes.join(" · "),
+    resumen: { totalEsperado: totalEsperado, totalMorosos: morosos.length, totalPendiente: totalPendiente },
+    filas: filas
+  });
+  doc.save("cartera-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+  registrarAuditoria("Reporte de cartera generado", clubActual.id, clubActual.clubNombre);
 });
 
 // ── Mi club: datos, escudo/colores, cobro ──

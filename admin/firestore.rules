@@ -76,6 +76,18 @@ service cloud.firestore {
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
+    // Índice privado que conecta el UID de Firebase Auth de un socio (o su
+    // acudiente) con su club y su documento — igual que /admins/{uid}, pero
+    // para socios. Cada uno solo puede leer su propia entrada: con eso le
+    // basta a socio-login.html para encontrar su ficha sin exponer las de
+    // los demás. Solo el súper-admin o el dueño del club (quien crea el
+    // acceso desde socio.html) pueden escribirla.
+    match /sociosIndex/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
+      allow delete: if esSuperAdmin() || (resource != null && esDuenoDelClub(resource.data.clienteId));
+    }
+
     // Auditoría: solo admins autenticados (súper-admin o club) pueden leer
     // o escribir, nunca editar/borrar lo ya registrado.
     match /auditoria/{entryId} {

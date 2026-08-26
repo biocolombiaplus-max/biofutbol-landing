@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi panel | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="carnet.css">
+<style>
+body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),transparent 60%),var(--bg)}
+.wrap{max-width:640px;margin:0 auto;padding:18px 20px 60px}
+.topbar-socio{display:flex;justify-content:flex-end;padding-bottom:6px}
+.topbar-socio a{color:var(--gray);font-size:.8rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.topbar-socio a:hover{color:var(--white)}
+.phead{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:22px}
+.phead .name{font-size:1.1rem;font-weight:900}
+.phead .name b{color:var(--green-l)}
+.phead .tag{font-size:.72rem;color:var(--gray-d);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.pcard{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.pcard h3{font-size:.98rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:.86rem}
+.profile-grid .k{color:var(--gray);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.profile-grid .v{font-weight:700;margin-top:2px}
+.growth-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:4px}
+.growth-table th{text-align:left;color:var(--gray);font-weight:700;font-size:.72rem;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--card-b2)}
+.growth-table td{padding:8px;border-bottom:1px solid var(--card-b2)}
+.tips-list{margin:0;padding-left:18px;color:var(--gray);font-size:.86rem;line-height:1.7}
+.tips-list li{margin-bottom:4px}
+.disclaimer{font-size:.76rem;color:var(--gray-d);background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+.imc-badge{display:inline-flex;align-items:center;gap:8px;font-size:1.8rem;font-weight:900;color:var(--green-l)}
+.recipe-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--card-b2);font-size:.86rem}
+.recipe-row:last-child{border-bottom:none}
+.recipe-row b{color:var(--gold);flex:none;width:80px}
+.mora-card{border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid}
+.mora-card.venc{background:rgba(255,92,92,.08);border-color:rgba(255,92,92,.35)}
+.mora-card.prox{background:rgba(255,201,51,.08);border-color:rgba(255,201,51,.35)}
+.mora-card h3{font-size:.96rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.mora-card.venc h3{color:var(--red)}
+.mora-card.prox h3{color:var(--gold)}
+.mora-card p{font-size:.86rem;color:var(--gray);margin-bottom:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap" style="display:none">
+  <div class="topbar-socio"><a href="#" id="btnSalir"><i class="fa-solid fa-right-from-bracket"></i> Salir</a></div>
+  <div class="phead">
+    <svg width="34" height="42" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+    <div class="name">Bio<b>Futbol</b></div>
+    <p class="tag">Mi panel</p>
+  </div>
+
+  <div class="mora-card" id="moraCard" style="display:none">
+    <h3 id="moraTitulo"></h3>
+    <p id="moraTexto"></p>
+    <button type="button" class="btn btn-primary btn-sm" id="btnVerPago"><i class="fa-solid fa-money-bill-wave"></i> Ver cómo pagar</button>
+  </div>
+
+  <div class="carnet-wrap" id="carnetContainer"></div>
+
+  <div class="pcard" id="pagoCard" style="display:none">
+    <h3><i class="fa-solid fa-money-bill-wave"></i> Cómo pagar la mensualidad</h3>
+    <p style="font-size:.86rem;color:var(--gray);margin-bottom:12px" id="pagoValorTxt"></p>
+    <div id="pagoNequiBox" style="display:none;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div><div class="k" style="font-size:.68rem;color:var(--gray);text-transform:uppercase;font-weight:700">Nequi</div><div style="font-weight:800" id="pagoNequiTxt">—</div></div>
+      <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarNequi"><i class="fa-solid fa-copy"></i> Copiar</button>
+    </div>
+    <a id="pagoWompiBtn" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-block" style="display:none"><i class="fa-solid fa-credit-card"></i> Pagar con tarjeta / PSE</a>
+    <p style="font-size:.76rem;color:var(--gray-d);margin-top:10px">Después de pagar, envía el comprobante al club por WhatsApp para que quede registrado.</p>
+  </div>
+
+  <div class="pcard">
+    <h3><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
+    <div class="profile-grid">
+      <div><div class="k">Categoría</div><div class="v" id="pCategoria">—</div></div>
+      <div><div class="k">Edad</div><div class="v" id="pEdad">—</div></div>
+      <div><div class="k">Talla uniforme</div><div class="v" id="pTalla">—</div></div>
+      <div><div class="k">Colegio</div><div class="v" id="pColegio">—</div></div>
+      <div><div class="k">Jornada</div><div class="v" id="pJornada">—</div></div>
+    </div>
+  </div>
+
+  <div class="pcard" id="saludCard" style="display:none">
+    <h3><i class="fa-solid fa-kit-medical"></i> Salud y emergencia</h3>
+    <div class="profile-grid">
+      <div><div class="k">EPS</div><div class="v" id="pEps">—</div></div>
+      <div><div class="k">Grupo sanguíneo</div><div class="v" id="pGrupo">—</div></div>
+      <div style="grid-column:1/-1"><div class="k">Alergias / condiciones</div><div class="v" id="pAlergias">—</div></div>
+      <div style="grid-column:1/-1"><div class="k">Contacto de emergencia</div><div class="v" id="pEmergencia">—</div></div>
+    </div>
+  </div>
+
+  <div class="pcard" id="crecimientoCard" style="display:none">
+    <h3><i class="fa-solid fa-arrow-trend-up"></i> Crecimiento y desarrollo</h3>
+    <div id="imcActual" style="display:none;margin-bottom:8px">
+      <span class="imc-badge" id="imcValor">—</span> <span style="color:var(--gray);font-size:.82rem">IMC actual</span>
+    </div>
+    <table class="growth-table" id="growthTable" style="display:none">
+      <thead><tr><th>Fecha</th><th>Peso</th><th>Estatura</th><th>IMC</th></tr></thead>
+      <tbody id="growthBody"></tbody>
+    </table>
+    <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Esta información es de seguimiento general y no reemplaza una valoración médica. El peso y la estatura ideales varían según la edad exacta, el sexo y la etapa de crecimiento — para saber si el desarrollo va bien, lo mejor es consultar con el pediatra.</div>
+  </div>
+
+  <div class="pcard">
+    <h3><i class="fa-solid fa-apple-whole"></i> Recomendación de alimentación</h3>
+    <p style="font-size:.82rem;color:var(--gold);font-weight:700;margin-bottom:6px" id="nutricionBanda"></p>
+    <p style="font-size:.84rem;color:var(--gray);margin-bottom:12px" id="nutricionEnfoque"></p>
+    <ul class="tips-list" id="nutricionTips"></ul>
+    <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Guía general con productos fáciles de conseguir en Colombia. No reemplaza un plan hecho por un nutricionista.</div>
+  </div>
+
+  <div class="pcard">
+    <h3><i class="fa-solid fa-utensils"></i> Receta de la semana</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:10px" id="recetaTitulo"></p>
+    <div id="recetaBox"></div>
+  </div>
+</div>
+
+<div class="wrap" id="errorWrap" style="display:none;text-align:center;padding-top:60px">
+  <p style="color:var(--gray)">No se pudo cargar esta información.</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/nutricion.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/carnet.js"></script>
+<script src="js/audit.js"></script>
+<script>
+function formatCOPPortal(n) { return "$" + Number(n || 0).toLocaleString("es-CO"); }
+
+document.getElementById("btnSalir").addEventListener("click", function (e) {
+  e.preventDefault();
+  cerrarSesionSocio();
+});
+
+document.getElementById("btnCopiarNequi").addEventListener("click", function () {
+  navigator.clipboard.writeText(document.getElementById("pagoNequiTxt").textContent).then(function () {
+    const btn = document.getElementById("btnCopiarNequi");
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+    setTimeout(function () { btn.innerHTML = original; }, 1800);
+  });
+});
+
+document.getElementById("btnVerPago").addEventListener("click", function () {
+  document.getElementById("pagoCard").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+requireAccesoSocio().then(function (r) {
+  pintar(r.socio, r.club);
+  document.getElementById("wrap").style.display = "block";
+}).catch(function () {
+  // requireAccesoSocio ya redirige o muestra la pantalla de bloqueo.
+});
+
+function pintarMora(socio) {
+  const card = document.getElementById("moraCard");
+  if (!socio.pagoProximo) { card.style.display = "none"; return; }
+  const dias = diasHasta(socio.pagoProximo);
+  if (dias === null || dias > 5) { card.style.display = "none"; return; }
+
+  card.style.display = "block";
+  const valor = socio.pagoValor ? " (" + formatCOPPortal(socio.pagoValor) + ")" : "";
+  if (dias < 0) {
+    card.className = "mora-card venc";
+    document.getElementById("moraTitulo").innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Tu mensualidad está vencida';
+    document.getElementById("moraTexto").textContent = "Venció hace " + Math.abs(dias) + " día" + (Math.abs(dias) === 1 ? "" : "s") + valor + ". Cuando puedas, ponte al día — ¡gracias por apoyar a tu club!";
+  } else {
+    card.className = "mora-card prox";
+    document.getElementById("moraTitulo").innerHTML = '<i class="fa-solid fa-clock"></i> Tu mensualidad vence pronto';
+    document.getElementById("moraTexto").textContent = (dias === 0 ? "Vence hoy" : "Vence en " + dias + " día" + (dias === 1 ? "" : "s")) + valor + ". Este es solo un recordatorio amistoso.";
+  }
+}
+
+function pintar(socio, club) {
+  carnetRender(document.getElementById("carnetContainer"), socio, club, location.href, "portal");
+  pintarMora(socio);
+  document.getElementById("pCategoria").textContent = socio.categoria || "—";
+  document.getElementById("pTalla").textContent = socio.talla || "—";
+  document.getElementById("pColegio").textContent = socio.colegio || "—";
+  document.getElementById("pJornada").textContent = socio.jornada || "—";
+
+  if (club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoWompiLink)) {
+    document.getElementById("pagoCard").style.display = "block";
+    document.getElementById("pagoValorTxt").textContent = club.pagoMensualidad
+      ? "Mensualidad: " + formatCOPPortal(club.pagoMensualidad)
+      : "Contacta al club para conocer el valor de la mensualidad.";
+    if (club.pagoNequiNumero) {
+      document.getElementById("pagoNequiBox").style.display = "flex";
+      document.getElementById("pagoNequiTxt").textContent = club.pagoNequiNumero + (club.pagoNequiTitular ? " — " + club.pagoNequiTitular : "");
+    }
+    if (club.pagoWompiLink) {
+      document.getElementById("pagoWompiBtn").style.display = "flex";
+      document.getElementById("pagoWompiBtn").href = club.pagoWompiLink;
+    }
+  }
+
+  if (socio.eps || socio.grupoSanguineo || socio.alergias || socio.emergenciaNombre) {
+    document.getElementById("saludCard").style.display = "block";
+    document.getElementById("pEps").textContent = socio.eps || "—";
+    document.getElementById("pGrupo").textContent = socio.grupoSanguineo || "—";
+    document.getElementById("pAlergias").textContent = socio.alergias || "Ninguna registrada";
+    document.getElementById("pEmergencia").textContent = [socio.emergenciaNombre, socio.emergenciaTelefono].filter(Boolean).join(" · ") || "—";
+  }
+  const edad = calcularEdad(socio.fechaNacimiento);
+  document.getElementById("pEdad").textContent = edad !== null ? edad + " años" : "—";
+
+  const esMenor = edad !== null && edad < 18;
+  const arr = socio.crecimiento || [];
+  if (esMenor && arr.length) {
+    document.getElementById("crecimientoCard").style.display = "block";
+    document.getElementById("growthTable").style.display = "table";
+    document.getElementById("growthBody").innerHTML = arr.slice().reverse().map(function (c) {
+      const imc = calcularIMC(c.peso, c.estatura);
+      return "<tr><td>" + (c.fecha || "—") + "</td><td>" + c.peso + " kg</td><td>" + c.estatura + " cm</td><td>" + (imc ? imc.toFixed(1) : "—") + "</td></tr>";
+    }).join("");
+    const ultimo = arr[arr.length - 1];
+    const imc = calcularIMC(ultimo.peso, ultimo.estatura);
+    if (imc) {
+      document.getElementById("imcActual").style.display = "block";
+      document.getElementById("imcValor").textContent = imc.toFixed(1);
+    }
+  } else if (esMenor) {
+    document.getElementById("crecimientoCard").style.display = "block";
+  }
+
+  const banda = bandaEdad(edad);
+  const guia = GUIA_NUTRICIONAL[banda];
+  document.getElementById("nutricionBanda").textContent = NOMBRE_BANDA[banda] + (edad !== null ? " · " + edad + " años" : "");
+  document.getElementById("nutricionEnfoque").textContent = guia.enfoque;
+  document.getElementById("nutricionTips").innerHTML = guia.tips.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+
+  const receta = recetaDeLaSemana();
+  document.getElementById("recetaTitulo").textContent = receta.titulo + " (cambia automáticamente cada semana)";
+  document.getElementById("recetaBox").innerHTML =
+    '<div class="recipe-row"><b>Desayuno</b><span>' + receta.desayuno + '</span></div>' +
+    '<div class="recipe-row"><b>Almuerzo</b><span>' + receta.almuerzo + '</span></div>' +
+    '<div class="recipe-row"><b>Snack</b><span>' + receta.snack + '</span></div>' +
+    '<div class="recipe-row"><b>Cena</b><span>' + receta.cena + '</span></div>';
+}
+</script>
+</body>
+</html>

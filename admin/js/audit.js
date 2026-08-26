@@ -53,7 +53,7 @@ function requireSuperAdmin() {
 
 // Pantalla de bloqueo a pantalla completa, reutilizable en cualquier página
 // que use requireSuperAdmin(). No depende de nada del HTML de la página.
-function mostrarBloqueoAcceso(titulo, cuerpoHtml, uid) {
+function mostrarBloqueoAcceso(titulo, cuerpoHtml, uid, cerrarFn) {
   if (document.getElementById("bloqueoAccesoOverlay")) return;
   const div = document.createElement("div");
   div.id = "bloqueoAccesoOverlay";
@@ -81,7 +81,7 @@ function mostrarBloqueoAcceso(titulo, cuerpoHtml, uid) {
   }
   document.getElementById("salirBloqueo").addEventListener("click", function (e) {
     e.preventDefault();
-    cerrarSesion();
+    (cerrarFn || cerrarSesion)();
   });
 }
 
@@ -166,4 +166,51 @@ function nombreAdmin(email) {
 
 function cerrarSesion() {
   auth.signOut().then(function () { window.location.href = "login.html"; });
+}
+
+// Protege el panel autenticado de un socio/deportista (mi-panel.html):
+// exige sesión y que esa cuenta esté ligada a un socio en /sociosIndex.
+// Devuelve una promesa con { user, socio, club }.
+function requireAccesoSocio() {
+  return new Promise(function (resolve, reject) {
+    auth.onAuthStateChanged(function (user) {
+      if (!user) { window.location.href = "socio-login.html"; reject(new Error("sin-sesion")); return; }
+      db.collection("sociosIndex").doc(user.uid).get().then(function (idxDoc) {
+        if (!idxDoc.exists) {
+          mostrarBloqueoAcceso("Esta cuenta no tiene un panel de socio", "Esta cuenta no está ligada a ningún deportista. Si crees que es un error, pídele al club que te cree el acceso de nuevo desde la ficha del socio.", null, cerrarSesionSocio);
+          reject(new Error("bloqueado"));
+          return;
+        }
+        const idx = idxDoc.data();
+        Promise.all([
+          db.collection("clientes").doc(idx.clienteId).collection("socios").doc(idx.socioId).get(),
+          db.collection("clientes").doc(idx.clienteId).collection("publico").doc("marca").get().catch(function () { return null; })
+        ]).then(function (res) {
+          const socioDoc = res[0], marcaDoc = res[1];
+          if (!socioDoc.exists) {
+            mostrarBloqueoAcceso("No encontramos tu ficha", "Tu acceso existe pero no encontramos el registro del deportista. Contacta a tu club.", null, cerrarSesionSocio);
+            reject(new Error("bloqueado"));
+            return;
+          }
+          resolve({
+            user: user,
+            socio: Object.assign({ id: socioDoc.id, clienteId: idx.clienteId }, socioDoc.data()),
+            club: (marcaDoc && marcaDoc.exists) ? marcaDoc.data() : {}
+          });
+        }).catch(function (err) { reject(err); });
+      }).catch(function (err) {
+        mostrarBloqueoAcceso(
+          "No se pudo verificar tu acceso",
+          "Esto casi siempre pasa porque las reglas de seguridad de Firestore todavía no están publicadas. Pídele a tu club que lo revise." +
+            (err && err.message ? "<br><br><small style=\"color:var(--gray-d)\">Detalle técnico: " + String(err.message).replace(/[&<>]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]; }) + "</small>" : ""),
+          null
+        );
+        reject(err);
+      });
+    });
+  });
+}
+
+function cerrarSesionSocio() {
+  auth.signOut().then(function () { window.location.href = "socio-login.html"; });
 }

@@ -64,7 +64,11 @@
 
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
       <div class="field-row">
-        <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria" placeholder="Ej: Sub-15"></div>
+        <div class="field"><label>Categoría</label>
+          <select id="categoria"></select>
+          <input type="text" id="categoriaOtra" placeholder="Escribe la categoría" style="display:none;margin-top:8px">
+          <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-top:5px">Se sugiere sola según la fecha de nacimiento — la puedes cambiar.</small>
+        </div>
         <div class="field"><label>Posición principal</label><input type="text" id="posicion" placeholder="Ej: Delantero"></div>
       </div>
       <div class="field-row">
@@ -160,6 +164,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
+<script src="js/categorias.js"></script>
 <script src="js/nutricion.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
@@ -174,6 +179,17 @@ if (!clubId) {
 }
 
 let fotoUrl = "";
+
+llenarSelectCategorias(document.getElementById("categoria"), true);
+wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
+document.getElementById("categoria").addEventListener("change", function () {
+  document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
+});
+
+function categoriaSeleccionada() {
+  const sel = document.getElementById("categoria").value;
+  return sel === "__otra__" ? document.getElementById("categoriaOtra").value.trim() : sel;
+}
 
 document.getElementById("fotoInput").addEventListener("change", function (e) {
   const file = e.target.files[0];
@@ -207,13 +223,14 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
 
   const data = {
     fotoUrl: fotoUrl,
+    creado: firebase.firestore.FieldValue.serverTimestamp(),
     nombre: document.getElementById("nombre").value.trim(),
     tipoDocumento: document.getElementById("tipoDocumento").value,
     documento: document.getElementById("documento").value.trim(),
     fechaNacimiento: fechaNacimiento,
     ciudad: document.getElementById("ciudad").value.trim(),
     direccion: document.getElementById("direccion").value.trim(),
-    categoria: document.getElementById("categoria").value.trim(),
+    categoria: categoriaSeleccionada(),
     posicion: document.getElementById("posicion").value.trim(),
     pieHabil: document.getElementById("pieHabil").value,
     camiseta: document.getElementById("camiseta").value.trim(),

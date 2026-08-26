@@ -78,7 +78,10 @@
       <div class="card">
         <h3><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
         <div class="field-row">
-          <div class="field"><label>Categoría o equipo</label><input type="text" id="categoria"></div>
+          <div class="field"><label>Categoría</label>
+            <select id="categoria"></select>
+            <input type="text" id="categoriaOtra" placeholder="Escribe la categoría" style="display:none;margin-top:8px">
+          </div>
           <div class="field"><label>Posición</label><input type="text" id="posicion"></div>
         </div>
         <div class="field-row">
@@ -161,7 +164,8 @@
           <div class="field"><label>Mensualidad (COP)</label><input type="number" id="pagoValor" min="0" step="1000"></div>
           <div class="field"><label>Próximo pago</label><input type="date" id="pagoProximo"></div>
         </div>
-        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnMarcarPagado"><i class="fa-solid fa-check-double"></i> Marcar como pagado hoy (+30 días)</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnGuardarFechaCobro"><i class="fa-solid fa-calendar-check"></i> Guardar fecha de cobro</button>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnMarcarPagado" style="margin-top:8px"><i class="fa-solid fa-check-double"></i> Marcar como pagado hoy (+30 días)</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecordarPago" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Recordar pago por WhatsApp</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecibo" style="margin-top:8px"><i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboSocioWhatsapp" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar recibo por WhatsApp</button>
@@ -182,6 +186,19 @@
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnEnviarPortal"><i class="fa-brands fa-whatsapp"></i> Enviar portal por WhatsApp</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnCopiarPortal" style="margin-top:8px"><i class="fa-solid fa-link"></i> Copiar link del portal</button>
       </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-key"></i> Acceso con usuario y clave</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Además del portal por link, el socio o su acudiente puede entrar con su propio correo y clave en <b>socio-login.html</b>. Ahí ve todo lo del portal, más los avisos de mora — visibles solo para él.</p>
+        <div id="socioClaveInicialWrap">
+          <div class="field"><label>Correo de acceso</label><input type="email" id="socioCorreoAcceso" placeholder="correo del acudiente o del deportista"></div>
+          <div class="field"><label>Clave inicial</label><input type="text" id="socioClaveInicial"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarClaveSocio"><i class="fa-solid fa-shuffle"></i> Generar clave automática</button>
+        </div>
+        <div id="socioAccesoStatus" style="display:none;margin-top:14px"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnCrearAccesoSocio" style="margin-top:14px"><i class="fa-solid fa-user-plus"></i> Crear acceso del deportista</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarAccesoSocio" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar acceso por WhatsApp</button>
+      </div>
     </div>
   </div>
 </div>
@@ -193,6 +210,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
+<script src="js/categorias.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/avatar.js"></script>
@@ -205,6 +223,26 @@ const clienteId = params.get("cliente");
 const socioId = params.get("id");
 let socioActual = null;
 let clubActual = null;
+
+llenarSelectCategorias(document.getElementById("categoria"), true);
+wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
+document.getElementById("categoria").addEventListener("change", function () {
+  document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
+});
+function categoriaSeleccionada() {
+  const sel = document.getElementById("categoria").value;
+  return sel === "__otra__" ? document.getElementById("categoriaOtra").value.trim() : sel;
+}
+function setCategoriaValor(valor) {
+  const sel = document.getElementById("categoria");
+  if (valor && CATEGORIAS_FUTBOL.indexOf(valor) === -1) {
+    sel.value = "__otra__";
+    document.getElementById("categoriaOtra").style.display = "block";
+    document.getElementById("categoriaOtra").value = valor;
+  } else {
+    sel.value = valor || "";
+  }
+}
 
 requireAccesoCliente(clienteId).then(function (r) {
   document.getElementById("userLabel").textContent = r.esSuperAdmin ? (nombreAdmin(r.user.email) + " (" + r.user.email + ")") : r.user.email;
@@ -229,7 +267,7 @@ function cargarSocio() {
     document.getElementById("fechaNacimiento").value = socioActual.fechaNacimiento || "";
     document.getElementById("ciudad").value = socioActual.ciudad || "";
     document.getElementById("direccion").value = socioActual.direccion || "";
-    document.getElementById("categoria").value = socioActual.categoria || "";
+    setCategoriaValor(socioActual.categoria || "");
     document.getElementById("posicion").value = socioActual.posicion || "";
     document.getElementById("pieHabil").value = socioActual.pieHabil || "";
     document.getElementById("camiseta").value = socioActual.camiseta || "";
@@ -260,6 +298,8 @@ function cargarSocio() {
 
     pintarCrecimientoYNutricion();
     pintarCarnet();
+    document.getElementById("socioCorreoAcceso").value = socioActual.correoAcceso || socioActual.correo || "";
+    pintarAccesoStatusSocio();
   });
 }
 
@@ -298,6 +338,24 @@ function pintarPago() {
       }).join("<br>")
     : "Sin pagos registrados todavía.";
 }
+
+document.getElementById("btnGuardarFechaCobro").addEventListener("click", function () {
+  const valor = Number(document.getElementById("pagoValor").value) || 0;
+  const proximoStr = document.getElementById("pagoProximo").value;
+  if (!proximoStr) { mostrarError("Elige la fecha de cobro."); return; }
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    pagoValor: valor,
+    pagoProximo: proximoStr
+  }).then(function () {
+    socioActual.pagoValor = valor;
+    socioActual.pagoProximo = proximoStr;
+    pintarPago();
+    registrarAuditoria("Fecha de cobro actualizada", clienteId, socioActual.nombre, proximoStr);
+    mostrarExito("Fecha de cobro guardada.");
+  }).catch(function (err) {
+    mostrarError("No se pudo guardar: " + err.message);
+  });
+});
 
 document.getElementById("btnMarcarPagado").addEventListener("click", function () {
   const valor = Number(document.getElementById("pagoValor").value) || 0;
@@ -527,7 +585,7 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     fechaNacimiento: document.getElementById("fechaNacimiento").value,
     ciudad: document.getElementById("ciudad").value.trim(),
     direccion: document.getElementById("direccion").value.trim(),
-    categoria: document.getElementById("categoria").value.trim(),
+    categoria: categoriaSeleccionada(),
     posicion: document.getElementById("posicion").value.trim(),
     pieHabil: document.getElementById("pieHabil").value.trim(),
     camiseta: document.getElementById("camiseta").value.trim(),
@@ -575,6 +633,117 @@ document.getElementById("btnCopiarPortal").addEventListener("click", function ()
     mostrarExito("Link del portal copiado.");
   });
 });
+
+// ── Acceso con usuario y clave para el socio ──
+document.getElementById("btnGenerarClaveSocio").addEventListener("click", function () {
+  document.getElementById("socioClaveInicial").value = generarClaveApp();
+});
+
+function pintarAccesoStatusSocio() {
+  const status = document.getElementById("socioAccesoStatus");
+  const wrap = document.getElementById("socioClaveInicialWrap");
+  const btnEnviar = document.getElementById("btnEnviarAccesoSocio");
+  if (socioActual.authUid) {
+    wrap.style.display = "none";
+    status.style.display = "block";
+    status.innerHTML = '<span class="pill ok">Acceso creado</span> <span style="color:var(--gray);font-size:.8rem">' + esc(socioActual.correoAcceso || "") + '</span>' +
+      (socioActual.claveDesactualizada ? '<br><small style="color:var(--gray-d)">Se envió un correo para que defina una clave nueva.</small>' : "");
+    btnEnviar.disabled = !ultimaClaveSocioCreada && !socioActual.claveDesactualizada;
+  } else {
+    wrap.style.display = "block";
+    status.style.display = "none";
+    btnEnviar.disabled = true;
+  }
+}
+
+let ultimaClaveSocioCreada = "";
+
+function socioLoginLink() {
+  return location.origin + location.pathname.replace(/socio\.html$/, "") + "socio-login.html";
+}
+
+// Crea la cuenta real del socio/acudiente (o, si ya existe, envía el correo
+// oficial de restablecimiento). A diferencia del club, NO guardamos la clave
+// en el documento del socio: ese documento se puede leer con solo el link
+// (portal público), así que guardar la clave ahí sería un hueco de seguridad.
+function crearOResetearAccesoSocio(email, pass) {
+  const yaExiste = !!socioActual.authUid;
+  let listo;
+  if (yaExiste) {
+    listo = auth.sendPasswordResetEmail(email).then(function () {
+      return db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ claveDesactualizada: true });
+    });
+  } else {
+    const secApp = firebase.apps.find(function (a) { return a.name === "secondary"; }) || firebase.initializeApp(firebaseConfig, "secondary");
+    const secAuth = secApp.auth();
+    listo = secAuth.createUserWithEmailAndPassword(email, pass).then(function (cred) {
+      const uid = cred.user.uid;
+      return secAuth.signOut().then(function () {
+        return Promise.all([
+          db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ authUid: uid, correoAcceso: email, claveDesactualizada: false }),
+          db.collection("sociosIndex").doc(uid).set({ clienteId: clienteId, socioId: socioId })
+        ]);
+      });
+    });
+  }
+  return listo.then(function () {
+    registrarAuditoria(yaExiste ? "Restablecimiento de acceso del socio solicitado" : "Acceso del socio creado", clienteId, socioActual.nombre, email);
+    return db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get().then(function (doc) {
+      socioActual = Object.assign({ id: doc.id }, doc.data());
+      return { yaExiste: yaExiste };
+    });
+  }).catch(function (err) {
+    let msg = err.message;
+    if (err.code === "auth/email-already-in-use") msg = "Ese correo ya tiene una cuenta creada (de otro socio, club o administrador).";
+    throw new Error(msg);
+  });
+}
+
+document.getElementById("btnCrearAccesoSocio").addEventListener("click", function () {
+  const email = document.getElementById("socioCorreoAcceso").value.trim();
+  const pass = document.getElementById("socioClaveInicial").value.trim();
+  if (!email) { mostrarError("Ingresa el correo de acceso del socio."); return; }
+  const yaExiste = !!socioActual.authUid;
+  if (!yaExiste && (!pass || pass.length < 6)) { mostrarError("La clave debe tener al menos 6 caracteres. Usa \"Generar clave automática\" si quieres."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> ' + (yaExiste ? "Enviando..." : "Creando acceso...");
+
+  crearOResetearAccesoSocio(email, pass).then(function (r) {
+    if (!r.yaExiste) ultimaClaveSocioCreada = pass;
+    pintarAccesoStatusSocio();
+    mostrarExito(r.yaExiste ? "Se envió un correo a " + email + " para que defina su nueva clave." : "Acceso creado. Ya puedes enviárselo por WhatsApp.");
+  }).catch(function (err) {
+    mostrarError("No se pudo crear el acceso: " + err.message);
+  }).finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Crear acceso del deportista';
+  });
+});
+
+document.getElementById("btnEnviarAccesoSocio").addEventListener("click", function () {
+  if (!socioActual.authUid) return;
+  let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  let mensaje = "¡Hola! Ya puedes entrar al panel de " + (socioActual.nombre || "tu deportista") + " en BioFutbol:\n" + socioLoginLink() +
+    "\n\nUsuario: " + (socioActual.correoAcceso || "");
+  if (ultimaClaveSocioCreada) {
+    mensaje += "\nClave: " + ultimaClaveSocioCreada;
+  } else {
+    mensaje += "\n\nPara entrar (o si no recuerdas tu clave), toca \"¿Olvidaste tu contraseña?\" en esa página — te llegará un correo para definir una clave nueva.";
+  }
+  mensaje += "\n\nAhí puedes ver el carnet, el estado de pago y cualquier aviso importante.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Acceso del socio enviado por WhatsApp", clienteId, socioActual.nombre, tel);
+});
+
+function esc(s) {
+  return String(s || "").replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
 
 function mostrarError(msg) {
   const box = document.getElementById("errorBox");

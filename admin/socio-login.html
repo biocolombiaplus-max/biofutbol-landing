@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingresar | Mi panel - BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="BioFutbol - Mi panel">
+<meta property="og:description" content="Ingresa para ver tu carnet, tu estado de pago y las novedades de tu club.">
+<meta property="og:image" content="https://biocolombiaplus-max.github.io/biofutbol-landing/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://biocolombiaplus-max.github.io/biofutbol-landing/og-image.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B1626">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BioFutbol">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="40" height="49" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div class="name">Bio<b>Futbol</b></div>
+      <p>Mi panel — deportista / acudiente</p>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Correo</label>
+        <input type="email" id="email" required autocomplete="username" placeholder="tucorreo@ejemplo.com">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+        <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+      </button>
+    </form>
+
+    <p class="center-note"><a href="#" id="olvideLink">¿Olvidaste tu contraseña?</a></p>
+    <p class="center-note" style="margin-top:6px;font-size:.76rem;color:var(--gray-d)">Este acceso te lo crea y te lo envía el club. Si aún no lo tienes, pídeselo directamente.</p>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+auth.onAuthStateChanged(function (user) {
+  if (user) window.location.href = "mi-panel.html";
+});
+
+const form = document.getElementById("loginForm");
+const errorBox = document.getElementById("errorBox");
+const successBox = document.getElementById("successBox");
+const submitBtn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  errorBox.style.display = "none";
+  successBox.style.display = "none";
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span> Ingresando...';
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(function () { window.location.href = "mi-panel.html"; })
+    .catch(function (err) {
+      let msg = "No pudimos iniciar sesión. Verifica tus datos.";
+      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+        msg = "Correo o contraseña incorrectos.";
+      } else if (err.code === "auth/invalid-email") {
+        msg = "El correo no es válido.";
+      } else if (err.code === "auth/too-many-requests") {
+        msg = "Demasiados intentos. Espera unos minutos e intenta de nuevo.";
+      }
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Ingresar';
+    });
+});
+
+document.getElementById("olvideLink").addEventListener("click", function (e) {
+  e.preventDefault();
+  errorBox.style.display = "none";
+  successBox.style.display = "none";
+  const email = document.getElementById("email").value.trim();
+  if (!email) { errorBox.textContent = "Escribe primero tu correo arriba."; errorBox.style.display = "block"; return; }
+  auth.sendPasswordResetEmail(email).then(function () {
+    successBox.textContent = "Te enviamos un correo a " + email + " para que definas una nueva contraseña.";
+    successBox.style.display = "block";
+  }).catch(function () {
+    successBox.textContent = "Si ese correo tiene una cuenta, te llegará un enlace para restablecer la contraseña.";
+    successBox.style.display = "block";
+  });
+});
+</script>
+</body>
+</html>
