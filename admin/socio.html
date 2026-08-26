@@ -112,6 +112,10 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
           <div class="field"><label>Colegio</label><input type="text" id="colegio"></div>
           <div class="field"><label>Jornada escolar</label><input type="text" id="jornada"></div>
         </div>
+        <div class="status-row" id="asistenciaStatsRow" style="display:none">
+          <span class="k">Asistencia a entrenamientos</span>
+          <span class="pill" id="asistenciaStatsPill">—</span>
+        </div>
       </div>
 
       <div class="card">
@@ -309,6 +313,15 @@ function cargarSocio() {
     document.getElementById("ciudad").value = socioActual.ciudad || "";
     document.getElementById("direccion").value = socioActual.direccion || "";
     setCategoriaValor(socioActual.categoria || "");
+    if (socioActual.entrenamientosProgramados) {
+      const asistidos = socioActual.entrenamientosAsistidos || 0;
+      const total = socioActual.entrenamientosProgramados;
+      const pct = Math.round((asistidos / total) * 100);
+      document.getElementById("asistenciaStatsRow").style.display = "flex";
+      const pill = document.getElementById("asistenciaStatsPill");
+      pill.textContent = asistidos + "/" + total + " (" + pct + "%)";
+      pill.className = "pill " + (pct >= 80 ? "ok" : pct >= 50 ? "warn" : "bad");
+    }
     document.getElementById("posicion").value = socioActual.posicion || "";
     document.getElementById("pieHabil").value = socioActual.pieHabil || "";
     document.getElementById("camiseta").value = socioActual.camiseta || "";

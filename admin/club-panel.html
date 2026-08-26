@@ -138,6 +138,18 @@
 .qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
 .qt-10{background:linear-gradient(135deg,#0891b2,#164e63)}
 .qt-11{background:linear-gradient(135deg,#f43f5e,#7f1d1d)}
+.asist-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:520px;overflow-y:auto;padding-right:2px}
+.asist-chip{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;border:1.5px solid var(--card-b2);background:var(--card2);cursor:pointer;transition:.12s;user-select:none}
+.asist-chip img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--card)}
+.asist-chip span{font-size:.78rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.asist-chip.presente{border-color:rgba(24,168,58,.5);background:rgba(24,168,58,.12)}
+.asist-chip.ausente{opacity:.55}
+.asist-chip .check{flex-shrink:0;width:20px;height:20px;border-radius:50%;border:2px solid var(--card-b2);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:transparent}
+.asist-chip.presente .check{background:var(--green-l);border-color:var(--green-l);color:#031007}
+.asist-topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.asist-contador{font-size:.8rem;color:var(--gray);font-weight:700}
+@keyframes asistPulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+.asist-live-dot{width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block;animation:asistPulseDot 1.2s ease-in-out infinite;margin-right:6px}
 .next-training-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(24,168,58,.14),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:16px;padding:16px 18px;margin-bottom:18px;animation:ntGlow 2.6s ease-in-out infinite}
 @keyframes ntGlow{0%,100%{box-shadow:0 0 0 rgba(24,168,58,0)}50%{box-shadow:0 0 26px rgba(24,168,58,.4)}}
 .next-training-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);animation:ntShine 3.4s ease-in-out infinite}
@@ -220,11 +232,12 @@
 
       <div class="next-training-card" id="nextTrainingCard" style="display:none">
         <div class="nt-ico"><i class="fa-solid fa-stopwatch"></i></div>
-        <div>
+        <div style="flex:1;min-width:0">
           <div class="nt-title">Próximo entrenamiento</div>
           <div class="nt-body" id="ntBody">—</div>
           <div class="nt-sub" id="ntSub">—</div>
         </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAsistenciaRapida" style="flex-shrink:0"><i class="fa-solid fa-clipboard-check"></i> Asistencia</button>
       </div>
 
       <div class="card" id="cumpleanosCard" style="display:none;border-color:rgba(255,201,51,.4);background:rgba(255,201,51,.06);margin-bottom:18px">
@@ -520,7 +533,41 @@
     </div>
 
     <div class="tab-panel" id="tab-entrenamientos">
-      <div class="card">
+      <div class="card" id="asistenciaCard">
+        <h3><i class="fa-solid fa-clipboard-check"></i> Asistencia del entrenamiento</h3>
+
+        <div id="asistenciaSinSesion">
+          <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Actívala cuando empiece el entrenamiento — todos quedan marcados presentes por defecto, solo destapa a los que faltaron.</p>
+          <div class="field-row">
+            <div class="field"><label>Categoría</label><select id="asistCategoria"><option value="">Todas las categorías</option></select></div>
+            <div class="field"><label>Sede (opcional)</label><select id="asistSede"><option value="">— Sin definir —</option></select></div>
+          </div>
+          <button type="button" class="btn btn-primary btn-block" id="btnActivarEntrenamiento"><i class="fa-solid fa-play"></i> Activar entrenamiento</button>
+        </div>
+
+        <div id="asistenciaConSesion" style="display:none">
+          <div class="asist-topbar">
+            <div>
+              <div style="font-weight:800"><span class="asist-live-dot"></span><span id="asistCategoriaActiva">—</span></div>
+              <div class="asist-contador" id="asistContador">0/0 presentes</div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btnFinalizarEntrenamiento"><i class="fa-solid fa-flag-checkered"></i> Finalizar</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnTodosPresentes">Todos presentes</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnTodosAusentes">Todos ausentes</button>
+          </div>
+          <input type="text" class="search-input" id="asistBuscar" placeholder="Buscar jugador..." style="margin-bottom:10px;width:100%">
+          <div id="asistLista" class="asist-grid"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimos entrenamientos</h3>
+        <div id="listaHistorialEntrenamientos"><p class="empty">Todavía no has finalizado ningún entrenamiento.</p></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario.</p>
         <div class="field-row">
@@ -867,6 +914,9 @@ requireClub().then(function (r) {
   escucharHorarios();
   escucharExcepciones();
   escucharUniformes();
+  escucharEntrenamientos();
+  document.getElementById("asistCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
+    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
   document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
   precargarFormImagenes();
   cargarAnuncio();
@@ -2283,7 +2333,7 @@ function escucharSedes() {
 function pintarSelectSedes() {
   const opciones = '<option value="">— Sin definir —</option>' +
     SEDES.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
-  ["horarioSede", "extraSede"].forEach(function (id) {
+  ["horarioSede", "extraSede", "asistSede"].forEach(function (id) {
     const sel = document.getElementById(id);
     if (!sel) return;
     const actual = sel.value;
@@ -2575,6 +2625,173 @@ document.getElementById("btnAgregarExtra").addEventListener("click", function ()
     document.getElementById("extraCategoria").value = "";
     document.getElementById("extraSede").value = "";
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Asistencia en vivo ──
+let SESION_ACTIVA = null;
+let HISTORIAL_ENTRENAMIENTOS = [];
+let asistBusqueda = "";
+
+function escucharEntrenamientos() {
+  db.collection("clientes").doc(clubActual.id).collection("entrenamientos")
+    .orderBy("horaInicio", "desc").limit(30)
+    .onSnapshot(function (snap) {
+      const todos = [];
+      snap.forEach(function (d) { todos.push(Object.assign({ id: d.id }, d.data())); });
+      SESION_ACTIVA = todos.find(function (e) { return e.estado === "activo"; }) || null;
+      HISTORIAL_ENTRENAMIENTOS = todos.filter(function (e) { return e.estado === "finalizado"; });
+      pintarSesionAsistencia();
+      pintarHistorialEntrenamientos();
+    }, function () {
+      // Colección todavía sin datos o reglas no publicadas: no rompas el resto del panel.
+    });
+}
+
+function rosterDeSesion(sesion) {
+  return SOCIOS.filter(function (s) { return !sesion.categoria || s.categoria === sesion.categoria; });
+}
+
+function pintarSesionAsistencia() {
+  const sinSesion = document.getElementById("asistenciaSinSesion");
+  const conSesion = document.getElementById("asistenciaConSesion");
+  if (!SESION_ACTIVA) {
+    sinSesion.style.display = "block";
+    conSesion.style.display = "none";
+    return;
+  }
+  sinSesion.style.display = "none";
+  conSesion.style.display = "block";
+  document.getElementById("asistCategoriaActiva").textContent = SESION_ACTIVA.categoria || "Todas las categorías";
+  pintarAsistLista();
+}
+
+function pintarAsistLista() {
+  if (!SESION_ACTIVA) return;
+  const roster = rosterDeSesion(SESION_ACTIVA);
+  const asistentes = SESION_ACTIVA.asistentes || {};
+  const q = asistBusqueda.toLowerCase().trim();
+  const filtrado = q ? roster.filter(function (s) { return (s.nombre || "").toLowerCase().includes(q); }) : roster;
+
+  const presentes = roster.filter(function (s) { return asistentes[s.id]; }).length;
+  document.getElementById("asistContador").textContent = presentes + "/" + roster.length + " presentes";
+
+  const box = document.getElementById("asistLista");
+  if (!filtrado.length) { box.innerHTML = '<p class="empty">No hay jugadores en esta categoría.</p>'; return; }
+  box.innerHTML = filtrado.map(function (s) {
+    const presente = !!asistentes[s.id];
+    const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
+    return '<div class="asist-chip ' + (presente ? "presente" : "ausente") + '" onclick="toggleAsistencia(\'' + s.id + '\')">' +
+      '<img src="' + foto + '" alt=""><span>' + esc(s.nombre || "Sin nombre") + '</span>' +
+      '<div class="check"><i class="fa-solid fa-check"></i></div></div>';
+  }).join("");
+}
+
+document.getElementById("asistBuscar").addEventListener("input", function () {
+  asistBusqueda = this.value;
+  pintarAsistLista();
+});
+
+function toggleAsistencia(socioId) {
+  if (!SESION_ACTIVA) return;
+  const nuevoValor = !(SESION_ACTIVA.asistentes && SESION_ACTIVA.asistentes[socioId]);
+  SESION_ACTIVA.asistentes = SESION_ACTIVA.asistentes || {};
+  SESION_ACTIVA.asistentes[socioId] = nuevoValor;
+  pintarAsistLista();
+  const campo = "asistentes." + socioId;
+  db.collection("clientes").doc(clubActual.id).collection("entrenamientos").doc(SESION_ACTIVA.id)
+    .update({ [campo]: nuevoValor })
+    .catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+}
+
+function marcarTodos(valor) {
+  if (!SESION_ACTIVA) return;
+  const roster = rosterDeSesion(SESION_ACTIVA);
+  const mapa = {};
+  roster.forEach(function (s) { mapa[s.id] = valor; });
+  SESION_ACTIVA.asistentes = mapa;
+  pintarAsistLista();
+  db.collection("clientes").doc(clubActual.id).collection("entrenamientos").doc(SESION_ACTIVA.id)
+    .update({ asistentes: mapa })
+    .catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+}
+
+document.getElementById("btnTodosPresentes").addEventListener("click", function () { marcarTodos(true); });
+document.getElementById("btnTodosAusentes").addEventListener("click", function () { marcarTodos(false); });
+
+function activarEntrenamiento(categoria, sedeId) {
+  const roster = rosterDeSesion({ categoria: categoria });
+  if (!roster.length) { mostrarError("No hay socios en esa categoría todavía."); return; }
+  const asistentes = {};
+  roster.forEach(function (s) { asistentes[s.id] = true; });
+  const hoy = new Date();
+  db.collection("clientes").doc(clubActual.id).collection("entrenamientos").add({
+    fecha: hoy.getFullYear() + "-" + String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0"),
+    categoria: categoria || "",
+    sedeId: sedeId || "",
+    estado: "activo",
+    horaInicio: firebase.firestore.FieldValue.serverTimestamp(),
+    horaFin: null,
+    asistentes: asistentes
+  }).then(function () {
+    mostrarExito("Entrenamiento activado. ¡A tomar asistencia!");
+    registrarAuditoria("Entrenamiento activado", clubActual.id, clubActual.clubNombre, categoria || "Todas las categorías");
+  }).catch(function (err) { mostrarError("No se pudo activar: " + err.message); });
+}
+
+document.getElementById("btnActivarEntrenamiento").addEventListener("click", function () {
+  activarEntrenamiento(document.getElementById("asistCategoria").value, document.getElementById("asistSede").value);
+});
+
+document.getElementById("btnFinalizarEntrenamiento").addEventListener("click", function () {
+  if (!SESION_ACTIVA) return;
+  if (!confirm("¿Finalizar la toma de asistencia de este entrenamiento?")) return;
+  const sesion = SESION_ACTIVA;
+  const roster = rosterDeSesion(sesion);
+  const asistentes = sesion.asistentes || {};
+
+  const batch = db.batch();
+  const ref = db.collection("clientes").doc(clubActual.id).collection("entrenamientos").doc(sesion.id);
+  batch.update(ref, { estado: "finalizado", horaFin: firebase.firestore.FieldValue.serverTimestamp() });
+  roster.forEach(function (s) {
+    const socioRef = db.collection("clientes").doc(clubActual.id).collection("socios").doc(s.id);
+    batch.update(socioRef, {
+      entrenamientosProgramados: firebase.firestore.FieldValue.increment(1),
+      entrenamientosAsistidos: firebase.firestore.FieldValue.increment(asistentes[s.id] ? 1 : 0)
+    });
+  });
+  batch.commit().then(function () {
+    const presentes = roster.filter(function (s) { return asistentes[s.id]; }).length;
+    mostrarExito("Entrenamiento finalizado: " + presentes + "/" + roster.length + " presentes.");
+    registrarAuditoria("Entrenamiento finalizado", clubActual.id, clubActual.clubNombre, presentes + "/" + roster.length + " presentes");
+  }).catch(function (err) { mostrarError("No se pudo finalizar: " + err.message); });
+});
+
+function pintarHistorialEntrenamientos() {
+  const box = document.getElementById("listaHistorialEntrenamientos");
+  if (!box) return;
+  if (!HISTORIAL_ENTRENAMIENTOS.length) { box.innerHTML = '<p class="empty">Todavía no has finalizado ningún entrenamiento.</p>'; return; }
+  box.innerHTML = HISTORIAL_ENTRENAMIENTOS.slice(0, 10).map(function (e) {
+    const asistentes = e.asistentes || {};
+    const total = Object.keys(asistentes).length;
+    const presentes = Object.values(asistentes).filter(Boolean).length;
+    return '<div class="pat-card"><div class="pat-logo-empty"><i class="fa-solid fa-clipboard-check"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(e.categoria || "Todas las categorías") + '</div>' +
+      '<div class="pat-meta">' + esc(e.fecha || "") + ' · ' + presentes + '/' + total + ' presentes' + (e.sedeId ? ' · ' + esc(nombreSede(e.sedeId)) : '') + '</div></div></div>';
+  }).join("");
+}
+
+document.getElementById("btnAsistenciaRapida").addEventListener("click", function () {
+  document.querySelector('.tab-btn[data-tab="entrenamientos"]').click();
+  if (SESION_ACTIVA) {
+    document.getElementById("asistenciaCard").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  const resultado = proximoEntrenamiento(HORARIOS, null, opsExcepciones());
+  const esHoy = resultado && formatoProximoEntrenamiento(resultado).indexOf("Hoy") === 0;
+  if (esHoy) {
+    activarEntrenamiento(resultado.horario.categoria || "", resultado.horario.sedeId || "");
+  }
+  document.getElementById("asistenciaCard").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 // ── Mi club: datos, escudo/colores, cobro ──
