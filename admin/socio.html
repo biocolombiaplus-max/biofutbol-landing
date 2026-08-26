@@ -195,6 +195,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/nutricion.js"></script>
+<script src="js/avatar.js"></script>
 <script src="js/carnet.js"></script>
 <script src="js/recibo.js"></script>
 <script src="js/audit.js"></script>
@@ -247,11 +248,9 @@ function cargarSocio() {
     document.getElementById("estado").value = socioActual.estado || "Activo";
     document.getElementById("observaciones").value = socioActual.observaciones || "";
 
-    if (socioActual.fotoUrl) {
-      document.getElementById("fotoPreview").src = socioActual.fotoUrl;
-      document.getElementById("fotoPreview").style.display = "block";
-      document.getElementById("fotoEmpty").style.display = "none";
-    }
+    aplicarAvatarOFoto(document.getElementById("fotoPreview"), socioActual.fotoUrl, clubActual, socioActual.camiseta);
+    document.getElementById("fotoPreview").style.display = "block";
+    document.getElementById("fotoEmpty").style.display = "none";
     pintarPill("pillImagen", socioActual.autorizacionImagen);
     pintarPill("pillDatos", socioActual.autorizacionDatos);
 

@@ -51,6 +51,29 @@
   <div class="error-box" id="errorBox"></div>
 
   <div class="card" style="margin-bottom:20px">
+    <h3><i class="fa-solid fa-bullhorn"></i> Anuncio en el panel de los clubes</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Una franja animada que se muestra arriba del panel de <b>todos los clubes</b> (club-panel.html) — ideal para vender ese espacio a un negocio local, o anunciar algo de BioFutbol. Puedes programarlo con fecha de inicio y fin, o dejarlo indefinido.</p>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:16px">
+      <input type="checkbox" id="anActivo" style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+      <span style="font-weight:700;font-size:.86rem">Anuncio activo</span>
+    </label>
+    <div class="field-row">
+      <div class="field"><label>Etiqueta (opcional)</label><input type="text" id="anEtiqueta" placeholder="Ej: Anuncio, Promoción"></div>
+      <div class="field"><label>Color de fondo</label><input type="color" id="anColor" value="#c8102e" style="height:44px;padding:4px;cursor:pointer"></div>
+    </div>
+    <div class="field"><label>Texto (se desplaza en movimiento)</label><input type="text" id="anTexto" placeholder="Ej: Tu negocio aquí GRATIS — escríbenos por WhatsApp"></div>
+    <div class="field-row">
+      <div class="field"><label>Texto del botón (opcional)</label><input type="text" id="anBotonTexto" placeholder="Ej: ¡Lo quiero!"></div>
+      <div class="field"><label>Link del botón</label><input type="url" id="anLink" placeholder="https://wa.me/57..."></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Empieza (opcional)</label><input type="date" id="anInicio"></div>
+      <div class="field"><label>Termina (opcional)</label><input type="date" id="anFin"></div>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="btnGuardarAnuncio"><i class="fa-solid fa-floppy-disk"></i> Guardar anuncio</button>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-shield-heart"></i> Logos de clubes/escuelas (banner de confianza)</h3>
     <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Aparecen en un carrusel que rota automáticamente al inicio de la landing, con el mensaje "Clubes y escuelas que confían en BioFutbol". Mientras no subas ninguno, se muestran unos escudos genéricos de ejemplo — en cuanto agregues el primer logo real aquí, los reemplazan por completo. Ideal el logo en fondo transparente (PNG).</p>
     <div class="trust-logo-grid" id="trustLogoGrid">
@@ -218,6 +241,44 @@ const SLOTS = ["hero", "pain", "features", "matchday", "tabla", "goleadores", "v
 requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   cargarImagenes();
+  cargarAnuncio();
+});
+
+function cargarAnuncio() {
+  db.collection("config").doc("anuncio").get().then(function (doc) {
+    const a = doc.exists ? doc.data() : {};
+    document.getElementById("anActivo").checked = !!a.activo;
+    document.getElementById("anEtiqueta").value = a.etiqueta || "";
+    document.getElementById("anColor").value = a.color || "#c8102e";
+    document.getElementById("anTexto").value = a.texto || "";
+    document.getElementById("anBotonTexto").value = a.botonTexto || "";
+    document.getElementById("anLink").value = a.link || "";
+    document.getElementById("anInicio").value = a.fechaInicio || "";
+    document.getElementById("anFin").value = a.fechaFin || "";
+  });
+}
+
+document.getElementById("btnGuardarAnuncio").addEventListener("click", function () {
+  const data = {
+    activo: document.getElementById("anActivo").checked,
+    etiqueta: document.getElementById("anEtiqueta").value.trim(),
+    color: document.getElementById("anColor").value,
+    texto: document.getElementById("anTexto").value.trim(),
+    botonTexto: document.getElementById("anBotonTexto").value.trim(),
+    link: document.getElementById("anLink").value.trim(),
+    fechaInicio: document.getElementById("anInicio").value,
+    fechaFin: document.getElementById("anFin").value
+  };
+  if (data.activo && !data.texto) { mostrarError("Escribe el texto del anuncio antes de activarlo."); return; }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando...';
+  db.collection("config").doc("anuncio").set(data, { merge: true }).then(function () {
+    mostrarExito("Anuncio guardado.");
+  }).catch(function (err) {
+    mostrarError("No se pudo guardar: " + err.message);
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar anuncio';
+  });
 });
 
 function cargarImagenes() {

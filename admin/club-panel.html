@@ -45,6 +45,7 @@
 .socio-row:last-child{border-bottom:none}
 .socio-row:hover{background:rgba(24,168,58,.05);background:color-mix(in srgb,var(--green) 6%,transparent)}
 .socio-row.sel{background:rgba(24,168,58,.09);background:color-mix(in srgb,var(--green) 10%,transparent)}
+.socio-row-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--card2)}
 .socio-row .sn{flex:1;min-width:0}
 .socio-row .sn b{display:block;font-size:.88rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .socio-row .sn small{color:var(--gray);font-size:.72rem}
@@ -66,9 +67,56 @@
 .img-preview-wrap{display:flex;justify-content:center;margin-top:16px}
 .img-preview-wrap canvas{width:100%;max-width:340px;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.5);background:#05070a}
 .img-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+
+/* ── Banner de anuncios (marquesina animada) ── */
+.ad-banner{display:none;align-items:center;gap:14px;padding:11px 18px;overflow:hidden;position:relative}
+.ad-banner.on{display:flex}
+.ad-banner .ad-tag{flex-shrink:0;font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.18);padding:5px 11px;border-radius:999px;color:#fff;white-space:nowrap}
+.ad-banner .ad-track{flex:1;min-width:0;overflow:hidden;white-space:nowrap;position:relative}
+.ad-banner .ad-track span{display:inline-block;padding-left:100%;animation:adScroll 16s linear infinite;color:#fff;font-weight:700;font-size:.86rem}
+.ad-banner:hover .ad-track span{animation-play-state:paused}
+@keyframes adScroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+.ad-banner .ad-cta{flex-shrink:0;background:rgba(0,0,0,.22);color:#fff;font-weight:900;font-size:.78rem;padding:8px 16px;border-radius:999px;white-space:nowrap;text-decoration:none}
+@media(max-width:640px){.ad-banner .ad-track span{font-size:.78rem}}
+
+/* ── Inicio: hero + accesos rápidos ── */
+.hero-card{border-radius:20px;padding:26px 22px;position:relative;overflow:hidden;margin-top:24px;background:radial-gradient(760px 320px at 15% -20%,color-mix(in srgb,var(--green) 30%,transparent),transparent 60%),var(--card)}
+.hero-top{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.hero-top img{width:56px;height:56px;border-radius:14px;object-fit:contain;background:var(--card2);flex-shrink:0;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.hero-top .ht-name{font-size:1.15rem;font-weight:900}
+.hero-top .ht-sub{font-size:.74rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+.hero-pill{background:rgba(255,255,255,.06);border:1px solid var(--card-b2);border-radius:999px;padding:6px 13px;font-size:.76rem;font-weight:800;color:var(--white);display:flex;align-items:center;gap:6px}
+.hero-pill i{color:var(--green-l)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;position:relative;z-index:1}
+.hero-stat{text-align:center}
+.hero-stat .n{font-size:1.6rem;font-weight:900}
+.hero-stat .l{font-size:.68rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+.hero-progress{height:8px;border-radius:99px;background:var(--card2);margin-top:16px;overflow:hidden;position:relative;z-index:1}
+.hero-progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--green-l));transition:width .6s ease}
+
+.section-label{font-size:.72rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-d);margin:26px 0 12px}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick-tile{border-radius:16px;padding:18px 16px;cursor:pointer;border:none;text-align:left;position:relative;overflow:hidden;color:#fff;transition:transform .15s ease}
+.quick-tile:active{transform:scale(.97)}
+.quick-tile .qt-ico{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:10px}
+.quick-tile .qt-title{font-weight:900;font-size:.94rem;letter-spacing:.01em}
+.quick-tile .qt-sub{font-size:.72rem;font-weight:700;opacity:.85;margin-top:2px}
+.quick-tile.locked{opacity:.55;cursor:not-allowed}
+.qt-1{background:linear-gradient(135deg,#2563eb,#1e3a8a)}
+.qt-2{background:linear-gradient(135deg,#a855f7,#6b21a8)}
+.qt-3{background:linear-gradient(135deg,#0ea5a0,#075e56)}
+.qt-4{background:linear-gradient(135deg,#f97316,#9a3412)}
+.qt-5{background:linear-gradient(135deg,#22c55e,#14532d)}
+.qt-6{background:linear-gradient(135deg,#eab308,#854d0e)}
 </style>
 </head>
 <body>
+<div class="ad-banner" id="adBanner">
+  <span class="ad-tag" id="adTag">Anuncio</span>
+  <div class="ad-track"><span id="adText"></span></div>
+  <a class="ad-cta" id="adCta" href="#" target="_blank" rel="noopener" style="display:none"></a>
+</div>
 <div class="container">
   <div class="topbar">
     <div class="club-hdr" id="clubHdr">
@@ -90,7 +138,8 @@
 
   <div id="panelContent" style="display:none">
     <div class="tabs">
-      <button class="tab-btn on" data-tab="socios">Socios</button>
+      <button class="tab-btn on" data-tab="inicio">Inicio</button>
+      <button class="tab-btn" data-tab="socios">Socios</button>
       <button class="tab-btn" data-tab="imagenes">Imágenes</button>
       <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
@@ -98,7 +147,57 @@
       <button class="tab-btn" data-tab="miclub">Mi club</button>
     </div>
 
-    <div class="tab-panel on" id="tab-socios">
+    <div class="tab-panel on" id="tab-inicio">
+      <div class="hero-card">
+        <div class="hero-top">
+          <img id="heroLogo" src="" alt="" style="display:none">
+          <svg id="heroLogoDefault" viewBox="0 0 100 140" style="width:56px;height:68px;flex-shrink:0"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="var(--green)" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="var(--green)"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+          <div>
+            <div class="ht-name" id="heroNombre">Mi club</div>
+            <div class="ht-sub">Panel de gestión · BioFutbol</div>
+          </div>
+        </div>
+        <div class="hero-pills" id="heroPills"></div>
+        <div class="hero-stats" id="heroStats"></div>
+        <div class="hero-progress" id="heroProgressWrap" style="display:none"><div class="hero-progress-fill" id="heroProgressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="section-label">Acceso rápido</div>
+      <div class="quick-grid">
+        <button type="button" class="quick-tile qt-1" data-goto="socios">
+          <div class="qt-ico"><i class="fa-solid fa-users"></i></div>
+          <div class="qt-title">Socios</div>
+          <div class="qt-sub" id="qtSociosSub">—</div>
+        </button>
+        <button type="button" class="quick-tile qt-2" data-goto="imagenes">
+          <div class="qt-ico"><i class="fa-solid fa-image"></i></div>
+          <div class="qt-title">Imágenes</div>
+          <div class="qt-sub">Crear para redes</div>
+        </button>
+        <button type="button" class="quick-tile qt-3" data-goto="equipos" id="qtEquipos">
+          <div class="qt-ico"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="qt-title">Equipos</div>
+          <div class="qt-sub" id="qtEquiposSub">—</div>
+        </button>
+        <button type="button" class="quick-tile qt-4" data-goto="fixture" id="qtFixture">
+          <div class="qt-ico"><i class="fa-solid fa-calendar-days"></i></div>
+          <div class="qt-title">Fixture</div>
+          <div class="qt-sub" id="qtFixtureSub">—</div>
+        </button>
+        <button type="button" class="quick-tile qt-5" data-goto="tabla" id="qtTabla">
+          <div class="qt-ico"><i class="fa-solid fa-ranking-star"></i></div>
+          <div class="qt-title">Tabla</div>
+          <div class="qt-sub">Posiciones</div>
+        </button>
+        <button type="button" class="quick-tile qt-6" data-goto="miclub">
+          <div class="qt-ico"><i class="fa-solid fa-gear"></i></div>
+          <div class="qt-title">Mi club</div>
+          <div class="qt-sub">Datos y colores</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-socios">
       <div class="card" style="margin-bottom:18px">
         <h3><i class="fa-solid fa-user-plus"></i> Registrar un nuevo socio o jugador</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envía este link para que el jugador, su acudiente o el profesor complete los datos desde el celular. Se guarda directo en esta lista.</p>
@@ -344,6 +443,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/imagenes.js"></script>
+<script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
 <script>
 let clubActual = null;
@@ -374,6 +474,7 @@ requireClub().then(function (r) {
   escucharPartidos();
   escucharSocios();
   precargarFormImagenes();
+  cargarAnuncio();
   precargarFormMiClub();
 });
 
@@ -396,6 +497,32 @@ function tonoClaro(hex, amt) {
   const g = Math.round(c.g + (255 - c.g) * amt);
   const b = Math.round(c.b + (255 - c.b) * amt);
   return "rgb(" + r + "," + g + "," + b + ")";
+}
+
+// Barra de anuncios (marquesina) que programa el súper-admin desde
+// landing.html — se muestra arriba del panel mientras esté activa y,
+// si tiene fechas, dentro del rango programado.
+function cargarAnuncio() {
+  db.collection("config").doc("anuncio").get().then(function (doc) {
+    if (!doc.exists) return;
+    const a = doc.data();
+    if (!a.activo || !a.texto) return;
+    const hoy = new Date().toISOString().slice(0, 10);
+    if (a.fechaInicio && hoy < a.fechaInicio) return;
+    if (a.fechaFin && hoy > a.fechaFin) return;
+
+    const banner = document.getElementById("adBanner");
+    banner.style.background = "linear-gradient(90deg," + (a.color || "#c8102e") + "," + tonoClaro(a.color || "#c8102e", -0.3) + ")";
+    document.getElementById("adTag").textContent = a.etiqueta || "Anuncio";
+    document.getElementById("adText").textContent = a.texto;
+    const cta = document.getElementById("adCta");
+    if (a.botonTexto && a.link) {
+      cta.textContent = a.botonTexto;
+      cta.href = a.link;
+      cta.style.display = "inline-block";
+    }
+    banner.classList.add("on");
+  }).catch(function () { /* si falla, simplemente no se muestra el anuncio */ });
 }
 
 // Para que cuando el club "agregue a inicio" desde su celular, salga el
@@ -424,18 +551,23 @@ function aplicarIconoDelClub(cliente) {
   if (themeMeta && cliente.colorPrimario) themeMeta.content = cliente.colorPrimario;
 }
 
+function irATab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === tab); });
+  document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
+  if (TABS_MODULO_EQUIPOS.indexOf(tab) !== -1 && !moduloEquiposActivo) {
+    document.getElementById("sinModulo").classList.add("on");
+  } else {
+    document.getElementById("tab-" + tab).classList.add("on");
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 document.querySelectorAll(".tab-btn").forEach(function (btn) {
-  btn.addEventListener("click", function () {
-    document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("on"); });
-    document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
-    btn.classList.add("on");
-    const tab = btn.dataset.tab;
-    if (TABS_MODULO_EQUIPOS.indexOf(tab) !== -1 && !moduloEquiposActivo) {
-      document.getElementById("sinModulo").classList.add("on");
-    } else {
-      document.getElementById("tab-" + tab).classList.add("on");
-    }
-  });
+  btn.addEventListener("click", function () { irATab(btn.dataset.tab); });
+});
+
+document.querySelectorAll(".quick-tile[data-goto]").forEach(function (btn) {
+  btn.addEventListener("click", function () { irATab(btn.dataset.goto); });
 });
 
 function esc(s) {
@@ -452,7 +584,56 @@ function escucharEquipos() {
     snap.forEach(function (d) { EQUIPOS.push(Object.assign({ id: d.id }, d.data())); });
     pintarEquipos();
     pintarSelectsPartido();
+    pintarInicio();
   });
+}
+
+function pintarInicio() {
+  document.getElementById("heroNombre").textContent = clubActual.clubNombre || "Mi club";
+  if (clubActual.logoUrl) {
+    document.getElementById("heroLogo").src = clubActual.logoUrl;
+    document.getElementById("heroLogo").style.display = "block";
+    document.getElementById("heroLogoDefault").style.display = "none";
+  }
+
+  const jugados = PARTIDOS.filter(function (p) { return p.jugado; }).length;
+  const restantes = PARTIDOS.length - jugados;
+  const pendientes = SOCIOS.filter(function (s) { return estadoPagoSocioCrm(s).vencido; }).length;
+
+  const pills = [
+    '<span class="hero-pill"><i class="fa-solid fa-users"></i> ' + SOCIOS.length + ' socio' + (SOCIOS.length === 1 ? '' : 's') + '</span>'
+  ];
+  if (moduloEquiposActivo) {
+    pills.push('<span class="hero-pill"><i class="fa-solid fa-shield-halved"></i> ' + EQUIPOS.length + ' equipos</span>');
+    pills.push('<span class="hero-pill"><i class="fa-solid fa-futbol"></i> ' + PARTIDOS.length + ' partidos</span>');
+  } else {
+    pills.push('<span class="hero-pill"><i class="fa-solid fa-lock"></i> Módulo de equipos inactivo</span>');
+  }
+  document.getElementById("heroPills").innerHTML = pills.join("");
+
+  const stats = document.getElementById("heroStats");
+  const progressWrap = document.getElementById("heroProgressWrap");
+  if (moduloEquiposActivo && PARTIDOS.length) {
+    stats.innerHTML =
+      '<div class="hero-stat"><div class="n">' + jugados + '</div><div class="l">Jugados</div></div>' +
+      '<div class="hero-stat"><div class="n">' + restantes + '</div><div class="l">Restantes</div></div>' +
+      '<div class="hero-stat"><div class="n">' + pendientes + '</div><div class="l">Pagos pendientes</div></div>';
+    progressWrap.style.display = "block";
+    document.getElementById("heroProgressFill").style.width = (PARTIDOS.length ? Math.round(jugados / PARTIDOS.length * 100) : 0) + "%";
+  } else {
+    stats.innerHTML =
+      '<div class="hero-stat"><div class="n">' + SOCIOS.length + '</div><div class="l">Socios</div></div>' +
+      '<div class="hero-stat"><div class="n">' + pendientes + '</div><div class="l">Pendientes de pago</div></div>' +
+      '<div class="hero-stat"><div class="n">' + (SOCIOS.length - pendientes) + '</div><div class="l">Al día</div></div>';
+    progressWrap.style.display = "none";
+  }
+
+  document.getElementById("qtSociosSub").textContent = SOCIOS.length + " registrados";
+  ["qtEquipos", "qtFixture", "qtTabla"].forEach(function (id) {
+    document.getElementById(id).classList.toggle("locked", !moduloEquiposActivo);
+  });
+  document.getElementById("qtEquiposSub").textContent = moduloEquiposActivo ? (EQUIPOS.length + " equipos") : "Módulo inactivo";
+  document.getElementById("qtFixtureSub").textContent = moduloEquiposActivo ? (PARTIDOS.length + " partidos") : "Módulo inactivo";
 }
 
 function pintarEquipos() {
@@ -500,6 +681,7 @@ function escucharPartidos() {
     snap.forEach(function (d) { PARTIDOS.push(Object.assign({ id: d.id }, d.data())); });
     pintarPartidos();
     pintarTabla();
+    pintarInicio();
   });
 }
 
@@ -616,6 +798,7 @@ function escucharSocios() {
     snap.forEach(function (d) { SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
     SOCIOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
     pintarListaSocios();
+    pintarInicio();
     if (socioSeleccionado) {
       const actualizado = SOCIOS.find(function (s) { return s.id === socioSeleccionado.id; });
       if (actualizado) { socioSeleccionado = actualizado; pintarFicha(); }
@@ -634,7 +817,9 @@ function pintarListaSocios() {
   if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
   box.innerHTML = lista.map(function (s) {
     const ep = estadoPagoSocioCrm(s);
+    const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
     return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
+      '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
       '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
       '<span class="pill ' + ep.clase + '">' + ep.texto + '</span></div>';
   }).join("");
@@ -653,7 +838,7 @@ function pintarFicha() {
   vacia.style.display = "none";
   box.style.display = "block";
 
-  document.getElementById("fichaFoto").src = socioSeleccionado.fotoUrl || "";
+  aplicarAvatarOFoto(document.getElementById("fichaFoto"), socioSeleccionado.fotoUrl, clubActual, socioSeleccionado.camiseta);
   document.getElementById("fichaNombre").textContent = socioSeleccionado.nombre || "Sin nombre";
   document.getElementById("fichaCategoria").textContent = socioSeleccionado.categoria || "—";
   document.getElementById("fichaTelefono").textContent = socioSeleccionado.telefono || "—";

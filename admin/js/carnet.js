@@ -79,8 +79,9 @@ function carnetHtml(socio, club, verUrl, idSuffix) {
   var c3 = (club && club.colorTerciario) || c1;
   var activo = (socio.estado || "Activo") === "Activo";
   var sufijo = idSuffix || "card";
-  var photoHtml = socio.fotoUrl
-    ? '<img class="carnet-photo" src="' + socio.fotoUrl + '" alt="foto">'
+  var fotoSrc = socio.fotoUrl || (typeof avatarJerseyDataUrl === "function" ? avatarJerseyDataUrl(club, socio.camiseta) : "");
+  var photoHtml = fotoSrc
+    ? '<img class="carnet-photo" src="' + fotoSrc + '" alt="foto">'
     : '<div class="carnet-photo"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="22" r="12" fill="#9aa5b4"/><ellipse cx="32" cy="52" rx="20" ry="12" fill="#9aa5b4"/></svg></div>';
   var crestHtml = (club && club.logoUrl)
     ? '<img class="carnet-crest" src="' + club.logoUrl + '" alt="escudo">'
