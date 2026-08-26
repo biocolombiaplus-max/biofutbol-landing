@@ -71,6 +71,8 @@
 .socio-row .sn{flex:1;min-width:0}
 .socio-row .sn b{display:block;font-size:.88rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .socio-row .sn small{color:var(--gray);font-size:.72rem}
+.socio-row .sn .pill{display:inline-flex;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.socio-row-arrow{color:var(--gray-d);font-size:.8rem;flex-shrink:0}
 .crm-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .crm-toolbar .search-input{flex:1;min-width:160px}
 .ficha-box{display:none}
@@ -1137,8 +1139,9 @@ function pintarListaSocios() {
     const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
     return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
       '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
-      '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
-      '<span class="pill ' + ep.clase + '">' + ep.texto + '</span></div>';
+      '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small>' +
+      '<span class="pill ' + ep.clase + '" style="margin-top:5px">' + ep.texto + '</span></div>' +
+      '<i class="fa-solid fa-chevron-right socio-row-arrow"></i></div>';
   }).join("");
 }
 
@@ -1146,6 +1149,9 @@ function seleccionarSocio(id) {
   socioSeleccionado = SOCIOS.find(function (s) { return s.id === id; }) || null;
   pintarListaSocios();
   pintarFicha();
+  if (socioSeleccionado && window.innerWidth <= 860) {
+    document.getElementById("fichaBox").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function pintarFicha() {
