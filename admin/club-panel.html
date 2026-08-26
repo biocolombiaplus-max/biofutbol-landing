@@ -887,6 +887,38 @@
 
     <div class="tab-panel" id="tab-informes">
       <div class="card">
+        <h3><i class="fa-solid fa-file-shield"></i> Excusa / constancia deportiva</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Genera un PDF oficial para que el deportista lo presente en el colegio o en el trabajo, y envíaselo directo por WhatsApp o correo al papá, mamá o acudiente.</p>
+        <div class="field"><label>Deportista</label><select id="excSocio"><option value="">Selecciona un deportista…</option></select></div>
+        <div class="field-row">
+          <div class="field"><label>Tipo de actividad</label>
+            <select id="excTipo">
+              <option value="entrenamiento">Entrenamiento</option>
+              <option value="partido">Partido</option>
+              <option value="torneo">Torneo / Campeonato</option>
+              <option value="convocatoria">Convocatoria especial</option>
+              <option value="__otra__">Otra (escribir)</option>
+            </select>
+          </div>
+          <div class="field" id="excTipoOtroWrap" style="display:none"><label>¿Cuál?</label><input type="text" id="excTipoOtro" placeholder="Ej: Selección departamental"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Fecha</label><input type="date" id="excFecha"></div>
+          <div class="field"><label>Hasta (opcional, si son varios días)</label><input type="date" id="excFechaHasta"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Hora inicio (opcional)</label><input type="time" id="excHoraInicio"></div>
+          <div class="field"><label>Hora fin (opcional)</label><input type="time" id="excHoraFin"></div>
+        </div>
+        <div class="field"><label>Lugar (opcional)</label><input type="text" id="excLugar" placeholder="Ej: Cancha Municipal"></div>
+        <div class="field"><label>Observaciones adicionales (opcional)</label><input type="text" id="excObservaciones" placeholder="Ej: Debe salir 30 minutos antes por desplazamiento"></div>
+        <div class="field"><label>Firma / responsable (opcional)</label><input type="text" id="excFirmante" placeholder="Ej: Director deportivo"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnGenerarExcusa"><i class="fa-solid fa-file-pdf"></i> Generar excusa (PDF)</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnExcusaWhatsapp" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnExcusaCorreo" style="margin-top:8px" disabled><i class="fa-solid fa-envelope"></i> Enviar por correo</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-users-line"></i> Reporte de jugadores</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF organizado por categoría con los datos clave de cada jugador. Filtra por categoría o por fecha de inscripción si lo necesitas.</p>
         <div class="field-row">
@@ -987,6 +1019,7 @@
 <script src="js/plans.js"></script>
 <script src="js/categorias.js"></script>
 <script src="js/informes.js"></script>
+<script src="js/recibo.js"></script>
 <script src="js/horarios.js"></script>
 <script src="js/festivos.js"></script>
 <script src="js/imagenes.js"></script>
@@ -2528,11 +2561,19 @@ document.getElementById("aImgPatrocinador").addEventListener("change", function 
 
 function pintarSelectSociosImg() {
   const sel = document.getElementById("cumImgSocio");
-  if (!sel) return;
-  const actual = sel.value;
-  sel.innerHTML = '<option value="">— Escribir a mano —</option>' +
-    SOCIOS.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
-  sel.value = actual;
+  if (sel) {
+    const actual = sel.value;
+    sel.innerHTML = '<option value="">— Escribir a mano —</option>' +
+      SOCIOS.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
+    sel.value = actual;
+  }
+  const selExc = document.getElementById("excSocio");
+  if (selExc) {
+    const actualExc = selExc.value;
+    selExc.innerHTML = '<option value="">Selecciona un deportista…</option>' +
+      SOCIOS.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + (s.categoria ? " · " + esc(s.categoria) : "") + '</option>'; }).join("");
+    selExc.value = actualExc;
+  }
 }
 
 document.getElementById("cumImgSocio").addEventListener("change", function () {
@@ -2902,6 +2943,119 @@ document.getElementById("btnGuardarPatrocinador").addEventListener("click", func
     mostrarExito(patrocinadorEnEdicion ? "Patrocinador actualizado." : "Patrocinador agregado.");
     limpiarFormPatrocinador();
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Excusa / constancia deportiva ──
+const TIPO_ACTIVIDAD_LABEL = { entrenamiento: "Entrenamiento", partido: "Partido", torneo: "Torneo / Campeonato", convocatoria: "Convocatoria especial" };
+let ultimaExcusaUrl = null;
+let ultimaExcusaSocio = null;
+
+document.getElementById("excTipo").addEventListener("change", function () {
+  document.getElementById("excTipoOtroWrap").style.display = this.value === "__otra__" ? "block" : "none";
+});
+
+function tipoActividadExcusaTexto() {
+  const val = document.getElementById("excTipo").value;
+  if (val === "__otra__") return document.getElementById("excTipoOtro").value.trim() || "una actividad deportiva";
+  return TIPO_ACTIVIDAD_LABEL[val] || "una actividad deportiva";
+}
+
+function formatFechaExcusa(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return "";
+  const txt = d.toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+
+function fechaExcusaTexto() {
+  const desde = document.getElementById("excFecha").value;
+  const hasta = document.getElementById("excFechaHasta").value;
+  if (!desde) return "";
+  const txt = formatFechaExcusa(desde);
+  if (hasta && hasta !== desde) return "desde el " + txt + " hasta el " + formatFechaExcusa(hasta);
+  return txt;
+}
+
+function horarioExcusaTexto() {
+  const ini = document.getElementById("excHoraInicio").value;
+  const fin = document.getElementById("excHoraFin").value;
+  if (!ini && !fin) return "";
+  if (ini && fin) return formatoHora12(ini) + " a " + formatoHora12(fin);
+  return formatoHora12(ini || fin);
+}
+
+document.getElementById("btnGenerarExcusa").addEventListener("click", function () {
+  const socioId = document.getElementById("excSocio").value;
+  const socio = SOCIOS.find(function (s) { return s.id === socioId; });
+  if (!socio) { mostrarError("Elige el deportista para el que vas a generar la excusa."); return; }
+  if (!document.getElementById("excFecha").value) { mostrarError("Elige la fecha de la actividad."); return; }
+
+  const doc = generarExcusaPDF({
+    club: clubActual,
+    socio: { nombre: socio.nombre, documento: socio.documento, categoria: socio.categoria },
+    tipo: tipoActividadExcusaTexto(),
+    fechaTexto: fechaExcusaTexto(),
+    horarioTexto: horarioExcusaTexto(),
+    lugar: document.getElementById("excLugar").value.trim(),
+    observaciones: document.getElementById("excObservaciones").value.trim(),
+    firmante: document.getElementById("excFirmante").value.trim()
+  });
+
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+  subirExcusaPDF(doc, "excusa-" + socioId + "-" + Date.now() + ".pdf").then(function (url) {
+    ultimaExcusaUrl = url;
+    ultimaExcusaSocio = socio;
+    document.getElementById("btnExcusaWhatsapp").disabled = false;
+    document.getElementById("btnExcusaCorreo").disabled = false;
+    doc.save("excusa-" + (socio.nombre || "deportista").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+    registrarAuditoria("Excusa deportiva generada", clubActual.id, socio.nombre, tipoActividadExcusaTexto());
+    mostrarExito("Excusa generada. Ya la puedes enviar por WhatsApp o correo.");
+  }).catch(function (err) {
+    mostrarError("No se pudo generar la excusa: " + err.message);
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar excusa (PDF)';
+  });
+});
+
+document.getElementById("btnExcusaWhatsapp").addEventListener("click", function () {
+  if (!ultimaExcusaUrl || !ultimaExcusaSocio) return;
+  let tel = (ultimaExcusaSocio.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola! Aquí tienes la excusa/constancia deportiva de " + (ultimaExcusaSocio.nombre || "tu deportista") + " para presentar en el colegio o el trabajo: " + ultimaExcusaUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Excusa deportiva enviada por WhatsApp", clubActual.id, ultimaExcusaSocio.nombre, tel);
+});
+
+document.getElementById("btnExcusaCorreo").addEventListener("click", function () {
+  if (!ultimaExcusaUrl || !ultimaExcusaSocio) return;
+  if (!ultimaExcusaSocio.correo) { mostrarError("Este deportista no tiene correo registrado."); return; }
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") {
+    mostrarError("Falta configurar EmailJS en js/firebase-config.js para enviar correos.");
+    return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: ultimaExcusaSocio.correo,
+    to_name: ultimaExcusaSocio.nombre || "",
+    club_nombre: (clubActual && clubActual.clubNombre) || "",
+    asunto: "Excusa / constancia deportiva — " + ((clubActual && clubActual.clubNombre) || "BioFutbol"),
+    mensaje: "Aquí tienes la excusa/constancia deportiva de " + (ultimaExcusaSocio.nombre || "tu deportista") + " para presentar en el colegio o el trabajo.",
+    boton_texto: "Ver excusa",
+    boton_url: ultimaExcusaUrl,
+    contrato_url: ultimaExcusaUrl
+  }).then(function () {
+    registrarAuditoria("Excusa deportiva enviada por correo", clubActual.id, ultimaExcusaSocio.nombre, ultimaExcusaSocio.correo);
+    mostrarExito("Correo enviado a " + ultimaExcusaSocio.correo);
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+  }).finally(function () {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
+  });
 });
 
 // ── Informes en PDF ──

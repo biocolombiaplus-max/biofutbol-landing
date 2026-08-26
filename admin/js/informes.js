@@ -198,3 +198,119 @@ function generarReporteCarteraPDF(datos) {
   informePie(doc, { club: datos.club, margin: margin, titulo: "Reporte de cartera" });
   return doc;
 }
+
+// datos = { club, socio: {nombre, documento, categoria}, tipo, fechaTexto,
+//   horarioTexto (opcional), lugar (opcional), observaciones (opcional),
+//   firmante (opcional) }
+// Constancia/excusa deportiva de una sola página, lista para que el
+// deportista la presente en el colegio o en el trabajo.
+function generarExcusaPDF(datos) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 56;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const rgb = reciboHexToRgb((datos.club && datos.club.colorPrimario) || "18A83A");
+  const numero = reciboNumero();
+
+  // Encabezado tipo membrete
+  doc.setFillColor(11, 22, 38);
+  doc.rect(0, 0, pageWidth, 118, "F");
+  doc.setFillColor(rgb.r, rgb.g, rgb.b);
+  doc.rect(0, 114, pageWidth, 4, "F");
+
+  const escR = 24, escX = margin + escR, escY = 52;
+  doc.setFillColor(rgb.r, rgb.g, rgb.b);
+  doc.circle(escX, escY, escR, "F");
+  doc.setDrawColor(255, 255, 255); doc.setLineWidth(1.4);
+  doc.circle(escX, escY, escR, "S");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+  const inicial = ((datos.club && datos.club.clubNombre) || "B").trim().charAt(0).toUpperCase();
+  doc.text(inicial, escX, escY + 7, { align: "center" });
+
+  doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor(255, 255, 255);
+  doc.text((datos.club && datos.club.clubNombre) || "Mi club", escX + escR + 14, 44);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(200, 200, 200);
+  doc.text("Gestionado con BioFutbol", escX + escR + 14, 60);
+
+  doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.setTextColor(255, 201, 51);
+  doc.text("CONSTANCIA DEPORTIVA", pageWidth - margin, 44, { align: "right" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(200, 200, 200);
+  doc.text("N.° " + numero, pageWidth - margin, 60, { align: "right" });
+
+  let y = 156;
+  doc.setTextColor(30, 30, 30);
+
+  const ciudad = (datos.club && datos.club.ciudad) || "";
+  const fechaHoy = new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+  doc.text((ciudad ? ciudad + ", " : "") + fechaHoy, pageWidth - margin, y, { align: "right" });
+  y += 36;
+
+  doc.setFont("helvetica", "bold"); doc.setFontSize(11.5);
+  doc.text("A quien interese,", margin, y);
+  y += 26;
+
+  const socio = datos.socio || {};
+  let parrafo = "Por medio de la presente, " + ((datos.club && datos.club.clubNombre) || "nuestra escuela de fútbol") +
+    " hace constar que " + (socio.nombre || "el/la deportista") +
+    (socio.documento ? ", identificado(a) con documento " + socio.documento + "," : ",") +
+    (socio.categoria ? " integrante de la categoría " + socio.categoria + "," : "") +
+    " participa en nuestras actividades deportivas y tiene programada su asistencia a " +
+    (datos.tipo ? datos.tipo.toLowerCase() : "una actividad deportiva") +
+    " el día " + (datos.fechaTexto || "—") +
+    (datos.horarioTexto ? ", en el horario de " + datos.horarioTexto : "") +
+    (datos.lugar ? ", en " + datos.lugar : "") + ".";
+
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  doc.splitTextToSize(parrafo, pageWidth - margin * 2).forEach(function (line) { doc.text(line, margin, y); y += 17; });
+  y += 10;
+
+  if (datos.observaciones) {
+    doc.splitTextToSize(datos.observaciones, pageWidth - margin * 2).forEach(function (line) { doc.text(line, margin, y); y += 17; });
+    y += 10;
+  }
+
+  const cierre = "Agradecemos de antemano la comprensión y el apoyo brindado a la formación deportiva de nuestros niños, niñas y jóvenes.";
+  doc.splitTextToSize(cierre, pageWidth - margin * 2).forEach(function (line) { doc.text(line, margin, y); y += 17; });
+  y += 46;
+
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  doc.text("Cordialmente,", margin, y);
+  y += 56;
+
+  doc.setDrawColor(80, 80, 80); doc.setLineWidth(0.8);
+  doc.line(margin, y, margin + 220, y);
+  y += 16;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.setTextColor(20, 20, 20);
+  doc.text(datos.firmante || (datos.club && datos.club.clubNombre) || "Dirección deportiva", margin, y);
+  y += 14;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(120, 120, 120);
+  doc.text((datos.club && datos.club.clubNombre) || "", margin, y);
+
+  // Sello circular decorativo de validación, esquina inferior derecha.
+  const selloX = pageWidth - margin - 46, selloY = pageHeight - 118;
+  doc.setDrawColor(rgb.r, rgb.g, rgb.b); doc.setLineWidth(1.6);
+  doc.circle(selloX, selloY, 40, "S");
+  doc.setLineWidth(0.8);
+  doc.circle(selloX, selloY, 34, "S");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(rgb.r, rgb.g, rgb.b);
+  doc.text("DOCUMENTO", selloX, selloY - 4, { align: "center" });
+  doc.text("VÁLIDO", selloX, selloY + 7, { align: "center" });
+  doc.setFontSize(6.5); doc.setTextColor(150, 150, 150);
+  doc.text(numero, selloX, selloY + 18, { align: "center" });
+
+  doc.setDrawColor(225, 225, 225); doc.setLineWidth(0.6);
+  doc.line(margin, pageHeight - 50, pageWidth - margin, pageHeight - 50);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(140, 140, 140);
+  doc.text("Documento generado electrónicamente con BioFutbol el " + fechaHoy, pageWidth / 2, pageHeight - 34, { align: "center" });
+
+  return doc;
+}
+
+// Sube la excusa/constancia a Cloudinary y devuelve la URL (requiere
+// cloudinary-config.js).
+function subirExcusaPDF(doc, nombreArchivo) {
+  const blob = doc.output("blob");
+  return subirACloudinary(blob, "excusas", nombreArchivo);
+}
