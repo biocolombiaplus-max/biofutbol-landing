@@ -86,8 +86,9 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <div class="field"><label>Dirección</label><input type="text" id="direccion"></div>
         <div class="field">
           <label>Estado</label>
-          <select id="estado"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select>
+          <select id="estado"><option value="Activo">Activo</option><option value="Pausa">En pausa (no está asistiendo)</option><option value="Inactivo">Inactivo / se retiró</option></select>
         </div>
+        <div id="motivacionalAviso" style="display:none;margin-top:12px"></div>
       </div>
 
       <div class="card">
@@ -143,10 +144,14 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <h3><i class="fa-solid fa-arrow-trend-up"></i> Crecimiento y desarrollo</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Solo visible para menores de 18 años. Registra peso y estatura periódicamente para ver la evolución.</p>
         <div class="field-row">
+          <div class="field"><label>Fecha</label><input type="date" id="fechaCrecimiento"></div>
           <div class="field"><label>Peso (kg)</label><input type="number" id="nuevoPeso" min="1" step="0.1"></div>
           <div class="field"><label>Estatura (cm)</label><input type="number" id="nuevaEstatura" min="30" step="0.1"></div>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="btnAgregarCrecimiento"><i class="fa-solid fa-plus"></i> Agregar registro de hoy</button>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-ghost btn-sm" id="btnAgregarCrecimiento"><i class="fa-solid fa-plus"></i> Agregar registro</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarCrecimiento" style="display:none">Cancelar</button>
+        </div>
 
         <div id="imcActual" style="margin-top:18px;display:none">
           <div class="status-row"><span class="k">IMC actual</span><span class="imc-badge" id="imcValor">—</span></div>
@@ -162,7 +167,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <details class="creco-detalle">
           <summary>Ver registros en tabla</summary>
           <table class="growth-table" id="growthTable" style="display:none">
-            <thead><tr><th>Fecha</th><th>Peso</th><th>Estatura</th><th>IMC</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Peso</th><th>Estatura</th><th>IMC</th><th></th></tr></thead>
             <tbody id="growthBody"></tbody>
           </table>
         </details>
@@ -224,6 +229,12 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnCrearAccesoSocio" style="margin-top:14px"><i class="fa-solid fa-user-plus"></i> Crear acceso del deportista</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarAccesoSocio" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar acceso por WhatsApp</button>
       </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Zona de peligro</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Si el deportista ya no está en el club, considera primero poner su estado en "Inactivo" (arriba) — así conservas su historial. Eliminarlo borra su ficha, carnet y registros para siempre.</p>
+        <button type="button" class="btn btn-danger btn-block btn-sm" id="btnBorrarSocio"><i class="fa-solid fa-trash"></i> Eliminar socio definitivamente</button>
+      </div>
     </div>
   </div>
 </div>
@@ -238,6 +249,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="js/categorias.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/crecimiento.js"></script>
+<script src="js/motivacion.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/carnet.js"></script>
@@ -270,9 +282,12 @@ function setCategoriaValor(valor) {
   }
 }
 
+let volverA = "club-panel.html";
+
 requireAccesoCliente(clienteId).then(function (r) {
   document.getElementById("userLabel").textContent = r.esSuperAdmin ? (nombreAdmin(r.user.email) + " (" + r.user.email + ")") : r.user.email;
-  document.getElementById("backLink").href = r.esSuperAdmin ? ("socios.html?cliente=" + clienteId) : "club-panel.html";
+  volverA = r.esSuperAdmin ? ("socios.html?cliente=" + clienteId) : "club-panel.html";
+  document.getElementById("backLink").href = volverA;
   if (!clienteId || !socioId) { mostrarError("Falta información en el link."); return; }
   cargarSocio();
 });
@@ -556,9 +571,12 @@ function pintarCrecimientoYNutricion() {
   const arr = socioActual.crecimiento || [];
   if (arr.length) {
     document.getElementById("growthTable").style.display = "table";
-    document.getElementById("growthBody").innerHTML = arr.slice().reverse().map(function (c) {
+    document.getElementById("growthBody").innerHTML = arr.slice().reverse().map(function (c, dispIdx) {
+      const originalIdx = arr.length - 1 - dispIdx;
       const imc = calcularIMC(c.peso, c.estatura);
-      return "<tr><td>" + (c.fecha || "—") + "</td><td>" + c.peso + " kg</td><td>" + c.estatura + " cm</td><td>" + (imc ? imc.toFixed(1) : "—") + "</td></tr>";
+      return "<tr><td>" + (c.fecha || "—") + "</td><td>" + c.peso + " kg</td><td>" + c.estatura + " cm</td><td>" + (imc ? imc.toFixed(1) : "—") + "</td>" +
+        "<td style=\"white-space:nowrap\"><button type=\"button\" class=\"btn btn-ghost btn-sm\" style=\"padding:4px 8px\" onclick=\"editarCrecimiento(" + originalIdx + ")\"><i class=\"fa-solid fa-pen\"></i></button> " +
+        "<button type=\"button\" class=\"btn btn-ghost btn-sm\" style=\"padding:4px 8px\" onclick=\"borrarCrecimiento(" + originalIdx + ")\"><i class=\"fa-solid fa-trash\"></i></button></td></tr>";
     }).join("");
     const ultimo = arr[arr.length - 1];
     const imc = calcularIMC(ultimo.peso, ultimo.estatura);
@@ -590,21 +608,69 @@ function pintarCrecimientoYNutricion() {
     '<div class="recipe-row"><b>Cena</b><span>' + receta.cena + '</span></div>';
 }
 
+let crecimientoEnEdicion = null;
+
+function limpiarFormCrecimiento() {
+  crecimientoEnEdicion = null;
+  document.getElementById("fechaCrecimiento").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("nuevoPeso").value = "";
+  document.getElementById("nuevaEstatura").value = "";
+  document.getElementById("btnAgregarCrecimiento").innerHTML = '<i class="fa-solid fa-plus"></i> Agregar registro';
+  document.getElementById("btnCancelarCrecimiento").style.display = "none";
+}
+limpiarFormCrecimiento();
+
+function editarCrecimiento(idx) {
+  const c = (socioActual.crecimiento || [])[idx];
+  if (!c) return;
+  crecimientoEnEdicion = idx;
+  document.getElementById("fechaCrecimiento").value = c.fecha || "";
+  document.getElementById("nuevoPeso").value = c.peso;
+  document.getElementById("nuevaEstatura").value = c.estatura;
+  document.getElementById("btnAgregarCrecimiento").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarCrecimiento").style.display = "inline-flex";
+  document.getElementById("crecimientoCard").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.getElementById("btnCancelarCrecimiento").addEventListener("click", limpiarFormCrecimiento);
+
+function borrarCrecimiento(idx) {
+  if (!confirm("¿Eliminar este registro de crecimiento?")) return;
+  const nuevos = (socioActual.crecimiento || []).slice();
+  nuevos.splice(idx, 1);
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ crecimiento: nuevos }).then(function () {
+    socioActual.crecimiento = nuevos;
+    if (crecimientoEnEdicion === idx) limpiarFormCrecimiento();
+    pintarCrecimientoYNutricion();
+    registrarAuditoria("Registro de crecimiento eliminado", clienteId, socioActual.nombre);
+    mostrarExito("Registro eliminado.");
+  }).catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
 document.getElementById("btnAgregarCrecimiento").addEventListener("click", function () {
+  const fecha = document.getElementById("fechaCrecimiento").value || new Date().toISOString().slice(0, 10);
   const peso = parseFloat(document.getElementById("nuevoPeso").value);
   const estatura = parseFloat(document.getElementById("nuevaEstatura").value);
-  if (!peso || !estatura) { mostrarError("Ingresa peso y estatura para agregar el registro."); return; }
+  if (!peso || !estatura) { mostrarError("Ingresa peso y estatura para el registro."); return; }
 
-  const entrada = { fecha: new Date().toISOString().slice(0, 10), peso: peso, estatura: estatura };
+  const nuevos = (socioActual.crecimiento || []).slice();
+  const entrada = { fecha: fecha, peso: peso, estatura: estatura };
+  if (crecimientoEnEdicion !== null) {
+    nuevos[crecimientoEnEdicion] = entrada;
+  } else {
+    nuevos.push(entrada);
+  }
+  nuevos.sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); });
+
+  const fueEdicion = crecimientoEnEdicion !== null;
   db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
-    crecimiento: firebase.firestore.FieldValue.arrayUnion(entrada)
+    crecimiento: nuevos
   }).then(function () {
-    socioActual.crecimiento = (socioActual.crecimiento || []).concat([entrada]);
-    document.getElementById("nuevoPeso").value = "";
-    document.getElementById("nuevaEstatura").value = "";
+    socioActual.crecimiento = nuevos;
+    limpiarFormCrecimiento();
     pintarCrecimientoYNutricion();
-    registrarAuditoria("Registro de crecimiento agregado", clienteId, socioActual.nombre);
-    mostrarExito("Registro de crecimiento guardado.");
+    registrarAuditoria(fueEdicion ? "Registro de crecimiento editado" : "Registro de crecimiento agregado", clienteId, socioActual.nombre);
+    mostrarExito(fueEdicion ? "Registro actualizado." : "Registro de crecimiento guardado.");
   }).catch(function (err) {
     mostrarError("No se pudo guardar: " + err.message);
   });
@@ -770,6 +836,53 @@ document.getElementById("btnEnviarAccesoSocio").addEventListener("click", functi
   mensaje += "\n\nAhí puedes ver el carnet, el estado de pago y cualquier aviso importante.";
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Acceso del socio enviado por WhatsApp", clienteId, socioActual.nombre, tel);
+});
+
+// ── Estado del socio: aviso motivacional al ponerlo en pausa/inactivo ──
+document.getElementById("estado").addEventListener("change", function () {
+  const aviso = document.getElementById("motivacionalAviso");
+  if (this.value === "Pausa" || this.value === "Inactivo") {
+    aviso.style.display = "block";
+    aviso.innerHTML = '<div class="disclaimer" style="border-color:rgba(255,201,51,.35);background:rgba(255,201,51,.06)">' +
+      '<i class="fa-solid fa-heart"></i> Antes de guardar, ¿qué tal enviarle un mensaje de ánimo para que no se aleje del equipo?' +
+      '<button type="button" class="btn btn-ghost btn-sm btn-block" id="btnEnviarMotivacional" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviar mensaje motivacional</button></div>';
+    document.getElementById("btnEnviarMotivacional").addEventListener("click", enviarMotivacional);
+  } else {
+    aviso.style.display = "none";
+  }
+});
+
+function enviarMotivacional() {
+  let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "¡Hola " + (socioActual.nombre || "campeón") + "! " + fraseMotivacionalAleatoria() +
+    " Te esperamos en " + ((clubActual && clubActual.clubNombre) || "el club") + " 💪⚽";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    comunicaciones: firebase.firestore.FieldValue.arrayUnion({ tipo: "whatsapp", resumen: "Mensaje motivacional enviado", fecha: new Date().toISOString() })
+  });
+  registrarAuditoria("Mensaje motivacional enviado", clienteId, socioActual.nombre, tel);
+}
+
+// ── Eliminar socio ──
+document.getElementById("btnBorrarSocio").addEventListener("click", function () {
+  if (!socioActual) return;
+  const confirmacion = prompt('Esta acción no se puede deshacer. Para confirmar, escribe el nombre exacto del socio:\n"' + socioActual.nombre + '"');
+  if (confirmacion === null) return;
+  if (confirmacion.trim() !== (socioActual.nombre || "").trim()) { mostrarError("El nombre no coincide. No se eliminó nada."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Eliminando...';
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).delete().then(function () {
+    registrarAuditoria("Socio eliminado", clienteId, socioActual.nombre);
+    window.location.href = volverA;
+  }).catch(function (err) {
+    mostrarError("No se pudo eliminar: " + err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Eliminar socio definitivamente';
+  });
 });
 
 function esc(s) {

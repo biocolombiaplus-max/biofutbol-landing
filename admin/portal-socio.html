@@ -46,6 +46,9 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 .creco-info>i{background:rgba(255,255,255,.08);color:var(--gray)}
 details.creco-detalle{margin-top:14px}
 details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;color:var(--gray);padding:6px 0}
+.motiv-card{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(135deg,rgba(24,168,58,.12),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
+.motiv-card i{font-size:1.1rem;color:var(--gold);margin-top:2px}
+.motiv-card p{font-size:.88rem;font-weight:700;line-height:1.5;font-style:italic}
 </style>
 </head>
 <body>
@@ -55,6 +58,8 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     <div class="name">Bio<b>Futbol</b></div>
     <p class="tag">Portal del deportista</p>
   </div>
+
+  <div class="motiv-card"><i class="fa-solid fa-quote-left"></i><p id="fraseMotivacional"></p></div>
 
   <div class="carnet-wrap" id="carnetContainer"></div>
 
@@ -136,6 +141,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/nutricion.js"></script>
+<script src="js/motivacion.js"></script>
 <script src="js/crecimiento.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/carnet.js"></script>
@@ -173,6 +179,7 @@ if (!clienteId || !socioId) {
 }
 
 function pintar(socio, club) {
+  document.getElementById("fraseMotivacional").textContent = fraseMotivacionalDelDia();
   carnetRender(document.getElementById("carnetContainer"), socio, club, location.href, "portal");
   document.getElementById("pCategoria").textContent = socio.categoria || "—";
   document.getElementById("pTalla").textContent = socio.talla || "—";
