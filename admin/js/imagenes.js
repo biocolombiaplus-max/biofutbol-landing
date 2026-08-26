@@ -698,8 +698,13 @@ function imgCanvasToBlob(canvas) {
   });
 }
 
-async function imgDescargar(canvas, nombreArchivo) {
-  const blob = await imgCanvasToBlob(canvas);
+// blobPrecomputado (opcional): si ya se generó el blob de antemano (ver
+// generarImagenClub en club-panel.html), se usa directo en vez de volver a
+// codificar el canvas — así el botón responde al toque sin ningún await de
+// por medio, evitando que Safari/iOS pierda el "gesto del usuario" y cancele
+// el share sheet solo (error "Abort due to cancellation of share").
+async function imgDescargar(canvas, nombreArchivo, blobPrecomputado) {
+  const blob = blobPrecomputado || await imgCanvasToBlob(canvas);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = nombreArchivo || "biofutbol.png";
@@ -707,13 +712,13 @@ async function imgDescargar(canvas, nombreArchivo) {
   setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
 }
 
-async function imgCompartir(canvas, nombreArchivo, textoCaption) {
-  const blob = await imgCanvasToBlob(canvas);
+async function imgCompartir(canvas, nombreArchivo, textoCaption, blobPrecomputado) {
+  const blob = blobPrecomputado || await imgCanvasToBlob(canvas);
   const file = new File([blob], nombreArchivo || "biofutbol.png", { type: "image/png" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     await navigator.share({ files: [file], text: textoCaption || "" });
     return true;
   }
-  await imgDescargar(canvas, nombreArchivo);
+  await imgDescargar(canvas, nombreArchivo, blob);
   return false;
 }

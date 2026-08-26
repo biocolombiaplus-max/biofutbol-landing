@@ -2399,6 +2399,7 @@ document.getElementById("btnRecordarMasivoCorreo").addEventListener("click", fun
 // ── Imágenes para redes sociales ──
 let tplActual = "jornada";
 let ultimoCaptionImg = "";
+let ultimoBlobImg = null;
 let aImgLogoUrl = "";
 let cumImgFotoUrl = "";
 
@@ -2735,6 +2736,15 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
 
   tarea.then(function () {
     ultimoCaptionImg = caption;
+    ultimoBlobImg = null;
+    // Codifica el PNG una sola vez, apenas se genera la imagen, en vez de
+    // esperar a que el usuario toque "Compartir": así ese botón puede llamar
+    // a navigator.share() de inmediato, sin ningún await antes, que es lo
+    // que Safari/iOS necesita para no perder el gesto del usuario y cancelar
+    // solo la hoja de compartir.
+    return imgCanvasToBlob(document.getElementById("imgCanvas"));
+  }).then(function (blob) {
+    ultimoBlobImg = blob;
     document.getElementById("imgActions").style.display = "flex";
     mostrarExito("Imagen generada.");
   }).catch(function (err) {
@@ -2745,13 +2755,18 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
 });
 
 document.getElementById("btnImgDescargar").addEventListener("click", function () {
-  imgDescargar(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png")
+  imgDescargar(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png", ultimoBlobImg)
     .catch(function (err) { mostrarError("No se pudo descargar: " + err.message); });
 });
 
 document.getElementById("btnImgCompartir").addEventListener("click", function () {
-  imgCompartir(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png", ultimoCaptionImg)
-    .catch(function (err) { mostrarError("No se pudo compartir: " + err.message); });
+  imgCompartir(document.getElementById("imgCanvas"), (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".png", ultimoCaptionImg, ultimoBlobImg)
+    .catch(function (err) {
+      // El usuario cerró la hoja de compartir sin elegir nada: no es un
+      // error de la app, no hay nada que avisar.
+      if (err && err.name === "AbortError") return;
+      mostrarError("No se pudo compartir: " + err.message);
+    });
 });
 
 document.getElementById("btnImgCaption").addEventListener("click", function () {
