@@ -75,6 +75,14 @@ service cloud.firestore {
       allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
+    match /clientes/{clienteId}/sedes/{docId} {
+      allow read: if true;
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+    }
+    match /clientes/{clienteId}/horarios/{docId} {
+      allow read: if true;
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+    }
 
     // Índice privado que conecta el UID de Firebase Auth de un socio (o su
     // acudiente) con su club y su documento — igual que /admins/{uid}, pero

@@ -59,6 +59,13 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 .motiv-card{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(135deg,rgba(24,168,58,.12),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
 .motiv-card i{font-size:1.1rem;color:var(--gold);margin-top:2px}
 .motiv-card p{font-size:.88rem;font-weight:700;line-height:1.5;font-style:italic}
+.next-training-card{display:flex;align-items:center;gap:14px}
+.next-training-card .nt-ico{width:44px;height:44px;border-radius:12px;background:rgba(24,168,58,.18);color:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.next-training-card .nt-title{font-size:.68rem;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
+.next-training-card .nt-body{font-size:1rem;font-weight:800}
+.next-training-card .nt-sub{font-size:.82rem;color:var(--gray);margin-top:2px}
+.otros-horarios{margin-top:14px;padding-top:14px;border-top:1px solid var(--card-b2);font-size:.8rem;color:var(--gray)}
+.otros-horarios div{padding:4px 0}
 </style>
 </head>
 <body>
@@ -79,6 +86,19 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
   <div class="motiv-card"><i class="fa-solid fa-quote-left"></i><p id="fraseMotivacional"></p></div>
 
   <div class="carnet-wrap" id="carnetContainer"></div>
+
+  <div class="pcard" id="entrenoCard" style="display:none">
+    <h3><i class="fa-solid fa-stopwatch"></i> Entrenamientos</h3>
+    <div class="next-training-card">
+      <div class="nt-ico"><i class="fa-solid fa-calendar-check"></i></div>
+      <div>
+        <div class="nt-title">Próximo entrenamiento</div>
+        <div class="nt-body" id="ntBody">—</div>
+        <div class="nt-sub" id="ntSub">—</div>
+      </div>
+    </div>
+    <div class="otros-horarios" id="otrosHorarios" style="display:none"></div>
+  </div>
 
   <div class="pcard" id="pagoCard" style="display:none">
     <h3><i class="fa-solid fa-money-bill-wave"></i> Cómo pagar la mensualidad</h3>
@@ -161,6 +181,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="js/nutricion.js"></script>
 <script src="js/crecimiento.js"></script>
 <script src="js/motivacion.js"></script>
+<script src="js/horarios.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/carnet.js"></script>
 <script src="js/audit.js"></script>
@@ -188,6 +209,16 @@ document.getElementById("btnVerPago").addEventListener("click", function () {
 requireAccesoSocio().then(function (r) {
   pintar(r.socio, r.club);
   document.getElementById("wrap").style.display = "block";
+  Promise.all([
+    db.collection("clientes").doc(r.socio.clienteId).collection("horarios").get(),
+    db.collection("clientes").doc(r.socio.clienteId).collection("sedes").get()
+  ]).then(function (res) {
+    const horarios = [];
+    res[0].forEach(function (d) { horarios.push(d.data()); });
+    const sedes = {};
+    res[1].forEach(function (d) { sedes[d.id] = d.data().nombre; });
+    pintarEntrenamientos(horarios, r.socio.categoria, sedes);
+  }).catch(function () {});
 }).catch(function () {
   // requireAccesoSocio ya redirige o muestra la pantalla de bloqueo.
 });

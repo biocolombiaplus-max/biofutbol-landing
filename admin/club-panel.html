@@ -137,6 +137,12 @@
 .qt-8{background:linear-gradient(135deg,#7c3aed,#3b0764)}
 .qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
 .qt-10{background:linear-gradient(135deg,#0891b2,#164e63)}
+.qt-11{background:linear-gradient(135deg,#f43f5e,#7f1d1d)}
+.next-training-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(24,168,58,.14),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:16px;padding:16px 18px;margin-bottom:18px}
+.next-training-card .nt-ico{width:44px;height:44px;border-radius:12px;background:rgba(24,168,58,.18);color:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.next-training-card .nt-title{font-size:.68rem;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
+.next-training-card .nt-body{font-size:.92rem;font-weight:800}
+.next-training-card .nt-sub{font-size:.78rem;color:var(--gray);margin-top:2px}
 .pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
 .pat-card.off{opacity:.5}
 .pat-logo{width:56px;height:56px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);flex-shrink:0}
@@ -182,6 +188,7 @@
       <button class="tab-btn" data-tab="socios">Socios</button>
       <button class="tab-btn" data-tab="imagenes">Imágenes</button>
       <button class="tab-btn" data-tab="patrocinadores">Patrocinadores</button>
+      <button class="tab-btn" data-tab="entrenamientos">Entrenamientos</button>
       <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
@@ -204,6 +211,15 @@
         <div class="hero-pills" id="heroPills"></div>
         <div class="hero-stats" id="heroStats"></div>
         <div class="hero-progress" id="heroProgressWrap" style="display:none"><div class="hero-progress-fill" id="heroProgressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="next-training-card" id="nextTrainingCard" style="display:none">
+        <div class="nt-ico"><i class="fa-solid fa-stopwatch"></i></div>
+        <div>
+          <div class="nt-title">Próximo entrenamiento</div>
+          <div class="nt-body" id="ntBody">—</div>
+          <div class="nt-sub" id="ntSub">—</div>
+        </div>
       </div>
 
       <div class="section-label">Acceso rápido</div>
@@ -252,6 +268,11 @@
           <div class="qt-ico"><i class="fa-solid fa-file-pdf"></i></div>
           <div class="qt-title">Informes</div>
           <div class="qt-sub">Jugadores y cartera</div>
+        </button>
+        <button type="button" class="quick-tile qt-11" data-goto="entrenamientos">
+          <div class="qt-ico"><i class="fa-solid fa-stopwatch"></i></div>
+          <div class="qt-title">Entrenamientos</div>
+          <div class="qt-sub" id="qtEntrenamientosSub">—</div>
         </button>
         <button type="button" class="quick-tile qt-6" data-goto="miclub">
           <div class="qt-ico"><i class="fa-solid fa-gear"></i></div>
@@ -437,6 +458,53 @@
       </div>
     </div>
 
+    <div class="tab-panel" id="tab-entrenamientos">
+      <div class="card">
+        <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario.</p>
+        <div class="field-row">
+          <div class="field"><label>Nombre de la sede</label><input type="text" id="sedeNombre" placeholder="Ej: Cancha Municipal"></div>
+          <div class="field"><label>Dirección (opcional)</label><input type="text" id="sedeDireccion" placeholder="Ej: Cra 5 # 10-20"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarSede"><i class="fa-solid fa-plus"></i> Guardar sede</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionSede" style="display:none">Cancelar edición</button>
+        </div>
+        <div id="listaSedes" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-week"></i> <span id="horarioFormTitulo">Agregar horario de entrenamiento</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Se muestra a los padres y deportistas en su panel y en el de inicio del club.</p>
+        <div class="field-row">
+          <div class="field"><label>Categoría</label>
+            <select id="horarioCategoria"><option value="">Todas las categorías</option></select>
+          </div>
+          <div class="field"><label>Día</label>
+            <select id="horarioDia">
+              <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Hora de inicio</label><input type="time" id="horarioInicio"></div>
+          <div class="field"><label>Hora de fin (opcional)</label><input type="time" id="horarioFin"></div>
+        </div>
+        <div class="field"><label>Sede</label>
+          <select id="horarioSede"><option value="">— Sin definir —</option></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarHorario"><i class="fa-solid fa-plus"></i> Guardar horario</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionHorario" style="display:none">Cancelar edición</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-days"></i> Horario semanal</h3>
+        <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
+      </div>
+    </div>
+
     <div id="sinModulo" class="tab-panel empty-mod">
       <i class="fa-solid fa-lock"></i>
       El módulo de Equipos, Fixture y Tabla de posiciones todavía no está activado para tu club.<br>Escríbele a BioFutbol para activarlo.
@@ -618,6 +686,7 @@
 <script src="js/plans.js"></script>
 <script src="js/categorias.js"></script>
 <script src="js/informes.js"></script>
+<script src="js/horarios.js"></script>
 <script src="js/imagenes.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
@@ -630,6 +699,10 @@ let LLAVE = null;
 let PATROCINADORES = [];
 let patrocinadorEnEdicion = null;
 let patLogoUrl = "";
+let SEDES = [];
+let sedeEnEdicion = null;
+let HORARIOS = [];
+let horarioEnEdicion = null;
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
@@ -655,10 +728,14 @@ requireClub().then(function (r) {
   escucharSocios();
   escucharLlave();
   escucharPatrocinadores();
+  escucharSedes();
+  escucharHorarios();
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
   document.getElementById("repJugCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
+    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
+  document.getElementById("horarioCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
     CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
 });
 
@@ -1762,6 +1839,187 @@ document.getElementById("btnReporteCartera").addEventListener("click", function 
   doc.save("cartera-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
   registrarAuditoria("Reporte de cartera generado", clubActual.id, clubActual.clubNombre);
 });
+
+// ── Sedes / lugares de entrenamiento ──
+function escucharSedes() {
+  db.collection("clientes").doc(clubActual.id).collection("sedes").onSnapshot(function (snap) {
+    SEDES = [];
+    snap.forEach(function (d) { SEDES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarSedes();
+    pintarSelectSedes();
+    pintarHorarios();
+  });
+}
+
+function pintarSelectSedes() {
+  const sel = document.getElementById("horarioSede");
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">— Sin definir —</option>' +
+    SEDES.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
+  sel.value = actual;
+}
+
+function nombreSede(id) {
+  const s = SEDES.find(function (x) { return x.id === id; });
+  return s ? s.nombre : "";
+}
+
+function pintarSedes() {
+  const box = document.getElementById("listaSedes");
+  if (!SEDES.length) { box.innerHTML = '<p class="empty">Todavía no has agregado sedes.</p>'; return; }
+  box.innerHTML = SEDES.map(function (s) {
+    return '<div class="pat-card"><div class="pat-logo-empty"><i class="fa-solid fa-map-pin"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(s.nombre) + '</div>' +
+      (s.direccion ? '<div class="pat-meta">' + esc(s.direccion) + '</div>' : '') + '</div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarSede(\'' + s.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarSede(\'' + s.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+function limpiarFormSede() {
+  sedeEnEdicion = null;
+  document.getElementById("sedeNombre").value = "";
+  document.getElementById("sedeDireccion").value = "";
+  document.getElementById("sedeFormTitulo").textContent = "Agregar sede / lugar de entrenamiento";
+  document.getElementById("btnGuardarSede").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar sede';
+  document.getElementById("btnCancelarEdicionSede").style.display = "none";
+}
+
+function editarSede(id) {
+  const s = SEDES.find(function (x) { return x.id === id; });
+  if (!s) return;
+  sedeEnEdicion = id;
+  document.getElementById("sedeNombre").value = s.nombre || "";
+  document.getElementById("sedeDireccion").value = s.direccion || "";
+  document.getElementById("sedeFormTitulo").textContent = "Editando: " + s.nombre;
+  document.getElementById("btnGuardarSede").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionSede").style.display = "inline-flex";
+}
+
+document.getElementById("btnCancelarEdicionSede").addEventListener("click", limpiarFormSede);
+
+function borrarSede(id) {
+  const s = SEDES.find(function (x) { return x.id === id; });
+  if (!s || !confirm('¿Borrar la sede "' + s.nombre + '"? Los horarios que la usan quedarán sin sede definida.')) return;
+  db.collection("clientes").doc(clubActual.id).collection("sedes").doc(id).delete()
+    .then(function () { mostrarExito("Sede eliminada."); if (sedeEnEdicion === id) limpiarFormSede(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarSede").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("sedeNombre").value.trim(),
+    direccion: document.getElementById("sedeDireccion").value.trim()
+  };
+  if (!data.nombre) { mostrarError("Ingresa el nombre de la sede."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("sedes");
+  const tarea = sedeEnEdicion ? ref.doc(sedeEnEdicion).update(data) : ref.add(data);
+  tarea.then(function () {
+    mostrarExito(sedeEnEdicion ? "Sede actualizada." : "Sede agregada.");
+    limpiarFormSede();
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Horarios de entrenamiento ──
+function escucharHorarios() {
+  db.collection("clientes").doc(clubActual.id).collection("horarios").onSnapshot(function (snap) {
+    HORARIOS = [];
+    snap.forEach(function (d) { HORARIOS.push(Object.assign({ id: d.id }, d.data())); });
+    pintarHorarios();
+    pintarProximoEntrenamiento();
+  });
+}
+
+function pintarHorarios() {
+  const box = document.getElementById("listaHorarios");
+  if (!HORARIOS.length) { box.innerHTML = '<p class="empty">Todavía no has programado horarios de entrenamiento.</p>'; return; }
+  const ordenados = HORARIOS.slice().sort(function (a, b) {
+    const d = DIAS_SEMANA_ORDEN.indexOf(a.dia) - DIAS_SEMANA_ORDEN.indexOf(b.dia);
+    if (d !== 0) return d;
+    return (a.horaInicio || "").localeCompare(b.horaInicio || "");
+  });
+  box.innerHTML = ordenados.map(function (h) {
+    const rango = formatoHora12(h.horaInicio) + (h.horaFin ? " – " + formatoHora12(h.horaFin) : "");
+    return '<div class="pat-card"><div class="pat-logo-empty"><i class="fa-solid fa-stopwatch"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(h.dia) + ' · ' + esc(rango) + '</div>' +
+      '<div class="pat-meta">' + esc(h.categoria || "Todas las categorías") + (h.sedeId ? ' · ' + esc(nombreSede(h.sedeId)) : '') + '</div></div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarHorario(\'' + h.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarHorario(\'' + h.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+function limpiarFormHorario() {
+  horarioEnEdicion = null;
+  document.getElementById("horarioCategoria").value = "";
+  document.getElementById("horarioDia").value = "Lunes";
+  document.getElementById("horarioInicio").value = "";
+  document.getElementById("horarioFin").value = "";
+  document.getElementById("horarioSede").value = "";
+  document.getElementById("horarioFormTitulo").textContent = "Agregar horario de entrenamiento";
+  document.getElementById("btnGuardarHorario").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar horario';
+  document.getElementById("btnCancelarEdicionHorario").style.display = "none";
+}
+
+function editarHorario(id) {
+  const h = HORARIOS.find(function (x) { return x.id === id; });
+  if (!h) return;
+  horarioEnEdicion = id;
+  document.getElementById("horarioCategoria").value = h.categoria || "";
+  document.getElementById("horarioDia").value = h.dia || "Lunes";
+  document.getElementById("horarioInicio").value = h.horaInicio || "";
+  document.getElementById("horarioFin").value = h.horaFin || "";
+  document.getElementById("horarioSede").value = h.sedeId || "";
+  document.getElementById("horarioFormTitulo").textContent = "Editando horario del " + h.dia;
+  document.getElementById("btnGuardarHorario").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionHorario").style.display = "inline-flex";
+}
+
+document.getElementById("btnCancelarEdicionHorario").addEventListener("click", limpiarFormHorario);
+
+function borrarHorario(id) {
+  if (!confirm("¿Borrar este horario de entrenamiento?")) return;
+  db.collection("clientes").doc(clubActual.id).collection("horarios").doc(id).delete()
+    .then(function () { mostrarExito("Horario eliminado."); if (horarioEnEdicion === id) limpiarFormHorario(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarHorario").addEventListener("click", function () {
+  const data = {
+    categoria: document.getElementById("horarioCategoria").value,
+    dia: document.getElementById("horarioDia").value,
+    horaInicio: document.getElementById("horarioInicio").value,
+    horaFin: document.getElementById("horarioFin").value,
+    sedeId: document.getElementById("horarioSede").value
+  };
+  if (!data.horaInicio) { mostrarError("Elige la hora de inicio del entrenamiento."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("horarios");
+  const tarea = horarioEnEdicion ? ref.doc(horarioEnEdicion).update(data) : ref.add(data);
+  tarea.then(function () {
+    mostrarExito(horarioEnEdicion ? "Horario actualizado." : "Horario agregado.");
+    limpiarFormHorario();
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+function pintarProximoEntrenamiento() {
+  const card = document.getElementById("nextTrainingCard");
+  const sub = document.getElementById("qtEntrenamientosSub");
+  const resultado = proximoEntrenamiento(HORARIOS, null);
+  if (!resultado) {
+    card.style.display = "none";
+    if (sub) sub.textContent = "Programar";
+    return;
+  }
+  card.style.display = "flex";
+  document.getElementById("ntBody").textContent = formatoProximoEntrenamiento(resultado);
+  const partes = [resultado.horario.categoria || "Todas las categorías"];
+  if (resultado.horario.sedeId) partes.push(nombreSede(resultado.horario.sedeId));
+  document.getElementById("ntSub").textContent = partes.join(" · ");
+  if (sub) sub.textContent = HORARIOS.length + " horario" + (HORARIOS.length === 1 ? "" : "s");
+}
 
 // ── Mi club: datos, escudo/colores, cobro ──
 function sincronizarMarca(id, data) {
