@@ -214,3 +214,50 @@ function requireAccesoSocio() {
 function cerrarSesionSocio() {
   auth.signOut().then(function () { window.location.href = "socio-login.html"; });
 }
+
+// Protege el panel autenticado de un profesor/entrenador (profesor-panel.html):
+// exige sesión y que esa cuenta esté ligada a un profesor en /profesoresIndex.
+// Devuelve una promesa con { user, profesor, club }.
+function requireAccesoProfesor() {
+  return new Promise(function (resolve, reject) {
+    auth.onAuthStateChanged(function (user) {
+      if (!user) { window.location.href = "profesor-login.html"; reject(new Error("sin-sesion")); return; }
+      db.collection("profesoresIndex").doc(user.uid).get().then(function (idxDoc) {
+        if (!idxDoc.exists) {
+          mostrarBloqueoAcceso("Esta cuenta no tiene un panel de profesor", "Esta cuenta no está ligada a ningún profesor. Si crees que es un error, pídele al club que te cree el acceso de nuevo desde la pestaña Profesores.", null, cerrarSesionProfesor);
+          reject(new Error("bloqueado"));
+          return;
+        }
+        const idx = idxDoc.data();
+        Promise.all([
+          db.collection("clientes").doc(idx.clienteId).collection("profesores").doc(idx.profesorId).get(),
+          db.collection("clientes").doc(idx.clienteId).collection("publico").doc("marca").get().catch(function () { return null; })
+        ]).then(function (res) {
+          const profesorDoc = res[0], marcaDoc = res[1];
+          if (!profesorDoc.exists) {
+            mostrarBloqueoAcceso("No encontramos tu ficha", "Tu acceso existe pero no encontramos el registro del profesor. Contacta a tu club.", null, cerrarSesionProfesor);
+            reject(new Error("bloqueado"));
+            return;
+          }
+          resolve({
+            user: user,
+            profesor: Object.assign({ id: profesorDoc.id, clienteId: idx.clienteId }, profesorDoc.data()),
+            club: (marcaDoc && marcaDoc.exists) ? marcaDoc.data() : {}
+          });
+        }).catch(function (err) { reject(err); });
+      }).catch(function (err) {
+        mostrarBloqueoAcceso(
+          "No se pudo verificar tu acceso",
+          "Esto casi siempre pasa porque las reglas de seguridad de Firestore todavía no están publicadas. Pídele a tu club que lo revise." +
+            (err && err.message ? "<br><br><small style=\"color:var(--gray-d)\">Detalle técnico: " + String(err.message).replace(/[&<>]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[m]; }) + "</small>" : ""),
+          null
+        );
+        reject(err);
+      });
+    });
+  });
+}
+
+function cerrarSesionProfesor() {
+  auth.signOut().then(function () { window.location.href = "profesor-login.html"; });
+}

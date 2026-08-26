@@ -22,6 +22,16 @@ service cloud.firestore {
         get(/databases/$(database)/documents/clientes/$(clienteId)).data.authUid == request.auth.uid;
     }
 
+    // Un profesor/entrenador es una cuenta de staff creada por el dueño del
+    // club (igual que un socio, pero para tomar asistencia y ver sus
+    // alumnos). profesoresIndex conecta su UID de Auth con su club, igual
+    // que sociosIndex hace para los socios.
+    function esProfesorDelClub(clienteId) {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/profesoresIndex/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/profesoresIndex/$(request.auth.uid)).data.clienteId == clienteId;
+    }
+
     // Clientes: cualquiera puede CREAR (formulario público de registro).
     // Leer/editar: el súper-admin de BioFutbol, o el propio club dueño de
     // ese documento (una vez tiene su login real). Borrar: solo súper-admin.
@@ -49,7 +59,11 @@ service cloud.firestore {
     match /clientes/{clienteId}/socios/{socioId} {
       allow create: if true;
       allow get: if true;
-      allow list, update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      // Los profesores también pueden listar y actualizar (necesitan ver a
+      // sus alumnos y, al finalizar la asistencia, sumar sus estadísticas de
+      // entrenamientosAsistidos/Programados) — pero no borrar.
+      allow list, update: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
+      allow delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
     // Módulos activados por club (equipos, fixture, tabla, etc.) y sus
@@ -93,6 +107,10 @@ service cloud.firestore {
     }
     match /clientes/{clienteId}/entrenamientos/{docId} {
       allow read: if true;
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
+    }
+    match /clientes/{clienteId}/profesores/{docId} {
+      allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
     match /clientes/{clienteId}/torneos/{docId} {
@@ -111,6 +129,13 @@ service cloud.firestore {
     // los demás. Solo el súper-admin o el dueño del club (quien crea el
     // acceso desde socio.html) pueden escribirla.
     match /sociosIndex/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
+      allow delete: if esSuperAdmin() || (resource != null && esDuenoDelClub(resource.data.clienteId));
+    }
+
+    // Mismo índice, pero para profesores/entrenadores.
+    match /profesoresIndex/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create, update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
       allow delete: if esSuperAdmin() || (resource != null && esDuenoDelClub(resource.data.clienteId));

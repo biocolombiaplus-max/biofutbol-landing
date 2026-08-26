@@ -214,6 +214,7 @@
     <div class="tabs">
       <button class="tab-btn on" data-tab="inicio">Inicio</button>
       <button class="tab-btn" data-tab="socios">Socios</button>
+      <button class="tab-btn" data-tab="profesores">Profesores</button>
       <button class="tab-btn" data-tab="imagenes">Imágenes</button>
       <button class="tab-btn" data-tab="patrocinadores">Patrocinadores</button>
       <button class="tab-btn" data-tab="entrenamientos">Entrenamientos</button>
@@ -380,6 +381,51 @@
             <div id="fichaComunicaciones"><p class="empty" style="padding:20px">Sin comunicaciones registradas todavía.</p></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-profesores">
+      <div class="card">
+        <h3><i class="fa-solid fa-whistle"></i> <span id="profFormTitulo">Agregar profesor / entrenador</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Cada profesor puede tener su propio acceso para tomar asistencia y ver solo a los alumnos de las categorías que le asignes.</p>
+        <div class="field"><label>Nombre completo</label><input type="text" id="profNombre" placeholder="Ej: Andrés Gómez"></div>
+        <div class="field-row">
+          <div class="field"><label>Teléfono</label><input type="text" id="profTelefono" placeholder="Ej: 3001234567"></div>
+          <div class="field"><label>Correo (opcional)</label><input type="email" id="profCorreo" placeholder="correo@ejemplo.com"></div>
+        </div>
+        <div class="field">
+          <label>Categorías a cargo</label>
+          <div class="tpl-pills" id="profCategoriasBox" style="margin-bottom:0"></div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>Foto (opcional)</label>
+          <div class="upload-box" id="profFotoBox" style="height:90px" onclick="document.getElementById('profFotoInput').click()">
+            <img id="profFotoPreview" class="upload-preview" style="display:none">
+            <div class="upload-empty" id="profFotoEmpty"><i class="fa-solid fa-image"></i><span>Subir foto</span></div>
+          </div>
+          <input type="file" id="profFotoInput" accept="image/*" style="display:none">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarProfesor"><i class="fa-solid fa-plus"></i> Guardar profesor</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionProf" style="display:none">Cancelar edición</button>
+        </div>
+
+        <div id="profAccesoCard" style="display:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <h3 style="font-size:.9rem"><i class="fa-solid fa-key"></i> Acceso con usuario y clave</h3>
+          <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Con esto el profesor entra en <b>profesor-login.html</b> a tomar asistencia y ver sus alumnos, sin ver nada administrativo del club.</p>
+          <div id="profClaveInicialWrap">
+            <div class="field"><label>Correo de acceso</label><input type="email" id="profCorreoAcceso" placeholder="correo con el que va a entrar"></div>
+            <div class="field"><label>Clave inicial</label><input type="text" id="profClaveInicial"></div>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnGenerarClaveProf"><i class="fa-solid fa-shuffle"></i> Generar clave automática</button>
+          </div>
+          <div id="profAccesoStatus" style="display:none;margin-top:14px"></div>
+          <button type="button" class="btn btn-primary btn-block btn-sm" id="btnCrearAccesoProf" style="margin-top:14px"><i class="fa-solid fa-user-plus"></i> Crear acceso del profesor</button>
+          <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarAccesoProf" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar acceso por WhatsApp</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-people-group"></i> Tu equipo de profesores</h3>
+        <div id="listaProfesores"><p class="empty">Todavía no has agregado profesores.</p></div>
       </div>
     </div>
 
@@ -952,6 +998,11 @@ let uniFotoUrl = "";
 let TORNEOS = [];
 let torneoEnEdicion = null;
 let torLogoUrl = "";
+let PROFESORES = [];
+let profesorEnEdicion = null;
+let profFotoUrl = "";
+let profCategoriasSeleccionadas = [];
+let ultimaClaveProfCreada = "";
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
@@ -983,6 +1034,18 @@ requireClub().then(function (r) {
   escucharUniformes();
   escucharTorneos();
   escucharEntrenamientos();
+  escucharProfesores();
+  document.getElementById("profCategoriasBox").innerHTML =
+    CATEGORIAS_FUTBOL.map(function (c) { return '<button type="button" class="tpl-pill" data-cat="' + c + '">' + c + '</button>'; }).join("");
+  document.querySelectorAll("#profCategoriasBox .tpl-pill").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.classList.toggle("on");
+      const cat = btn.dataset.cat;
+      const i = profCategoriasSeleccionadas.indexOf(cat);
+      if (btn.classList.contains("on") && i === -1) profCategoriasSeleccionadas.push(cat);
+      else if (!btn.classList.contains("on") && i !== -1) profCategoriasSeleccionadas.splice(i, 1);
+    });
+  });
   document.getElementById("asistCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
     CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
   document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
@@ -1541,6 +1604,224 @@ document.getElementById("btnGuardarTorneo").addEventListener("click", function (
     registrarAuditoria(torneoEnEdicion ? "Torneo actualizado" : "Torneo creado", clubActual.id, clubActual.clubNombre, data.nombre);
     limpiarFormTorneo();
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Profesores / entrenadores ──
+function escucharProfesores() {
+  db.collection("clientes").doc(clubActual.id).collection("profesores").onSnapshot(function (snap) {
+    PROFESORES = [];
+    snap.forEach(function (d) { PROFESORES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarProfesores();
+  });
+}
+
+function pintarProfesores() {
+  const box = document.getElementById("listaProfesores");
+  if (!PROFESORES.length) { box.innerHTML = '<p class="empty">Todavía no has agregado profesores.</p>'; return; }
+  box.innerHTML = PROFESORES.map(function (p) {
+    const cats = (p.categorias || []).length ? (p.categorias || []).join(" · ") : "Sin categorías asignadas";
+    return '<div class="pat-card">' +
+      (p.fotoUrl ? '<img class="pat-logo" src="' + p.fotoUrl + '" style="border-radius:50%">' : '<div class="pat-logo-empty"><i class="fa-solid fa-whistle"></i></div>') +
+      '<div class="pat-info"><div class="pat-name">' + esc(p.nombre) + '</div>' +
+      '<div class="pat-meta">' + esc(cats) + '</div>' +
+      (p.authUid ? '<span class="pill ok" style="margin-top:5px">Con acceso</span>' : '<span class="pill muted" style="margin-top:5px">Sin acceso todavía</span>') +
+      '</div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarProfesor(\'' + p.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarProfesor(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("profFotoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "profesores", clubActual.id + "-prof-" + Date.now() + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    profFotoUrl = url;
+    document.getElementById("profFotoPreview").src = url;
+    document.getElementById("profFotoPreview").style.display = "block";
+    document.getElementById("profFotoEmpty").style.display = "none";
+  }).catch(function (err) { mostrarError("No se pudo subir la foto: " + err.message); });
+});
+
+function pintarCategoriasProfesorForm() {
+  document.querySelectorAll("#profCategoriasBox .tpl-pill").forEach(function (btn) {
+    btn.classList.toggle("on", profCategoriasSeleccionadas.indexOf(btn.dataset.cat) !== -1);
+  });
+}
+
+function limpiarFormProfesor() {
+  profesorEnEdicion = null;
+  profFotoUrl = "";
+  profCategoriasSeleccionadas = [];
+  ultimaClaveProfCreada = "";
+  document.getElementById("profNombre").value = "";
+  document.getElementById("profTelefono").value = "";
+  document.getElementById("profCorreo").value = "";
+  document.getElementById("profFotoPreview").style.display = "none";
+  document.getElementById("profFotoEmpty").style.display = "flex";
+  pintarCategoriasProfesorForm();
+  document.getElementById("profFormTitulo").textContent = "Agregar profesor / entrenador";
+  document.getElementById("btnGuardarProfesor").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar profesor';
+  document.getElementById("btnCancelarEdicionProf").style.display = "none";
+  document.getElementById("profAccesoCard").style.display = "none";
+}
+
+function editarProfesor(id) {
+  const p = PROFESORES.find(function (x) { return x.id === id; });
+  if (!p) return;
+  profesorEnEdicion = id;
+  profFotoUrl = p.fotoUrl || "";
+  profCategoriasSeleccionadas = (p.categorias || []).slice();
+  ultimaClaveProfCreada = "";
+  document.getElementById("profNombre").value = p.nombre || "";
+  document.getElementById("profTelefono").value = p.telefono || "";
+  document.getElementById("profCorreo").value = p.correo || "";
+  if (p.fotoUrl) {
+    document.getElementById("profFotoPreview").src = p.fotoUrl;
+    document.getElementById("profFotoPreview").style.display = "block";
+    document.getElementById("profFotoEmpty").style.display = "none";
+  } else {
+    document.getElementById("profFotoPreview").style.display = "none";
+    document.getElementById("profFotoEmpty").style.display = "flex";
+  }
+  pintarCategoriasProfesorForm();
+  document.getElementById("profFormTitulo").textContent = "Editando: " + p.nombre;
+  document.getElementById("btnGuardarProfesor").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionProf").style.display = "inline-flex";
+  document.getElementById("profAccesoCard").style.display = "block";
+  document.getElementById("profCorreoAcceso").value = p.correoAcceso || p.correo || "";
+  pintarAccesoStatusProf();
+  document.getElementById("tab-profesores").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.getElementById("btnCancelarEdicionProf").addEventListener("click", limpiarFormProfesor);
+
+function borrarProfesor(id) {
+  const p = PROFESORES.find(function (x) { return x.id === id; });
+  if (!p || !confirm('¿Borrar al profesor "' + p.nombre + '"? Esto no borra la asistencia que ya tomó.')) return;
+  db.collection("clientes").doc(clubActual.id).collection("profesores").doc(id).delete()
+    .then(function () { mostrarExito("Profesor eliminado."); if (profesorEnEdicion === id) limpiarFormProfesor(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarProfesor").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("profNombre").value.trim(),
+    telefono: document.getElementById("profTelefono").value.trim(),
+    correo: document.getElementById("profCorreo").value.trim(),
+    categorias: profCategoriasSeleccionadas.slice(),
+    fotoUrl: profFotoUrl
+  };
+  if (!data.nombre) { mostrarError("Ingresa el nombre del profesor."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("profesores");
+  const tarea = profesorEnEdicion ? ref.doc(profesorEnEdicion).update(data) : ref.add(data);
+  tarea.then(function (docRef) {
+    mostrarExito(profesorEnEdicion ? "Profesor actualizado." : "Profesor agregado.");
+    registrarAuditoria(profesorEnEdicion ? "Profesor actualizado" : "Profesor agregado", clubActual.id, clubActual.clubNombre, data.nombre);
+    if (!profesorEnEdicion && docRef && docRef.id) { editarProfesor(docRef.id); }
+    else if (profesorEnEdicion) { limpiarFormProfesor(); }
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Acceso con usuario y clave para el profesor ──
+function profesorLoginLink() {
+  return location.origin + location.pathname.replace(/club-panel\.html$/, "") + "profesor-login.html";
+}
+
+document.getElementById("btnGenerarClaveProf").addEventListener("click", function () {
+  document.getElementById("profClaveInicial").value = generarClaveApp();
+});
+
+function pintarAccesoStatusProf() {
+  const p = PROFESORES.find(function (x) { return x.id === profesorEnEdicion; });
+  const status = document.getElementById("profAccesoStatus");
+  const wrap = document.getElementById("profClaveInicialWrap");
+  const btnEnviar = document.getElementById("btnEnviarAccesoProf");
+  if (p && p.authUid) {
+    wrap.style.display = "none";
+    status.style.display = "block";
+    status.innerHTML = '<span class="pill ok">Acceso creado</span> <span style="color:var(--gray);font-size:.8rem">' + esc(p.correoAcceso || "") + '</span>' +
+      (p.claveDesactualizada ? '<br><small style="color:var(--gray-d)">Se envió un correo para que defina una clave nueva.</small>' : "");
+    btnEnviar.disabled = !ultimaClaveProfCreada && !p.claveDesactualizada;
+  } else {
+    wrap.style.display = "block";
+    status.style.display = "none";
+    btnEnviar.disabled = true;
+  }
+}
+
+function crearOResetearAccesoProf(email, pass) {
+  const p = PROFESORES.find(function (x) { return x.id === profesorEnEdicion; });
+  const yaExiste = !!(p && p.authUid);
+  let listo;
+  if (yaExiste) {
+    listo = auth.sendPasswordResetEmail(email).then(function () {
+      return db.collection("clientes").doc(clubActual.id).collection("profesores").doc(profesorEnEdicion).update({ claveDesactualizada: true });
+    });
+  } else {
+    const secApp = firebase.apps.find(function (a) { return a.name === "secondary"; }) || firebase.initializeApp(firebaseConfig, "secondary");
+    const secAuth = secApp.auth();
+    listo = secAuth.createUserWithEmailAndPassword(email, pass).then(function (cred) {
+      const uid = cred.user.uid;
+      return secAuth.signOut().then(function () {
+        return Promise.all([
+          db.collection("clientes").doc(clubActual.id).collection("profesores").doc(profesorEnEdicion).update({ authUid: uid, correoAcceso: email, claveDesactualizada: false }),
+          db.collection("profesoresIndex").doc(uid).set({ clienteId: clubActual.id, profesorId: profesorEnEdicion })
+        ]);
+      });
+    });
+  }
+  return listo.then(function () {
+    registrarAuditoria(yaExiste ? "Restablecimiento de acceso del profesor solicitado" : "Acceso del profesor creado", clubActual.id, clubActual.clubNombre, email);
+    return { yaExiste: yaExiste };
+  }).catch(function (err) {
+    let msg = err.message;
+    if (err.code === "auth/email-already-in-use") msg = "Ese correo ya tiene una cuenta creada (de otro profesor, socio, club o administrador).";
+    throw new Error(msg);
+  });
+}
+
+document.getElementById("btnCrearAccesoProf").addEventListener("click", function () {
+  if (!profesorEnEdicion) { mostrarError("Primero guarda los datos del profesor."); return; }
+  const email = document.getElementById("profCorreoAcceso").value.trim();
+  const pass = document.getElementById("profClaveInicial").value.trim();
+  const p = PROFESORES.find(function (x) { return x.id === profesorEnEdicion; });
+  const yaExiste = !!(p && p.authUid);
+  if (!email) { mostrarError("Ingresa el correo de acceso del profesor."); return; }
+  if (!yaExiste && (!pass || pass.length < 6)) { mostrarError("La clave debe tener al menos 6 caracteres. Usa \"Generar clave automática\" si quieres."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> ' + (yaExiste ? "Enviando..." : "Creando acceso...");
+
+  crearOResetearAccesoProf(email, pass).then(function (r) {
+    if (!r.yaExiste) ultimaClaveProfCreada = pass;
+    mostrarExito(r.yaExiste ? "Se envió un correo a " + email + " para que defina su nueva clave." : "Acceso creado. Ya puedes enviárselo por WhatsApp.");
+  }).catch(function (err) {
+    mostrarError("No se pudo crear el acceso: " + err.message);
+  }).finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Crear acceso del profesor';
+  });
+});
+
+document.getElementById("btnEnviarAccesoProf").addEventListener("click", function () {
+  const p = PROFESORES.find(function (x) { return x.id === profesorEnEdicion; });
+  if (!p || !p.authUid) return;
+  let tel = (p.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  let mensaje = "¡Hola " + (p.nombre || "") + "! Ya puedes entrar a tu panel de profesor en " + (clubActual.clubNombre || "el club") + ":\n" + profesorLoginLink() +
+    "\n\nUsuario: " + (p.correoAcceso || "");
+  if (ultimaClaveProfCreada) {
+    mensaje += "\nClave: " + ultimaClaveProfCreada;
+  } else {
+    mensaje += "\n\nPara entrar (o si no recuerdas tu clave), toca \"¿Olvidaste tu contraseña?\" en esa página.";
+  }
+  mensaje += "\n\nAhí puedes tomar asistencia y ver a tus alumnos.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Acceso del profesor enviado por WhatsApp", clubActual.id, p.nombre, tel);
 });
 
 // ── Compartir información del próximo partido ──
