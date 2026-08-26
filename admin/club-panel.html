@@ -191,6 +191,9 @@
 .torneo-tarjetas{display:flex;gap:6px;align-items:center;font-size:.72rem;font-weight:800;margin-top:5px}
 .torneo-tarjetas .tj-am{color:#FFC933}
 .torneo-tarjetas .tj-ro{color:var(--red,#ff5c5c)}
+.disclaimer{font-size:.78rem;color:var(--gray-d);background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;line-height:1.5}
+.disclaimer b{color:var(--white)}
+.disclaimer ul{color:var(--gray)}
 </style>
 </head>
 <body>
@@ -919,6 +922,30 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-heart-pulse"></i> Estado nutricional del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Resumen del peso, talla e IMC de cada deportista, para detectar a tiempo temas nutricionales que puedan estar afectando el rendimiento del equipo.</p>
+        <div class="field"><label>Categoría (opcional)</label><select id="nutriCategoria"><option value="">Todas las categorías</option></select></div>
+
+        <div class="stat-grid" id="nutriStats" style="margin:18px 0"></div>
+
+        <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:18px">
+          <canvas id="nutriDonut" width="200" height="200" style="max-width:200px;flex-shrink:0"></canvas>
+          <div id="nutriLeyenda" style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <div class="tabla-wrap">
+          <table id="nutriTabla">
+            <thead><tr><th>Deportista</th><th>Categoría</th><th>Edad</th><th>IMC</th><th>Estado</th></tr></thead>
+            <tbody id="nutriTablaBody"><tr><td colspan="5" class="empty">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div id="nutriRecomendaciones" style="margin-top:18px"></div>
+
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteNutricional" style="margin-top:16px"><i class="fa-solid fa-file-pdf"></i> Generar PDF del estado nutricional</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-users-line"></i> Reporte de jugadores</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF organizado por categoría con los datos clave de cada jugador. Filtra por categoría o por fecha de inscripción si lo necesitas.</p>
         <div class="field-row">
@@ -1020,6 +1047,8 @@
 <script src="js/categorias.js"></script>
 <script src="js/informes.js"></script>
 <script src="js/recibo.js"></script>
+<script src="js/nutricion.js"></script>
+<script src="js/crecimiento.js"></script>
 <script src="js/horarios.js"></script>
 <script src="js/festivos.js"></script>
 <script src="js/imagenes.js"></script>
@@ -1102,6 +1131,8 @@ requireClub().then(function (r) {
   document.getElementById("repJugCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
     CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
   document.getElementById("horarioCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
+    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
+  document.getElementById("nutriCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
     CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
 });
 
@@ -2254,6 +2285,7 @@ function escucharSocios() {
     pintarInicio();
     pintarSelectSociosImg();
     pintarAlertaCumpleanos();
+    pintarNutricion();
     if (socioSeleccionado) {
       const actualizado = SOCIOS.find(function (s) { return s.id === socioSeleccionado.id; });
       if (actualizado) { socioSeleccionado = actualizado; pintarFicha(); }
@@ -3056,6 +3088,99 @@ document.getElementById("btnExcusaCorreo").addEventListener("click", function ()
   }).finally(function () {
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
   });
+});
+
+// ── Estado nutricional del club ──
+function calcularEstadoNutricionalClub(lista) {
+  return lista.map(function (s) {
+    const edad = calcularEdad(s.fechaNacimiento);
+    const historial = s.crecimiento || [];
+    const ev = crecEvaluar(edad, historial);
+    let estado = "sin-datos";
+    if (ev) estado = (ev.alertaPeso || ev.alertaTalla) ? "vigilar" : "ok";
+    return { socio: s, edad: edad, ev: ev, estado: estado, banda: bandaEdad(edad) };
+  });
+}
+
+const NUTRI_COLOR_ESTADO = { ok: "#18A83A", vigilar: "#FFC933", "sin-datos": "#3a4652" };
+
+function pintarNutricion() {
+  const sel = document.getElementById("nutriCategoria");
+  if (!sel) return;
+  const catFiltro = sel.value;
+  let lista = SOCIOS.filter(function (s) { return s.estado !== "Inactivo"; });
+  if (catFiltro) lista = lista.filter(function (s) { return s.categoria === catFiltro; });
+
+  const filas = calcularEstadoNutricionalClub(lista);
+  const alDia = filas.filter(function (f) { return f.estado === "ok"; });
+  const enVigilancia = filas.filter(function (f) { return f.estado === "vigilar"; });
+  const sinDatos = filas.filter(function (f) { return f.estado === "sin-datos"; });
+
+  document.getElementById("nutriStats").innerHTML =
+    '<div class="stat"><div class="n">' + filas.length + '</div><div class="l">Deportistas</div></div>' +
+    '<div class="stat ok"><div class="n">' + alDia.length + '</div><div class="l">Al día</div></div>' +
+    '<div class="stat warn"><div class="n">' + enVigilancia.length + '</div><div class="l">En vigilancia</div></div>' +
+    '<div class="stat"><div class="n">' + sinDatos.length + '</div><div class="l">Sin registros</div></div>';
+
+  const segmentos = [
+    { label: "Al día", valor: alDia.length, color: NUTRI_COLOR_ESTADO.ok },
+    { label: "En vigilancia", valor: enVigilancia.length, color: NUTRI_COLOR_ESTADO.vigilar },
+    { label: "Sin registros", valor: sinDatos.length, color: NUTRI_COLOR_ESTADO["sin-datos"] }
+  ];
+  crecDibujarDonut(document.getElementById("nutriDonut"), segmentos);
+  document.getElementById("nutriLeyenda").innerHTML = segmentos.map(function (s) {
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:.84rem"><span style="width:10px;height:10px;border-radius:3px;background:' + s.color + ';flex-shrink:0"></span><span style="flex:1;color:var(--gray)">' + s.label + '</span><b>' + s.valor + '</b></div>';
+  }).join("");
+
+  const tbody = document.getElementById("nutriTablaBody");
+  if (!filas.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">No hay deportistas para mostrar.</td></tr>'; return; }
+  const orden = { vigilar: 0, ok: 1, "sin-datos": 2 };
+  const ordenadas = filas.slice().sort(function (a, b) { return orden[a.estado] - orden[b.estado]; });
+  tbody.innerHTML = ordenadas.map(function (f) {
+    const imcTxt = f.ev && f.ev.imc != null ? f.ev.imc.toFixed(1) : "—";
+    let pillClase = "muted", pillTexto = "Sin registros";
+    if (f.estado === "ok") { pillClase = "ok"; pillTexto = "Al día"; }
+    else if (f.estado === "vigilar") {
+      const partes = [];
+      if (f.ev.alertaPeso) partes.push("peso");
+      if (f.ev.alertaTalla) partes.push("talla");
+      pillClase = "warn"; pillTexto = "Vigilar " + partes.join(" y ");
+    }
+    return '<tr><td>' + esc(f.socio.nombre || "Sin nombre") + '</td><td>' + esc(f.socio.categoria || "—") + '</td><td>' + (f.edad != null ? f.edad + " a." : "—") + '</td><td>' + imcTxt + '</td><td><span class="pill ' + pillClase + '">' + pillTexto + '</span></td></tr>';
+  }).join("");
+
+  const bandasConAlerta = {};
+  enVigilancia.forEach(function (f) { bandasConAlerta[f.banda] = true; });
+  const bandas = Object.keys(bandasConAlerta);
+  const recBox = document.getElementById("nutriRecomendaciones");
+  if (!bandas.length) {
+    recBox.innerHTML = '<div class="disclaimer"><i class="fa-solid fa-circle-check"></i> No hay deportistas en vigilancia nutricional en este momento.</div>';
+  } else {
+    recBox.innerHTML = '<h4 style="font-size:.86rem;margin-bottom:10px">Recomendaciones para mejorar</h4>' +
+      bandas.map(function (b) {
+        const guia = GUIA_NUTRICIONAL[b];
+        return '<div class="disclaimer" style="margin-bottom:10px"><b>' + esc(NOMBRE_BANDA[b]) + '</b><p style="margin:4px 0 6px">' + esc(guia.enfoque) + '</p>' +
+          '<ul style="margin:0;padding-left:18px">' + guia.tips.slice(0, 3).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join("") + '</ul></div>';
+      }).join("") +
+      '<div class="disclaimer"><i class="fa-solid fa-user-doctor"></i> Estas son orientaciones generales — para casos puntuales, lo ideal es acompañarlas con un profesional de nutrición.</div>';
+  }
+}
+
+document.getElementById("nutriCategoria").addEventListener("change", pintarNutricion);
+
+document.getElementById("btnReporteNutricional").addEventListener("click", function () {
+  const catFiltro = document.getElementById("nutriCategoria").value;
+  let lista = SOCIOS.filter(function (s) { return s.estado !== "Inactivo"; });
+  if (catFiltro) lista = lista.filter(function (s) { return s.categoria === catFiltro; });
+  const filas = calcularEstadoNutricionalClub(lista);
+
+  const doc = generarReporteNutricionalPDF({
+    club: clubActual,
+    filtroTexto: catFiltro || "Todas las categorías",
+    filas: filas
+  });
+  doc.save("nutricion-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+  registrarAuditoria("Reporte nutricional generado", clubActual.id, clubActual.clubNombre, catFiltro || "Todas las categorías");
 });
 
 // ── Informes en PDF ──

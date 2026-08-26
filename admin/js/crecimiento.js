@@ -116,6 +116,50 @@ function crecDibujarLinea(canvas, puntos, opts) {
   idxLabels.forEach(function (i) { ctx.fillText(puntos[i].x, xAt(i), alto - 6); });
 }
 
+// Gráfica de dona simple para mostrar una distribución (ej. cuántos
+// jugadores están al día vs. en vigilancia). segmentos = [{ label, valor,
+// color }]. Pinta el total en el centro.
+function crecDibujarDonut(canvas, segmentos) {
+  const dpr = window.devicePixelRatio || 1;
+  const size = Math.max(Math.min((canvas.parentElement && canvas.parentElement.clientWidth) || 200, 200), 140);
+  canvas.style.width = size + "px";
+  canvas.style.height = size + "px";
+  canvas.width = Math.round(size * dpr);
+  canvas.height = Math.round(size * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  const total = segmentos.reduce(function (acc, s) { return acc + s.valor; }, 0);
+  const cx = size / 2, cy = size / 2, rOut = size / 2 - 6, rIn = rOut * 0.62;
+
+  if (!total) {
+    ctx.beginPath(); ctx.arc(cx, cy, rOut, 0, Math.PI * 2); ctx.arc(cx, cy, rIn, 0, Math.PI * 2, true);
+    ctx.closePath(); ctx.fillStyle = "rgba(255,255,255,.06)"; ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.font = "600 12px Poppins, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Sin datos", cx, cy + 4);
+    return;
+  }
+
+  let ang = -Math.PI / 2;
+  segmentos.forEach(function (s) {
+    if (!s.valor) return;
+    const slice = (s.valor / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOut, ang, ang + slice);
+    ctx.arc(cx, cy, rIn, ang + slice, ang, true);
+    ctx.closePath();
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    ang += slice;
+  });
+
+  ctx.fillStyle = "#fff"; ctx.font = "900 22px Poppins, sans-serif"; ctx.textAlign = "center";
+  ctx.fillText(String(total), cx, cy + 2);
+  ctx.font = "700 9px Poppins, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.5)";
+  ctx.fillText(total === 1 ? "jugador" : "jugadores", cx, cy + 16);
+}
+
 function crecFechaCorta(fechaISO) {
   const d = new Date(fechaISO + "T12:00:00");
   if (isNaN(d.getTime())) return fechaISO || "";

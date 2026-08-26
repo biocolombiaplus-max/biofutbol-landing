@@ -314,3 +314,106 @@ function subirExcusaPDF(doc, nombreArchivo) {
   const blob = doc.output("blob");
   return subirACloudinary(blob, "excusas", nombreArchivo);
 }
+
+// datos = { club, filtroTexto, filas: [{ socio, edad, ev, estado, banda }] }
+// — la misma forma que devuelve calcularEstadoNutricionalClub() en
+// club-panel.html. estado es "ok" | "vigilar" | "sin-datos".
+function generarReporteNutricionalPDF(datos) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 40;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  let y = informeEncabezado(doc, { club: datos.club, margin: margin, titulo: "ESTADO NUTRICIONAL DEL CLUB", subtitulo: datos.filtroTexto || "Todas las categorías" });
+
+  const filas = datos.filas || [];
+  const alDia = filas.filter(function (f) { return f.estado === "ok"; });
+  const enVigilancia = filas.filter(function (f) { return f.estado === "vigilar"; });
+  const sinDatos = filas.filter(function (f) { return f.estado === "sin-datos"; });
+
+  const cardW = (pageWidth - margin * 2 - 24) / 3;
+  const cards = [
+    { label: "AL DÍA", valor: String(alDia.length), color: [24, 168, 58] },
+    { label: "EN VIGILANCIA", valor: String(enVigilancia.length), color: [214, 158, 15] },
+    { label: "SIN REGISTROS", valor: String(sinDatos.length), color: [58, 70, 82] }
+  ];
+  cards.forEach(function (c, i) {
+    const x = margin + i * (cardW + 12);
+    doc.setFillColor(c.color[0], c.color[1], c.color[2]);
+    doc.roundedRect(x, y, cardW, 56, 7, 7, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+    doc.text(c.label, x + 12, y + 20);
+    doc.setFontSize(20);
+    doc.text(c.valor, x + 12, y + 44);
+  });
+  y += 56 + 20;
+
+  // Barra de distribución (visual simple, sin librería de gráficas)
+  const total = filas.length || 1;
+  const barW = pageWidth - margin * 2, barH = 16;
+  let bx = margin;
+  [{ n: alDia.length, color: [24, 168, 58] }, { n: enVigilancia.length, color: [255, 201, 51] }, { n: sinDatos.length, color: [58, 70, 82] }].forEach(function (seg) {
+    const w = (seg.n / total) * barW;
+    if (w > 0) { doc.setFillColor(seg.color[0], seg.color[1], seg.color[2]); doc.rect(bx, y, w, barH, "F"); }
+    bx += w;
+  });
+  y += barH + 26;
+
+  if (!filas.length) {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(120, 120, 120);
+    doc.text("No hay deportistas que coincidan con este filtro.", margin, y + 10);
+  }
+
+  const columnas = [
+    { label: "NOMBRE", w: 170 },
+    { label: "CATEGORÍA", w: 90 },
+    { label: "EDAD", w: 50, align: "right" },
+    { label: "IMC", w: 60, align: "right" },
+    { label: "ESTADO", w: pageWidth - margin * 2 - (170 + 90 + 50 + 60) }
+  ];
+  const ordenActual = { vigilar: 0, ok: 1, "sin-datos": 2 };
+  const ordenadas = filas.slice().sort(function (a, b) { return ordenActual[a.estado] - ordenActual[b.estado]; });
+  const filasTabla = ordenadas.map(function (f) {
+    const imcTxt = f.ev && f.ev.imc != null ? f.ev.imc.toFixed(1) : "—";
+    let estadoTxt = "Sin registros";
+    if (f.estado === "ok") estadoTxt = "Al día";
+    else if (f.estado === "vigilar") {
+      const partes = [];
+      if (f.ev.alertaPeso) partes.push("peso");
+      if (f.ev.alertaTalla) partes.push("talla");
+      estadoTxt = "Vigilar " + partes.join(" y ");
+    }
+    return [f.socio.nombre || "Sin nombre", f.socio.categoria || "—", f.edad != null ? f.edad + " a." : "—", imcTxt, estadoTxt];
+  });
+  y = informeTabla(doc, { y: y, margin: margin, pageHeight: pageHeight, columnas: columnas, filas: filasTabla });
+  y += 26;
+
+  // Recomendaciones agrupadas por banda de edad, solo para quienes están en vigilancia
+  const bandasConAlerta = {};
+  enVigilancia.forEach(function (f) { bandasConAlerta[f.banda] = true; });
+  const bandas = Object.keys(bandasConAlerta);
+  if (bandas.length) {
+    if (y + 70 > pageHeight - margin - 40) { doc.addPage(); y = margin; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(11, 22, 38);
+    doc.text("Recomendaciones para mejorar", margin, y); y += 20;
+    bandas.forEach(function (b) {
+      const guia = GUIA_NUTRICIONAL[b];
+      if (y + 60 > pageHeight - margin - 40) { doc.addPage(); y = margin; }
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(24, 168, 58);
+      doc.text(NOMBRE_BANDA[b], margin, y); y += 15;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(80, 80, 80);
+      doc.splitTextToSize(guia.enfoque, pageWidth - margin * 2).forEach(function (l) { doc.text(l, margin, y); y += 13; });
+      y += 3;
+      guia.tips.slice(0, 3).forEach(function (t) {
+        doc.splitTextToSize("• " + t, pageWidth - margin * 2 - 10).forEach(function (l, li) { doc.text(l, margin + (li === 0 ? 0 : 10), y); y += 13; });
+      });
+      y += 12;
+    });
+    doc.setFont("helvetica", "italic"); doc.setFontSize(8); doc.setTextColor(140, 140, 140);
+    doc.splitTextToSize("Estas son orientaciones generales — para casos puntuales, lo ideal es acompañarlas con un profesional de nutrición.", pageWidth - margin * 2).forEach(function (l) { doc.text(l, margin, y); y += 11; });
+  }
+
+  informePie(doc, { club: datos.club, margin: margin, titulo: "Estado nutricional del club" });
+  return doc;
+}
