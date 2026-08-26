@@ -232,6 +232,16 @@
         <div id="cumpleanosLista"></div>
       </div>
 
+      <div class="next-training-card" id="nextMatchCard" style="display:none">
+        <div class="nt-ico"><i class="fa-solid fa-futbol"></i></div>
+        <div style="flex:1;min-width:0">
+          <div class="nt-title">Próximo partido</div>
+          <div class="nt-body" id="nmBody">—</div>
+          <div class="nt-sub" id="nmSub">—</div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnCompartirProximoPartido" style="flex-shrink:0"><i class="fa-brands fa-whatsapp"></i> Compartir</button>
+      </div>
+
       <div class="section-label">Acceso rápido</div>
       <div class="quick-grid">
         <button type="button" class="quick-tile qt-1" data-goto="socios">
@@ -375,8 +385,8 @@
             <div class="field"><label>Rival</label><input type="text" id="pImgRival" placeholder="Ej: Águilas FC"></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>Fecha</label><input type="text" id="pImgFecha" placeholder="Ej: Sábado 30 de agosto"></div>
-            <div class="field"><label>Hora</label><input type="text" id="pImgHora" placeholder="Ej: 3:00 PM"></div>
+            <div class="field"><label>Fecha</label><input type="date" id="pImgFecha"></div>
+            <div class="field"><label>Hora</label><input type="time" id="pImgHora"></div>
           </div>
           <div class="field"><label>Lugar</label><input type="text" id="pImgLugar" placeholder="Ej: Cancha Municipal"></div>
         </div>
@@ -391,7 +401,7 @@
             <div class="field"><label>Nuestros goles</label><input type="number" min="0" id="rImgGolesPropio"></div>
             <div class="field"><label>Goles rival</label><input type="number" min="0" id="rImgGolesRival"></div>
           </div>
-          <div class="field"><label>Fecha (opcional)</label><input type="text" id="rImgFecha" placeholder="Ej: Sábado 30 de agosto"></div>
+          <div class="field"><label>Fecha (opcional)</label><input type="date" id="rImgFecha"></div>
         </div>
 
         <div id="form-tabla_img" class="tpl-form" style="display:none">
@@ -618,6 +628,28 @@
 
     <div class="tab-panel" id="tab-fixture">
       <div class="card">
+        <h3><i class="fa-solid fa-shirt"></i> <span id="uniFormTitulo">Agregar uniforme</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Crea los uniformes del club (titular, alterno, portero...) para elegir rápido cuál usar en cada partido.</p>
+        <div class="field-row">
+          <div class="field"><label>Nombre</label><input type="text" id="uniNombre" placeholder="Ej: Titular verde"></div>
+          <div class="field"><label>Color principal</label><input type="color" id="uniColor" value="#18A83A" style="height:46px;padding:4px"></div>
+        </div>
+        <div class="field">
+          <label>Foto (opcional)</label>
+          <div class="upload-box" id="uniFotoBox" style="height:100px" onclick="document.getElementById('uniFotoInput').click()">
+            <img id="uniFotoPreview" class="upload-preview" style="display:none;object-fit:contain">
+            <div class="upload-empty" id="uniFotoEmpty"><i class="fa-solid fa-shirt"></i><span>Subir foto</span></div>
+          </div>
+          <input type="file" id="uniFotoInput" accept="image/*" style="display:none">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarUniforme"><i class="fa-solid fa-plus"></i> Guardar uniforme</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionUni" style="display:none">Cancelar edición</button>
+        </div>
+        <div id="listaUniformes" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-calendar-plus"></i> Programar partido</h3>
         <div class="field-row">
           <div class="field"><label>Equipo local</label><select id="partidoLocal"></select></div>
@@ -625,8 +657,15 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Fecha</label><input type="date" id="partidoFecha"></div>
-          <div class="field"><label>Cancha / lugar (opcional)</label><input type="text" id="partidoCancha"></div>
+          <div class="field"><label>Hora (opcional)</label><input type="time" id="partidoHora"></div>
         </div>
+        <div class="field"><label>Cancha / lugar (opcional)</label><input type="text" id="partidoCancha"></div>
+        <div class="field"><label>Link de Google Maps (opcional)</label><input type="url" id="partidoMaps" placeholder="https://maps.app.goo.gl/..."></div>
+        <div class="field-row">
+          <div class="field"><label>Uniforme (opcional)</label><select id="partidoUniforme"><option value="">— Sin definir —</option></select></div>
+          <div class="field"><label>Valor arbitraje (opcional)</label><input type="number" min="0" step="1000" id="partidoArbitraje" placeholder="Ej: 60000"></div>
+        </div>
+        <div class="field"><label>Notas adicionales (opcional)</label><input type="text" id="partidoNotas" placeholder="Ej: Llegar 30 min antes, traer balón"></div>
         <button type="button" class="btn btn-primary btn-sm" id="btnAgregarPartido"><i class="fa-solid fa-plus"></i> Programar partido</button>
       </div>
       <div class="card" style="margin-top:18px">
@@ -796,6 +835,9 @@ let sedeEnEdicion = null;
 let HORARIOS = [];
 let horarioEnEdicion = null;
 let EXCEPCIONES = [];
+let UNIFORMES = [];
+let uniformeEnEdicion = null;
+let uniFotoUrl = "";
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
@@ -824,6 +866,7 @@ requireClub().then(function (r) {
   escucharSedes();
   escucharHorarios();
   escucharExcepciones();
+  escucharUniformes();
   document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
   precargarFormImagenes();
   cargarAnuncio();
@@ -1057,6 +1100,7 @@ function escucharPartidos() {
     pintarTabla();
     pintarGoleadores();
     pintarInicio();
+    pintarProximoPartido();
     if (clubActual) { pintarSelectsImagenes(); pintarJornadaChecklist(); }
   });
 }
@@ -1095,9 +1139,10 @@ function pintarPartidos() {
       '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
       '<span class="match-score"><input type="number" min="0" id="gl-' + p.id + '"> - <input type="number" min="0" id="gv-' + p.id + '"></span>' +
       '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
-      '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+      '<div class="match-meta">' + fechaTxt + (p.hora ? " · " + formatoHora12(p.hora) : "") + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
       '<div class="match-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="marcarResultado(\'' + p.id + '\')"><i class="fa-solid fa-check"></i> Guardar resultado</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="compartirPartido(\'' + p.id + '\')"><i class="fa-brands fa-whatsapp"></i> Compartir</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="borrarPartido(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i></button></div></div>';
   }).join("");
 }
@@ -1107,10 +1152,153 @@ function formatFechaSimple(ts) {
   return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+// ── Uniformes del club ──
+function escucharUniformes() {
+  db.collection("clientes").doc(clubActual.id).collection("uniformes").onSnapshot(function (snap) {
+    UNIFORMES = [];
+    snap.forEach(function (d) { UNIFORMES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarUniformes();
+    pintarSelectUniformes();
+  });
+}
+
+function nombreUniforme(id) {
+  const u = UNIFORMES.find(function (x) { return x.id === id; });
+  return u ? u.nombre : "";
+}
+
+function pintarSelectUniformes() {
+  const sel = document.getElementById("partidoUniforme");
+  if (!sel) return;
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">— Sin definir —</option>' +
+    UNIFORMES.map(function (u) { return '<option value="' + u.id + '">' + esc(u.nombre) + '</option>'; }).join("");
+  sel.value = actual;
+}
+
+function pintarUniformes() {
+  const box = document.getElementById("listaUniformes");
+  if (!UNIFORMES.length) { box.innerHTML = '<p class="empty">Todavía no has creado uniformes.</p>'; return; }
+  box.innerHTML = UNIFORMES.map(function (u) {
+    return '<div class="pat-card">' +
+      (u.fotoUrl ? '<img class="pat-logo" src="' + u.fotoUrl + '">' : '<div class="pat-logo-empty" style="background:' + (u.color || "#18A83A") + '"><i class="fa-solid fa-shirt" style="color:#fff"></i></div>') +
+      '<div class="pat-info"><div class="pat-name">' + esc(u.nombre) + '</div></div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarUniforme(\'' + u.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarUniforme(\'' + u.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("uniFotoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "uniformes", clubActual.id + "-uni-" + Date.now() + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    uniFotoUrl = url;
+    document.getElementById("uniFotoPreview").src = url;
+    document.getElementById("uniFotoPreview").style.display = "block";
+    document.getElementById("uniFotoEmpty").style.display = "none";
+  }).catch(function (err) { mostrarError("No se pudo subir la foto: " + err.message); });
+});
+
+function limpiarFormUniforme() {
+  uniformeEnEdicion = null;
+  uniFotoUrl = "";
+  document.getElementById("uniNombre").value = "";
+  document.getElementById("uniColor").value = "#18A83A";
+  document.getElementById("uniFotoPreview").style.display = "none";
+  document.getElementById("uniFotoEmpty").style.display = "flex";
+  document.getElementById("uniFormTitulo").textContent = "Agregar uniforme";
+  document.getElementById("btnGuardarUniforme").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar uniforme';
+  document.getElementById("btnCancelarEdicionUni").style.display = "none";
+}
+
+function editarUniforme(id) {
+  const u = UNIFORMES.find(function (x) { return x.id === id; });
+  if (!u) return;
+  uniformeEnEdicion = id;
+  uniFotoUrl = u.fotoUrl || "";
+  document.getElementById("uniNombre").value = u.nombre || "";
+  document.getElementById("uniColor").value = u.color || "#18A83A";
+  if (u.fotoUrl) {
+    document.getElementById("uniFotoPreview").src = u.fotoUrl;
+    document.getElementById("uniFotoPreview").style.display = "block";
+    document.getElementById("uniFotoEmpty").style.display = "none";
+  } else {
+    document.getElementById("uniFotoPreview").style.display = "none";
+    document.getElementById("uniFotoEmpty").style.display = "flex";
+  }
+  document.getElementById("uniFormTitulo").textContent = "Editando: " + u.nombre;
+  document.getElementById("btnGuardarUniforme").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionUni").style.display = "inline-flex";
+}
+
+document.getElementById("btnCancelarEdicionUni").addEventListener("click", limpiarFormUniforme);
+
+function borrarUniforme(id) {
+  const u = UNIFORMES.find(function (x) { return x.id === id; });
+  if (!u || !confirm('¿Borrar el uniforme "' + u.nombre + '"?')) return;
+  db.collection("clientes").doc(clubActual.id).collection("uniformes").doc(id).delete()
+    .then(function () { mostrarExito("Uniforme eliminado."); if (uniformeEnEdicion === id) limpiarFormUniforme(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarUniforme").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("uniNombre").value.trim(),
+    color: document.getElementById("uniColor").value,
+    fotoUrl: uniFotoUrl
+  };
+  if (!data.nombre) { mostrarError("Ingresa el nombre del uniforme."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("uniformes");
+  const tarea = uniformeEnEdicion ? ref.doc(uniformeEnEdicion).update(data) : ref.add(data);
+  tarea.then(function () {
+    mostrarExito(uniformeEnEdicion ? "Uniforme actualizado." : "Uniforme agregado.");
+    limpiarFormUniforme();
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Compartir información del próximo partido ──
+function mensajePartido(p) {
+  const fechaTxt = p.fecha ? formatFechaSimple(p.fecha) : "Por definir";
+  let msg = "⚽ *" + (clubActual.clubNombre || "Nuestro club") + "*\n";
+  msg += "*" + nombreEquipo(p.local) + " vs " + nombreEquipo(p.visitante) + "*\n\n";
+  msg += "📅 Fecha: " + fechaTxt + "\n";
+  if (p.hora) msg += "🕒 Hora: " + formatoHora12(p.hora) + "\n";
+  if (p.cancha) msg += "📍 Lugar: " + p.cancha + "\n";
+  if (p.mapsUrl) msg += "🗺️ Cómo llegar: " + p.mapsUrl + "\n";
+  if (p.uniformeId && nombreUniforme(p.uniformeId)) msg += "👕 Uniforme: " + nombreUniforme(p.uniformeId) + "\n";
+  if (p.arbitraje) msg += "💰 Valor arbitraje: " + formatCOP(p.arbitraje) + "\n";
+  if (p.notas) msg += "\n📝 " + p.notas + "\n";
+  msg += "\n¡Los esperamos! 🔥";
+  return msg;
+}
+
+function compartirPartido(id) {
+  const p = PARTIDOS.find(function (x) { return x.id === id; });
+  if (!p) return;
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensajePartido(p)), "_blank");
+  registrarAuditoria("Información de partido compartida", clubActual.id, clubActual.clubNombre);
+}
+
+function pintarProximoPartido() {
+  const card = document.getElementById("nextMatchCard");
+  const proximo = PARTIDOS.filter(function (p) { return !p.jugado; })[0];
+  if (!proximo) { card.style.display = "none"; return; }
+  card.style.display = "flex";
+  document.getElementById("nmBody").textContent = nombreEquipo(proximo.local) + " vs " + nombreEquipo(proximo.visitante);
+  const partes = [formatFechaSimple(proximo.fecha)];
+  if (proximo.hora) partes.push(formatoHora12(proximo.hora));
+  if (proximo.cancha) partes.push(proximo.cancha);
+  document.getElementById("nmSub").textContent = partes.join(" · ");
+  document.getElementById("btnCompartirProximoPartido").onclick = function () { compartirPartido(proximo.id); };
+}
+
 document.getElementById("btnAgregarPartido").addEventListener("click", function () {
   const local = document.getElementById("partidoLocal").value;
   const visitante = document.getElementById("partidoVisitante").value;
   const fechaStr = document.getElementById("partidoFecha").value;
+  const horaStr = document.getElementById("partidoHora").value;
   const cancha = document.getElementById("partidoCancha").value.trim();
   if (!local || !visitante) { mostrarError("Agrega al menos dos equipos antes de programar un partido."); return; }
   if (local === visitante) { mostrarError("El equipo local y el visitante deben ser distintos."); return; }
@@ -1118,9 +1306,15 @@ document.getElementById("btnAgregarPartido").addEventListener("click", function 
 
   db.collection("clientes").doc(clubActual.id).collection("partidos").add({
     local: local, visitante: visitante, cancha: cancha, jugado: false,
-    fecha: firebase.firestore.Timestamp.fromDate(new Date(fechaStr + "T12:00:00"))
+    hora: horaStr || "",
+    mapsUrl: document.getElementById("partidoMaps").value.trim(),
+    uniformeId: document.getElementById("partidoUniforme").value,
+    arbitraje: Number(document.getElementById("partidoArbitraje").value) || 0,
+    notas: document.getElementById("partidoNotas").value.trim(),
+    fecha: firebase.firestore.Timestamp.fromDate(new Date(fechaStr + "T" + (horaStr || "12:00")))
   }).then(function () {
-    document.getElementById("partidoCancha").value = "";
+    ["partidoCancha", "partidoMaps", "partidoArbitraje", "partidoNotas", "partidoHora"].forEach(function (id) { document.getElementById(id).value = ""; });
+    document.getElementById("partidoUniforme").value = "";
     mostrarExito("Partido programado.");
   }).catch(function (err) { mostrarError("No se pudo programar: " + err.message); });
 });
@@ -1704,12 +1898,27 @@ function felicitarCumpleanos(socioId) {
   registrarAuditoria("Felicitación de cumpleaños enviada", clubActual.id, s.nombre, tel);
 }
 
+function fechaTimestampAISO(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function formatFechaBonita(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return "";
+  const txt = d.toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" });
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
+
 document.getElementById("pImgPartido").addEventListener("change", function () {
   const p = PARTIDOS.find(function (x) { return x.id === document.getElementById("pImgPartido").value; });
   if (!p) return;
   document.getElementById("pImgPropio").value = nombreEquipo(p.local);
   document.getElementById("pImgRival").value = nombreEquipo(p.visitante);
-  if (p.fecha) document.getElementById("pImgFecha").value = formatFechaSimple(p.fecha);
+  if (p.fecha) document.getElementById("pImgFecha").value = fechaTimestampAISO(p.fecha);
+  if (p.hora) document.getElementById("pImgHora").value = p.hora;
   if (p.cancha) document.getElementById("pImgLugar").value = p.cancha;
 });
 
@@ -1720,7 +1929,7 @@ document.getElementById("rImgPartido").addEventListener("change", function () {
   document.getElementById("rImgRival").value = nombreEquipo(p.visitante);
   document.getElementById("rImgGolesPropio").value = p.golesLocal;
   document.getElementById("rImgGolesRival").value = p.golesVisitante;
-  if (p.fecha) document.getElementById("rImgFecha").value = formatFechaSimple(p.fecha);
+  if (p.fecha) document.getElementById("rImgFecha").value = fechaTimestampAISO(p.fecha);
 });
 
 document.getElementById("aImgLogoInput").addEventListener("change", function (e) {
@@ -1762,8 +1971,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       club: clubActual,
       propio: document.getElementById("pImgPropio").value.trim() || clubActual.clubNombre,
       rival: document.getElementById("pImgRival").value.trim(),
-      fecha: document.getElementById("pImgFecha").value.trim(),
-      hora: document.getElementById("pImgHora").value.trim(),
+      fecha: formatFechaBonita(document.getElementById("pImgFecha").value),
+      hora: formatoHora12(document.getElementById("pImgHora").value),
       lugar: document.getElementById("pImgLugar").value.trim()
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
@@ -1779,7 +1988,7 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       rival: document.getElementById("rImgRival").value.trim(),
       golesPropio: Number(document.getElementById("rImgGolesPropio").value) || 0,
       golesRival: Number(document.getElementById("rImgGolesRival").value) || 0,
-      fecha: document.getElementById("rImgFecha").value.trim()
+      fecha: formatFechaBonita(document.getElementById("rImgFecha").value)
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival2 = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
