@@ -55,6 +55,19 @@ function imgWrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   return lines.length;
 }
 
+// Reduce el tamaño de fuente hasta que el texto quepa en maxWidth (para
+// textos de una sola línea de largo variable, como rangos de fechas, que no
+// se pueden partir en varias líneas dentro de una tarjeta de altura fija).
+function imgFitFont(ctx, text, maxWidth, fontWeight, maxPx, minPx) {
+  let size = maxPx;
+  while (size > minPx) {
+    ctx.font = fontWeight + " " + Math.round(size) + "px Poppins, sans-serif";
+    if (ctx.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
 // Fondo cinematográfico oscuro con resplandor del color principal del club.
 function imgFondoBase(ctx, club) {
   const c1 = (club && club.colorPrimario) || "#18A83A";
@@ -616,6 +629,61 @@ async function generarImagenCumpleanos(canvas, d) {
   ctx.font = "600 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,.85)";
   imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, cy + r + H * 0.19, W * 0.78, W * 0.04, 3);
+
+  imgBarraInferiorGen(ctx, d.club, W, H, barraH);
+}
+
+// d = { club, torneo: {nombre, logoUrl, fechaTexto, lugar, valorInscripcion}, formato, fondoUrl }
+async function generarImagenTorneo(canvas, d) {
+  const fmt = IMG_FORMATOS[d.formato] || IMG_FORMATOS.story;
+  const W = fmt.w, H = fmt.h;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const torneo = d.torneo || {};
+
+  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+
+  const barraH = H * 0.11;
+  ctx.textAlign = "center";
+  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.font = "800 " + Math.round(W * 0.032) + "px Poppins, sans-serif";
+  ctx.fillText("🏆 NOS VAMOS AL TORNEO", W / 2, H * 0.11);
+
+  const r = W * 0.19;
+  const cy = H * 0.28;
+  await imgEquipoBadge(ctx, W / 2, cy, r, torneo.logoUrl, "🏆", (d.club && d.club.colorPrimario) || "#18A83A");
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(W * 0.062) + "px Poppins, sans-serif";
+  imgWrapText(ctx, (torneo.nombre || "Torneo").toUpperCase(), W / 2, cy + r + H * 0.075, W * 0.85, W * 0.066, 2);
+
+  const cardW = W * 0.82, cardH = H * 0.22, cardY = H * 0.56, cardX = (W - cardW) / 2;
+  imgRoundRect(ctx, cardX, cardY, cardW, cardH, 24);
+  ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.stroke();
+
+  const fechaTxt = torneo.fechaTexto || "Fecha por confirmar";
+  imgFitFont(ctx, fechaTxt, cardW * 0.9, "800", cardH * 0.24, cardH * 0.11);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(fechaTxt, W / 2, cardY + cardH * 0.34);
+
+  if (torneo.lugar) {
+    ctx.font = "600 " + Math.round(cardH * 0.15) + "px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    imgWrapText(ctx, "📍 " + torneo.lugar, W / 2, cardY + cardH * 0.6, cardW * 0.9, cardH * 0.16, 1);
+  }
+
+  if (torneo.valorInscripcion) {
+    const inscTxt = "Inscripción: $" + Number(torneo.valorInscripcion).toLocaleString("es-CO");
+    imgFitFont(ctx, inscTxt, cardW * 0.9, "800", cardH * 0.2, cardH * 0.1);
+    ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+    ctx.fillText(inscTxt, W / 2, cardY + cardH * 0.9);
+  }
+
+  ctx.font = "600 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,.8)";
+  ctx.fillText("¡Vamos con todo! 💪⚽", W / 2, cardY + cardH + H * 0.055);
 
   imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }

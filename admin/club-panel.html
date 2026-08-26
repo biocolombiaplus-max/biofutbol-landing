@@ -46,6 +46,13 @@
 .goles-add-row select,.goles-add-row input{background:var(--card2);border:1px solid var(--card-b2);color:var(--white);border-radius:8px;padding:6px 8px;font-size:.76rem}
 .goles-add-row input[type="text"]{flex:1;min-width:100px}
 .goles-add-row input[type="number"]{width:52px}
+.goles-chip.am{border-color:rgba(255,201,51,.4)}
+.goles-chip.ro{background:rgba(255,92,92,.08);border-color:rgba(255,92,92,.5)}
+.disc-row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--card-b2)}
+.disc-row:last-child{border-bottom:none}
+.disc-row .dr-info{flex:1;min-width:0}
+.disc-row .dr-info b{display:block;font-size:.88rem}
+.disc-row .dr-info small{color:var(--gray);font-size:.72rem}
 .goleadores-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--card-b2)}
 .goleadores-row:last-child{border-bottom:none}
 .goleadores-row .gr-pos{width:24px;text-align:center;font-weight:900;color:var(--gray-d);flex-shrink:0}
@@ -172,6 +179,10 @@
 .pat-tier.plata{background:rgba(203,213,225,.18);color:#cbd5e1}
 .pat-tier.bronce{background:rgba(217,119,6,.2);color:#d97706}
 .pat-actions{display:flex;gap:6px;flex-shrink:0}
+.pill.muted{background:rgba(255,255,255,.08);color:var(--gray);border:1px solid rgba(255,255,255,.14)}
+.torneo-tarjetas{display:flex;gap:6px;align-items:center;font-size:.72rem;font-weight:800;margin-top:5px}
+.torneo-tarjetas .tj-am{color:#FFC933}
+.torneo-tarjetas .tj-ro{color:var(--red,#ff5c5c)}
 </style>
 </head>
 <body>
@@ -211,6 +222,7 @@
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
       <button class="tab-btn" data-tab="goleadores">Goleadores</button>
       <button class="tab-btn" data-tab="llave">Llave</button>
+      <button class="tab-btn" data-tab="torneos">Torneos</button>
       <button class="tab-btn" data-tab="informes">Informes</button>
       <button class="tab-btn" data-tab="miclub">Mi club</button>
     </div>
@@ -384,6 +396,7 @@
           <button class="tpl-pill" data-tpl="aliado">Patrocinador / Aliado</button>
           <button class="tpl-pill" data-tpl="entrenamiento">Entrenamiento</button>
           <button class="tpl-pill" data-tpl="cumpleanos">Cumpleaños</button>
+          <button class="tpl-pill" data-tpl="torneo">Torneo</button>
         </div>
 
         <div id="form-jornada" class="tpl-form">
@@ -466,6 +479,10 @@
           <div class="field"><label>Selecciona el socio (opcional)</label><select id="cumImgSocio"><option value="">— Escribir a mano —</option></select></div>
           <div class="field"><label>Nombre</label><input type="text" id="cumImgNombre" placeholder="Ej: Juan Pérez"></div>
           <div class="field"><label>Categoría (opcional)</label><input type="text" id="cumImgCategoria" placeholder="Ej: Sub-12"></div>
+        </div>
+
+        <div id="form-torneo" class="tpl-form" style="display:none">
+          <div class="field"><label>Torneo</label><select id="torImgTorneo"><option value="">Elige un torneo…</option></select></div>
         </div>
 
         <div id="formatoFondoBlock" style="display:none;margin-top:6px">
@@ -712,6 +729,7 @@
           <div class="field"><label>Uniforme (opcional)</label><select id="partidoUniforme"><option value="">— Sin definir —</option></select></div>
           <div class="field"><label>Valor arbitraje (opcional)</label><input type="number" min="0" step="1000" id="partidoArbitraje" placeholder="Ej: 60000"></div>
         </div>
+        <div class="field"><label>Torneo (opcional)</label><select id="partidoTorneo"><option value="">— Partido amistoso / liga regular —</option></select></div>
         <div class="field"><label>Notas adicionales (opcional)</label><input type="text" id="partidoNotas" placeholder="Ej: Llegar 30 min antes, traer balón"></div>
         <button type="button" class="btn btn-primary btn-sm" id="btnAgregarPartido"><i class="fa-solid fa-plus"></i> Programar partido</button>
       </div>
@@ -758,6 +776,52 @@
           <button type="button" class="btn btn-ghost btn-sm" id="btnRehacerLlave"><i class="fa-solid fa-rotate"></i> Rehacer</button>
         </div>
         <div class="bracket-wrap" id="bracketWrap"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-torneos">
+      <div class="card">
+        <h3><i class="fa-solid fa-medal"></i> <span id="torFormTitulo">Crear torneo</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Torneos o campeonatos en los que participa tu escuela o club. Sube el logo del torneo para que aparezca en las imágenes y la información que compartas.</p>
+        <div class="field"><label>Nombre del torneo</label><input type="text" id="torNombre" placeholder="Ej: Copa Magdalena Sub-12"></div>
+        <div class="field">
+          <label>Logo del torneo (opcional)</label>
+          <div class="upload-box" id="torLogoBox" style="height:90px" onclick="document.getElementById('torLogoInput').click()">
+            <img id="torLogoPreview" class="upload-preview" style="display:none;object-fit:contain">
+            <div class="upload-empty" id="torLogoEmpty"><i class="fa-solid fa-image"></i><span>Subir logo</span></div>
+          </div>
+          <input type="file" id="torLogoInput" accept="image/*" style="display:none">
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Fecha de inicio</label><input type="date" id="torFechaInicio"></div>
+          <div class="field"><label>Fecha de fin (opcional)</label><input type="date" id="torFechaFin"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Lugar / sede (opcional)</label><input type="text" id="torLugar" placeholder="Ej: Complejo Deportivo Tenerife"></div>
+          <div class="field"><label>URL de Google Maps (opcional)</label><input type="text" id="torMapsUrl" placeholder="https://maps.app.goo.gl/..."></div>
+        </div>
+        <div class="field"><label>Valor de inscripción (opcional)</label><input type="number" id="torValorInscripcion" placeholder="Ej: 150000" min="0"></div>
+        <div class="field"><label>Notas adicionales (opcional)</label><input type="text" id="torNotas" placeholder="Ej: incluye arbitraje, se juega con balón #4"></div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarTorneo"><i class="fa-solid fa-plus"></i> Guardar torneo</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionTor" style="display:none">Cancelar edición</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-trophy"></i> Tus torneos</h3>
+        <div id="listaTorneos"><p class="empty">Todavía no has creado ningún torneo.</p></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-square"></i> Control disciplinario</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Tarjetas amarillas y rojas acumuladas por jugador en cada torneo. Se registran al guardar el resultado de un partido, en la pestaña Fixture.</p>
+        <div class="field"><label>Torneo</label><select id="discTorneoSelect"><option value="">Elige un torneo…</option></select></div>
+        <div id="listaDisciplina"><p class="empty">Elige un torneo para ver las tarjetas.</p></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-money-bill-wave"></i> Inscripciones al torneo</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Marca qué jugadores ya pagaron la inscripción de cada torneo y recuérdales por WhatsApp a los que faltan.</p>
+        <div class="field"><label>Torneo</label><select id="insTorneoSelect"><option value="">Elige un torneo…</option></select></div>
+        <div id="listaInscripciones"><p class="empty">Elige un torneo para ver las inscripciones.</p></div>
       </div>
     </div>
 
@@ -885,10 +949,13 @@ let EXCEPCIONES = [];
 let UNIFORMES = [];
 let uniformeEnEdicion = null;
 let uniFotoUrl = "";
+let TORNEOS = [];
+let torneoEnEdicion = null;
+let torLogoUrl = "";
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
-const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla", "goleadores", "llave"];
+const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla", "goleadores", "llave", "torneos"];
 
 requireClub().then(function (r) {
   clubActual = r.cliente;
@@ -914,6 +981,7 @@ requireClub().then(function (r) {
   escucharHorarios();
   escucharExcepciones();
   escucharUniformes();
+  escucharTorneos();
   escucharEntrenamientos();
   document.getElementById("asistCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
     CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
@@ -1151,6 +1219,7 @@ function escucharPartidos() {
     pintarGoleadores();
     pintarInicio();
     pintarProximoPartido();
+    pintarDisciplina();
     if (clubActual) { pintarSelectsImagenes(); pintarJornadaChecklist(); }
   });
 }
@@ -1165,17 +1234,23 @@ function pintarPartidos() {
   if (!PARTIDOS.length) { box.innerHTML = '<p class="empty">Todavía no has programado partidos.</p>'; return; }
   box.innerHTML = PARTIDOS.map(function (p) {
     const fechaTxt = p.fecha ? formatFechaSimple(p.fecha) : "Sin fecha";
+    const torneoTxt = p.torneoId ? nombreTorneo(p.torneoId) : "";
     if (p.jugado) {
       const goleadores = p.goleadores || [];
       const chips = goleadores.map(function (g, i) {
         return '<span class="goles-chip">' + esc(g.nombre) + (g.goles > 1 ? ' (' + g.goles + ')' : '') + ' · ' + esc(nombreEquipo(g.equipoId)) +
           ' <button onclick="quitarGoleador(\'' + p.id + '\',' + i + ')"><i class="fa-solid fa-xmark"></i></button></span>';
       }).join("");
+      const tarjetas = p.tarjetas || [];
+      const chipsTarjetas = tarjetas.map(function (t, i) {
+        return '<span class="goles-chip ' + (t.tipo === "roja" ? "ro" : "am") + '"><i class="fa-solid fa-square"></i> ' + esc(t.nombre) + ' · ' + esc(nombreEquipo(t.equipoId)) +
+          ' <button onclick="quitarTarjeta(\'' + p.id + '\',' + i + ')"><i class="fa-solid fa-xmark"></i></button></span>';
+      }).join("");
       return '<div class="match-card"><div class="match-teams">' +
         '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
         '<span class="match-score"><b>' + p.golesLocal + '</b> - <b>' + p.golesVisitante + '</b></span>' +
         '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
-        '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+        '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + (torneoTxt ? ' · <i class="fa-solid fa-trophy"></i> ' + esc(torneoTxt) : "") + '</div>' +
         (chips ? '<div class="goles-list">' + chips + '</div>' : "") +
         '<div class="goles-add-row">' +
         '<select id="gEq-' + p.id + '"><option value="' + p.local + '">' + esc(nombreEquipo(p.local)) + '</option><option value="' + p.visitante + '">' + esc(nombreEquipo(p.visitante)) + '</option></select>' +
@@ -1183,13 +1258,20 @@ function pintarPartidos() {
         '<input type="number" id="gCant-' + p.id + '" min="1" value="1">' +
         '<button type="button" class="btn btn-ghost btn-sm" onclick="agregarGoleador(\'' + p.id + '\')"><i class="fa-solid fa-plus"></i></button>' +
         '</div>' +
+        (chipsTarjetas ? '<div class="goles-list">' + chipsTarjetas + '</div>' : "") +
+        '<div class="goles-add-row">' +
+        '<select id="tEq-' + p.id + '"><option value="' + p.local + '">' + esc(nombreEquipo(p.local)) + '</option><option value="' + p.visitante + '">' + esc(nombreEquipo(p.visitante)) + '</option></select>' +
+        '<input type="text" id="tNom-' + p.id + '" placeholder="Jugador">' +
+        '<select id="tTipo-' + p.id + '" style="width:88px"><option value="amarilla">Amarilla</option><option value="roja">Roja</option></select>' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="agregarTarjeta(\'' + p.id + '\')"><i class="fa-solid fa-square"></i></button>' +
+        '</div>' +
         '<div class="match-actions"><button class="btn btn-ghost btn-sm" onclick="borrarPartido(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i> Borrar</button></div></div>';
     }
     return '<div class="match-card"><div class="match-teams">' +
       '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
       '<span class="match-score"><input type="number" min="0" id="gl-' + p.id + '"> - <input type="number" min="0" id="gv-' + p.id + '"></span>' +
       '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
-      '<div class="match-meta">' + fechaTxt + (p.hora ? " · " + formatoHora12(p.hora) : "") + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+      '<div class="match-meta">' + fechaTxt + (p.hora ? " · " + formatoHora12(p.hora) : "") + (p.cancha ? " · " + esc(p.cancha) : "") + (torneoTxt ? ' · <i class="fa-solid fa-trophy"></i> ' + esc(torneoTxt) : "") + '</div>' +
       '<div class="match-actions">' +
       '<button class="btn btn-primary btn-sm" onclick="marcarResultado(\'' + p.id + '\')"><i class="fa-solid fa-check"></i> Guardar resultado</button>' +
       '<button class="btn btn-ghost btn-sm" onclick="compartirPartido(\'' + p.id + '\')"><i class="fa-brands fa-whatsapp"></i> Compartir</button>' +
@@ -1308,6 +1390,159 @@ document.getElementById("btnGuardarUniforme").addEventListener("click", function
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
 
+// ── Torneos ──
+function formatFechaISOCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function estadoTorneo(t) {
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  if (t.fechaInicio && hoyISO < t.fechaInicio) return { texto: "Próximo", clase: "warn" };
+  if (t.fechaFin && hoyISO > t.fechaFin) return { texto: "Finalizado", clase: "muted" };
+  return { texto: "En curso", clase: "ok" };
+}
+
+function nombreTorneo(id) {
+  const t = TORNEOS.find(function (x) { return x.id === id; });
+  return t ? t.nombre : "";
+}
+
+function escucharTorneos() {
+  db.collection("clientes").doc(clubActual.id).collection("torneos").onSnapshot(function (snap) {
+    TORNEOS = [];
+    snap.forEach(function (d) { TORNEOS.push(Object.assign({ id: d.id }, d.data())); });
+    pintarTorneos();
+    pintarSelectTorneos();
+    pintarDisciplina();
+  });
+}
+
+function pintarSelectTorneos() {
+  const opciones = '<option value="">— Partido amistoso / liga regular —</option>' +
+    TORNEOS.map(function (t) { return '<option value="' + t.id + '">' + esc(t.nombre) + '</option>'; }).join("");
+  const selPartido = document.getElementById("partidoTorneo");
+  if (selPartido) { const actual = selPartido.value; selPartido.innerHTML = opciones; selPartido.value = actual; }
+  const opcionesElegir = '<option value="">Elige un torneo…</option>' +
+    TORNEOS.map(function (t) { return '<option value="' + t.id + '">' + esc(t.nombre) + '</option>'; }).join("");
+  ["discTorneoSelect", "insTorneoSelect", "torImgTorneo"].forEach(function (id) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const actual = sel.value;
+    sel.innerHTML = opcionesElegir;
+    sel.value = actual;
+  });
+}
+
+function pintarTorneos() {
+  const box = document.getElementById("listaTorneos");
+  if (!TORNEOS.length) { box.innerHTML = '<p class="empty">Todavía no has creado ningún torneo.</p>'; return; }
+  const lista = TORNEOS.slice().sort(function (a, b) { return (a.fechaInicio || "") < (b.fechaInicio || "") ? 1 : -1; });
+  box.innerHTML = lista.map(function (t) {
+    const estado = estadoTorneo(t);
+    let meta = "";
+    if (t.fechaInicio) meta += formatFechaISOCorta(t.fechaInicio) + (t.fechaFin ? " – " + formatFechaISOCorta(t.fechaFin) : "");
+    if (t.lugar) meta += (meta ? " · " : "") + t.lugar;
+    if (t.valorInscripcion) meta += (meta ? " · " : "") + "Inscripción: $" + Number(t.valorInscripcion).toLocaleString("es-CO");
+    return '<div class="pat-card">' +
+      (t.logoUrl ? '<img class="pat-logo" src="' + t.logoUrl + '">' : '<div class="pat-logo-empty"><i class="fa-solid fa-trophy"></i></div>') +
+      '<div class="pat-info"><div class="pat-name">' + esc(t.nombre) + '</div>' +
+      (meta ? '<div class="pat-meta">' + esc(meta) + '</div>' : '') +
+      '<span class="pill ' + estado.clase + '" style="margin-top:5px">' + estado.texto + '</span></div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="editarTorneo(\'' + t.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="borrarTorneo(\'' + t.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("torLogoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "torneos", clubActual.id + "-tor-" + Date.now() + "." + (file.name.split(".").pop() || "png")).then(function (url) {
+    torLogoUrl = url;
+    document.getElementById("torLogoPreview").src = url;
+    document.getElementById("torLogoPreview").style.display = "block";
+    document.getElementById("torLogoEmpty").style.display = "none";
+  }).catch(function (err) { mostrarError("No se pudo subir el logo: " + err.message); });
+});
+
+function limpiarFormTorneo() {
+  torneoEnEdicion = null;
+  torLogoUrl = "";
+  document.getElementById("torNombre").value = "";
+  document.getElementById("torFechaInicio").value = "";
+  document.getElementById("torFechaFin").value = "";
+  document.getElementById("torLugar").value = "";
+  document.getElementById("torMapsUrl").value = "";
+  document.getElementById("torValorInscripcion").value = "";
+  document.getElementById("torNotas").value = "";
+  document.getElementById("torLogoPreview").style.display = "none";
+  document.getElementById("torLogoEmpty").style.display = "flex";
+  document.getElementById("torFormTitulo").textContent = "Crear torneo";
+  document.getElementById("btnGuardarTorneo").innerHTML = '<i class="fa-solid fa-plus"></i> Guardar torneo';
+  document.getElementById("btnCancelarEdicionTor").style.display = "none";
+}
+
+function editarTorneo(id) {
+  const t = TORNEOS.find(function (x) { return x.id === id; });
+  if (!t) return;
+  torneoEnEdicion = id;
+  torLogoUrl = t.logoUrl || "";
+  document.getElementById("torNombre").value = t.nombre || "";
+  document.getElementById("torFechaInicio").value = t.fechaInicio || "";
+  document.getElementById("torFechaFin").value = t.fechaFin || "";
+  document.getElementById("torLugar").value = t.lugar || "";
+  document.getElementById("torMapsUrl").value = t.mapsUrl || "";
+  document.getElementById("torValorInscripcion").value = t.valorInscripcion || "";
+  document.getElementById("torNotas").value = t.notas || "";
+  if (t.logoUrl) {
+    document.getElementById("torLogoPreview").src = t.logoUrl;
+    document.getElementById("torLogoPreview").style.display = "block";
+    document.getElementById("torLogoEmpty").style.display = "none";
+  } else {
+    document.getElementById("torLogoPreview").style.display = "none";
+    document.getElementById("torLogoEmpty").style.display = "flex";
+  }
+  document.getElementById("torFormTitulo").textContent = "Editando: " + t.nombre;
+  document.getElementById("btnGuardarTorneo").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("btnCancelarEdicionTor").style.display = "inline-flex";
+  document.getElementById("tab-torneos").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+document.getElementById("btnCancelarEdicionTor").addEventListener("click", limpiarFormTorneo);
+
+function borrarTorneo(id) {
+  const t = TORNEOS.find(function (x) { return x.id === id; });
+  if (!t || !confirm('¿Borrar el torneo "' + t.nombre + '"? Esto no borra los partidos ya jugados.')) return;
+  db.collection("clientes").doc(clubActual.id).collection("torneos").doc(id).delete()
+    .then(function () { mostrarExito("Torneo eliminado."); if (torneoEnEdicion === id) limpiarFormTorneo(); })
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarTorneo").addEventListener("click", function () {
+  const data = {
+    nombre: document.getElementById("torNombre").value.trim(),
+    logoUrl: torLogoUrl,
+    fechaInicio: document.getElementById("torFechaInicio").value,
+    fechaFin: document.getElementById("torFechaFin").value,
+    lugar: document.getElementById("torLugar").value.trim(),
+    mapsUrl: document.getElementById("torMapsUrl").value.trim(),
+    valorInscripcion: Number(document.getElementById("torValorInscripcion").value) || 0,
+    notas: document.getElementById("torNotas").value.trim()
+  };
+  if (!data.nombre) { mostrarError("Ingresa el nombre del torneo."); return; }
+  const ref = db.collection("clientes").doc(clubActual.id).collection("torneos");
+  const tarea = torneoEnEdicion ? ref.doc(torneoEnEdicion).update(data) : ref.add(data);
+  tarea.then(function () {
+    mostrarExito(torneoEnEdicion ? "Torneo actualizado." : "Torneo creado.");
+    registrarAuditoria(torneoEnEdicion ? "Torneo actualizado" : "Torneo creado", clubActual.id, clubActual.clubNombre, data.nombre);
+    limpiarFormTorneo();
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
 // ── Compartir información del próximo partido ──
 function mensajePartido(p) {
   const fechaTxt = p.fecha ? formatFechaSimple(p.fecha) : "Por definir";
@@ -1361,10 +1596,12 @@ document.getElementById("btnAgregarPartido").addEventListener("click", function 
     uniformeId: document.getElementById("partidoUniforme").value,
     arbitraje: Number(document.getElementById("partidoArbitraje").value) || 0,
     notas: document.getElementById("partidoNotas").value.trim(),
+    torneoId: document.getElementById("partidoTorneo").value,
     fecha: firebase.firestore.Timestamp.fromDate(new Date(fechaStr + "T" + (horaStr || "12:00")))
   }).then(function () {
     ["partidoCancha", "partidoMaps", "partidoArbitraje", "partidoNotas", "partidoHora"].forEach(function (id) { document.getElementById(id).value = ""; });
     document.getElementById("partidoUniforme").value = "";
+    document.getElementById("partidoTorneo").value = "";
     mostrarExito("Partido programado.");
   }).catch(function (err) { mostrarError("No se pudo programar: " + err.message); });
 });
@@ -1394,6 +1631,108 @@ function quitarGoleador(partidoId, index) {
   const nuevos = p.goleadores.slice();
   nuevos.splice(index, 1);
   db.collection("clientes").doc(clubActual.id).collection("partidos").doc(partidoId).update({ goleadores: nuevos });
+}
+
+function agregarTarjeta(partidoId) {
+  const equipoId = document.getElementById("tEq-" + partidoId).value;
+  const nombre = document.getElementById("tNom-" + partidoId).value.trim();
+  const tipo = document.getElementById("tTipo-" + partidoId).value;
+  if (!nombre) { mostrarError("Escribe el nombre del jugador."); return; }
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(partidoId).update({
+    tarjetas: firebase.firestore.FieldValue.arrayUnion({ nombre: nombre, equipoId: equipoId, tipo: tipo })
+  }).then(function () { mostrarExito("Tarjeta registrada."); }).catch(function (err) { mostrarError("No se pudo agregar: " + err.message); });
+}
+
+function quitarTarjeta(partidoId, index) {
+  const p = PARTIDOS.find(function (x) { return x.id === partidoId; });
+  if (!p || !p.tarjetas) return;
+  const nuevas = p.tarjetas.slice();
+  nuevas.splice(index, 1);
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(partidoId).update({ tarjetas: nuevas });
+}
+
+function pintarDisciplina() {
+  const box = document.getElementById("listaDisciplina");
+  const sel = document.getElementById("discTorneoSelect");
+  if (!box || !sel) return;
+  const torneoId = sel.value;
+  if (!torneoId) { box.innerHTML = '<p class="empty">Elige un torneo para ver las tarjetas.</p>'; return; }
+  const totales = {};
+  PARTIDOS.filter(function (p) { return p.torneoId === torneoId; }).forEach(function (p) {
+    (p.tarjetas || []).forEach(function (t) {
+      const key = t.nombre + "|" + t.equipoId;
+      if (!totales[key]) totales[key] = { nombre: t.nombre, equipoId: t.equipoId, amarillas: 0, rojas: 0 };
+      if (t.tipo === "roja") totales[key].rojas++; else totales[key].amarillas++;
+    });
+  });
+  const lista = Object.values(totales).sort(function (a, b) { return (b.rojas * 10 + b.amarillas) - (a.rojas * 10 + a.amarillas); });
+  if (!lista.length) { box.innerHTML = '<p class="empty">Todavía no hay tarjetas registradas en este torneo.</p>'; return; }
+  box.innerHTML = lista.map(function (j) {
+    const suspendido = j.rojas > 0 || j.amarillas >= 2;
+    return '<div class="disc-row"><div class="dr-info"><b>' + esc(j.nombre) + '</b><small>' + esc(nombreEquipo(j.equipoId)) + '</small></div>' +
+      '<div class="torneo-tarjetas">' +
+      (j.amarillas ? '<span class="tj-am"><i class="fa-solid fa-square"></i> ' + j.amarillas + '</span>' : "") +
+      (j.rojas ? '<span class="tj-ro"><i class="fa-solid fa-square"></i> ' + j.rojas + '</span>' : "") +
+      (suspendido ? '<span class="pill bad">Sancionado</span>' : "") +
+      '</div></div>';
+  }).join("");
+}
+
+document.getElementById("discTorneoSelect").addEventListener("change", pintarDisciplina);
+
+let INSCRIPCIONES = {};
+let unsubInscripciones = null;
+
+function escucharInscripciones(torneoId) {
+  if (unsubInscripciones) { unsubInscripciones(); unsubInscripciones = null; }
+  INSCRIPCIONES = {};
+  if (!torneoId) { pintarInscripciones(); return; }
+  unsubInscripciones = db.collection("clientes").doc(clubActual.id).collection("torneos").doc(torneoId).collection("inscripciones")
+    .onSnapshot(function (snap) {
+      INSCRIPCIONES = {};
+      snap.forEach(function (d) { INSCRIPCIONES[d.id] = d.data(); });
+      pintarInscripciones();
+    });
+}
+
+function pintarInscripciones() {
+  const box = document.getElementById("listaInscripciones");
+  const torneoId = document.getElementById("insTorneoSelect").value;
+  if (!torneoId) { box.innerHTML = '<p class="empty">Elige un torneo para ver las inscripciones.</p>'; return; }
+  if (!SOCIOS.length) { box.innerHTML = '<p class="empty">Todavía no tienes socios registrados.</p>'; return; }
+  box.innerHTML = SOCIOS.map(function (s) {
+    const insc = INSCRIPCIONES[s.id] || {};
+    const pagado = !!insc.pagado;
+    return '<div class="disc-row"><div class="dr-info"><b>' + esc(s.nombre) + '</b><small>' + esc(s.categoria || "") + '</small></div>' +
+      '<span class="pill ' + (pagado ? "ok" : "bad") + '" style="cursor:pointer" onclick="toggleInscripcion(\'' + torneoId + '\',\'' + s.id + '\',' + (!pagado) + ')">' + (pagado ? "Pagado" : "Pendiente") + '</span>' +
+      (!pagado ? '<button class="btn btn-ghost btn-sm" onclick="recordarInscripcion(\'' + torneoId + '\',\'' + s.id + '\')"><i class="fa-brands fa-whatsapp"></i></button>' : '') +
+      '</div>';
+  }).join("");
+}
+
+document.getElementById("insTorneoSelect").addEventListener("change", function () {
+  escucharInscripciones(this.value);
+});
+
+function toggleInscripcion(torneoId, socioId, nuevoValor) {
+  db.collection("clientes").doc(clubActual.id).collection("torneos").doc(torneoId).collection("inscripciones").doc(socioId)
+    .set({ pagado: nuevoValor, fechaPago: nuevoValor ? new Date().toISOString().slice(0, 10) : null }, { merge: true })
+    .catch(function (err) { mostrarError("No se pudo actualizar: " + err.message); });
+}
+
+function recordarInscripcion(torneoId, socioId) {
+  const s = SOCIOS.find(function (x) { return x.id === socioId; });
+  const torneo = TORNEOS.find(function (t) { return t.id === torneoId; });
+  if (!s || !torneo) return;
+  let tel = (s.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  let msg = "¡Hola! Te recordamos la inscripción de " + (s.nombre || "tu deportista") + " al torneo *" + torneo.nombre + "*" +
+    (torneo.valorInscripcion ? ": " + formatCOP(torneo.valorInscripcion) : "") + ".";
+  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+  msg += "\n\n¡Gracias!";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(msg), "_blank");
+  registrarComunicacion(s.id, "whatsapp", "Recordatorio de inscripción a " + torneo.nombre + " enviado por WhatsApp");
 }
 
 function calcularGoleadores() {
@@ -1790,7 +2129,7 @@ document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
     tplActual = btn.dataset.tpl;
     document.getElementById("form-" + tplActual).style.display = "block";
     document.getElementById("imgActions").style.display = "none";
-    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos";
+    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos" || tplActual === "torneo";
     document.getElementById("formatoFondoBlock").style.display = necesitaFormatoFondo ? "block" : "none";
   });
 });
@@ -2097,6 +2436,20 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
     if (!d.nombre) { mostrarError("Ingresa el nombre del cumpleañero."); cancelar(); return; }
     tarea = generarImagenCumpleanos(canvas, d);
     caption = "🎉 ¡Feliz cumpleaños " + d.nombre + "! Todo el equipo de " + (clubActual.clubNombre || "el club") + " te desea un día increíble 🎂⚽";
+  } else if (tplActual === "torneo") {
+    const torneoId = document.getElementById("torImgTorneo").value;
+    const t = TORNEOS.find(function (x) { return x.id === torneoId; });
+    if (!t) { mostrarError("Elige un torneo."); cancelar(); return; }
+    let fechaTexto = "";
+    if (t.fechaInicio) fechaTexto = formatFechaISOCorta(t.fechaInicio) + (t.fechaFin ? " – " + formatFechaISOCorta(t.fechaFin) : "");
+    const d = {
+      club: clubActual,
+      torneo: { nombre: t.nombre, logoUrl: t.logoUrl, fechaTexto: fechaTexto, lugar: t.lugar, valorInscripcion: t.valorInscripcion },
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
+    };
+    tarea = generarImagenTorneo(canvas, d);
+    caption = "🏆 ¡Nos vamos al " + t.nombre + "! " + (fechaTexto ? fechaTexto + " " : "") + (t.lugar ? "en " + t.lugar + " " : "") + "#BioFutbol";
   }
 
   tarea.then(function () {
