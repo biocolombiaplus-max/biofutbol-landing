@@ -138,7 +138,12 @@
 .qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
 .qt-10{background:linear-gradient(135deg,#0891b2,#164e63)}
 .qt-11{background:linear-gradient(135deg,#f43f5e,#7f1d1d)}
-.next-training-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(24,168,58,.14),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:16px;padding:16px 18px;margin-bottom:18px}
+.next-training-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(24,168,58,.14),rgba(255,201,51,.06));border:1px solid rgba(24,168,58,.3);border-radius:16px;padding:16px 18px;margin-bottom:18px;animation:ntGlow 2.6s ease-in-out infinite}
+@keyframes ntGlow{0%,100%{box-shadow:0 0 0 rgba(24,168,58,0)}50%{box-shadow:0 0 26px rgba(24,168,58,.4)}}
+.next-training-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);animation:ntShine 3.4s ease-in-out infinite}
+@keyframes ntShine{0%{left:-60%}55%{left:120%}100%{left:120%}}
+.next-training-card .nt-ico{animation:ntPulse 2.6s ease-in-out infinite}
+@keyframes ntPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .next-training-card .nt-ico{width:44px;height:44px;border-radius:12px;background:rgba(24,168,58,.18);color:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
 .next-training-card .nt-title{font-size:.68rem;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
 .next-training-card .nt-body{font-size:.92rem;font-weight:800}
@@ -220,6 +225,11 @@
           <div class="nt-body" id="ntBody">—</div>
           <div class="nt-sub" id="ntSub">—</div>
         </div>
+      </div>
+
+      <div class="card" id="cumpleanosCard" style="display:none;border-color:rgba(255,201,51,.4);background:rgba(255,201,51,.06);margin-bottom:18px">
+        <h3><i class="fa-solid fa-cake-candles"></i> ¡Hoy cumplen años!</h3>
+        <div id="cumpleanosLista"></div>
       </div>
 
       <div class="section-label">Acceso rápido</div>
@@ -349,6 +359,8 @@
           <button class="tpl-pill" data-tpl="tabla_img">Tabla de posiciones</button>
           <button class="tpl-pill" data-tpl="goleadores_img">Goleadores</button>
           <button class="tpl-pill" data-tpl="aliado">Patrocinador / Aliado</button>
+          <button class="tpl-pill" data-tpl="entrenamiento">Entrenamiento</button>
+          <button class="tpl-pill" data-tpl="cumpleanos">Cumpleaños</button>
         </div>
 
         <div id="form-jornada" class="tpl-form">
@@ -410,6 +422,45 @@
             <input type="checkbox" id="aImgEscudo" checked style="width:18px;height:18px;accent-color:var(--green-l)">
             <span style="font-size:.84rem;font-weight:700">Mostrar el escudo de mi club</span>
           </label>
+        </div>
+
+        <div id="form-entrenamiento" class="tpl-form" style="display:none">
+          <div class="field"><label>Selecciona un horario guardado (opcional)</label><select id="entImgHorario"><option value="">— Escribir a mano —</option></select></div>
+          <div class="field"><label>Tipo de aviso</label>
+            <select id="entImgTipo"><option value="recordatorio">Recordatorio (día antes)</option><option value="hoy">¡Hoy entrenamos!</option></select>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Categoría</label><input type="text" id="entImgCategoria" placeholder="Vacío = todas las categorías"></div>
+            <div class="field"><label>Día</label><input type="text" id="entImgDia" placeholder="Ej: Martes"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Hora</label><input type="text" id="entImgHora" placeholder="Ej: 4:00 p.m. – 5:30 p.m."></div>
+            <div class="field"><label>Sede (opcional)</label><input type="text" id="entImgSede" placeholder="Ej: Cancha Municipal"></div>
+          </div>
+        </div>
+
+        <div id="form-cumpleanos" class="tpl-form" style="display:none">
+          <div class="field"><label>Selecciona el socio (opcional)</label><select id="cumImgSocio"><option value="">— Escribir a mano —</option></select></div>
+          <div class="field"><label>Nombre</label><input type="text" id="cumImgNombre" placeholder="Ej: Juan Pérez"></div>
+          <div class="field"><label>Categoría (opcional)</label><input type="text" id="cumImgCategoria" placeholder="Ej: Sub-12"></div>
+        </div>
+
+        <div id="formatoFondoBlock" style="display:none;margin-top:6px">
+          <div class="field"><label>Formato</label>
+            <div class="tpl-pills" style="margin-bottom:0">
+              <button type="button" class="tpl-pill on" data-formato="story">9:16 · Historia</button>
+              <button type="button" class="tpl-pill" data-formato="square">1:1 · Cuadrada</button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label>Fondo personalizado (opcional)</label>
+            <div class="upload-box" id="imgFondoBox" style="height:110px" onclick="document.getElementById('imgFondoInput').click()">
+              <img id="imgFondoPreview" class="upload-preview" style="display:none">
+              <div class="upload-empty" id="imgFondoEmpty"><i class="fa-solid fa-image"></i><span>Subir imagen de fondo</span></div>
+            </div>
+            <input type="file" id="imgFondoInput" accept="image/*" style="display:none">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnQuitarFondo" style="display:none;margin-top:8px">Quitar fondo</button>
+          </div>
         </div>
 
         <button type="button" class="btn btn-primary btn-block" id="btnGenerarImagen" style="margin-top:18px"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen</button>
@@ -502,6 +553,46 @@
       <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-calendar-days"></i> Horario semanal</h3>
         <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-champagne-glasses"></i> Días festivos</h3>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="entrenaFestivosCheck" checked style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+          <span style="font-weight:700;font-size:.86rem">Entrenar también en días festivos de Colombia</span>
+        </label>
+        <p style="font-size:.76rem;color:var(--gray-d);margin-top:8px">Si lo desactivas, el "próximo entrenamiento" salta automáticamente los 18 festivos oficiales de Colombia y muestra la siguiente fecha hábil.</p>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-xmark"></i> Cancelar un entrenamiento puntual</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Para una fecha específica (ej: se cambió de cancha, hubo lluvia, día libre) sin borrar el horario fijo.</p>
+        <div class="field-row">
+          <div class="field"><label>Horario</label><select id="cancHorario"><option value="">— Todos los horarios ese día —</option></select></div>
+          <div class="field"><label>Fecha a cancelar</label><input type="date" id="cancFecha"></div>
+        </div>
+        <div class="field"><label>Motivo (opcional)</label><input type="text" id="cancMotivo" placeholder="Ej: Cancha en mantenimiento"></div>
+        <button type="button" class="btn btn-danger btn-sm" id="btnCancelarEntreno"><i class="fa-solid fa-ban"></i> Cancelar ese día</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-plus"></i> Entrenamiento adicional (puntual)</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Para una sesión extra que no se repite cada semana (ej: refuerzo antes de un torneo).</p>
+        <div class="field-row">
+          <div class="field"><label>Fecha</label><input type="date" id="extraFecha"></div>
+          <div class="field"><label>Categoría</label><input type="text" id="extraCategoria" placeholder="Vacío = todas"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Hora de inicio</label><input type="time" id="extraInicio"></div>
+          <div class="field"><label>Hora de fin (opcional)</label><input type="time" id="extraFin"></div>
+        </div>
+        <div class="field"><label>Sede</label><select id="extraSede"><option value="">— Sin definir —</option></select></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAgregarExtra"><i class="fa-solid fa-plus"></i> Agregar entrenamiento adicional</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-list-check"></i> Cancelaciones y adicionales próximos</h3>
+        <div id="listaExcepciones"><p class="empty">No hay cancelaciones ni entrenamientos adicionales programados.</p></div>
       </div>
     </div>
 
@@ -687,6 +778,7 @@
 <script src="js/categorias.js"></script>
 <script src="js/informes.js"></script>
 <script src="js/horarios.js"></script>
+<script src="js/festivos.js"></script>
 <script src="js/imagenes.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
@@ -703,6 +795,7 @@ let SEDES = [];
 let sedeEnEdicion = null;
 let HORARIOS = [];
 let horarioEnEdicion = null;
+let EXCEPCIONES = [];
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
@@ -730,6 +823,8 @@ requireClub().then(function (r) {
   escucharPatrocinadores();
   escucharSedes();
   escucharHorarios();
+  escucharExcepciones();
+  document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
@@ -1240,6 +1335,8 @@ function escucharSocios() {
     SOCIOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
     pintarListaSocios();
     pintarInicio();
+    pintarSelectSociosImg();
+    pintarAlertaCumpleanos();
     if (socioSeleccionado) {
       const actualizado = SOCIOS.find(function (s) { return s.id === socioSeleccionado.id; });
       if (actualizado) { socioSeleccionado = actualizado; pintarFicha(); }
@@ -1439,16 +1536,50 @@ document.getElementById("btnRecordarMasivoCorreo").addEventListener("click", fun
 let tplActual = "jornada";
 let ultimoCaptionImg = "";
 let aImgLogoUrl = "";
+let cumImgFotoUrl = "";
 
-document.querySelectorAll(".tpl-pill").forEach(function (btn) {
+document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
   btn.addEventListener("click", function () {
-    document.querySelectorAll(".tpl-pill").forEach(function (b) { b.classList.remove("on"); });
+    document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (b) { b.classList.remove("on"); });
     document.querySelectorAll(".tpl-form").forEach(function (f) { f.style.display = "none"; });
     btn.classList.add("on");
     tplActual = btn.dataset.tpl;
     document.getElementById("form-" + tplActual).style.display = "block";
     document.getElementById("imgActions").style.display = "none";
+    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos";
+    document.getElementById("formatoFondoBlock").style.display = necesitaFormatoFondo ? "block" : "none";
   });
+});
+
+let formatoImgActual = "story";
+let fondoImgUrl = "";
+
+document.querySelectorAll(".tpl-pill[data-formato]").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".tpl-pill[data-formato]").forEach(function (b) { b.classList.remove("on"); });
+    btn.classList.add("on");
+    formatoImgActual = btn.dataset.formato;
+  });
+});
+
+document.getElementById("imgFondoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "fondos", clubActual.id + "-fondo-" + Date.now() + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    fondoImgUrl = url;
+    document.getElementById("imgFondoPreview").src = url;
+    document.getElementById("imgFondoPreview").style.display = "block";
+    document.getElementById("imgFondoEmpty").style.display = "none";
+    document.getElementById("btnQuitarFondo").style.display = "inline-flex";
+  }).catch(function (err) { mostrarError("No se pudo subir el fondo: " + err.message); });
+});
+
+document.getElementById("btnQuitarFondo").addEventListener("click", function () {
+  fondoImgUrl = "";
+  document.getElementById("imgFondoInput").value = "";
+  document.getElementById("imgFondoPreview").style.display = "none";
+  document.getElementById("imgFondoEmpty").style.display = "flex";
+  this.style.display = "none";
 });
 
 function precargarFormImagenes() {
@@ -1509,6 +1640,69 @@ document.getElementById("aImgPatrocinador").addEventListener("change", function 
     document.getElementById("aImgLogoEmpty").style.display = "flex";
   }
 });
+
+function pintarSelectSociosImg() {
+  const sel = document.getElementById("cumImgSocio");
+  if (!sel) return;
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">— Escribir a mano —</option>' +
+    SOCIOS.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
+  sel.value = actual;
+}
+
+document.getElementById("cumImgSocio").addEventListener("change", function () {
+  const val = this.value;
+  const s = SOCIOS.find(function (x) { return x.id === val; });
+  if (!s) return;
+  document.getElementById("cumImgNombre").value = s.nombre || "";
+  document.getElementById("cumImgCategoria").value = s.categoria || "";
+  cumImgFotoUrl = s.fotoUrl || "";
+});
+
+document.getElementById("entImgHorario").addEventListener("change", function () {
+  if (!this.value) return;
+  const lista = JSON.parse(this.dataset.horarios || "[]");
+  const h = lista[Number(this.value)];
+  if (!h) return;
+  document.getElementById("entImgCategoria").value = h.categoria || "";
+  document.getElementById("entImgDia").value = h.dia || "";
+  document.getElementById("entImgHora").value = formatoHora12(h.horaInicio) + (h.horaFin ? " – " + formatoHora12(h.horaFin) : "");
+  document.getElementById("entImgSede").value = h.sedeId ? nombreSede(h.sedeId) : "";
+});
+
+// ── Alerta de cumpleaños ──
+function pintarAlertaCumpleanos() {
+  const card = document.getElementById("cumpleanosCard");
+  if (!card) return;
+  const hoy = new Date();
+  const hoyMes = hoy.getMonth(), hoyDia = hoy.getDate();
+  const hoyCumple = SOCIOS.filter(function (s) {
+    if (!s.fechaNacimiento) return false;
+    const n = new Date(s.fechaNacimiento + "T12:00:00");
+    return !isNaN(n.getTime()) && n.getMonth() === hoyMes && n.getDate() === hoyDia;
+  });
+  if (!hoyCumple.length) { card.style.display = "none"; return; }
+  card.style.display = "block";
+  document.getElementById("cumpleanosLista").innerHTML = hoyCumple.map(function (s) {
+    return '<div class="pat-card"><div class="pat-logo-empty"><i class="fa-solid fa-cake-candles"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(s.nombre) + '</div>' +
+      '<div class="pat-meta">' + esc(s.categoria || "") + '</div></div>' +
+      '<div class="pat-actions">' +
+      '<button class="btn btn-primary btn-sm" onclick="felicitarCumpleanos(\'' + s.id + '\')"><i class="fa-brands fa-whatsapp"></i></button>' +
+      '</div></div>';
+  }).join("");
+}
+
+function felicitarCumpleanos(socioId) {
+  const s = SOCIOS.find(function (x) { return x.id === socioId; });
+  if (!s) return;
+  let tel = (s.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const mensaje = "🎉 ¡Feliz cumpleaños, " + s.nombre + "! Todo el equipo de " + (clubActual.clubNombre || "el club") + " te desea un día increíble. ¡Sigue brillando dentro y fuera de la cancha! 🎂⚽";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Felicitación de cumpleaños enviada", clubActual.id, s.nombre, tel);
+}
 
 document.getElementById("pImgPartido").addEventListener("change", function () {
   const p = PARTIDOS.find(function (x) { return x.id === document.getElementById("pImgPartido").value; });
@@ -1605,7 +1799,7 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
     if (!filas.length) { mostrarError("Todavía no hay goles registrados para generar la imagen."); cancelar(); return; }
     tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas });
     caption = "🥇 Tabla de goleadores de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
-  } else {
+  } else if (tplActual === "aliado") {
     const d = {
       club: clubActual,
       nombre: document.getElementById("aImgNombre").value.trim(),
@@ -1615,9 +1809,35 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       logoUrl: aImgLogoUrl,
       mostrarEscudo: document.getElementById("aImgEscudo").checked
     };
-    if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen'; return; }
+    if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); cancelar(); return; }
     tarea = generarImagenAliado(canvas, d);
     caption = "🤝 Gracias a nuestro aliado " + d.nombre + (d.oferta ? " — " + d.oferta : "") + " #BioFutbol";
+  } else if (tplActual === "entrenamiento") {
+    const d = {
+      club: clubActual,
+      tipo: document.getElementById("entImgTipo").value,
+      categoria: document.getElementById("entImgCategoria").value.trim(),
+      dia: document.getElementById("entImgDia").value.trim(),
+      hora: document.getElementById("entImgHora").value.trim(),
+      sede: document.getElementById("entImgSede").value.trim(),
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
+    };
+    if (!d.dia || !d.hora) { mostrarError("Ingresa al menos el día y la hora del entrenamiento."); cancelar(); return; }
+    tarea = generarImagenEntrenamiento(canvas, d);
+    caption = (d.tipo === "hoy" ? "⏱️ ¡Hoy entrenamos! " : "📢 Recordatorio de entrenamiento: ") + d.dia + " " + d.hora + (d.sede ? " en " + d.sede : "") + " #BioFutbol";
+  } else if (tplActual === "cumpleanos") {
+    const d = {
+      club: clubActual,
+      nombre: document.getElementById("cumImgNombre").value.trim(),
+      categoria: document.getElementById("cumImgCategoria").value.trim(),
+      fotoUrl: cumImgFotoUrl,
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
+    };
+    if (!d.nombre) { mostrarError("Ingresa el nombre del cumpleañero."); cancelar(); return; }
+    tarea = generarImagenCumpleanos(canvas, d);
+    caption = "🎉 ¡Feliz cumpleaños " + d.nombre + "! Todo el equipo de " + (clubActual.clubNombre || "el club") + " te desea un día increíble 🎂⚽";
   }
 
   tarea.then(function () {
@@ -1852,11 +2072,15 @@ function escucharSedes() {
 }
 
 function pintarSelectSedes() {
-  const sel = document.getElementById("horarioSede");
-  const actual = sel.value;
-  sel.innerHTML = '<option value="">— Sin definir —</option>' +
+  const opciones = '<option value="">— Sin definir —</option>' +
     SEDES.map(function (s) { return '<option value="' + s.id + '">' + esc(s.nombre) + '</option>'; }).join("");
-  sel.value = actual;
+  ["horarioSede", "extraSede"].forEach(function (id) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const actual = sel.value;
+    sel.innerHTML = opciones;
+    sel.value = actual;
+  });
 }
 
 function nombreSede(id) {
@@ -1929,7 +2153,33 @@ function escucharHorarios() {
     snap.forEach(function (d) { HORARIOS.push(Object.assign({ id: d.id }, d.data())); });
     pintarHorarios();
     pintarProximoEntrenamiento();
+    pintarSelectHorariosImg();
   });
+}
+
+function pintarSelectHorariosImg() {
+  const ordenados = HORARIOS.slice().sort(function (a, b) {
+    return DIAS_SEMANA_ORDEN.indexOf(a.dia) - DIAS_SEMANA_ORDEN.indexOf(b.dia);
+  });
+  const sel = document.getElementById("entImgHorario");
+  if (sel) {
+    sel.innerHTML = '<option value="">— Escribir a mano —</option>' +
+      ordenados.map(function (h, i) {
+        const rango = formatoHora12(h.horaInicio) + (h.horaFin ? " – " + formatoHora12(h.horaFin) : "");
+        return '<option value="' + i + '">' + esc(h.dia) + ' · ' + esc(rango) + ' · ' + esc(h.categoria || "Todas") + '</option>';
+      }).join("");
+    sel.dataset.horarios = JSON.stringify(ordenados);
+  }
+  const selCanc = document.getElementById("cancHorario");
+  if (selCanc) {
+    const actual = selCanc.value;
+    selCanc.innerHTML = '<option value="">— Todos los horarios ese día —</option>' +
+      HORARIOS.map(function (h) {
+        const rango = formatoHora12(h.horaInicio) + (h.horaFin ? " – " + formatoHora12(h.horaFin) : "");
+        return '<option value="' + h.id + '">' + esc(h.dia) + ' · ' + esc(rango) + ' · ' + esc(h.categoria || "Todas") + '</option>';
+      }).join("");
+    selCanc.value = actual;
+  }
 }
 
 function pintarHorarios() {
@@ -2004,10 +2254,18 @@ document.getElementById("btnGuardarHorario").addEventListener("click", function 
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
 
+function opsExcepciones() {
+  return {
+    cancelaciones: EXCEPCIONES.filter(function (e) { return e.tipo === "cancelacion"; }),
+    extras: EXCEPCIONES.filter(function (e) { return e.tipo === "extra"; }),
+    entrenaFestivos: clubActual ? clubActual.entrenaFestivos !== false : true
+  };
+}
+
 function pintarProximoEntrenamiento() {
   const card = document.getElementById("nextTrainingCard");
   const sub = document.getElementById("qtEntrenamientosSub");
-  const resultado = proximoEntrenamiento(HORARIOS, null);
+  const resultado = proximoEntrenamiento(HORARIOS, null, opsExcepciones());
   if (!resultado) {
     card.style.display = "none";
     if (sub) sub.textContent = "Programar";
@@ -2017,9 +2275,98 @@ function pintarProximoEntrenamiento() {
   document.getElementById("ntBody").textContent = formatoProximoEntrenamiento(resultado);
   const partes = [resultado.horario.categoria || "Todas las categorías"];
   if (resultado.horario.sedeId) partes.push(nombreSede(resultado.horario.sedeId));
+  if (resultado.esExtra) partes.push("Entrenamiento especial");
   document.getElementById("ntSub").textContent = partes.join(" · ");
   if (sub) sub.textContent = HORARIOS.length + " horario" + (HORARIOS.length === 1 ? "" : "s");
 }
+
+// ── Excepciones: cancelaciones y entrenamientos adicionales ──
+function escucharExcepciones() {
+  db.collection("clientes").doc(clubActual.id).collection("excepciones").onSnapshot(function (snap) {
+    EXCEPCIONES = [];
+    snap.forEach(function (d) { EXCEPCIONES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarListaExcepciones();
+    pintarProximoEntrenamiento();
+  });
+}
+
+function pintarListaExcepciones() {
+  const box = document.getElementById("listaExcepciones");
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  const futuras = EXCEPCIONES.filter(function (e) { return e.fecha >= hoyISO; }).sort(function (a, b) { return a.fecha.localeCompare(b.fecha); });
+  if (!futuras.length) { box.innerHTML = '<p class="empty">No hay cancelaciones ni entrenamientos adicionales programados.</p>'; return; }
+  box.innerHTML = futuras.map(function (e) {
+    const esCanc = e.tipo === "cancelacion";
+    const titulo = esCanc
+      ? "Cancelado · " + e.fecha + (e.horarioId ? " (" + esc(nombreHorarioCorto(e.horarioId)) + ")" : " (todos)")
+      : "Adicional · " + e.fecha + " · " + formatoHora12(e.horaInicio) + (e.horaFin ? " – " + formatoHora12(e.horaFin) : "");
+    const meta = esCanc ? (e.motivo || "") : (e.categoria || "Todas las categorías") + (e.sedeId ? " · " + esc(nombreSede(e.sedeId)) : "");
+    return '<div class="pat-card"><div class="pat-logo-empty"><i class="fa-solid ' + (esCanc ? "fa-ban" : "fa-calendar-plus") + '"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(titulo) + '</div>' +
+      (meta ? '<div class="pat-meta">' + esc(meta) + '</div>' : '') + '</div>' +
+      '<div class="pat-actions"><button class="btn btn-ghost btn-sm" onclick="borrarExcepcion(\'' + e.id + '\')"><i class="fa-solid fa-trash"></i></button></div></div>';
+  }).join("");
+}
+
+function nombreHorarioCorto(id) {
+  const h = HORARIOS.find(function (x) { return x.id === id; });
+  return h ? (h.dia + " " + formatoHora12(h.horaInicio)) : "";
+}
+
+function borrarExcepcion(id) {
+  if (!confirm("¿Borrar esto?")) return;
+  db.collection("clientes").doc(clubActual.id).collection("excepciones").doc(id).delete()
+    .catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("entrenaFestivosCheck").addEventListener("change", function () {
+  const val = this.checked;
+  db.collection("clientes").doc(clubActual.id).update({ entrenaFestivos: val }).then(function () {
+    clubActual.entrenaFestivos = val;
+    return sincronizarMarca(clubActual.id, { entrenaFestivos: val });
+  }).then(function () {
+    pintarProximoEntrenamiento();
+    mostrarExito(val ? "El club entrena también en festivos." : "El club ya no entrena en festivos.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+document.getElementById("btnCancelarEntreno").addEventListener("click", function () {
+  const fecha = document.getElementById("cancFecha").value;
+  if (!fecha) { mostrarError("Elige la fecha a cancelar."); return; }
+  const data = {
+    tipo: "cancelacion",
+    fecha: fecha,
+    horarioId: document.getElementById("cancHorario").value || null,
+    motivo: document.getElementById("cancMotivo").value.trim()
+  };
+  db.collection("clientes").doc(clubActual.id).collection("excepciones").add(data).then(function () {
+    mostrarExito("Entrenamiento cancelado para esa fecha.");
+    document.getElementById("cancFecha").value = "";
+    document.getElementById("cancMotivo").value = "";
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+document.getElementById("btnAgregarExtra").addEventListener("click", function () {
+  const fecha = document.getElementById("extraFecha").value;
+  const horaInicio = document.getElementById("extraInicio").value;
+  if (!fecha || !horaInicio) { mostrarError("Elige la fecha y la hora de inicio."); return; }
+  const data = {
+    tipo: "extra",
+    fecha: fecha,
+    horaInicio: horaInicio,
+    horaFin: document.getElementById("extraFin").value,
+    categoria: document.getElementById("extraCategoria").value.trim(),
+    sedeId: document.getElementById("extraSede").value
+  };
+  db.collection("clientes").doc(clubActual.id).collection("excepciones").add(data).then(function () {
+    mostrarExito("Entrenamiento adicional agregado.");
+    document.getElementById("extraFecha").value = "";
+    document.getElementById("extraInicio").value = "";
+    document.getElementById("extraFin").value = "";
+    document.getElementById("extraCategoria").value = "";
+    document.getElementById("extraSede").value = "";
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
 
 // ── Mi club: datos, escudo/colores, cobro ──
 function sincronizarMarca(id, data) {
@@ -2032,7 +2379,8 @@ function sincronizarMarca(id, data) {
     pagoMensualidad: data.pagoMensualidad != null ? data.pagoMensualidad : (clubActual.pagoMensualidad || 0),
     pagoNequiNumero: data.pagoNequiNumero != null ? data.pagoNequiNumero : (clubActual.pagoNequiNumero || ""),
     pagoNequiTitular: data.pagoNequiTitular != null ? data.pagoNequiTitular : (clubActual.pagoNequiTitular || ""),
-    pagoWompiLink: data.pagoWompiLink != null ? data.pagoWompiLink : (clubActual.pagoWompiLink || "")
+    pagoWompiLink: data.pagoWompiLink != null ? data.pagoWompiLink : (clubActual.pagoWompiLink || ""),
+    entrenaFestivos: data.entrenaFestivos != null ? data.entrenaFestivos : (clubActual.entrenaFestivos !== false)
   }, { merge: true });
 }
 

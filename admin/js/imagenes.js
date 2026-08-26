@@ -466,6 +466,160 @@ async function generarImagenAliado(canvas, d) {
   imgBarraInferior(ctx, d.club);
 }
 
+// ── Formatos e imágenes con fondo personalizado (entrenamientos, cumpleaños) ──
+// Estas usan un segundo sistema de fondo/pie de página que admite dos
+// proporciones (historia 9:16 y cuadrada 1:1) y una imagen de fondo subida
+// por el club, sin tocar los generadores existentes arriba.
+const IMG_FORMATOS = {
+  story: { w: 1080, h: 1920, label: "9:16 · Historia" },
+  square: { w: 1080, h: 1080, label: "1:1 · Cuadrada" }
+};
+
+function imgFondoPersonalizado(ctx, w, h, fondoImg, club) {
+  if (fondoImg) {
+    const scale = Math.max(w / fondoImg.width, h / fondoImg.height);
+    const iw = fondoImg.width * scale, ih = fondoImg.height * scale;
+    ctx.drawImage(fondoImg, (w - iw) / 2, (h - ih) / 2, iw, ih);
+    const overlay = ctx.createLinearGradient(0, 0, 0, h);
+    overlay.addColorStop(0, "rgba(5,7,10,.5)");
+    overlay.addColorStop(.55, "rgba(5,7,10,.28)");
+    overlay.addColorStop(1, "rgba(5,7,10,.8)");
+    ctx.fillStyle = overlay;
+    ctx.fillRect(0, 0, w, h);
+    return;
+  }
+  const c1 = (club && club.colorPrimario) || "#18A83A";
+  ctx.fillStyle = "#05070a";
+  ctx.fillRect(0, 0, w, h);
+  const glow = ctx.createRadialGradient(w / 2, h * 0.22, 40, w / 2, h * 0.22, Math.max(w, h) * 0.85);
+  glow.addColorStop(0, imgRgba(c1, .35));
+  glow.addColorStop(1, imgRgba(c1, 0));
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "rgba(255,255,255,.035)";
+  for (let y = 0; y < h; y += 34) {
+    for (let x = (y / 34) % 2 === 0 ? 0 : 17; x < w; x += 34) {
+      ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  const vig = ctx.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, h * 0.75);
+  vig.addColorStop(0, "rgba(0,0,0,0)");
+  vig.addColorStop(1, "rgba(0,0,0,.55)");
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function imgBarraInferiorGen(ctx, club, w, h, barraH) {
+  const c1 = (club && club.colorPrimario) || "#18A83A";
+  const c2 = (club && club.colorSecundario) || "#0e7d29";
+  const y0 = h - barraH;
+  const grad = ctx.createLinearGradient(0, y0, w, h);
+  grad.addColorStop(0, c1);
+  grad.addColorStop(1, c2);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, y0, w, barraH);
+  ctx.fillStyle = "rgba(0,0,0,.15)";
+  for (let x = -200; x < w + 200; x += 46) {
+    ctx.beginPath();
+    ctx.moveTo(x, y0); ctx.lineTo(x + 24, y0); ctx.lineTo(x - 30, h); ctx.lineTo(x - 54, h);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(barraH * 0.22) + "px Poppins, sans-serif";
+  ctx.fillText((club && club.clubNombre ? club.clubNombre.toUpperCase() : "MI CLUB"), w / 2, y0 + barraH * 0.44);
+  ctx.font = "700 " + Math.round(barraH * 0.115) + "px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.fillText("Gestionado con BioFutbol", w / 2, y0 + barraH * 0.62);
+}
+
+// d = { club, tipo: "recordatorio"|"hoy", categoria, dia, hora, sede, formato, fondoUrl }
+async function generarImagenEntrenamiento(canvas, d) {
+  const fmt = IMG_FORMATOS[d.formato] || IMG_FORMATOS.story;
+  const W = fmt.w, H = fmt.h;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+
+  const barraH = H * 0.11;
+  const logo = await imgLoadImage(d.club && d.club.logoUrl);
+  const escudoR = W * 0.075;
+  const escudoY = H * 0.13;
+  imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
+
+  ctx.textAlign = "center";
+  const esHoy = d.tipo === "hoy";
+  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.font = "800 " + Math.round(W * 0.032) + "px Poppins, sans-serif";
+  ctx.fillText(esHoy ? "¡HOY ENTRENAMOS!" : "RECORDATORIO · ENTRENAMOS MAÑANA", W / 2, escudoY + escudoR + H * 0.045);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(W * 0.068) + "px Poppins, sans-serif";
+  imgWrapText(ctx, d.categoria ? d.categoria.toUpperCase() : "TODAS LAS CATEGORÍAS", W / 2, escudoY + escudoR + H * 0.11, W * 0.85, W * 0.072, 2);
+
+  const cardW = W * 0.82, cardH = H * 0.24, cardY = H * 0.46, cardX = (W - cardW) / 2;
+  imgRoundRect(ctx, cardX, cardY, cardW, cardH, 24);
+  ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.stroke();
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(cardH * 0.32) + "px Poppins, sans-serif";
+  ctx.fillText(d.dia || "", W / 2, cardY + cardH * 0.4);
+  ctx.font = "800 " + Math.round(cardH * 0.24) + "px Poppins, sans-serif";
+  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillText(d.hora || "", W / 2, cardY + cardH * 0.7);
+  if (d.sede) {
+    ctx.font = "600 " + Math.round(cardH * 0.15) + "px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+    ctx.fillText(d.sede, W / 2, cardY + cardH * 0.92);
+  }
+
+  ctx.font = "600 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,.8)";
+  imgWrapText(ctx, esHoy ? "¡No faltes! Nos vemos en la cancha 💪⚽" : "Prepárate, mañana seguimos mejorando 💪⚽", W / 2, cardY + cardH + H * 0.06, W * 0.78, W * 0.038, 2);
+
+  imgBarraInferiorGen(ctx, d.club, W, H, barraH);
+}
+
+// d = { club, nombre, categoria, fotoUrl, formato, fondoUrl }
+async function generarImagenCumpleanos(canvas, d) {
+  const fmt = IMG_FORMATOS[d.formato] || IMG_FORMATOS.story;
+  const W = fmt.w, H = fmt.h;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+
+  const barraH = H * 0.11;
+  ctx.textAlign = "center";
+  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.font = "800 " + Math.round(W * 0.04) + "px Poppins, sans-serif";
+  ctx.fillText("🎉 ¡FELIZ CUMPLEAÑOS! 🎉", W / 2, H * 0.15);
+
+  const r = W * 0.22;
+  const cy = H * 0.34;
+  await imgEquipoBadge(ctx, W / 2, cy, r, d.fotoUrl, d.nombre, (d.club && d.club.colorPrimario) || "#18A83A");
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(W * 0.066) + "px Poppins, sans-serif";
+  imgWrapText(ctx, (d.nombre || "").toUpperCase(), W / 2, cy + r + H * 0.055, W * 0.85, W * 0.07, 2);
+
+  if (d.categoria) {
+    ctx.font = "700 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    ctx.fillText(d.categoria, W / 2, cy + r + H * 0.11);
+  }
+
+  ctx.font = "600 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, cy + r + H * 0.19, W * 0.78, W * 0.04, 3);
+
+  imgBarraInferiorGen(ctx, d.club, W, H, barraH);
+}
+
 function imgCanvasToBlob(canvas) {
   return new Promise(function (resolve, reject) {
     try {
