@@ -38,6 +38,27 @@
 .match-actions{display:flex;justify-content:center;gap:8px;margin-top:10px}
 .tabla-wrap{overflow-x:auto}
 .tabla-wrap table{min-width:560px}
+.goles-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.goles-chip{background:var(--card);border:1px solid var(--card-b2);border-radius:999px;padding:4px 10px;font-size:.72rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.goles-chip button{background:none;border:none;color:var(--red);cursor:pointer;font-size:.7rem;padding:0}
+.goles-add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.goles-add-row select,.goles-add-row input{background:var(--card2);border:1px solid var(--card-b2);color:var(--white);border-radius:8px;padding:6px 8px;font-size:.76rem}
+.goles-add-row input[type="text"]{flex:1;min-width:100px}
+.goles-add-row input[type="number"]{width:52px}
+.goleadores-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--card-b2)}
+.goleadores-row:last-child{border-bottom:none}
+.goleadores-row .gr-pos{width:24px;text-align:center;font-weight:900;color:var(--gray-d);flex-shrink:0}
+.goleadores-row .gr-info{flex:1;min-width:0}
+.goleadores-row .gr-info b{display:block;font-size:.88rem}
+.goleadores-row .gr-info small{color:var(--gray);font-size:.72rem}
+.goleadores-row .gr-goles{font-weight:900;font-size:1.1rem;color:var(--green-l)}
+.bracket-wrap{display:flex;gap:22px;overflow-x:auto;padding-bottom:12px}
+.bracket-round{display:flex;flex-direction:column;justify-content:space-around;gap:14px;flex-shrink:0;min-width:180px}
+.bracket-round-title{font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-d);text-align:center;margin-bottom:4px}
+.bracket-match{background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:8px 10px}
+.bracket-team{display:flex;align-items:center;justify-content:space-between;padding:5px 2px;font-size:.8rem;font-weight:700}
+.bracket-team.win{color:var(--green-l)}
+.bracket-team input{width:34px;text-align:center;background:var(--card);border:1px solid var(--card-b2);color:var(--white);border-radius:6px;font-size:.76rem;padding:2px}
 .empty-mod{text-align:center;padding:60px 20px;color:var(--gray)}
 .empty-mod i{font-size:2rem;color:var(--card-b2);margin-bottom:12px;display:block}
 .empty-mod.small{padding:24px 20px}
@@ -109,6 +130,8 @@
 .qt-4{background:linear-gradient(135deg,#f97316,#9a3412)}
 .qt-5{background:linear-gradient(135deg,#22c55e,#14532d)}
 .qt-6{background:linear-gradient(135deg,#eab308,#854d0e)}
+.qt-7{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
+.qt-8{background:linear-gradient(135deg,#7c3aed,#3b0764)}
 </style>
 </head>
 <body>
@@ -144,6 +167,8 @@
       <button class="tab-btn" data-tab="equipos">Equipos</button>
       <button class="tab-btn" data-tab="fixture">Fixture</button>
       <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
+      <button class="tab-btn" data-tab="goleadores">Goleadores</button>
+      <button class="tab-btn" data-tab="llave">Llave</button>
       <button class="tab-btn" data-tab="miclub">Mi club</button>
     </div>
 
@@ -188,6 +213,16 @@
           <div class="qt-ico"><i class="fa-solid fa-ranking-star"></i></div>
           <div class="qt-title">Tabla</div>
           <div class="qt-sub">Posiciones</div>
+        </button>
+        <button type="button" class="quick-tile qt-7" data-goto="goleadores" id="qtGoleadores">
+          <div class="qt-ico"><i class="fa-solid fa-futbol"></i></div>
+          <div class="qt-title">Goleadores</div>
+          <div class="qt-sub" id="qtGoleadoresSub">—</div>
+        </button>
+        <button type="button" class="quick-tile qt-8" data-goto="llave" id="qtLlave">
+          <div class="qt-ico"><i class="fa-solid fa-trophy"></i></div>
+          <div class="qt-title">Llave</div>
+          <div class="qt-sub">Playoffs</div>
         </button>
         <button type="button" class="quick-tile qt-6" data-goto="miclub">
           <div class="qt-ico"><i class="fa-solid fa-gear"></i></div>
@@ -376,6 +411,33 @@
       </div>
     </div>
 
+    <div class="tab-panel" id="tab-goleadores">
+      <div class="card">
+        <h3><i class="fa-solid fa-futbol"></i> Goleadores</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Se arma solo con los goleadores que agregues al guardar el resultado de cada partido, en la pestaña Fixture.</p>
+        <div id="listaGoleadores"><p class="empty">Todavía no hay goles registrados.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-llave">
+      <div class="card" id="llaveConfigCard">
+        <h3><i class="fa-solid fa-trophy"></i> Crear llave de eliminación directa</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Elige cuántos equipos entran (potencia de 2) y en qué orden quedan emparejados. Se puede rehacer cuando quieras — eso borra los resultados que ya tenía la llave.</p>
+        <div class="field"><label>Equipos en la llave</label>
+          <select id="llaveTamano"><option value="2">2 equipos (final directa)</option><option value="4" selected>4 equipos</option><option value="8">8 equipos</option><option value="16">16 equipos</option></select>
+        </div>
+        <div id="llaveSeeds"></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnCrearLlave" style="margin-top:10px"><i class="fa-solid fa-shuffle"></i> Crear / rehacer llave</button>
+      </div>
+      <div class="card" id="llaveViewCard" style="display:none;margin-top:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3 style="margin:0"><i class="fa-solid fa-trophy"></i> Llave del torneo</h3>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnRehacerLlave"><i class="fa-solid fa-rotate"></i> Rehacer</button>
+        </div>
+        <div class="bracket-wrap" id="bracketWrap"></div>
+      </div>
+    </div>
+
     <div class="tab-panel" id="tab-miclub">
       <div class="card">
         <h3><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
@@ -450,10 +512,11 @@ let clubActual = null;
 let EQUIPOS = [];
 let PARTIDOS = [];
 let SOCIOS = [];
+let LLAVE = null;
 let socioSeleccionado = null;
 let soloPendientesCrm = false;
 let moduloEquiposActivo = false;
-const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla"];
+const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla", "goleadores", "llave"];
 
 requireClub().then(function (r) {
   clubActual = r.cliente;
@@ -473,6 +536,7 @@ requireClub().then(function (r) {
   escucharEquipos();
   escucharPartidos();
   escucharSocios();
+  escucharLlave();
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
@@ -585,6 +649,8 @@ function escucharEquipos() {
     pintarEquipos();
     pintarSelectsPartido();
     pintarInicio();
+    renderLlaveSeeds();
+    if (LLAVE) pintarLlave();
   });
 }
 
@@ -629,11 +695,13 @@ function pintarInicio() {
   }
 
   document.getElementById("qtSociosSub").textContent = SOCIOS.length + " registrados";
-  ["qtEquipos", "qtFixture", "qtTabla"].forEach(function (id) {
+  ["qtEquipos", "qtFixture", "qtTabla", "qtGoleadores", "qtLlave"].forEach(function (id) {
     document.getElementById(id).classList.toggle("locked", !moduloEquiposActivo);
   });
   document.getElementById("qtEquiposSub").textContent = moduloEquiposActivo ? (EQUIPOS.length + " equipos") : "Módulo inactivo";
   document.getElementById("qtFixtureSub").textContent = moduloEquiposActivo ? (PARTIDOS.length + " partidos") : "Módulo inactivo";
+  const totalGoles = PARTIDOS.reduce(function (acc, p) { return acc + ((p.goleadores || []).reduce(function (a, g) { return a + (g.goles || 1); }, 0)); }, 0);
+  document.getElementById("qtGoleadoresSub").textContent = moduloEquiposActivo ? (totalGoles + " goles") : "Módulo inactivo";
 }
 
 function pintarEquipos() {
@@ -681,6 +749,7 @@ function escucharPartidos() {
     snap.forEach(function (d) { PARTIDOS.push(Object.assign({ id: d.id }, d.data())); });
     pintarPartidos();
     pintarTabla();
+    pintarGoleadores();
     pintarInicio();
   });
 }
@@ -696,11 +765,23 @@ function pintarPartidos() {
   box.innerHTML = PARTIDOS.map(function (p) {
     const fechaTxt = p.fecha ? formatFechaSimple(p.fecha) : "Sin fecha";
     if (p.jugado) {
+      const goleadores = p.goleadores || [];
+      const chips = goleadores.map(function (g, i) {
+        return '<span class="goles-chip">' + esc(g.nombre) + (g.goles > 1 ? ' (' + g.goles + ')' : '') + ' · ' + esc(nombreEquipo(g.equipoId)) +
+          ' <button onclick="quitarGoleador(\'' + p.id + '\',' + i + ')"><i class="fa-solid fa-xmark"></i></button></span>';
+      }).join("");
       return '<div class="match-card"><div class="match-teams">' +
         '<span class="side">' + esc(nombreEquipo(p.local)) + '</span>' +
         '<span class="match-score"><b>' + p.golesLocal + '</b> - <b>' + p.golesVisitante + '</b></span>' +
         '<span class="side">' + esc(nombreEquipo(p.visitante)) + '</span></div>' +
         '<div class="match-meta">' + fechaTxt + (p.cancha ? " · " + esc(p.cancha) : "") + '</div>' +
+        (chips ? '<div class="goles-list">' + chips + '</div>' : "") +
+        '<div class="goles-add-row">' +
+        '<select id="gEq-' + p.id + '"><option value="' + p.local + '">' + esc(nombreEquipo(p.local)) + '</option><option value="' + p.visitante + '">' + esc(nombreEquipo(p.visitante)) + '</option></select>' +
+        '<input type="text" id="gNom-' + p.id + '" placeholder="Goleador">' +
+        '<input type="number" id="gCant-' + p.id + '" min="1" value="1">' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="agregarGoleador(\'' + p.id + '\')"><i class="fa-solid fa-plus"></i></button>' +
+        '</div>' +
         '<div class="match-actions"><button class="btn btn-ghost btn-sm" onclick="borrarPartido(\'' + p.id + '\')"><i class="fa-solid fa-trash"></i> Borrar</button></div></div>';
     }
     return '<div class="match-card"><div class="match-teams">' +
@@ -743,6 +824,154 @@ function marcarResultado(id) {
   if (isNaN(gl) || isNaN(gv) || gl < 0 || gv < 0) { mostrarError("Ingresa un marcador válido para ambos equipos."); return; }
   db.collection("clientes").doc(clubActual.id).collection("partidos").doc(id).update({
     golesLocal: gl, golesVisitante: gv, jugado: true
+  }).then(function () { mostrarExito("Resultado guardado."); }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+}
+
+function agregarGoleador(partidoId) {
+  const equipoId = document.getElementById("gEq-" + partidoId).value;
+  const nombre = document.getElementById("gNom-" + partidoId).value.trim();
+  const goles = Number(document.getElementById("gCant-" + partidoId).value) || 1;
+  if (!nombre) { mostrarError("Escribe el nombre del goleador."); return; }
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(partidoId).update({
+    goleadores: firebase.firestore.FieldValue.arrayUnion({ nombre: nombre, equipoId: equipoId, goles: goles })
+  }).then(function () { mostrarExito("Goleador agregado."); }).catch(function (err) { mostrarError("No se pudo agregar: " + err.message); });
+}
+
+function quitarGoleador(partidoId, index) {
+  const p = PARTIDOS.find(function (x) { return x.id === partidoId; });
+  if (!p || !p.goleadores) return;
+  const nuevos = p.goleadores.slice();
+  nuevos.splice(index, 1);
+  db.collection("clientes").doc(clubActual.id).collection("partidos").doc(partidoId).update({ goleadores: nuevos });
+}
+
+function calcularGoleadores() {
+  const totales = {};
+  PARTIDOS.forEach(function (p) {
+    (p.goleadores || []).forEach(function (g) {
+      const key = g.nombre + "|" + g.equipoId;
+      if (!totales[key]) totales[key] = { nombre: g.nombre, equipoId: g.equipoId, goles: 0 };
+      totales[key].goles += g.goles || 1;
+    });
+  });
+  return Object.values(totales).sort(function (a, b) { return b.goles - a.goles; });
+}
+
+function pintarGoleadores() {
+  const box = document.getElementById("listaGoleadores");
+  const lista = calcularGoleadores();
+  if (!lista.length) { box.innerHTML = '<p class="empty">Todavía no hay goles registrados.</p>'; return; }
+  box.innerHTML = lista.map(function (g, i) {
+    return '<div class="goleadores-row"><div class="gr-pos">' + (i + 1) + '</div>' +
+      '<div class="gr-info"><b>' + esc(g.nombre) + '</b><small>' + esc(nombreEquipo(g.equipoId)) + '</small></div>' +
+      '<div class="gr-goles">' + g.goles + '</div></div>';
+  }).join("");
+}
+
+// ── Llave de eliminación directa ──
+function escucharLlave() {
+  db.collection("clientes").doc(clubActual.id).collection("llave").doc("actual").onSnapshot(function (doc) {
+    LLAVE = doc.exists ? doc.data() : null;
+    pintarLlave();
+  });
+}
+
+function renderLlaveSeeds() {
+  const n = Number(document.getElementById("llaveTamano").value);
+  const opciones = EQUIPOS.map(function (e) { return '<option value="' + e.id + '">' + esc(e.nombre) + '</option>'; }).join("");
+  let html = '<div class="field-row">';
+  for (let i = 0; i < n; i++) {
+    html += '<div class="field"><label>Posición ' + (i + 1) + '</label><select id="seed-' + i + '"><option value="">— vacío / bye —</option>' + opciones + '</select></div>';
+  }
+  html += "</div>";
+  document.getElementById("llaveSeeds").innerHTML = html;
+}
+document.getElementById("llaveTamano").addEventListener("change", renderLlaveSeeds);
+
+document.getElementById("btnCrearLlave").addEventListener("click", function () {
+  const n = Number(document.getElementById("llaveTamano").value);
+  const equipos = [];
+  for (let i = 0; i < n; i++) equipos.push(document.getElementById("seed-" + i).value || null);
+  if (equipos.filter(Boolean).length < 2) { mostrarError("Asigna al menos 2 equipos a la llave."); return; }
+  const seguir = !(LLAVE && LLAVE.equipos && LLAVE.equipos.length) || confirm("Esto reemplaza la llave actual y borra sus resultados. ¿Continuar?");
+  if (!seguir) return;
+  db.collection("clientes").doc(clubActual.id).collection("llave").doc("actual").set({ equipos: equipos, resultados: {} }).then(function () {
+    mostrarExito("Llave creada.");
+  }).catch(function (err) { mostrarError("No se pudo crear la llave: " + err.message); });
+});
+
+document.getElementById("btnRehacerLlave").addEventListener("click", function () {
+  document.getElementById("llaveConfigCard").scrollIntoView({ behavior: "smooth" });
+});
+
+function equipoEnSlotLlave(ronda, indicePartido, lado) {
+  if (ronda === 0) return LLAVE.equipos[indicePartido * 2 + lado] || null;
+  return ganadorDePartidoLlave(ronda - 1, indicePartido * 2 + lado);
+}
+
+function ganadorDePartidoLlave(ronda, indicePartido) {
+  const idA = equipoEnSlotLlave(ronda, indicePartido, 0);
+  const idB = equipoEnSlotLlave(ronda, indicePartido, 1);
+  if (idA && !idB) return idA;
+  if (idB && !idA) return idB;
+  const res = (LLAVE.resultados || {})[ronda + "-" + indicePartido];
+  if (!res || res.golesLocal == null || res.golesVisitante == null || res.golesLocal === res.golesVisitante) return null;
+  return res.golesLocal > res.golesVisitante ? idA : idB;
+}
+
+function nombreRondaLlave(r, total) {
+  const restante = total - r;
+  if (restante === 1) return "Final";
+  if (restante === 2) return "Semifinal";
+  if (restante === 3) return "Cuartos de final";
+  if (restante === 4) return "Octavos de final";
+  return "Ronda " + (r + 1);
+}
+
+function filaEquipoLlave(equipoId, key, campo, valor, ganadorId) {
+  const nombre = equipoId ? nombreEquipo(equipoId) : "Por definir";
+  const esGanador = !!(equipoId && ganadorId && ganadorId === equipoId);
+  return '<div class="bracket-team' + (esGanador ? " win" : "") + '">' +
+    "<span>" + esc(nombre) + "</span>" +
+    (equipoId ? '<input type="number" min="0" id="' + campo + "-" + key + '" value="' + (valor != null ? valor : "") + '">' : "") +
+    "</div>";
+}
+
+function pintarLlave() {
+  const viewCard = document.getElementById("llaveViewCard");
+  if (!LLAVE || !LLAVE.equipos || !LLAVE.equipos.length) { viewCard.style.display = "none"; return; }
+  viewCard.style.display = "block";
+  const n = LLAVE.equipos.length;
+  const totalRondas = Math.round(Math.log2(n));
+  let html = "";
+  for (let r = 0; r < totalRondas; r++) {
+    const numPartidos = Math.pow(2, totalRondas - r - 1);
+    html += '<div class="bracket-round"><div class="bracket-round-title">' + nombreRondaLlave(r, totalRondas) + "</div>";
+    for (let m = 0; m < numPartidos; m++) {
+      const idA = equipoEnSlotLlave(r, m, 0);
+      const idB = equipoEnSlotLlave(r, m, 1);
+      const key = r + "-" + m;
+      const res = (LLAVE.resultados || {})[key] || {};
+      const gan = ganadorDePartidoLlave(r, m);
+      html += '<div class="bracket-match">' +
+        filaEquipoLlave(idA, key, "gl", res.golesLocal, gan) +
+        filaEquipoLlave(idB, key, "gv", res.golesVisitante, gan);
+      if (idA && idB) {
+        html += '<button type="button" class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px;font-size:.7rem" onclick="guardarResultadoLlave(\'' + key + '\')"><i class="fa-solid fa-check"></i> Guardar</button>';
+      }
+      html += "</div>";
+    }
+    html += "</div>";
+  }
+  document.getElementById("bracketWrap").innerHTML = html;
+}
+
+function guardarResultadoLlave(key) {
+  const gl = Number(document.getElementById("gl-" + key).value);
+  const gv = Number(document.getElementById("gv-" + key).value);
+  if (isNaN(gl) || isNaN(gv) || gl < 0 || gv < 0) { mostrarError("Ingresa un marcador válido para ambos equipos."); return; }
+  db.collection("clientes").doc(clubActual.id).collection("llave").doc("actual").update({
+    ["resultados." + key]: { golesLocal: gl, golesVisitante: gv }
   }).then(function () { mostrarExito("Resultado guardado."); }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 }
 
