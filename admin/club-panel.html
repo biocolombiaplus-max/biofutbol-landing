@@ -20,9 +20,17 @@
 .club-hdr img{width:42px;height:42px;border-radius:11px;object-fit:contain;background:var(--card2);flex-shrink:0}
 .club-hdr-name{font-weight:900;font-size:1.02rem;line-height:1.2}
 .club-hdr-sub{font-size:.68rem;color:var(--gray-d);font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-top:2px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--card-b);padding-bottom:0}
-.tab-btn{background:transparent;border:none;color:var(--gray);font-weight:800;font-size:.86rem;padding:10px 6px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
-.tab-btn.on{color:var(--green-l);border-bottom-color:var(--green-l)}
+.tabs-wrap{position:relative;margin:24px 0 22px;border-bottom:1px solid var(--card-b);padding-bottom:6px}
+.tabs{display:flex;align-items:center;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 34px 8px 2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs-wrap::after{content:"";position:absolute;top:0;right:0;bottom:6px;width:42px;background:linear-gradient(90deg,transparent,var(--bg) 65%);pointer-events:none}
+.tab-sep{flex:none;width:1px;align-self:stretch;margin:4px 2px;background:var(--card-b2)}
+.tab-btn{flex:none;display:inline-flex;align-items:center;gap:7px;background:var(--card2);border:1.5px solid var(--card-b2);color:var(--gray);font-weight:800;font-size:.8rem;padding:10px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s,box-shadow .15s,transform .15s}
+.tab-btn i{font-size:.8rem;opacity:.8}
+.tab-btn:hover{border-color:rgba(24,168,58,.45);color:var(--white)}
+.tab-btn:active{transform:scale(.96)}
+.tab-btn.on{color:#04220c;background:linear-gradient(135deg,var(--green-l),var(--green-d));border-color:transparent;box-shadow:0 4px 16px rgba(24,168,58,.4)}
+.tab-btn.on i{opacity:1}
 .tab-panel{display:none}
 .tab-panel.on{display:block}
 .team-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--card-b2)}
@@ -211,21 +219,27 @@
   <div class="success-box" id="successBox"></div>
 
   <div id="panelContent" style="display:none">
-    <div class="tabs">
-      <button class="tab-btn on" data-tab="inicio">Inicio</button>
-      <button class="tab-btn" data-tab="socios">Socios</button>
-      <button class="tab-btn" data-tab="profesores">Profesores</button>
-      <button class="tab-btn" data-tab="imagenes">Imágenes</button>
-      <button class="tab-btn" data-tab="patrocinadores">Patrocinadores</button>
-      <button class="tab-btn" data-tab="entrenamientos">Entrenamientos</button>
-      <button class="tab-btn" data-tab="equipos">Equipos</button>
-      <button class="tab-btn" data-tab="fixture">Fixture</button>
-      <button class="tab-btn" data-tab="tabla">Tabla de posiciones</button>
-      <button class="tab-btn" data-tab="goleadores">Goleadores</button>
-      <button class="tab-btn" data-tab="llave">Llave</button>
-      <button class="tab-btn" data-tab="torneos">Torneos</button>
-      <button class="tab-btn" data-tab="informes">Informes</button>
-      <button class="tab-btn" data-tab="miclub">Mi club</button>
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <button class="tab-btn on" data-tab="inicio"><i class="fa-solid fa-house"></i> Inicio</button>
+        <button class="tab-btn" data-tab="socios"><i class="fa-solid fa-users"></i> Socios</button>
+        <button class="tab-btn" data-tab="profesores"><i class="fa-solid fa-whistle"></i> Profesores</button>
+        <span class="tab-sep"></span>
+        <button class="tab-btn" data-tab="imagenes"><i class="fa-solid fa-image"></i> Imágenes</button>
+        <button class="tab-btn" data-tab="patrocinadores"><i class="fa-solid fa-handshake"></i> Patrocinadores</button>
+        <span class="tab-sep"></span>
+        <button class="tab-btn" data-tab="entrenamientos"><i class="fa-solid fa-stopwatch"></i> Entrenamientos</button>
+        <span class="tab-sep"></span>
+        <button class="tab-btn" data-tab="equipos"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
+        <button class="tab-btn" data-tab="fixture"><i class="fa-solid fa-calendar-days"></i> Fixture</button>
+        <button class="tab-btn" data-tab="tabla"><i class="fa-solid fa-ranking-star"></i> Tabla de posiciones</button>
+        <button class="tab-btn" data-tab="goleadores"><i class="fa-solid fa-futbol"></i> Goleadores</button>
+        <button class="tab-btn" data-tab="llave"><i class="fa-solid fa-sitemap"></i> Llave</button>
+        <button class="tab-btn" data-tab="torneos"><i class="fa-solid fa-medal"></i> Torneos</button>
+        <span class="tab-sep"></span>
+        <button class="tab-btn" data-tab="informes"><i class="fa-solid fa-file-lines"></i> Informes</button>
+        <button class="tab-btn" data-tab="miclub"><i class="fa-solid fa-gear"></i> Mi club</button>
+      </div>
     </div>
 
     <div class="tab-panel on" id="tab-inicio">
@@ -1132,7 +1146,13 @@ function aplicarIconoDelClub(cliente) {
 }
 
 function irATab(tab) {
-  document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === tab); });
+  let btnActivo = null;
+  document.querySelectorAll(".tab-btn").forEach(function (b) {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("on", on);
+    if (on) btnActivo = b;
+  });
+  if (btnActivo) btnActivo.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
   if (TABS_MODULO_EQUIPOS.indexOf(tab) !== -1 && !moduloEquiposActivo) {
     document.getElementById("sinModulo").classList.add("on");
