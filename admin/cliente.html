@@ -46,10 +46,13 @@
         <h3><i class="fa-solid fa-shield-halved"></i> Datos del club</h3>
         <div class="field"><label>Nombre del club o escuela</label><input type="text" id="clubNombre" placeholder="Ej: Halcones FC"></div>
         <div class="field-row">
-          <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
+          <div class="field"><label>País</label><select id="clubPais"></select></div>
           <div class="field"><label>Ciudad</label><input type="text" id="clubCiudad"></div>
         </div>
-        <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+        <div class="field-row">
+          <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
+          <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -85,6 +88,7 @@
             <div class="status-row" id="pnExcedenteRow" style="display:none"><span class="k">Excedente sobre lo pautado</span><span id="pnExcedente" class="pill warn">—</span></div>
             <div class="status-row" style="margin-top:6px;border-top:1px solid var(--card-b2);padding-top:10px"><span class="k" style="font-weight:800">Total sugerido a cobrar</span><span id="pnTotal" class="pill ok" style="font-size:.9rem">—</span></div>
             <button type="button" class="btn btn-ghost btn-sm btn-block" id="btnUsarValorPautado" style="margin-top:12px"><i class="fa-solid fa-arrow-down"></i> Usar este valor en "Valor recibido"</button>
+            <button type="button" class="btn btn-primary btn-sm btn-block" id="btnEnviarPlanWhatsapp" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviar resumen de pago por WhatsApp</button>
           </div>
         </div>
       </div>
@@ -255,6 +259,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/audit.js"></script>
 <script src="js/contract.js"></script>
 <script src="js/recibo.js"></script>
@@ -271,6 +276,7 @@ requireSuperAdmin().then(function (user) {
   if (!esNuevo) {
     cargarCliente();
   } else {
+    llenarSelectPaises(document.getElementById("clubPais"));
     document.getElementById("estado").value = "pendiente";
     document.getElementById("sendLinkCard").style.display = "block";
   }
@@ -354,6 +360,29 @@ document.getElementById("btnUsarValorPautado").addEventListener("click", functio
   mostrarExito("Valor a cobrar actualizado con el plan pautado.");
 });
 
+document.getElementById("btnEnviarPlanWhatsapp").addEventListener("click", function () {
+  if (!clienteActual) { mostrarError("Guarda el cliente antes de enviar el resumen de pago."); return; }
+  const pautados = Number(document.getElementById("deportistasPautados").value) || 0;
+  const valorUnit = Number(document.getElementById("valorPorDeportista").value) || 0;
+  if (!pautados || !valorUnit) { mostrarError("Define primero los deportistas pautados y el valor por deportista."); return; }
+  const facturables = Math.max(pautados, conteoRealSocios);
+  const total = facturables * valorUnit;
+
+  let tel = (clienteActual.repTelefono || document.getElementById("repTelefono").value || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+
+  const nombreClub = clienteActual.clubNombre || document.getElementById("clubNombre").value || "tu club";
+  const mensaje = "¡Hola! Te enviamos el resumen de pago de " + nombreClub + " en BioFutbol:\n\n" +
+    "Total a pagar: " + formatCOP(total) + "\n\n" +
+    "Apenas confirmes el pago, programamos la capacitación virtual con todo el personal que la necesite. El manejo de la app es muy sencillo, pero con la capacitación le sacan el máximo provecho desde el primer día.\n\n" +
+    "Puedes pagar desde cualquier banco con nuestra llave:\n@OTO262\nA nombre de Juan Carlos Cáceres — C.C. 88262856\n\n" +
+    "O por Nequi:\n3204324590\nA nombre de Nicol Bustos\n\n" +
+    "Estas son nuestras cuentas autorizadas. Cuando hagas el pago, envíanos el comprobante por este mismo chat para confirmar y agendar la capacitación.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Resumen de pago enviado por WhatsApp", clienteId, nombreClub, tel);
+});
+
 function cargarCliente() {
   document.getElementById("pageTitle").textContent = "Cargando...";
   db.collection("clientes").doc(clienteId).get().then(function (doc) {
@@ -361,6 +390,7 @@ function cargarCliente() {
     clienteActual = Object.assign({ id: doc.id }, doc.data());
     document.getElementById("pageTitle").textContent = clienteActual.clubNombre || "Cliente";
     document.getElementById("clubNombre").value = clienteActual.clubNombre || "";
+    llenarSelectPaises(document.getElementById("clubPais"), clienteActual.clubPais);
     document.getElementById("clubNit").value = clienteActual.clubNit || "";
     document.getElementById("clubCiudad").value = clienteActual.clubCiudad || "";
     document.getElementById("clubDireccion").value = clienteActual.clubDireccion || "";
@@ -648,6 +678,7 @@ function leerFormulario() {
   const repEmail = document.getElementById("repEmail").value.trim();
   return {
     clubNombre: document.getElementById("clubNombre").value.trim(),
+    clubPais: document.getElementById("clubPais").value,
     clubNit: document.getElementById("clubNit").value.trim(),
     clubCiudad: document.getElementById("clubCiudad").value.trim(),
     clubDireccion: document.getElementById("clubDireccion").value.trim(),
