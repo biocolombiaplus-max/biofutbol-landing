@@ -194,17 +194,21 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .trust-track-wrap{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .trust-track{display:flex;align-items:center;gap:26px;width:max-content;animation:trust-scroll 32s linear infinite}
 .trust-track:hover{animation-play-state:paused}
-.trust-logo{flex:none;width:150px;height:92px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);border-radius:16px;display:flex;align-items:center;justify-content:center;padding:16px;transition:.25s}
-.trust-logo:hover{border-color:var(--green);background:rgba(24,168,58,.08);transform:translateY(-2px)}
-.trust-logo img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1) brightness(1.5) opacity(.72);transition:.25s}
-.trust-logo:hover img{filter:none}
-.trust-logo.placeholder{flex-direction:column;gap:8px;padding:14px 12px}
-.trust-crest{width:38px;height:44px;flex:none;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:.98rem;box-shadow:0 8px 16px rgba(0,0,0,.35);opacity:.85;transition:.25s}
-.trust-logo.placeholder:hover .trust-crest{opacity:1}
-.trust-logo.placeholder span{font-size:.66rem;font-weight:800;color:var(--gray-d);text-align:center;white-space:nowrap;letter-spacing:.01em}
+.trust-logo{flex:none;width:186px;height:138px;background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px 14px;transition:.25s;position:relative;overflow:hidden}
+.trust-logo::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.1) 48%,rgba(255,255,255,.1) 52%,transparent 65%);background-size:220% 100%;background-position:180% 0;transition:background-position .7s ease;pointer-events:none}
+.trust-logo:hover::before{background-position:-40% 0}
+.trust-logo:hover{border-color:var(--green);background:linear-gradient(160deg,rgba(24,168,58,.12),rgba(24,168,58,.03));transform:translateY(-3px);box-shadow:0 14px 30px rgba(24,168,58,.2)}
+.trust-logo-imgbox{width:100%;height:66px;display:flex;align-items:center;justify-content:center}
+.trust-logo img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));transition:.25s}
+.trust-logo:hover img{transform:scale(1.04)}
+.trust-crest{width:42px;height:48px;flex:none;clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:1.05rem;box-shadow:0 8px 16px rgba(0,0,0,.35);opacity:.9;transition:.25s}
+.trust-logo:hover .trust-crest{opacity:1}
+.trust-name{font-size:.74rem;font-weight:800;color:var(--gray);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:.01em;transition:.25s}
+.trust-logo:hover .trust-name{color:var(--white)}
 @keyframes trust-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(max-width:640px){
-  .trust-logo{width:120px;height:76px;padding:12px}
+  .trust-logo{width:148px;height:118px;padding:14px 10px;gap:9px}
+  .trust-logo-imgbox{height:54px}
 }
 
 /* ── PAIN POINTS ── */
@@ -1475,11 +1479,14 @@ document.addEventListener('click', function(e){
     imgEl.src = url;
     imgEl.style.display = 'block';
   }
+  function escTrust(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
   function realLogosHtml(logos) {
     return logos.map(function (l) {
       var name = (l && l.name) ? l.name : 'Club que usa BioFutbol';
       var url = l && l.url ? l.url : l;
-      return '<div class="trust-logo"><img src="' + url + '" alt="' + name.replace(/"/g, '') + '" loading="lazy"></div>';
+      return '<div class="trust-logo"><div class="trust-logo-imgbox"><img src="' + url + '" alt="' + escTrust(name) + '" loading="lazy"></div><span class="trust-name">' + escTrust(name) + '</span></div>';
     }).join('');
   }
   function placeholderLogosHtml() {
@@ -1492,7 +1499,7 @@ document.addEventListener('click', function(e){
       { n: 'Leones Norte', l: 'L', c: '#9b6bff,#4a26c9' }
     ];
     return demo.map(function (d) {
-      return '<div class="trust-logo placeholder"><div class="trust-crest" style="background:linear-gradient(160deg,' + d.c + ')">' + d.l + '</div><span>' + d.n + '</span></div>';
+      return '<div class="trust-logo placeholder"><div class="trust-crest" style="background:linear-gradient(160deg,' + d.c + ')">' + d.l + '</div><span class="trust-name">' + escTrust(d.n) + '</span></div>';
     }).join('');
   }
   function fillTrustBar(logos) {

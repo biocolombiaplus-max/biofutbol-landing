@@ -76,7 +76,7 @@
 
   <div class="card" style="margin-bottom:20px">
     <h3><i class="fa-solid fa-shield-heart"></i> Logos de clubes/escuelas (banner de confianza)</h3>
-    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Aparecen en un carrusel que rota automáticamente al inicio de la landing, con el mensaje "Clubes y escuelas que confían en BioFutbol". Mientras no subas ninguno, se muestran unos escudos genéricos de ejemplo — en cuanto agregues el primer logo real aquí, los reemplazan por completo. Ideal el logo en fondo transparente (PNG).</p>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Aparecen a todo color en un carrusel que rota automáticamente al inicio de la landing, con el nombre del club debajo y el mensaje "Clubes y escuelas que confían en BioFutbol". Mientras no subas ninguno, se muestran unos escudos genéricos de ejemplo — en cuanto agregues el primer logo real aquí, los reemplazan por completo. Ideal el logo en fondo transparente (PNG).</p>
     <div class="trust-logo-grid" id="trustLogoGrid">
       <div class="trust-logo-add" onclick="document.getElementById('trustLogoInput').click()"><i class="fa-solid fa-plus"></i><span>Agregar logo</span></div>
     </div>
@@ -308,7 +308,7 @@ function subirLogoCliente(file) {
   if (!file.type.startsWith("image/")) { mostrarError("Selecciona un archivo de imagen válido."); return; }
   if (file.size > 5 * 1024 * 1024) { mostrarError("La imagen no puede pesar más de 5MB."); return; }
 
-  const nombre = (prompt("¿De qué club o escuela es este logo? (opcional, solo para accesibilidad)") || "Club que usa BioFutbol").trim();
+  const nombre = (prompt("¿De qué club o escuela es este logo? Se muestra debajo del logo en la landing.") || "Club que usa BioFutbol").trim();
   const status = document.getElementById("trustLogoStatus");
   status.style.display = "block";
 
