@@ -99,18 +99,28 @@ if (!clubId) {
 let fotoUrl = "";
 const categoriasSeleccionadas = [];
 
-document.getElementById("categoriasBox").innerHTML = CATEGORIAS_FUTBOL.map(function (c) {
-  return '<button type="button" class="tpl-pill" data-cat="' + c + '">' + c + '</button>';
-}).join("");
-document.querySelectorAll("#categoriasBox .tpl-pill").forEach(function (btn) {
-  btn.addEventListener("click", function () {
-    btn.classList.toggle("on");
-    const cat = btn.dataset.cat;
-    const i = categoriasSeleccionadas.indexOf(cat);
-    if (btn.classList.contains("on") && i === -1) categoriasSeleccionadas.push(cat);
-    else if (!btn.classList.contains("on") && i !== -1) categoriasSeleccionadas.splice(i, 1);
+function inicializarCategorias(extra) {
+  document.getElementById("categoriasBox").innerHTML = categoriasConPersonalizadas(extra).map(function (c) {
+    return '<button type="button" class="tpl-pill" data-cat="' + c + '">' + c + '</button>';
+  }).join("");
+  document.querySelectorAll("#categoriasBox .tpl-pill").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.classList.toggle("on");
+      const cat = btn.dataset.cat;
+      const i = categoriasSeleccionadas.indexOf(cat);
+      if (btn.classList.contains("on") && i === -1) categoriasSeleccionadas.push(cat);
+      else if (!btn.classList.contains("on") && i !== -1) categoriasSeleccionadas.splice(i, 1);
+    });
   });
-});
+}
+
+if (clubId) {
+  db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
+    inicializarCategorias(doc.exists ? doc.data().categoriasPersonalizadas : []);
+  }).catch(function () { inicializarCategorias([]); });
+} else {
+  inicializarCategorias([]);
+}
 
 document.getElementById("fotoInput").addEventListener("change", function (e) {
   const file = e.target.files[0];

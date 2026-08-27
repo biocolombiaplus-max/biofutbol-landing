@@ -277,7 +277,7 @@ function categoriaSeleccionada() {
 }
 function setCategoriaValor(valor) {
   const sel = document.getElementById("categoria");
-  if (valor && CATEGORIAS_FUTBOL.indexOf(valor) === -1) {
+  if (valor && categoriasConPersonalizadas(clubActual && clubActual.categoriasPersonalizadas).indexOf(valor) === -1) {
     sel.value = "__otra__";
     document.getElementById("categoriaOtra").style.display = "block";
     document.getElementById("categoriaOtra").value = valor;
@@ -304,6 +304,7 @@ function cargarSocio() {
     const doc = res[0], clubDoc = res[1];
     if (!doc.exists) { document.getElementById("pageTitle").textContent = "Socio no encontrado"; return; }
     clubActual = clubDoc.exists ? clubDoc.data() : {};
+    llenarSelectCategorias(document.getElementById("categoria"), true, clubActual.categoriasPersonalizadas);
     socioActual = Object.assign({ id: doc.id }, doc.data());
     document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
     document.getElementById("nombre").value = socioActual.nombre || "";

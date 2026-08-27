@@ -21,17 +21,29 @@ function categoriaPorFechaNacimiento(fechaNacimiento) {
   return "Mayores";
 }
 
-function llenarSelectCategorias(select, incluirOtra) {
+// Combina las categorías estándar con las personalizadas que cada club
+// puede agregar (ej: "Iniciación", "Cebollitas", "Baby") desde Mi club.
+function categoriasConPersonalizadas(extra) {
+  const propias = Array.isArray(extra) ? extra.filter(Boolean) : [];
+  return CATEGORIAS_FUTBOL.concat(propias);
+}
+
+function llenarSelectCategorias(select, incluirOtra, extra) {
   select.innerHTML = '<option value="">Selecciona...</option>' +
-    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("") +
+    categoriasConPersonalizadas(extra).map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("") +
     (incluirOtra ? '<option value="__otra__">Otra (escribir)</option>' : "");
 }
 
 // Para ordenar listas por categoría en el orden natural del fútbol
-// formativo (Sub-6, Sub-7... Mayores) en vez de alfabético.
-function ordenCategoria(categoria) {
+// formativo (Sub-6, Sub-7... Mayores) en vez de alfabético. Las
+// categorías personalizadas del club quedan al final, en el orden en que
+// se agregaron.
+function ordenCategoria(categoria, extra) {
   const i = CATEGORIAS_FUTBOL.indexOf(categoria);
-  return i === -1 ? 999 : i;
+  if (i !== -1) return i;
+  const propias = Array.isArray(extra) ? extra : [];
+  const j = propias.indexOf(categoria);
+  return j === -1 ? 999 : CATEGORIAS_FUTBOL.length + j;
 }
 
 // Conecta un <input type="date"> de fecha de nacimiento con un <select> de

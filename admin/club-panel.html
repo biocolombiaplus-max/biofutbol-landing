@@ -1104,6 +1104,17 @@
         <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
         <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
       </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-layer-group"></i> Categorías personalizadas</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Súmale a las categorías estándar (Sub-6 a Mayores) las propias de tu escuela — por ejemplo Iniciación, Cebollitas o Baby. Quedan disponibles al instante en todos los formularios y filtros del club, incluyendo el registro de socios y profesores.</p>
+        <div class="field-row" style="align-items:flex-end">
+          <div class="field" style="margin-bottom:0"><label>Nueva categoría</label><input type="text" id="mcNuevaCategoria" placeholder="Ej: Cebollitas" maxlength="30"></div>
+          <button type="button" class="btn btn-primary btn-sm" id="btnAgregarCategoria" style="height:44px"><i class="fa-solid fa-plus"></i> Agregar</button>
+        </div>
+        <div class="goles-list" id="mcCategoriasPersonalizadas" style="justify-content:flex-start;margin-top:14px"></div>
+        <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-top:6px" id="mcCategoriasVacio">Aún no has agregado categorías propias.</small>
+      </div>
     </div>
   </div>
 </div>
@@ -1183,8 +1194,21 @@ requireClub().then(function (r) {
   escucharTorneos();
   escucharEntrenamientos();
   escucharProfesores();
+  refrescarSelectsCategorias();
+  document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
+  precargarFormImagenes();
+  cargarAnuncio();
+  precargarFormMiClub();
+});
+
+// Repinta el selector de categorías del profesor y los filtros por
+// categoría con la lista estándar + las personalizadas del club. Se llama
+// al cargar el panel y de nuevo cada vez que se agrega/quita una categoría
+// propia, para que los cambios se vean al instante sin recargar.
+function refrescarSelectsCategorias() {
+  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas);
   document.getElementById("profCategoriasBox").innerHTML =
-    CATEGORIAS_FUTBOL.map(function (c) { return '<button type="button" class="tpl-pill" data-cat="' + c + '">' + c + '</button>'; }).join("");
+    CATS_CLUB.map(function (c) { return '<button type="button" class="tpl-pill' + (profCategoriasSeleccionadas.indexOf(c) !== -1 ? " on" : "") + '" data-cat="' + c + '">' + c + '</button>'; }).join("");
   document.querySelectorAll("#profCategoriasBox .tpl-pill").forEach(function (btn) {
     btn.addEventListener("click", function () {
       btn.classList.toggle("on");
@@ -1194,19 +1218,14 @@ requireClub().then(function (r) {
       else if (!btn.classList.contains("on") && i !== -1) profCategoriasSeleccionadas.splice(i, 1);
     });
   });
-  document.getElementById("asistCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
-    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
-  document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
-  precargarFormImagenes();
-  cargarAnuncio();
-  precargarFormMiClub();
-  document.getElementById("repJugCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
-    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
-  document.getElementById("horarioCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
-    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
-  document.getElementById("nutriCategoria").innerHTML = '<option value="">Todas las categorías</option>' +
-    CATEGORIAS_FUTBOL.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
-});
+  ["asistCategoria", "repJugCategoria", "horarioCategoria", "nutriCategoria"].forEach(function (id) {
+    const el = document.getElementById(id);
+    const previo = el.value;
+    el.innerHTML = '<option value="">Todas las categorías</option>' +
+      CATS_CLUB.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
+    el.value = previo;
+  });
+}
 
 // Reskin del panel completo con los colores de este club: como admin.css
 // construye botones, pestañas y badges a partir de estas 3 variables, con
@@ -3354,7 +3373,7 @@ document.getElementById("btnReporteJugadores").addEventListener("click", functio
     if (!mapa[cat]) mapa[cat] = [];
     mapa[cat].push(s);
   });
-  const grupos = Object.keys(mapa).sort(function (a, b) { return ordenCategoria(a) - ordenCategoria(b); })
+  const grupos = Object.keys(mapa).sort(function (a, b) { return ordenCategoria(a, clubActual.categoriasPersonalizadas) - ordenCategoria(b, clubActual.categoriasPersonalizadas); })
     .map(function (cat) {
       return { categoria: cat, socios: mapa[cat].slice().sort(function (x, y) { return (x.nombre || "").localeCompare(y.nombre || ""); }) };
     });
@@ -3924,7 +3943,8 @@ function sincronizarMarca(id, data) {
     pagoNequiNumero: data.pagoNequiNumero != null ? data.pagoNequiNumero : (clubActual.pagoNequiNumero || ""),
     pagoNequiTitular: data.pagoNequiTitular != null ? data.pagoNequiTitular : (clubActual.pagoNequiTitular || ""),
     pagoWompiLink: data.pagoWompiLink != null ? data.pagoWompiLink : (clubActual.pagoWompiLink || ""),
-    entrenaFestivos: data.entrenaFestivos != null ? data.entrenaFestivos : (clubActual.entrenaFestivos !== false)
+    entrenaFestivos: data.entrenaFestivos != null ? data.entrenaFestivos : (clubActual.entrenaFestivos !== false),
+    categoriasPersonalizadas: data.categoriasPersonalizadas != null ? data.categoriasPersonalizadas : (clubActual.categoriasPersonalizadas || [])
   }, { merge: true });
 }
 
@@ -3942,7 +3962,47 @@ function precargarFormMiClub() {
   document.getElementById("mcWompiLink").value = clubActual.pagoWompiLink || "";
   if (clubActual.logoUrl) { document.getElementById("mcLogoPreview").src = clubActual.logoUrl; document.getElementById("mcLogoPreview").style.display = "block"; document.getElementById("mcLogoEmpty").style.display = "none"; }
   if (clubActual.bannerUrl) { document.getElementById("mcBannerPreview").src = clubActual.bannerUrl; document.getElementById("mcBannerPreview").style.display = "block"; document.getElementById("mcBannerEmpty").style.display = "none"; }
+  pintarCategoriasPersonalizadas();
 }
+
+function pintarCategoriasPersonalizadas() {
+  const propias = clubActual.categoriasPersonalizadas || [];
+  document.getElementById("mcCategoriasVacio").style.display = propias.length ? "none" : "block";
+  document.getElementById("mcCategoriasPersonalizadas").innerHTML = propias.map(function (c, i) {
+    return '<span class="goles-chip">' + esc(c) + ' <button type="button" onclick="quitarCategoriaPersonalizada(' + i + ')"><i class="fa-solid fa-xmark"></i></button></span>';
+  }).join("");
+}
+
+function guardarCategoriasPersonalizadas(lista) {
+  return db.collection("clientes").doc(clubActual.id).update({ categoriasPersonalizadas: lista }).then(function () {
+    clubActual.categoriasPersonalizadas = lista;
+    sincronizarMarca(clubActual.id, { categoriasPersonalizadas: lista });
+    pintarCategoriasPersonalizadas();
+    refrescarSelectsCategorias();
+  });
+}
+
+function quitarCategoriaPersonalizada(i) {
+  const propias = (clubActual.categoriasPersonalizadas || []).slice();
+  propias.splice(i, 1);
+  guardarCategoriasPersonalizadas(propias).catch(function (err) { mostrarError("No se pudo quitar la categoría: " + err.message); });
+}
+
+document.getElementById("btnAgregarCategoria").addEventListener("click", function () {
+  const input = document.getElementById("mcNuevaCategoria");
+  const nombre = input.value.trim();
+  if (!nombre) { mostrarError("Escribe el nombre de la categoría."); return; }
+  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas);
+  if (CATS_CLUB.some(function (c) { return c.toLowerCase() === nombre.toLowerCase(); })) {
+    mostrarError("Esa categoría ya existe.");
+    return;
+  }
+  const propias = (clubActual.categoriasPersonalizadas || []).concat([nombre]);
+  guardarCategoriasPersonalizadas(propias).then(function () {
+    input.value = "";
+    mostrarExito("Categoría agregada.");
+  }).catch(function (err) { mostrarError("No se pudo agregar la categoría: " + err.message); });
+});
 
 document.getElementById("btnGuardarDatosClub").addEventListener("click", function () {
   const data = {

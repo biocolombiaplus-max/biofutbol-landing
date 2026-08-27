@@ -187,12 +187,23 @@ if (!clubId) {
 }
 
 let fotoUrl = "";
+let categoriasPersonalizadasClub = [];
 
-llenarSelectCategorias(document.getElementById("categoria"), true);
-wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
-document.getElementById("categoria").addEventListener("change", function () {
-  document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
-});
+function inicializarCategorias() {
+  llenarSelectCategorias(document.getElementById("categoria"), true, categoriasPersonalizadasClub);
+  wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
+  document.getElementById("categoria").addEventListener("change", function () {
+    document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
+  });
+}
+
+if (clubId) {
+  db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
+    if (doc.exists && doc.data().categoriasPersonalizadas) categoriasPersonalizadasClub = doc.data().categoriasPersonalizadas;
+  }).catch(function () {}).then(inicializarCategorias);
+} else {
+  inicializarCategorias();
+}
 
 function categoriaSeleccionada() {
   const sel = document.getElementById("categoria").value;
