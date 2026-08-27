@@ -259,7 +259,11 @@ document.getElementById("btnEnviarLink").addEventListener("click", function () {
   const tel = document.getElementById("leadTelefono").value.trim().replace(/[^0-9]/g, "");
   if (!tel) { mostrarError("Ingresa el número de WhatsApp del interesado."); return; }
   const link = location.origin + location.pathname.replace(/cliente\.html$/, "") + "registro.html";
-  const mensaje = "¡Hola! Para activar tu app de BioFutbol, completa los datos de tu club aquí (te toma 2 minutos): " + link;
+  const linkManual = location.origin + location.pathname.replace(/cliente\.html$/, "") + "manual-club.html";
+  const mensaje = "¡Hola! Gracias por tu interés en BioFutbol, la app para gestionar tu club o escuela de fútbol: socios, cobros, entrenamientos, torneos y comunicación con los padres — todo 100% personalizado a tu club.\n\n" +
+    "Para activar tu app, completa aquí los datos de tu club (te toma solo 2 minutos):\n" + link + "\n\n" +
+    "Y para que veas desde ya todo lo que vas a poder hacer, aquí tienes el manual completo paso a paso, con pantallazos reales de cada módulo:\n" + linkManual + "\n\n" +
+    "Cualquier duda, quedamos atentos por este mismo chat.";
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
 });
 
