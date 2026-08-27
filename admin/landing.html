@@ -61,7 +61,8 @@
       <div class="field"><label>Etiqueta (opcional)</label><input type="text" id="anEtiqueta" placeholder="Ej: Anuncio, Promoción"></div>
       <div class="field"><label>Color de fondo</label><input type="color" id="anColor" value="#c8102e" style="height:44px;padding:4px;cursor:pointer"></div>
     </div>
-    <div class="field"><label>Texto (se desplaza en movimiento)</label><input type="text" id="anTexto" placeholder="Ej: Tu negocio aquí GRATIS — escríbenos por WhatsApp"></div>
+    <div class="field"><label>Color del texto</label><input type="color" id="anColorTexto" value="#ffffff" style="height:44px;padding:4px;cursor:pointer"></div>
+    <div class="field"><label>Texto (se desplaza en movimiento continuo)</label><input type="text" id="anTexto" placeholder="Ej: Tu negocio aquí GRATIS — escríbenos por WhatsApp"></div>
     <div class="field-row">
       <div class="field"><label>Texto del botón (opcional)</label><input type="text" id="anBotonTexto" placeholder="Ej: ¡Lo quiero!"></div>
       <div class="field"><label>Link del botón</label><input type="url" id="anLink" placeholder="https://wa.me/57..."></div>
@@ -250,6 +251,7 @@ function cargarAnuncio() {
     document.getElementById("anActivo").checked = !!a.activo;
     document.getElementById("anEtiqueta").value = a.etiqueta || "";
     document.getElementById("anColor").value = a.color || "#c8102e";
+    document.getElementById("anColorTexto").value = a.colorTexto || "#ffffff";
     document.getElementById("anTexto").value = a.texto || "";
     document.getElementById("anBotonTexto").value = a.botonTexto || "";
     document.getElementById("anLink").value = a.link || "";
@@ -263,6 +265,7 @@ document.getElementById("btnGuardarAnuncio").addEventListener("click", function 
     activo: document.getElementById("anActivo").checked,
     etiqueta: document.getElementById("anEtiqueta").value.trim(),
     color: document.getElementById("anColor").value,
+    colorTexto: document.getElementById("anColorTexto").value,
     texto: document.getElementById("anTexto").value.trim(),
     botonTexto: document.getElementById("anBotonTexto").value.trim(),
     link: document.getElementById("anLink").value.trim(),

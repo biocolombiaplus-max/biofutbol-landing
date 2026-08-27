@@ -110,15 +110,22 @@
 .img-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
 
 /* ── Banner de anuncios (marquesina animada) ── */
-.ad-banner{display:none;align-items:center;gap:14px;padding:11px 18px;overflow:hidden;position:relative}
+.ad-banner{display:none;align-items:center;gap:14px;padding:12px 18px;overflow:hidden;position:relative;isolation:isolate;box-shadow:0 4px 18px rgba(0,0,0,.25)}
 .ad-banner.on{display:flex}
-.ad-banner .ad-tag{flex-shrink:0;font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.18);padding:5px 11px;border-radius:999px;color:#fff;white-space:nowrap}
-.ad-banner .ad-track{flex:1;min-width:0;overflow:hidden;white-space:nowrap;position:relative}
-.ad-banner .ad-track span{display:inline-block;padding-left:100%;animation:adScroll 16s linear infinite;color:#fff;font-weight:700;font-size:.86rem}
-.ad-banner:hover .ad-track span{animation-play-state:paused}
-@keyframes adScroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-.ad-banner .ad-cta{flex-shrink:0;background:rgba(0,0,0,.22);color:#fff;font-weight:900;font-size:.78rem;padding:8px 16px;border-radius:999px;white-space:nowrap;text-decoration:none}
-@media(max-width:640px){.ad-banner .ad-track span{font-size:.78rem}}
+.ad-banner::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 32%,rgba(255,255,255,.24) 46%,rgba(255,255,255,.24) 54%,transparent 68%);background-size:260% 100%;animation:adShine 4.2s ease-in-out infinite;pointer-events:none;z-index:0}
+@keyframes adShine{0%{background-position:220% 0}100%{background-position:-220% 0}}
+.ad-banner .ad-tag{position:relative;z-index:1;flex-shrink:0;display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.2);padding:5px 11px;border-radius:999px;color:#fff;white-space:nowrap}
+.ad-banner .ad-tag i{animation:adTagWiggle 2.4s ease-in-out infinite}
+@keyframes adTagWiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-16deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(4deg)}}
+.ad-banner .ad-track{position:relative;z-index:1;flex:1;min-width:0;overflow:hidden}
+.ad-banner .ad-track-inner{display:flex;width:max-content;color:#fff;animation:adScroll 18s linear infinite}
+.ad-banner:hover .ad-track-inner{animation-play-state:paused}
+.ad-banner .ad-seg{display:inline-flex;align-items:center;white-space:nowrap;font-weight:800;font-size:.88rem;padding-right:52px}
+.ad-banner .ad-seg::after{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.65;margin-left:52px}
+@keyframes adScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ad-banner .ad-cta{position:relative;z-index:1;flex-shrink:0;background:rgba(0,0,0,.24);color:#fff;font-weight:900;font-size:.78rem;padding:8px 16px;border-radius:999px;white-space:nowrap;text-decoration:none;animation:adCtaPulse 1.8s ease-in-out infinite}
+@keyframes adCtaPulse{0%,100%{box-shadow:0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 16px rgba(255,255,255,.6)}}
+@media(max-width:640px){.ad-banner .ad-seg{font-size:.78rem;padding-right:34px}.ad-banner .ad-seg::after{margin-left:34px}}
 
 /* ── Inicio: hero + accesos rápidos ── */
 .hero-card{border-radius:20px;padding:26px 22px;position:relative;overflow:hidden;margin-top:24px;background:radial-gradient(760px 320px at 15% -20%,color-mix(in srgb,var(--green) 30%,transparent),transparent 60%),var(--card)}
@@ -223,8 +230,8 @@
   <a class="db-cta" href="https://wa.me/573505457420?text=%C2%A1Hola!%20Vi%20la%20demo%20de%20BioFutbol%20y%20quiero%20activarla%20para%20mi%20club." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Actívala hoy por $1.500 COP/deportista</a>
 </div>
 <div class="ad-banner" id="adBanner">
-  <span class="ad-tag" id="adTag">Anuncio</span>
-  <div class="ad-track"><span id="adText"></span></div>
+  <span class="ad-tag"><i class="fa-solid fa-bullhorn"></i> <b id="adTag">Anuncio</b></span>
+  <div class="ad-track"><div class="ad-track-inner" id="adTrackInner"><span class="ad-seg" id="adSeg1"></span><span class="ad-seg" id="adSeg2" aria-hidden="true"></span></div></div>
   <a class="ad-cta" id="adCta" href="#" target="_blank" rel="noopener" style="display:none"></a>
 </div>
 <div class="container">
@@ -1194,7 +1201,11 @@ function cargarAnuncio() {
     const banner = document.getElementById("adBanner");
     banner.style.background = "linear-gradient(90deg," + (a.color || "#c8102e") + "," + tonoClaro(a.color || "#c8102e", -0.3) + ")";
     document.getElementById("adTag").textContent = a.etiqueta || "Anuncio";
-    document.getElementById("adText").textContent = a.texto;
+    const seg1 = document.getElementById("adSeg1");
+    const seg2 = document.getElementById("adSeg2");
+    seg1.textContent = a.texto;
+    seg2.textContent = a.texto;
+    document.getElementById("adTrackInner").style.color = a.colorTexto || "#ffffff";
     const cta = document.getElementById("adCta");
     if (a.botonTexto && a.link) {
       cta.textContent = a.botonTexto;
@@ -1202,6 +1213,12 @@ function cargarAnuncio() {
       cta.style.display = "inline-block";
     }
     banner.classList.add("on");
+    requestAnimationFrame(function () {
+      const inner = document.getElementById("adTrackInner");
+      const w = seg1.getBoundingClientRect().width;
+      const pxPorSegundo = 70;
+      inner.style.animationDuration = Math.max(8, (w / pxPorSegundo)) + "s";
+    });
   }).catch(function () { /* si falla, simplemente no se muestra el anuncio */ });
 }
 

@@ -133,5 +133,5 @@ function demoSeedColeccion(path, filas) {
       asistentes: { s3: true, s4: true } }
   ]);
 
-  DEMO_STORE["config"] = { anuncio: { texto: "Así se ve la barra de anuncios: prográmala una vez y se muestra sola a todos tus socios.", activo: true, color: "#0e7d29", etiqueta: "Ejemplo" } };
+  DEMO_STORE["config"] = { anuncio: { texto: "Así se ve la barra de anuncios: prográmala una vez y se muestra sola a todos tus socios.", activo: true, color: "#0e7d29", colorTexto: "#ffffff", etiqueta: "Ejemplo", botonTexto: "Ver más", link: "https://wa.me/573505457420" } };
 })();
