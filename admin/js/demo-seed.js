@@ -21,7 +21,9 @@ const DEMO_CLUB = {
   pagoMensualidad: 60000,
   pagoNequiNumero: "300 000 0000",
   pagoNequiTitular: "Unión Tenerife F.C",
-  estado: "activo"
+  estado: "activo",
+  deportistasPautados: 8,
+  valorPorDeportista: 2500
 };
 
 const DEMO_USER_MOCK = { email: "demo@biofutbol.com", uid: "demo-uid" };

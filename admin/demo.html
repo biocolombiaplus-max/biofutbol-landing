@@ -200,6 +200,19 @@
 .next-training-card .nt-title{font-size:.68rem;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
 .next-training-card .nt-body{font-size:.92rem;font-weight:800}
 .next-training-card .nt-sub{font-size:.78rem;color:var(--gray);margin-top:2px}
+.plan-pautado-card{margin-bottom:18px;transition:.3s}
+.plan-pautado-nums{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.plan-pautado-nums b{font-size:1.5rem;font-weight:900;color:var(--white)}
+.plan-pautado-nums span{font-size:.82rem;color:var(--gray)}
+.plan-pautado-bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin-bottom:12px;position:relative}
+.plan-pautado-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--green-l));transition:width .6s ease}
+.plan-pautado-msg{font-size:.86rem;color:var(--gray);line-height:1.55;margin:0}
+.plan-pautado-msg i{margin-right:6px}
+.plan-pautado-card.growing{position:relative;overflow:hidden;border-color:rgba(255,201,51,.4);background:linear-gradient(135deg,rgba(255,201,51,.1),rgba(24,168,58,.06));animation:ntGlow 2.8s ease-in-out infinite}
+.plan-pautado-card.growing::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);animation:ntShine 3.6s ease-in-out infinite;pointer-events:none}
+.plan-pautado-card.growing .plan-pautado-fill{background:linear-gradient(90deg,var(--gold),#ffe08a)}
+.plan-pautado-card.growing .plan-pautado-msg{color:var(--white);font-weight:600}
+.plan-pautado-card.growing .plan-pautado-msg i{color:var(--gold)}
 .pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
 .pat-card.off{opacity:.5}
 .pat-logo{width:56px;height:56px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);flex-shrink:0}
@@ -323,6 +336,11 @@
       <div class="card" id="cumpleanosCard" style="display:none;border-color:rgba(255,201,51,.4);background:rgba(255,201,51,.06);margin-bottom:18px">
         <h3><i class="fa-solid fa-cake-candles"></i> ¡Hoy cumplen años!</h3>
         <div id="cumpleanosLista"></div>
+      </div>
+
+      <div class="card plan-pautado-card" id="planPautadoCard" style="display:none">
+        <h3><i class="fa-solid fa-chart-line"></i> Tu plan BioFutbol</h3>
+        <div id="planPautadoBody"></div>
       </div>
 
       <div class="next-training-card" id="nextMatchCard" style="display:none">
@@ -1366,6 +1384,41 @@ function pintarInicio() {
   const totalGoles = PARTIDOS.reduce(function (acc, p) { return acc + ((p.goleadores || []).reduce(function (a, g) { return a + (g.goles || 1); }, 0)); }, 0);
   document.getElementById("qtGoleadoresSub").textContent = moduloEquiposActivo ? (totalGoles + " goles") : "Módulo inactivo";
   document.getElementById("qtPatrocinadoresSub").textContent = PATROCINADORES.length ? (PATROCINADORES.length + " aliados") : "Súmalos aquí";
+  pintarPlanPautado();
+}
+
+// ── Plan pautado por deportista: nunca se cobra menos del mínimo
+// negociado, y si el club ya creció por encima de ese mínimo, se le
+// informa con un mensaje positivo — no es un problema, es crecimiento —
+// y se explica que el excedente se factura al mismo valor pautado.
+function pintarPlanPautado() {
+  const card = document.getElementById("planPautadoCard");
+  const pautados = Number(clubActual.deportistasPautados) || 0;
+  if (!pautados) { card.style.display = "none"; return; }
+  card.style.display = "block";
+
+  const valorUnit = Number(clubActual.valorPorDeportista) || 0;
+  const total = SOCIOS.filter(function (s) { return s.estado !== "Inactivo"; }).length;
+  const excedente = Math.max(0, total - pautados);
+  const pct = pautados ? Math.min(100, Math.round((total / pautados) * 100)) : 0;
+  card.classList.toggle("growing", excedente > 0);
+
+  let msg;
+  if (excedente > 0) {
+    msg = '<i class="fa-solid fa-arrow-trend-up"></i> ¡Tu club está creciendo! Ya superaste tu plan pautado de ' + pautados + ' deportistas' +
+      (valorUnit ? ' — ' + (excedente === 1 ? 'el' : 'los') + ' ' + excedente + ' deportista' + (excedente === 1 ? '' : 's') + ' adicional' + (excedente === 1 ? '' : 'es') + ' se factura' + (excedente === 1 ? '' : 'n') + ' a ' + formatCOP(valorUnit) + ' cada uno, el mismo valor pautado' : '') +
+      '. Puedes seguir registrando deportistas sin ningún límite.';
+  } else {
+    const faltan = pautados - total;
+    msg = faltan > 0
+      ? '<i class="fa-solid fa-circle-info"></i> Te faltan ' + faltan + ' deportista' + (faltan === 1 ? '' : 's') + ' para completar tu plan pautado.'
+      : '<i class="fa-solid fa-circle-check"></i> Completaste justo tu plan pautado.';
+  }
+
+  document.getElementById("planPautadoBody").innerHTML =
+    '<div class="plan-pautado-nums"><b>' + total + '</b><span>de ' + pautados + ' deportistas pautados</span></div>' +
+    '<div class="plan-pautado-bar"><div class="plan-pautado-fill" style="width:' + pct + '%"></div></div>' +
+    '<p class="plan-pautado-msg">' + msg + '</p>';
 }
 
 function pintarEquipos() {

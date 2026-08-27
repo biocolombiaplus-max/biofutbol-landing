@@ -67,7 +67,26 @@
       <div class="card">
         <h3><i class="fa-solid fa-tags"></i> Plan y socios</h3>
         <div class="plan-grid" id="planGrid"></div>
-        <div class="field"><label>Número de socios/deportistas</label><input type="number" id="numSocios" min="1"></div>
+        <div class="field"><label>Número de socios/deportistas (estimado)</label><input type="number" id="numSocios" min="1"></div>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
+            <input type="checkbox" id="planNegociadoActivo" style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+            <span style="font-weight:700;font-size:.86rem">Este club tiene un plan negociado (precio y mínimo pautado por deportista)</span>
+          </label>
+          <div id="planNegociadoBox" style="display:none">
+            <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Define el valor por deportista y el mínimo de deportistas pautado con este club. Nunca se sugiere cobrar menos de ese mínimo — y si ya tiene registrados más deportistas de los pautados, el excedente se calcula solo, al mismo valor pautado.</p>
+            <div class="field-row">
+              <div class="field"><label>Deportistas pautados (mínimo)</label><input type="number" id="deportistasPautados" min="1" placeholder="Ej: 60"></div>
+              <div class="field"><label>Valor pautado por deportista (COP)</label><input type="number" id="valorPorDeportista" min="0" step="500" placeholder="Ej: 2500"></div>
+            </div>
+            <div class="status-row" style="margin-top:4px"><span class="k">Deportistas registrados ahora</span><span id="pnConteoReal" class="pill muted">—</span></div>
+            <div class="status-row"><span class="k">Cobro mínimo mensual</span><span id="pnMinimo" class="pill muted">—</span></div>
+            <div class="status-row" id="pnExcedenteRow" style="display:none"><span class="k">Excedente sobre lo pautado</span><span id="pnExcedente" class="pill warn">—</span></div>
+            <div class="status-row" style="margin-top:6px;border-top:1px solid var(--card-b2);padding-top:10px"><span class="k" style="font-weight:800">Total sugerido a cobrar</span><span id="pnTotal" class="pill ok" style="font-size:.9rem">—</span></div>
+            <button type="button" class="btn btn-ghost btn-sm btn-block" id="btnUsarValorPautado" style="margin-top:12px"><i class="fa-solid fa-arrow-down"></i> Usar este valor en "Valor recibido"</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -294,6 +313,45 @@ function marcarPlanSeleccionado(planKey) {
   if (el) { el.classList.add("on"); el.querySelector("input").checked = true; }
 }
 
+// ── Plan negociado por deportista: nunca se cobra menos del mínimo
+// pautado, y si el club ya creció por encima de ese mínimo, se calcula
+// el excedente automáticamente al mismo valor pautado por deportista.
+let conteoRealSocios = 0;
+
+function recalcularPlanNegociado() {
+  const activo = document.getElementById("planNegociadoActivo").checked;
+  document.getElementById("planNegociadoBox").style.display = activo ? "block" : "none";
+  if (!activo) return;
+
+  const pautados = Number(document.getElementById("deportistasPautados").value) || 0;
+  const valorUnit = Number(document.getElementById("valorPorDeportista").value) || 0;
+  const facturables = Math.max(pautados, conteoRealSocios);
+  const excedente = Math.max(0, conteoRealSocios - pautados);
+  const minimo = pautados * valorUnit;
+  const total = facturables * valorUnit;
+
+  const conteoPill = document.getElementById("pnConteoReal");
+  conteoPill.textContent = conteoRealSocios;
+  conteoPill.className = "pill " + (excedente > 0 ? "ok" : "muted");
+  document.getElementById("pnMinimo").textContent = pautados && valorUnit ? formatCOP(minimo) : "—";
+  document.getElementById("pnMinimo").className = "pill muted";
+  document.getElementById("pnExcedenteRow").style.display = excedente > 0 ? "flex" : "none";
+  if (excedente > 0) document.getElementById("pnExcedente").textContent = excedente + " deportista" + (excedente === 1 ? "" : "s") + " · " + formatCOP(excedente * valorUnit);
+  document.getElementById("pnTotal").textContent = pautados && valorUnit ? formatCOP(total) : "—";
+}
+
+document.getElementById("planNegociadoActivo").addEventListener("change", recalcularPlanNegociado);
+["deportistasPautados", "valorPorDeportista"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", recalcularPlanNegociado);
+});
+document.getElementById("btnUsarValorPautado").addEventListener("click", function () {
+  const pautados = Number(document.getElementById("deportistasPautados").value) || 0;
+  const valorUnit = Number(document.getElementById("valorPorDeportista").value) || 0;
+  const facturables = Math.max(pautados, conteoRealSocios);
+  document.getElementById("valorPago").value = facturables * valorUnit;
+  mostrarExito("Valor a cobrar actualizado con el plan pautado.");
+});
+
 function cargarCliente() {
   document.getElementById("pageTitle").textContent = "Cargando...";
   db.collection("clientes").doc(clienteId).get().then(function (doc) {
@@ -309,6 +367,10 @@ function cargarCliente() {
     document.getElementById("repEmail").value = clienteActual.repEmail || "";
     document.getElementById("repTelefono").value = clienteActual.repTelefono || "";
     document.getElementById("numSocios").value = clienteActual.numSocios || "";
+    document.getElementById("planNegociadoActivo").checked = !!clienteActual.deportistasPautados;
+    document.getElementById("deportistasPautados").value = clienteActual.deportistasPautados || "";
+    document.getElementById("valorPorDeportista").value = clienteActual.valorPorDeportista || "";
+    recalcularPlanNegociado();
     document.getElementById("claveApp").value = clienteActual.claveApp || "";
     document.getElementById("moduloEquipos").checked = !!(clienteActual.modulosActivos && clienteActual.modulosActivos.equipos);
     document.getElementById("estado").value = clienteActual.estado || "pendiente";
@@ -357,6 +419,11 @@ function cargarConteoSocios() {
     const el = document.getElementById("sociosCount");
     el.textContent = snap.size;
     el.className = "pill " + (snap.size > 0 ? "ok" : "muted");
+    // Para el cobro solo cuentan los deportistas activos/en pausa — los
+    // marcados "Inactivo" ya no forman parte del roster que se factura.
+    conteoRealSocios = 0;
+    snap.forEach(function (d) { if ((d.data() || {}).estado !== "Inactivo") conteoRealSocios++; });
+    recalcularPlanNegociado();
   });
 }
 
@@ -579,6 +646,8 @@ function leerFormulario() {
     repTelefono: document.getElementById("repTelefono").value.trim(),
     plan: planEl ? planEl.value : null,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
+    deportistasPautados: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("deportistasPautados").value) || 0) : 0,
+    valorPorDeportista: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("valorPorDeportista").value) || 0) : 0,
     usuarioApp: repEmail,
     estado: document.getElementById("estado").value,
     notas: document.getElementById("notas").value.trim(),
@@ -852,6 +921,9 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
   const btn = this;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Registrando...';
 
+  const pautadosActivos = document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("deportistasPautados").value) || 0) : 0;
+  const numSociosRecibo = pautadosActivos ? Math.max(pautadosActivos, conteoRealSocios) : (clienteActual.numSocios || 0);
+
   const pdf = generarReciboPDF({
     emisorNombre: "BioFutbol",
     colorPrimario: "#18A83A",
@@ -860,7 +932,7 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
     concepto: "Mensualidad de la app BioFutbol",
     valor: valor,
     fecha: fechaPago,
-    numSocios: clienteActual.numSocios || 0
+    numSocios: numSociosRecibo
   });
 
   subirReciboPDF(pdf, "recibo-" + clienteId + "-" + Date.now() + ".pdf").then(function (url) {
