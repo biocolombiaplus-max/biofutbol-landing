@@ -214,6 +214,8 @@
       <div class="card">
         <h3><i class="fa-solid fa-calendar-check"></i> Pagos</h3>
         <div class="status-row"><span class="k">Estado actual</span><span id="pagoEstadoPill">—</span></div>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnEnviarBienvenida" style="margin-top:12px"><i class="fa-brands fa-whatsapp"></i> Enviar bienvenida y próximos pasos</button>
+        <p style="font-size:.74rem;color:var(--gray-d);margin-top:6px">Le confirma que ya está registrado, le explica que la capacitación virtual se programa una vez pague, y le envía el manual de una vez.</p>
         <div class="field-row" style="margin-top:14px">
           <div class="field"><label>Valor recibido (COP)</label><input type="number" id="valorPago" min="0" step="1000"></div>
           <div class="field"><label>Fecha de pago</label><input type="date" id="fechaPago"></div>
@@ -837,6 +839,21 @@ document.getElementById("btnEnviarAcceso").addEventListener("click", function ()
   mensaje += "\n\nY aquí tienes el manual de uso paso a paso, con pantallazos de cada módulo:\n" + linkManual;
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Acceso enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
+});
+
+document.getElementById("btnEnviarBienvenida").addEventListener("click", function () {
+  if (!clienteActual) return;
+  let tel = (clienteActual.repTelefono || document.getElementById("repTelefono").value || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const nombreClub = clienteActual.clubNombre || document.getElementById("clubNombre").value || "tu club";
+  const linkManual = location.origin + location.pathname.replace(/cliente\.html$/, "") + "manual-club.html";
+  const mensaje = "¡Hola! Te confirmamos que " + nombreClub + " ya quedó registrado en BioFutbol.\n\n" +
+    "Una vez realices el pago, programamos la capacitación virtual para todo el personal que la necesite, para que aprendan el manejo adecuado de la app.\n\n" +
+    "Desde ya te compartimos el manual completo, con el paso a paso de cada módulo, para que lo vayas revisando:\n" + linkManual + "\n\n" +
+    "Cualquier duda, quedamos atentos por este mismo chat.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Bienvenida y manual enviados por WhatsApp", clienteId, nombreClub, tel);
 });
 
 document.getElementById("btnActivarTodo").addEventListener("click", function () {
