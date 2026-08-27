@@ -394,7 +394,7 @@
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envía este link para que el jugador, su acudiente o el profesor complete los datos desde el celular. Se guarda directo en esta lista.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkSocio"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkSocio"><i class="fa-solid fa-link"></i> Copiar link</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkSocio"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
         </div>
       </div>
 
@@ -2533,15 +2533,19 @@ function linkRegistroSocio() {
     "registro-socio.html?club=" + clubActual.id + "&nombre=" + encodeURIComponent(clubActual.clubNombre || "");
 }
 
+function mensajeRegistroSocio() {
+  return "¡Hola! Te escribimos de " + (clubActual.clubNombre || "nuestro club") + ". Para modernizar la administración del club y hacer un mejor seguimiento del rendimiento de cada deportista, es importante que completes aquí sus datos reales y actualizados (te toma 2 minutos):\n" +
+    linkRegistroSocio() + "\n\n¡Gracias por ayudarnos a mejorar nuestro club!";
+}
+
 document.getElementById("btnEnviarLinkSocio").addEventListener("click", function () {
   const tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo, ej: 573001234567)") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
-  const mensaje = "¡Hola! Completa aquí los datos del socio o jugador de " + (clubActual.clubNombre || "tu club") + " desde tu celular (te toma 2 minutos): " + linkRegistroSocio();
-  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRegistroSocio()), "_blank");
 });
 
 document.getElementById("btnCopiarLinkSocio").addEventListener("click", function () {
-  navigator.clipboard.writeText(linkRegistroSocio()).then(function () { mostrarExito("Link copiado."); });
+  navigator.clipboard.writeText(mensajeRegistroSocio()).then(function () { mostrarExito("Mensaje copiado. Ya lo puedes pegar en WhatsApp."); });
 });
 
 document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);
