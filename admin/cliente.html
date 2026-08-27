@@ -751,6 +751,8 @@ document.getElementById("btnEnviarAcceso").addEventListener("click", function ()
     mensaje += "\nClave: " + (clienteActual.claveApp || "");
   }
   mensaje += "\n\nDesde ahí puedes gestionar tus equipos, el calendario de partidos y la tabla de posiciones.";
+  const linkManual = location.origin + location.pathname.replace(/cliente\.html$/, "") + "manual-club.html";
+  mensaje += "\n\nY aquí tienes el manual de uso paso a paso, con pantallazos de cada módulo:\n" + linkManual;
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Acceso enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
 });

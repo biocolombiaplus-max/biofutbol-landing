@@ -847,6 +847,8 @@ document.getElementById("btnEnviarAccesoSocio").addEventListener("click", functi
     mensaje += "\n\nPara entrar (o si no recuerdas tu clave), toca \"¿Olvidaste tu contraseña?\" en esa página — te llegará un correo para definir una clave nueva.";
   }
   mensaje += "\n\nAhí puedes ver el carnet, el estado de pago y cualquier aviso importante.";
+  const linkManual = location.origin + location.pathname.replace(/socio\.html$/, "") + "manual-padres.html";
+  mensaje += "\n\nY aquí tienes el manual de uso paso a paso, con pantallazos de cada sección:\n" + linkManual;
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Acceso del socio enviado por WhatsApp", clienteId, socioActual.nombre, tel);
 });

@@ -975,6 +975,27 @@
         <div class="field"><label>Vence hasta (opcional)</label><input type="date" id="repCarHasta"></div>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteCartera"><i class="fa-solid fa-file-pdf"></i> Generar PDF de cartera</button>
       </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-book"></i> Manuales de uso</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Guías paso a paso con pantallazos, para que tu equipo y los padres de familia le saquen el máximo provecho a la app. Envíalas por WhatsApp o correo, o descárgalas en PDF desde el mismo manual.</p>
+        <div class="field">
+          <label>Manual del Club (para ti y tus profesores)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <a class="btn btn-ghost btn-sm" href="manual-club.html" target="_blank" rel="noopener"><i class="fa-solid fa-book-open"></i> Ver manual</a>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnManualClubWhatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnManualClubCorreo"><i class="fa-solid fa-envelope"></i> Correo</button>
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label>Manual para Padres y Deportistas</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <a class="btn btn-ghost btn-sm" href="manual-padres.html" target="_blank" rel="noopener"><i class="fa-solid fa-book-open"></i> Ver manual</a>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnManualPadresWhatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnManualPadresCorreo"><i class="fa-solid fa-envelope"></i> Correo</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="tab-panel" id="tab-miclub">
@@ -3265,6 +3286,29 @@ document.getElementById("btnReporteCartera").addEventListener("click", function 
   });
   doc.save("cartera-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
   registrarAuditoria("Reporte de cartera generado", clubActual.id, clubActual.clubNombre);
+});
+
+// ── Manuales de uso ──
+function linkManualClub() { return location.origin + location.pathname.replace(/club-panel\.html$/, "") + "manual-club.html"; }
+function linkManualPadres() { return location.origin + location.pathname.replace(/club-panel\.html$/, "") + "manual-padres.html"; }
+
+document.getElementById("btnManualClubWhatsapp").addEventListener("click", function () {
+  const mensaje = "Manual de uso del panel de " + (clubActual.clubNombre || "tu club") + " en BioFutbol, paso a paso con pantallazos:\n" + linkManualClub();
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
+});
+document.getElementById("btnManualClubCorreo").addEventListener("click", function () {
+  const asunto = "Manual de uso — Panel de " + (clubActual.clubNombre || "tu club") + " en BioFutbol";
+  const cuerpo = "Hola,\n\nAquí tienes el manual de uso del panel del club, paso a paso con pantallazos:\n" + linkManualClub() + "\n\nSaludos.";
+  window.location.href = "mailto:?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(cuerpo);
+});
+document.getElementById("btnManualPadresWhatsapp").addEventListener("click", function () {
+  const mensaje = "Manual para padres y deportistas de " + (clubActual.clubNombre || "tu club") + " en BioFutbol, paso a paso con pantallazos:\n" + linkManualPadres();
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
+});
+document.getElementById("btnManualPadresCorreo").addEventListener("click", function () {
+  const asunto = "Manual para padres y deportistas — " + (clubActual.clubNombre || "tu club") + " en BioFutbol";
+  const cuerpo = "Hola,\n\nAquí tienes el manual de uso de tu panel en BioFutbol, paso a paso con pantallazos:\n" + linkManualPadres() + "\n\nSaludos.";
+  window.location.href = "mailto:?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(cuerpo);
 });
 
 // ── Sedes / lugares de entrenamiento ──

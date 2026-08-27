@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual para Padres y Deportistas | BioFutbol</title>
+<meta name="description" content="Guía paso a paso para que los padres de familia y deportistas usen su panel en BioFutbol.">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1626;--green:#18A83A;--green-d:#0e7d29;--gold:#c98a0f;
+  --ink:#1b2420;--gray:#5c6b64;--line:#e3e9e2;--bg:#f6f8f6;--card:#ffffff;
+  --shadow:0 10px 28px rgba(11,22,38,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+a{color:inherit}
+img{max-width:100%;display:block}
+
+.topbar{position:sticky;top:0;z-index:50;background:linear-gradient(100deg,var(--navy),#123a24);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo b{font-weight:900;font-size:1.05rem}
+.tb-logo b span{color:#2ecc55}
+.tb-sub{font-size:.72rem;color:#a9c4b4;font-weight:600;letter-spacing:.02em}
+.tb-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;border-radius:10px;font-weight:700;padding:10px 16px;font-size:.82rem;font-family:inherit;text-decoration:none}
+.btn-gold{background:linear-gradient(135deg,#ffd257,#c98a0f);color:#241800}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.35);color:#fff}
+.btn-outline:hover{border-color:#fff}
+
+.hero{max-width:1180px;margin:0 auto;padding:38px 22px 10px}
+.hero .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green-d);background:rgba(24,168,58,.1);border:1px solid rgba(24,168,58,.3);padding:6px 12px;border-radius:999px;margin-bottom:14px}
+.hero h1{font-size:2rem;font-weight:900;color:var(--navy);margin-bottom:10px}
+.hero p{color:var(--gray);font-size:1rem;max-width:640px}
+.hero .disclaimer{margin-top:18px;background:#fff9e9;border:1px solid #f0dca3;color:#6b5a1f;font-size:.84rem;padding:12px 16px;border-radius:12px;max-width:720px;display:flex;gap:10px;align-items:flex-start}
+.hero .disclaimer i{margin-top:2px;color:var(--gold)}
+
+.layout{max-width:1180px;margin:0 auto;padding:20px 22px 80px;display:grid;grid-template-columns:230px 1fr;gap:38px;align-items:start}
+.toc{position:sticky;top:78px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.toc-title{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:10px;padding:0 4px}
+.toc a{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;font-weight:600;color:var(--ink);padding:7px 8px;border-radius:8px;text-decoration:none}
+.toc a:hover{background:#f0f4ef}
+.toc a span.n{flex:none;width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--gray);font-size:.66rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+.content{display:flex;flex-direction:column;gap:34px;min-width:0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 30px;box-shadow:var(--shadow);scroll-margin-top:78px}
+.step-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.step-num{flex:none;width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;font-weight:900;font-size:1rem;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(24,168,58,.35)}
+.step h2{font-size:1.2rem;font-weight:800;color:var(--navy)}
+.step p{color:var(--gray);font-size:.92rem;margin-bottom:16px}
+.step ul{margin:0 0 16px;padding-left:20px;color:var(--ink);font-size:.88rem}
+.step ul li{margin-bottom:6px}
+.step ul li b{color:var(--green-d)}
+.shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(11,22,38,.1);max-width:380px}
+.shot img{width:100%}
+.tip{margin-top:16px;background:#f0f7f1;border:1px solid #cfe6d2;border-left:4px solid var(--green);border-radius:10px;padding:12px 16px;font-size:.84rem;color:#2c4a34;display:flex;gap:10px}
+.tip i{color:var(--green-d);margin-top:2px}
+
+.closing{background:linear-gradient(135deg,var(--navy),#123a24);color:#fff;border-radius:18px;padding:34px 30px;text-align:center}
+.closing h2{font-size:1.3rem;margin-bottom:8px}
+.closing p{color:#c7d9cd;margin-bottom:18px;font-size:.92rem}
+.closing .btn{background:linear-gradient(135deg,#2ecc55,#0e7d29);color:#fff;padding:13px 26px;font-size:.9rem;box-shadow:0 8px 20px rgba(24,168,58,.4)}
+
+.toc-mobile{display:none}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;padding-top:10px}
+  .toc{display:none}
+  .toc-mobile{display:block;position:sticky;top:64px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:12px;margin:0 22px 18px;box-shadow:var(--shadow)}
+  .toc-mobile summary{padding:12px 16px;font-weight:800;font-size:.86rem;cursor:pointer;color:var(--navy);list-style:none;display:flex;align-items:center;justify-content:space-between}
+  .toc-mobile summary::-webkit-details-marker{display:none}
+  .toc-mobile[open] summary{border-bottom:1px solid var(--line)}
+  .toc-mobile a{display:flex;gap:8px;padding:9px 16px;font-size:.82rem;font-weight:600;color:var(--ink);text-decoration:none}
+  .toc-mobile a span.n{flex:none;width:16px;height:16px;border-radius:50%;background:var(--line);color:var(--gray);font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .layout{padding-left:0;padding-right:0}
+  .content,.hero{padding-left:22px;padding-right:22px}
+  .step{padding:22px 18px}
+  .hero h1{font-size:1.5rem}
+}
+
+@media print{
+  .topbar,.toc,.toc-mobile{display:none!important}
+  body{background:#fff}
+  .layout{grid-template-columns:1fr;padding:0 6px}
+  .step{box-shadow:none;border:1px solid #ddd;break-inside:avoid;page-break-inside:avoid}
+  .hero{padding-top:6px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="tb-logo">
+      <svg width="26" height="32" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#2ecc55" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div><b>Bio<span>Futbol</span></b><div class="tb-sub">Manual para Padres y Deportistas</div></div>
+    </div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-outline" id="btnWhatsapp"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+      <button type="button" class="btn btn-gold" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> Descargar / Imprimir PDF</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow"><i class="fa-solid fa-book"></i> Guía completa</span>
+  <h1>Manual para Padres y Deportistas</h1>
+  <p>Todo lo que puedes hacer desde tu panel en BioFutbol: ver el carnet de tu deportista, el horario de entrenamiento, cómo pagar la mensualidad y su seguimiento de crecimiento y nutrición.</p>
+  <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Las capturas de este manual son de una cuenta de ejemplo (Unión Tenerife F.C). Tu panel se ve exactamente igual, pero con los datos de tu propio club y de tu deportista.</div>
+</section>
+
+<details class="toc-mobile">
+  <summary>Índice del manual <i class="fa-solid fa-chevron-down"></i></summary>
+  <a href="#p1"><span class="n">1</span> Cómo entrar</a>
+  <a href="#p2"><span class="n">2</span> Tu carnet digital</a>
+  <a href="#p3"><span class="n">3</span> Entrenamientos</a>
+  <a href="#p4"><span class="n">4</span> Cómo pagar</a>
+  <a href="#p5"><span class="n">5</span> Crecimiento y desarrollo</a>
+  <a href="#p6"><span class="n">6</span> Alimentación</a>
+  <a href="#p7"><span class="n">7</span> Receta de la semana</a>
+  <a href="#p8"><span class="n">8</span> Ayuda</a>
+</details>
+
+<div class="layout">
+  <nav class="toc">
+    <div class="toc-title">Índice</div>
+    <a href="#p1"><span class="n">1</span> Cómo entrar</a>
+    <a href="#p2"><span class="n">2</span> Tu carnet digital</a>
+    <a href="#p3"><span class="n">3</span> Entrenamientos</a>
+    <a href="#p4"><span class="n">4</span> Cómo pagar</a>
+    <a href="#p5"><span class="n">5</span> Crecimiento</a>
+    <a href="#p6"><span class="n">6</span> Alimentación</a>
+    <a href="#p7"><span class="n">7</span> Receta semanal</a>
+    <a href="#p8"><span class="n">8</span> Ayuda</a>
+  </nav>
+
+  <main class="content">
+
+    <div class="step" id="p1">
+      <div class="step-head"><div class="step-num">1</div><h2>Cómo entrar a tu panel</h2></div>
+      <p>Tu club te envía por WhatsApp o correo el link de acceso (<b>socio-login.html</b>) junto con un usuario (correo) y una clave inicial.</p>
+      <ul>
+        <li>Ingresa tu <b>correo</b> y tu <b>clave</b> y toca "Ingresar".</li>
+        <li>¿Olvidaste tu clave? Toca "¿Olvidaste tu contraseña?" y te llegará un correo para definir una nueva.</li>
+        <li>Guarda el link en tu celular — es el acceso permanente al panel de tu deportista.</li>
+      </ul>
+      <div class="shot"><img src="../img/manual/socio-login.png" alt="Pantalla de ingreso del panel de padres y deportistas en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p2">
+      <div class="step-head"><div class="step-num">2</div><h2>Tu carnet digital</h2></div>
+      <p>Al entrar ves el carnet digital de tu deportista, con su foto, número, categoría y un código QR de verificación — siempre a la mano desde el celular, sin necesidad de imprimir nada.</p>
+      <div class="shot"><img src="../img/manual/padres-carnet.png" alt="Carnet digital de un deportista en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p3">
+      <div class="step-head"><div class="step-num">3</div><h2>Entrenamientos: no te pierdas ninguno</h2></div>
+      <p>Ve el horario de entrenamiento de la categoría de tu deportista, con sede, día y hora — incluido cuándo es el próximo, para que nunca se te pase.</p>
+      <div class="shot"><img src="../img/manual/padres-entrenamientos.png" alt="Horario de entrenamientos en el panel de padres de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p4">
+      <div class="step-head"><div class="step-num">4</div><h2>Cómo pagar la mensualidad</h2></div>
+      <p>Consulta el valor de la mensualidad y los datos de pago de tu club (Nequi o tarjeta/PSE, según lo que tenga configurado). Después de pagar, envía el comprobante al club por WhatsApp para que quede registrado.</p>
+      <div class="shot"><img src="../img/manual/padres-pago.png" alt="Información de pago de la mensualidad en el panel de padres de BioFutbol"></div>
+      <div class="tip"><i class="fa-solid fa-lightbulb"></i> Si tu pago está por vencer o vencido, verás un aviso amistoso apenas entres al panel — no tienes que ir a buscarlo.</div>
+    </div>
+
+    <div class="step" id="p5">
+      <div class="step-head"><div class="step-num">5</div><h2>Crecimiento y desarrollo</h2></div>
+      <p>Si tu deportista es menor de edad, aquí ves su evolución de peso y estatura en gráficas fáciles de entender, junto con recomendaciones generales — un apoyo visual para llevar a la próxima cita con el pediatra.</p>
+      <div class="shot"><img src="../img/manual/padres-crecimiento.png" alt="Gráficas de crecimiento y desarrollo en el panel de padres de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p6">
+      <div class="step-head"><div class="step-num">6</div><h2>Recomendación de alimentación</h2></div>
+      <p>Según la edad de tu deportista, BioFutbol te muestra una guía de alimentación pensada para su etapa de desarrollo y su exigencia física en los entrenamientos.</p>
+      <div class="shot"><img src="../img/manual/padres-nutricion.png" alt="Recomendación de alimentación en el panel de padres de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p7">
+      <div class="step-head"><div class="step-num">7</div><h2>Receta de la semana</h2></div>
+      <p>Una idea de desayuno, almuerzo, snack y cena que cambia automáticamente cada semana — para que la alimentación de tu deportista sea variada y fácil de preparar en casa.</p>
+      <div class="shot"><img src="../img/manual/padres-receta.png" alt="Receta de la semana en el panel de padres de BioFutbol"></div>
+    </div>
+
+    <div class="step closing" id="p8">
+      <h2><i class="fa-solid fa-headset"></i> ¿Tienes dudas?</h2>
+      <p>Escríbele directamente a tu club por WhatsApp y te ayudan a resolver cualquier duda sobre tu panel.</p>
+      <a class="btn" href="https://wa.me/573505457420?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20manual%20de%20BioFutbol" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Escribir por WhatsApp</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+document.getElementById("btnWhatsapp").addEventListener("click", function () {
+  const mensaje = "Manual para padres y deportistas de BioFutbol, paso a paso con pantallazos:\n" + location.href;
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
+});
+</script>
+</body>
+</html>

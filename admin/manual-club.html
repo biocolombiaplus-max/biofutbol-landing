@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual del Club | BioFutbol</title>
+<meta name="description" content="Guía paso a paso para administrar tu club o escuela de fútbol con BioFutbol.">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1626;--green:#18A83A;--green-d:#0e7d29;--gold:#c98a0f;
+  --ink:#1b2420;--gray:#5c6b64;--line:#e3e9e2;--bg:#f6f8f6;--card:#ffffff;
+  --shadow:0 10px 28px rgba(11,22,38,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+a{color:inherit}
+img{max-width:100%;display:block}
+
+.topbar{position:sticky;top:0;z-index:50;background:linear-gradient(100deg,var(--navy),#123a24);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo b{font-weight:900;font-size:1.05rem}
+.tb-logo b span{color:#2ecc55}
+.tb-sub{font-size:.72rem;color:#a9c4b4;font-weight:600;letter-spacing:.02em}
+.tb-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;border-radius:10px;font-weight:700;padding:10px 16px;font-size:.82rem;font-family:inherit;text-decoration:none}
+.btn-gold{background:linear-gradient(135deg,#ffd257,#c98a0f);color:#241800}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.35);color:#fff}
+.btn-outline:hover{border-color:#fff}
+
+.hero{max-width:1180px;margin:0 auto;padding:38px 22px 10px}
+.hero .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green-d);background:rgba(24,168,58,.1);border:1px solid rgba(24,168,58,.3);padding:6px 12px;border-radius:999px;margin-bottom:14px}
+.hero h1{font-size:2rem;font-weight:900;color:var(--navy);margin-bottom:10px}
+.hero p{color:var(--gray);font-size:1rem;max-width:640px}
+.hero .disclaimer{margin-top:18px;background:#fff9e9;border:1px solid #f0dca3;color:#6b5a1f;font-size:.84rem;padding:12px 16px;border-radius:12px;max-width:720px;display:flex;gap:10px;align-items:flex-start}
+.hero .disclaimer i{margin-top:2px;color:var(--gold)}
+
+.layout{max-width:1180px;margin:0 auto;padding:20px 22px 80px;display:grid;grid-template-columns:230px 1fr;gap:38px;align-items:start}
+.toc{position:sticky;top:78px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.toc-title{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:10px;padding:0 4px}
+.toc a{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;font-weight:600;color:var(--ink);padding:7px 8px;border-radius:8px;text-decoration:none}
+.toc a:hover{background:#f0f4ef}
+.toc a span.n{flex:none;width:18px;height:18px;border-radius:50%;background:var(--line);color:var(--gray);font-size:.66rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+.content{display:flex;flex-direction:column;gap:34px;min-width:0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 30px;box-shadow:var(--shadow);scroll-margin-top:78px}
+.step-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.step-num{flex:none;width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;font-weight:900;font-size:1rem;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(24,168,58,.35)}
+.step h2{font-size:1.2rem;font-weight:800;color:var(--navy)}
+.step p{color:var(--gray);font-size:.92rem;margin-bottom:16px}
+.step ul{margin:0 0 16px;padding-left:20px;color:var(--ink);font-size:.88rem}
+.step ul li{margin-bottom:6px}
+.step ul li b{color:var(--green-d)}
+.shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(11,22,38,.1);max-width:420px}
+.shot img{width:100%}
+.shot-row{display:flex;gap:16px;flex-wrap:wrap}
+.shot-row .shot{flex:1;min-width:220px}
+.tip{margin-top:16px;background:#f0f7f1;border:1px solid #cfe6d2;border-left:4px solid var(--green);border-radius:10px;padding:12px 16px;font-size:.84rem;color:#2c4a34;display:flex;gap:10px}
+.tip i{color:var(--green-d);margin-top:2px}
+
+.closing{background:linear-gradient(135deg,var(--navy),#123a24);color:#fff;border-radius:18px;padding:34px 30px;text-align:center}
+.closing h2{font-size:1.3rem;margin-bottom:8px}
+.closing p{color:#c7d9cd;margin-bottom:18px;font-size:.92rem}
+.closing .btn{background:linear-gradient(135deg,#2ecc55,#0e7d29);color:#fff;padding:13px 26px;font-size:.9rem;box-shadow:0 8px 20px rgba(24,168,58,.4)}
+
+.toc-mobile{display:none}
+
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;padding-top:10px}
+  .toc{display:none}
+  .toc-mobile{display:block;position:sticky;top:64px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:12px;margin:0 22px 18px;box-shadow:var(--shadow)}
+  .toc-mobile summary{padding:12px 16px;font-weight:800;font-size:.86rem;cursor:pointer;color:var(--navy);list-style:none;display:flex;align-items:center;justify-content:space-between}
+  .toc-mobile summary::-webkit-details-marker{display:none}
+  .toc-mobile[open] summary{border-bottom:1px solid var(--line)}
+  .toc-mobile a{display:flex;gap:8px;padding:9px 16px;font-size:.82rem;font-weight:600;color:var(--ink);text-decoration:none}
+  .toc-mobile a span.n{flex:none;width:16px;height:16px;border-radius:50%;background:var(--line);color:var(--gray);font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .layout{padding-left:0;padding-right:0}
+  .content,.hero{padding-left:22px;padding-right:22px}
+  .step{padding:22px 18px}
+  .hero h1{font-size:1.5rem}
+}
+
+@media print{
+  .topbar,.toc,.toc-mobile{display:none!important}
+  body{background:#fff}
+  .layout{grid-template-columns:1fr;padding:0 6px}
+  .step{box-shadow:none;border:1px solid #ddd;break-inside:avoid;page-break-inside:avoid}
+  .hero{padding-top:6px}
+  a[href]::after{content:""}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="tb-logo">
+      <svg width="26" height="32" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#2ecc55" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <div><b>Bio<span>Futbol</span></b><div class="tb-sub">Manual del Club</div></div>
+    </div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-outline" id="btnWhatsapp"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+      <button type="button" class="btn btn-gold" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> Descargar / Imprimir PDF</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow"><i class="fa-solid fa-book"></i> Guía completa</span>
+  <h1>Manual de uso — Panel del Club</h1>
+  <p>Todo lo que necesitas para empezar a usar BioFutbol hoy mismo: desde el link de ingreso hasta cada módulo de tu panel, paso a paso y con pantallazos reales.</p>
+  <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Las capturas de este manual son de una cuenta de ejemplo (Unión Tenerife F.C). Tu panel se ve exactamente igual, pero con el nombre, el escudo y los colores de tu propio club.</div>
+</section>
+
+<details class="toc-mobile">
+  <summary>Índice del manual <i class="fa-solid fa-chevron-down"></i></summary>
+  <a href="#p1"><span class="n">1</span> Cómo entrar a tu panel</a>
+  <a href="#p2"><span class="n">2</span> Inicio</a>
+  <a href="#p3"><span class="n">3</span> Socios</a>
+  <a href="#p4"><span class="n">4</span> Profesores</a>
+  <a href="#p5"><span class="n">5</span> Entrenamientos</a>
+  <a href="#p6"><span class="n">6</span> Equipos</a>
+  <a href="#p7"><span class="n">7</span> Fixture y resultados</a>
+  <a href="#p8"><span class="n">8</span> Tabla de posiciones</a>
+  <a href="#p9"><span class="n">9</span> Goleadores</a>
+  <a href="#p10"><span class="n">10</span> Llave</a>
+  <a href="#p11"><span class="n">11</span> Torneos</a>
+  <a href="#p12"><span class="n">12</span> Imágenes para redes</a>
+  <a href="#p13"><span class="n">13</span> Patrocinadores</a>
+  <a href="#p14"><span class="n">14</span> Informes</a>
+  <a href="#p15"><span class="n">15</span> Mi club</a>
+  <a href="#p16"><span class="n">16</span> Ayuda</a>
+</details>
+
+<div class="layout">
+  <nav class="toc">
+    <div class="toc-title">Índice</div>
+    <a href="#p1"><span class="n">1</span> Cómo entrar</a>
+    <a href="#p2"><span class="n">2</span> Inicio</a>
+    <a href="#p3"><span class="n">3</span> Socios</a>
+    <a href="#p4"><span class="n">4</span> Profesores</a>
+    <a href="#p5"><span class="n">5</span> Entrenamientos</a>
+    <a href="#p6"><span class="n">6</span> Equipos</a>
+    <a href="#p7"><span class="n">7</span> Fixture</a>
+    <a href="#p8"><span class="n">8</span> Tabla</a>
+    <a href="#p9"><span class="n">9</span> Goleadores</a>
+    <a href="#p10"><span class="n">10</span> Llave</a>
+    <a href="#p11"><span class="n">11</span> Torneos</a>
+    <a href="#p12"><span class="n">12</span> Imágenes</a>
+    <a href="#p13"><span class="n">13</span> Patrocinadores</a>
+    <a href="#p14"><span class="n">14</span> Informes</a>
+    <a href="#p15"><span class="n">15</span> Mi club</a>
+    <a href="#p16"><span class="n">16</span> Ayuda</a>
+  </nav>
+
+  <main class="content">
+
+    <div class="step" id="p1">
+      <div class="step-head"><div class="step-num">1</div><h2>Cómo entrar a tu panel</h2></div>
+      <p>Cuando activamos tu cuenta te enviamos por WhatsApp el link de acceso (<b>club-login.html</b>) junto con tu correo y una clave inicial. Guarda ese link — es la puerta de entrada a todo tu club.</p>
+      <ul>
+        <li>Ingresa tu <b>correo</b> y tu <b>clave</b> y toca "Ingresar".</li>
+        <li>¿Olvidaste tu clave? Toca "¿Olvidaste tu contraseña?" y te llegará un correo para definir una nueva.</li>
+        <li>Puedes entrar desde el celular o el computador — funciona igual en los dos.</li>
+      </ul>
+      <div class="shot"><img src="../img/manual/club-login.png" alt="Pantalla de ingreso del panel del club en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p2">
+      <div class="step-head"><div class="step-num">2</div><h2>Inicio: tu club de un vistazo</h2></div>
+      <p>Apenas entras, ves lo más importante: cuántos socios tienes, partidos jugados y pendientes, pagos por cobrar, tu próximo entrenamiento y tu próximo partido — con acceso directo a cada módulo desde el mismo lugar.</p>
+      <div class="shot"><img src="../img/manual/inicio.png" alt="Pantalla de inicio del panel del club en BioFutbol"></div>
+      <div class="tip"><i class="fa-solid fa-lightbulb"></i> Los botones "Asistencia" y "Compartir" del inicio te llevan directo a activar la asistencia o a enviar el próximo partido por WhatsApp, sin tener que buscarlos.</div>
+    </div>
+
+    <div class="step" id="p3">
+      <div class="step-head"><div class="step-num">3</div><h2>Socios: tus deportistas al día</h2></div>
+      <p>Aquí registras cada socio o jugador: datos personales, categoría, salud, y el estado de su mensualidad. Toca cualquier socio de la lista para abrir su ficha completa, editar sus datos, ver su carnet digital o crearle su propio acceso.</p>
+      <ul>
+        <li><b>Verde</b>: al día con el pago · <b>Amarillo</b>: por vencer · <b>Rojo</b>: vencido.</li>
+        <li>Desde la ficha puedes marcar el pago, registrar peso y talla, y enviar recordatorios por WhatsApp.</li>
+      </ul>
+      <div class="shot"><img src="../img/manual/socios-lista.png" alt="Lista de socios en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p4">
+      <div class="step-head"><div class="step-num">4</div><h2>Profesores: un acceso para cada entrenador</h2></div>
+      <p>Registra a tus entrenadores y asígnale a cada uno las categorías que dirige. Puedes crearle un acceso propio para que entre a su panel, tome asistencia y vea solo a sus alumnos — sin ver nada administrativo del club.</p>
+      <div class="shot"><img src="../img/screenshots/profesores.png" alt="Módulo de profesores en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p5">
+      <div class="step-head"><div class="step-num">5</div><h2>Entrenamientos: sedes, horarios y asistencia en vivo</h2></div>
+      <p>Configura tus sedes y el horario semanal de cada categoría — eso es lo que ven los padres en su panel. El día del entrenamiento, activa la asistencia: todos quedan presentes por defecto y solo marcas al que falta.</p>
+      <div class="shot"><img src="../img/manual/entrenamientos-asistencia.png" alt="Módulo de entrenamientos y asistencia en vivo en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p6">
+      <div class="step-head"><div class="step-num">6</div><h2>Equipos: organiza tus categorías</h2></div>
+      <p>Crea un equipo por cada categoría de tu club (Sub-8, Sub-10, Sub-12...) con su escudo. Los equipos son la base del Fixture, la Tabla de posiciones, los Goleadores y la Llave.</p>
+      <div class="shot"><img src="../img/manual/equipos-lista.png" alt="Lista de equipos en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p7">
+      <div class="step-head"><div class="step-num">7</div><h2>Fixture y resultados</h2></div>
+      <p>Programa cada partido: fecha, hora, cancha y rival. Cuando se juega, registra el resultado, los goleadores y las tarjetas — todo lo demás (tabla, goleadores, llave, disciplina de torneos) se actualiza solo.</p>
+      <div class="shot"><img src="../img/manual/fixture-lista.png" alt="Fixture y partidos en el panel del club de BioFutbol"></div>
+      <div class="tip"><i class="fa-solid fa-lightbulb"></i> Con un clic puedes compartir cualquier partido por WhatsApp con toda la información: fecha, hora, cancha y uniforme.</div>
+    </div>
+
+    <div class="step" id="p8">
+      <div class="step-head"><div class="step-num">8</div><h2>Tabla de posiciones</h2></div>
+      <p>Se calcula sola con cada resultado que registras en el Fixture — cero cálculos a mano. Tus socios la ven también desde su panel.</p>
+      <div class="shot"><img src="../img/manual/tabla-posiciones.png" alt="Tabla de posiciones en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p9">
+      <div class="step-head"><div class="step-num">9</div><h2>Goleadores</h2></div>
+      <p>La tabla de goleadores se arma sola a partir de los goles que registras en cada partido del Fixture.</p>
+      <div class="shot"><img src="../img/manual/goleadores.png" alt="Tabla de goleadores en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p10">
+      <div class="step-head"><div class="step-num">10</div><h2>Llave: eliminación directa</h2></div>
+      <p>Elige cuántos equipos entran (potencia de 2), acomódalos en las posiciones y BioFutbol arma el cuadro completo. Ve guardando los resultados de cada cruce y el ganador avanza solo a la siguiente ronda.</p>
+      <div class="shot"><img src="../img/manual/llave.png" alt="Módulo de llave de eliminación directa en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p11">
+      <div class="step-head"><div class="step-num">11</div><h2>Torneos: inscripciones y control disciplinario</h2></div>
+      <p>Registra cada torneo o campeonato en el que participa tu escuela. Controla qué jugadores ya pagaron su inscripción, y revisa las tarjetas acumuladas por torneo — BioFutbol te avisa solo cuando un jugador queda sancionado.</p>
+      <div class="shot-row">
+        <div class="shot"><img src="../img/manual/torneos-lista.png" alt="Lista de torneos en el panel del club de BioFutbol"></div>
+        <div class="shot"><img src="../img/screenshots/torneos-disciplina.png" alt="Control disciplinario de un torneo en BioFutbol"></div>
+      </div>
+    </div>
+
+    <div class="step" id="p12">
+      <div class="step-head"><div class="step-num">12</div><h2>Imágenes para redes sociales</h2></div>
+      <p>Genera en un clic las artes de tus partidos, la tabla de posiciones, goleadores, cumpleaños y más — con el escudo y los colores de tu club, listas para publicar en WhatsApp e Instagram.</p>
+      <div class="shot"><img src="../img/manual/imagenes-plantillas.png" alt="Plantillas de imágenes para redes sociales en BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p13">
+      <div class="step-head"><div class="step-num">13</div><h2>Patrocinadores</h2></div>
+      <p>Registra los negocios que patrocinan tu club. Sus logos aparecen automáticamente en el carnet digital de los socios y en las imágenes de partidos — visibilidad real para quienes te apoyan.</p>
+      <div class="shot"><img src="../img/manual/patrocinadores-lista.png" alt="Módulo de patrocinadores en el panel del club de BioFutbol"></div>
+    </div>
+
+    <div class="step" id="p14">
+      <div class="step-head"><div class="step-num">14</div><h2>Informes: jugadores, cartera, excusas y nutrición</h2></div>
+      <p>Desde Informes generas en PDF: el listado completo de jugadores, el estado de cartera del club, constancias deportivas para el colegio o el trabajo, y el reporte de estado nutricional de todo tu club.</p>
+      <div class="shot-row">
+        <div class="shot"><img src="../img/screenshots/nutricion-dashboard.png" alt="Reporte de estado nutricional del club en BioFutbol"></div>
+        <div class="shot"><img src="../img/screenshots/excusa-pdf.png" alt="Constancia deportiva en PDF generada con BioFutbol"></div>
+      </div>
+    </div>
+
+    <div class="step" id="p15">
+      <div class="step-head"><div class="step-num">15</div><h2>Mi club: personaliza tu app</h2></div>
+      <p>Sube el escudo de tu club, define tus colores, tu mensualidad y tus datos de pago (Nequi, Wompi). Todo esto se refleja al instante en el carnet, las imágenes y el panel de tus socios.</p>
+      <div class="shot"><img src="../img/manual/miclub-personalizacion.png" alt="Personalización del club en BioFutbol"></div>
+    </div>
+
+    <div class="step closing" id="p16">
+      <h2><i class="fa-solid fa-headset"></i> ¿Tienes dudas?</h2>
+      <p>Escríbenos por WhatsApp y te ayudamos a sacarle el máximo provecho a tu app.</p>
+      <a class="btn" href="https://wa.me/573505457420?text=Hola%2C%20tengo%20una%20duda%20sobre%20el%20manual%20de%20BioFutbol" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Escribir por WhatsApp</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+document.getElementById("btnWhatsapp").addEventListener("click", function () {
+  const mensaje = "Manual de uso del panel del club en BioFutbol, paso a paso con pantallazos:\n" + location.href;
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
+});
+</script>
+</body>
+</html>
