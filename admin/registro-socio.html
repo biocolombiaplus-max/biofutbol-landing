@@ -54,7 +54,7 @@
             <option value="CC">Cédula de ciudadanía (CC)</option>
           </select>
         </div>
-        <div class="field"><label>Número de documento</label><input type="text" id="documento" inputmode="numeric"></div>
+        <div class="field"><label>Número de documento *</label><input type="text" id="documento" inputmode="numeric" required></div>
       </div>
       <div class="field-row">
         <div class="field"><label>Fecha de nacimiento *</label><input type="date" id="fechaNacimiento" required></div>
@@ -157,6 +157,14 @@
     <h2 style="font-size:1.15rem;margin-bottom:10px">¡Registro recibido!</h2>
     <p style="color:var(--gray);font-size:.9rem">Ya quedaron guardados los datos. El club se pondrá en contacto si necesita algo más.</p>
   </div>
+
+  <div class="auth-card" id="yaRegistradoCard" style="display:none;text-align:center">
+    <div style="font-size:2.6rem;color:var(--gold);margin-bottom:14px"><i class="fa-solid fa-user-check"></i></div>
+    <h2 style="font-size:1.15rem;margin-bottom:10px">Este deportista ya está registrado</h2>
+    <p style="color:var(--gray);font-size:.9rem;margin-bottom:18px">Ya tenemos sus datos guardados. Ingresa a su panel con el usuario (correo) y la clave que te dimos — ahí puedes ver y actualizar su información cuando quieras.</p>
+    <a href="socio-login.html" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</a>
+    <p style="color:var(--gray-d);font-size:.8rem;margin-top:14px">¿No recuerdas tu clave? Desde esa misma pantalla puedes recuperarla con "¿Olvidaste tu contraseña?".</p>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
@@ -221,12 +229,21 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
   const estatura = parseFloat(document.getElementById("estatura").value) || null;
   const fechaNacimiento = document.getElementById("fechaNacimiento").value;
 
+  const documento = document.getElementById("documento").value.trim();
+  if (!documento) {
+    errorBox.textContent = "Ingresa el número de documento del deportista.";
+    errorBox.style.display = "block";
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar registro';
+    return;
+  }
+
   const data = {
     fotoUrl: fotoUrl,
     creado: firebase.firestore.FieldValue.serverTimestamp(),
     nombre: document.getElementById("nombre").value.trim(),
     tipoDocumento: document.getElementById("tipoDocumento").value,
-    documento: document.getElementById("documento").value.trim(),
+    documento: documento,
     fechaNacimiento: fechaNacimiento,
     ciudad: document.getElementById("ciudad").value.trim(),
     direccion: document.getElementById("direccion").value.trim(),
@@ -253,9 +270,20 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
     crecimiento: (peso && estatura) ? [{ fecha: new Date().toISOString().slice(0, 10), peso: peso, estatura: estatura }] : []
   };
 
-  db.collection("clientes").doc(clubId).collection("socios").add(data).then(function () {
-    document.getElementById("formCard").style.display = "none";
-    document.getElementById("successCard").style.display = "block";
+  const docIndice = db.collection("clientes").doc(clubId).collection("documentosSocios").doc(documento);
+
+  docIndice.get().then(function (indiceDoc) {
+    if (indiceDoc.exists) {
+      document.getElementById("formCard").style.display = "none";
+      document.getElementById("yaRegistradoCard").style.display = "block";
+      return null;
+    }
+    return db.collection("clientes").doc(clubId).collection("socios").add(data).then(function (ref) {
+      return docIndice.set({ socioId: ref.id, nombre: data.nombre }).catch(function () { /* el registro ya quedó guardado igual */ });
+    }).then(function () {
+      document.getElementById("formCard").style.display = "none";
+      document.getElementById("successCard").style.display = "block";
+    });
   }).catch(function (err) {
     errorBox.textContent = "No se pudo enviar el registro: " + err.message;
     errorBox.style.display = "block";

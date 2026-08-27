@@ -470,6 +470,14 @@
     </div>
 
     <div class="tab-panel" id="tab-profesores">
+      <div class="card" style="margin-bottom:18px">
+        <h3><i class="fa-solid fa-user-plus"></i> Invita a un profesor a registrarse</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envíale este link para que el profesor o entrenador complete sus propios datos desde el celular. Se guarda directo en tu equipo de profesores.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkProf"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkProf"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
+        </div>
+      </div>
       <div class="card">
         <h3><i class="fa-solid fa-whistle"></i> <span id="profFormTitulo">Agregar profesor / entrenador</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Cada profesor puede tener su propio acceso para tomar asistencia y ver solo a los alumnos de las categorías que le asignes.</p>
@@ -2549,6 +2557,27 @@ document.getElementById("btnEnviarLinkSocio").addEventListener("click", function
 
 document.getElementById("btnCopiarLinkSocio").addEventListener("click", function () {
   navigator.clipboard.writeText(mensajeRegistroSocio()).then(function () { mostrarExito("Mensaje copiado. Ya lo puedes pegar en WhatsApp."); });
+});
+
+function linkRegistroProfesor() {
+  // Misma precaución que linkRegistroSocio(): en la demo no apuntamos al
+  // formulario real de autorregistro de profesores.
+  return location.origin + location.pathname.replace(/admin\/demo\.html$/, "") + "index.html";
+}
+
+function mensajeRegistroProfesor() {
+  return "¡Hola! Te escribimos de " + (clubActual.clubNombre || "nuestro club") + ". Queremos invitarte a registrarte como profesor/entrenador en nuestra app: completa aquí tus datos (te toma menos de 1 minuto):\n" +
+    linkRegistroProfesor() + "\n\n¡Gracias por hacer parte de nuestro cuerpo técnico!";
+}
+
+document.getElementById("btnEnviarLinkProf").addEventListener("click", function () {
+  const tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo, ej: 573001234567)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRegistroProfesor()), "_blank");
+});
+
+document.getElementById("btnCopiarLinkProf").addEventListener("click", function () {
+  navigator.clipboard.writeText(mensajeRegistroProfesor()).then(function () { mostrarExito("Mensaje copiado. Ya lo puedes pegar en WhatsApp."); });
 });
 
 document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);

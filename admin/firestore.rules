@@ -66,6 +66,16 @@ service cloud.firestore {
       allow delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
+    // Índice liviano documento -> socio, solo para que registro-socio.html
+    // (público, sin sesión) pueda revisar con un get() puntual si un
+    // deportista ya está registrado, sin poder listar/leer el roster
+    // completo del club.
+    match /clientes/{clienteId}/documentosSocios/{documento} {
+      allow get: if true;
+      allow create: if true;
+      allow update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
+    }
+
     // Módulos activados por club (equipos, fixture, tabla, etc.) y sus
     // datos: lectura pública (fixture/tabla se muestran sin login a
     // hinchas y familias), escritura solo del súper-admin o el club dueño.
@@ -111,7 +121,10 @@ service cloud.firestore {
     }
     match /clientes/{clienteId}/profesores/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      // Un profesor puede autorregistrarse desde registro-profesor.html sin
+      // necesitar sesión — igual que el autorregistro de socios.
+      allow create: if true;
+      allow update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
     match /clientes/{clienteId}/torneos/{docId} {
       allow read: if true;
