@@ -37,7 +37,7 @@
     <h2>Clientes</h2>
     <div class="toolbar">
       <input type="text" class="search-input" id="searchInput" placeholder="Buscar por club o representante...">
-      <button class="btn btn-ghost btn-sm" id="copyLinkBtn"><i class="fa-solid fa-link"></i> Copiar link de registro</button>
+      <button class="btn btn-ghost btn-sm" id="copyLinkBtn"><i class="fa-solid fa-link"></i> Copiar mensaje de invitación</button>
       <a href="cliente.html?new=1" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Nuevo cliente</a>
     </div>
   </div>
@@ -158,9 +158,14 @@ document.getElementById("searchInput").addEventListener("input", function (e) {
   }));
 });
 
-document.getElementById("copyLinkBtn").addEventListener("click", function () {
+function mensajeInvitacionCliente() {
   const url = location.origin + location.pathname.replace(/index\.html$/, "") + "registro.html";
-  navigator.clipboard.writeText(url).then(function () {
+  return "¡Hola! Te escribimos de BioFutbol, la plataforma para modernizar la administración de tu escuela o club de fútbol: socios, pagos, asistencia, equipos, torneos y mucho más, todo desde el celular. Regístrate aquí, te toma solo unos minutos:\n" +
+    url + "\n\nCualquier duda, con gusto te ayudamos.";
+}
+
+document.getElementById("copyLinkBtn").addEventListener("click", function () {
+  navigator.clipboard.writeText(mensajeInvitacionCliente()).then(function () {
     const btn = document.getElementById("copyLinkBtn");
     const original = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
