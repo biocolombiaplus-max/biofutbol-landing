@@ -71,10 +71,10 @@
 
         <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
-            <input type="checkbox" id="planNegociadoActivo" style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+            <input type="checkbox" id="planNegociadoActivo" checked style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
             <span style="font-weight:700;font-size:.86rem">Este club tiene un plan negociado (precio y mínimo pautado por deportista)</span>
           </label>
-          <div id="planNegociadoBox" style="display:none">
+          <div id="planNegociadoBox" style="display:block">
             <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Define el valor por deportista y el mínimo de deportistas pautado con este club. Nunca se sugiere cobrar menos de ese mínimo — y si ya tiene registrados más deportistas de los pautados, el excedente se calcula solo, al mismo valor pautado.</p>
             <div class="field-row">
               <div class="field"><label>Deportistas pautados (mínimo)</label><input type="number" id="deportistasPautados" min="1" placeholder="Ej: 60"></div>
@@ -369,7 +369,7 @@ function cargarCliente() {
     document.getElementById("repEmail").value = clienteActual.repEmail || "";
     document.getElementById("repTelefono").value = clienteActual.repTelefono || "";
     document.getElementById("numSocios").value = clienteActual.numSocios || "";
-    document.getElementById("planNegociadoActivo").checked = !!clienteActual.deportistasPautados;
+    document.getElementById("planNegociadoActivo").checked = clienteActual.planNegociadoActivo !== false;
     document.getElementById("deportistasPautados").value = clienteActual.deportistasPautados || "";
     document.getElementById("valorPorDeportista").value = clienteActual.valorPorDeportista || "";
     recalcularPlanNegociado();
@@ -657,6 +657,7 @@ function leerFormulario() {
     repTelefono: document.getElementById("repTelefono").value.trim(),
     plan: planEl ? planEl.value : null,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
+    planNegociadoActivo: document.getElementById("planNegociadoActivo").checked,
     deportistasPautados: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("deportistasPautados").value) || 0) : 0,
     valorPorDeportista: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("valorPorDeportista").value) || 0) : 0,
     usuarioApp: repEmail,
