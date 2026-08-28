@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
+<style>
+.group-row td{background:rgba(255,255,255,.03);color:var(--gray-d);font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:9px 16px;cursor:default}
+.group-row:hover td{background:rgba(255,255,255,.03)}
+</style>
 </head>
 <body>
 <div class="container">
@@ -42,6 +46,12 @@
     </div>
   </div>
 
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button type="button" class="btn btn-primary btn-sm" id="filtroTodos" data-filtro="todos"><i class="fa-solid fa-list"></i> Todos (<span id="cnTodos">0</span>)</button>
+    <button type="button" class="btn btn-ghost btn-sm" id="filtroClientes" data-filtro="clientes"><i class="fa-solid fa-circle-check"></i> Clientes pagando (<span id="cnClientes">0</span>)</button>
+    <button type="button" class="btn btn-ghost btn-sm" id="filtroProspectos" data-filtro="prospectos"><i class="fa-brands fa-whatsapp"></i> Prospectos sin pagar (<span id="cnProspectos">0</span>)</button>
+  </div>
+
   <div class="table-wrap">
     <table>
       <thead>
@@ -53,10 +63,11 @@
           <th>Registrados</th>
           <th>Estado</th>
           <th>Próximo pago</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="7" class="empty">Cargando clientes...</td></tr>
+        <tr><td colspan="8" class="empty">Cargando clientes...</td></tr>
       </tbody>
     </table>
   </div>
@@ -122,26 +133,98 @@ function pintarStats() {
   document.getElementById("statSociosTotal").textContent = sociosTotal;
 }
 
+// Ya es cliente (pagando) cuando tiene al menos un pago registrado —
+// sin importar si el estado quedó como "activo" a mano. Todo lo demás
+// (registro pendiente por revisar, o activado pero nunca pagó) es un
+// prospecto: llegó, pero todavía no se decide.
+function esClientePagando(c) {
+  return Array.isArray(c.pagos) && c.pagos.length > 0;
+}
+
+let filtroActivo = "todos";
+
+function filaCliente(c) {
+  const ep = estadoPago(c);
+  const registrados = SOCIOS_COUNT[c.id];
+  const plan = PLANES[c.plan] ? PLANES[c.plan].label : (c.plan || "—");
+  const esCliente = esClientePagando(c);
+  const accion = esCliente ? "—" :
+    '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
+  return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
+    '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong></td>' +
+    '<td>' + esc(c.repNombre || "—") + '</td>' +
+    '<td>' + esc(plan) + '</td>' +
+    '<td>' + (c.numSocios || "—") + '</td>' +
+    '<td>' + (registrados === undefined ? '<span class="spinner"></span>' : (registrados === null ? "—" : registrados)) + '</td>' +
+    '<td><span class="pill ' + ep.clase + '">' + ep.texto + '</span></td>' +
+    '<td>' + formatFecha(c.proximoPago) + '</td>' +
+    '<td>' + accion + '</td>' +
+    '</tr>';
+}
+
 function pintarTabla(lista) {
   const tbody = document.getElementById("tbody");
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Todavía no hay clientes registrados. Usá "Nuevo cliente" o compartí el link de registro.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">Todavía no hay clientes registrados. Usá "Nuevo cliente" o compartí el link de registro.</td></tr>';
     return;
   }
-  tbody.innerHTML = lista.map(function (c) {
-    const ep = estadoPago(c);
-    const registrados = SOCIOS_COUNT[c.id];
-    const plan = PLANES[c.plan] ? PLANES[c.plan].label : (c.plan || "—");
-    return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
-      '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong></td>' +
-      '<td>' + esc(c.repNombre || "—") + '</td>' +
-      '<td>' + esc(plan) + '</td>' +
-      '<td>' + (c.numSocios || "—") + '</td>' +
-      '<td>' + (registrados === undefined ? '<span class="spinner"></span>' : (registrados === null ? "—" : registrados)) + '</td>' +
-      '<td><span class="pill ' + ep.clase + '">' + ep.texto + '</span></td>' +
-      '<td>' + formatFecha(c.proximoPago) + '</td>' +
-      '</tr>';
-  }).join("");
+
+  const clientes = lista.filter(esClientePagando);
+  const prospectos = lista.filter(function (c) { return !esClientePagando(c); });
+  document.getElementById("cnTodos").textContent = lista.length;
+  document.getElementById("cnClientes").textContent = clientes.length;
+  document.getElementById("cnProspectos").textContent = prospectos.length;
+
+  if (filtroActivo === "clientes") {
+    tbody.innerHTML = clientes.length ? clientes.map(filaCliente).join("") :
+      '<tr><td colspan="8" class="empty">Todavía no tienes clientes pagando.</td></tr>';
+    return;
+  }
+  if (filtroActivo === "prospectos") {
+    tbody.innerHTML = prospectos.length ? prospectos.map(filaCliente).join("") :
+      '<tr><td colspan="8" class="empty">No hay prospectos pendientes de pago.</td></tr>';
+    return;
+  }
+
+  // "Todos": primero los que ya pagan, luego los prospectos, separados
+  // por un renglón divisor para que se distingan de un vistazo.
+  let html = "";
+  if (clientes.length) {
+    html += '<tr class="group-row"><td colspan="8"><i class="fa-solid fa-circle-check"></i> CLIENTES PAGANDO (' + clientes.length + ')</td></tr>';
+    html += clientes.map(filaCliente).join("");
+  }
+  if (prospectos.length) {
+    html += '<tr class="group-row"><td colspan="8"><i class="fa-brands fa-whatsapp"></i> PROSPECTOS SIN PAGAR (' + prospectos.length + ')</td></tr>';
+    html += prospectos.map(filaCliente).join("");
+  }
+  tbody.innerHTML = html;
+}
+
+["filtroTodos", "filtroClientes", "filtroProspectos"].forEach(function (id) {
+  document.getElementById(id).addEventListener("click", function () {
+    filtroActivo = this.dataset.filtro;
+    ["filtroTodos", "filtroClientes", "filtroProspectos"].forEach(function (otroId) {
+      const btn = document.getElementById(otroId);
+      btn.classList.toggle("btn-primary", otroId === id);
+      btn.classList.toggle("btn-ghost", otroId !== id);
+    });
+    pintarTabla(TODOS);
+  });
+});
+
+function animarProspecto(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  let tel = (c.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const nombreClub = c.clubNombre || "tu club";
+  const mensaje = "¡Hola! Vimos que " + nombreClub + " ya quedó registrado en BioFutbol, pero todavía no hemos recibido tu pago para activar la app.\n\n" +
+    "Anímate a modernizar la administración de tu club o escuela: socios, pagos, asistencia, equipos, torneos y mucho más, todo desde el celular — y el manejo es muy sencillo.\n\n" +
+    "Cuéntanos si tienes dudas, con gusto te ayudamos a dar el siguiente paso y programamos la capacitación virtual para tu equipo.\n\n" +
+    "Quedamos atentos por este mismo chat.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Mensaje de ánimo a pagar enviado por WhatsApp", id, nombreClub, tel);
 }
 
 function esc(s) {
