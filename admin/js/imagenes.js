@@ -172,43 +172,93 @@ async function imgEquipoBadge(ctx, cx, cy, r, logoUrl, letra, colorHex) {
   }
 }
 
+// d = { club, propio, propioLogoUrl, rival, rivalLogoUrl, fecha, hora, lugar, formato, fondoUrl }
 async function generarImagenPartido(canvas, d) {
+  const fmt = IMG_FORMATOS[d.formato] || IMG_FORMATOS.story;
+  const W = fmt.w, H = fmt.h;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
-  canvas.width = IMG_W; canvas.height = IMG_H;
-  imgFondoBase(ctx, d.club);
+
+  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+
+  const barraH = H * 0.11;
+  const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
+  const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
+  const cGold = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.textAlign = "center";
 
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
-  imgEscudo(ctx, logo, IMG_W / 2, 210, 90);
+  const escudoR = W * 0.055;
+  const escudoY = H * 0.08;
+  imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 30px Poppins, sans-serif";
-  ctx.fillText("PRÓXIMO PARTIDO", IMG_W / 2, 400);
+  // Etiqueta "PRÓXIMO PARTIDO" en pastilla, más vistosa que texto plano.
+  const labelY = escudoY + escudoR + H * 0.055;
+  const labelTxt = "PRÓXIMO PARTIDO";
+  ctx.font = "800 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  const labelPadX = W * 0.045, labelH = H * 0.034;
+  const labelW = ctx.measureText(labelTxt).width + labelPadX * 2;
+  imgRoundRect(ctx, W / 2 - labelW / 2, labelY - labelH * 0.68, labelW, labelH, labelH / 2);
+  ctx.fillStyle = imgRgba(cGold, .16);
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = imgRgba(cGold, .5);
+  ctx.stroke();
+  ctx.fillStyle = cGold;
+  ctx.fillText(labelTxt, W / 2, labelY + labelH * 0.1);
 
-  const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
-  await imgEquipoBadge(ctx, IMG_W / 2 - 240, 620, 100, d.propioLogoUrl, d.propio, (d.club && d.club.colorPrimario) || "#18A83A");
-  await imgEquipoBadge(ctx, IMG_W / 2 + 240, 620, 100, d.rivalLogoUrl, d.rival, c2);
+  // Escudos de los dos equipos, bien grandes, con "VS" en una burbuja
+  // entre ambos para que se vea como una tarjeta de vs. profesional.
+  const badgeR = W * 0.15;
+  const badgeCy = H * 0.33;
+  const badgeOffsetX = W * 0.25;
+  await imgEquipoBadge(ctx, W / 2 - badgeOffsetX, badgeCy, badgeR, d.propioLogoUrl, d.propio, c1);
+  await imgEquipoBadge(ctx, W / 2 + badgeOffsetX, badgeCy, badgeR, d.rivalLogoUrl, d.rival, c2);
+
+  const vsR = W * 0.052;
+  ctx.beginPath(); ctx.arc(W / 2, badgeCy, vsR, 0, Math.PI * 2);
+  ctx.fillStyle = "#05070a"; ctx.fill();
+  ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,.4)"; ctx.stroke();
+  ctx.fillStyle = "#fff";
+  ctx.font = "900 " + Math.round(vsR * 0.9) + "px Poppins, sans-serif";
+  ctx.textBaseline = "middle";
+  ctx.fillText("VS", W / 2, badgeCy + vsR * 0.05);
+  ctx.textBaseline = "alphabetic";
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 46px Poppins, sans-serif";
-  imgWrapText(ctx, (d.propio || "Nosotros").toUpperCase(), IMG_W / 2 - 240, 780, 320, 50, 2);
+  ctx.font = "900 " + Math.round(W * 0.044) + "px Poppins, sans-serif";
+  imgWrapText(ctx, (d.propio || "Nosotros").toUpperCase(), W / 2 - badgeOffsetX, badgeCy + badgeR + H * 0.05, W * 0.42, W * 0.048, 2);
+  imgWrapText(ctx, (d.rival || "Rival").toUpperCase(), W / 2 + badgeOffsetX, badgeCy + badgeR + H * 0.05, W * 0.42, W * 0.048, 2);
 
-  ctx.font = "800 44px Poppins, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,.55)";
-  ctx.fillText("VS", IMG_W / 2, 630);
+  // Tarjeta con fecha, hora y lugar, con el mismo look premium que las
+  // demás plantillas (torneo, entrenamiento).
+  const cardW = W * 0.82, cardH = H * 0.2, cardY = H * 0.6, cardX = (W - cardW) / 2;
+  imgRoundRect(ctx, cardX, cardY, cardW, cardH, 26);
+  ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.stroke();
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "900 46px Poppins, sans-serif";
-  imgWrapText(ctx, (d.rival || "Rival").toUpperCase(), IMG_W / 2 + 240, 780, 320, 50, 2);
+  if (d.fecha) {
+    imgFitFont(ctx, d.fecha, cardW * 0.88, "700", cardH * 0.2, cardH * 0.1);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(d.fecha, W / 2, cardY + cardH * 0.32);
+  }
+  if (d.hora) {
+    ctx.font = "800 " + Math.round(cardH * 0.34) + "px Poppins, sans-serif";
+    ctx.fillStyle = cGold;
+    ctx.fillText(d.hora, W / 2, cardY + cardH * 0.68);
+  }
+  if (d.lugar) {
+    ctx.font = "600 " + Math.round(cardH * 0.15) + "px Poppins, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.78)";
+    imgWrapText(ctx, d.lugar, W / 2, cardY + cardH * 0.92, cardW * 0.9, cardH * 0.16, 1);
+  }
 
-  const infoY = 980;
-  ctx.font = "700 34px Poppins, sans-serif";
-  ctx.fillStyle = "#fff";
-  if (d.fecha) ctx.fillText(d.fecha, IMG_W / 2, infoY);
-  if (d.hora) { ctx.font = "800 52px Poppins, sans-serif"; ctx.fillText(d.hora, IMG_W / 2, infoY + 80); }
-  if (d.lugar) { ctx.font = "700 32px Poppins, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.fillText(d.lugar, IMG_W / 2, infoY + 140); }
+  ctx.font = "600 " + Math.round(W * 0.028) + "px Poppins, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,.8)";
+  ctx.fillText("¡No te lo pierdas! 💪⚽", W / 2, cardY + cardH + H * 0.055);
 
-  imgBarraInferior(ctx, d.club);
+  imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }
 
 async function generarImagenResultado(canvas, d) {

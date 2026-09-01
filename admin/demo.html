@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Demo — Panel del club | BioFutbol</title>
 <meta name="robots" content="noindex, nofollow">
 <meta property="og:title" content="BioFutbol — Demo del panel">
@@ -2666,7 +2666,7 @@ document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
     tplActual = btn.dataset.tpl;
     document.getElementById("form-" + tplActual).style.display = "block";
     document.getElementById("imgActions").style.display = "none";
-    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos" || tplActual === "torneo";
+    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos" || tplActual === "torneo" || tplActual === "partido";
     document.getElementById("formatoFondoBlock").style.display = necesitaFormatoFondo ? "block" : "none";
   });
 });
@@ -2907,7 +2907,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       rival: document.getElementById("pImgRival").value.trim(),
       fecha: formatFechaBonita(document.getElementById("pImgFecha").value),
       hora: formatoHora12(document.getElementById("pImgHora").value),
-      lugar: document.getElementById("pImgLugar").value.trim()
+      lugar: document.getElementById("pImgLugar").value.trim(),
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival = EQUIPOS.find(function (x) { return x.nombre === d.rival; });

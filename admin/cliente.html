@@ -2,12 +2,22 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Cliente | Panel BioFutbol</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
+<style>
+.pago-row{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.pago-row-info{flex:1;min-width:0}
+.pago-row-valor{font-weight:800;color:var(--white);font-size:.86rem}
+.pago-row-fecha{color:var(--gray-d);font-size:.72rem;margin-top:2px}
+.pago-row-btn{flex:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--card-b2);background:var(--card);color:var(--gray);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;font-size:.8rem}
+.pago-row-btn:hover{border-color:var(--green-l);color:var(--green-l)}
+.pago-row-del:hover{border-color:var(--red);color:var(--red)}
+.pago-guardado-msg{display:none;align-items:center;gap:7px;background:rgba(24,168,58,.1);border:1px solid rgba(24,168,58,.35);color:var(--green-l);font-size:.76rem;font-weight:700;padding:8px 12px;border-radius:9px;margin-top:8px}
+</style>
 </head>
 <body>
 <div class="container">
@@ -226,9 +236,10 @@
         </div>
         <div class="field"><label>Próximo pago</label><input type="date" id="proximoPago"></div>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnRegistrarPago"><i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)</button>
+        <div class="pago-guardado-msg" id="pagoGuardadoMsg"><i class="fa-solid fa-circle-check"></i> <span id="pagoGuardadoTexto">Pago registrado.</span></div>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboWhatsapp" style="margin-top:8px" disabled><i class="fa-brands fa-whatsapp"></i> Enviar recibo por WhatsApp</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnReciboCorreo" style="margin-top:8px" disabled><i class="fa-solid fa-envelope"></i> Enviar recibo por correo</button>
-        <div id="historialPagos" style="margin-top:14px;font-size:.78rem;color:var(--gray)"></div>
+        <div id="historialPagos" style="margin-top:14px"></div>
       </div>
 
       <div class="card">
@@ -659,18 +670,52 @@ document.getElementById("bannerInput").addEventListener("change", function (e) {
 function pintarHistorialPagos() {
   const box = document.getElementById("historialPagos");
   const pagos = clienteActual.pagos || [];
-  if (!pagos.length) { box.textContent = "Sin pagos registrados todavía."; return; }
-  box.innerHTML = "<strong style='color:var(--white)'>Historial:</strong><br>" +
-    pagos.slice().reverse().slice(0, 6).map(function (p) {
-      return formatFecha(p.fecha) + " — " + formatCOP(p.valor || 0);
-    }).join("<br>");
+  if (!pagos.length) {
+    box.innerHTML = '<p style="font-size:.78rem;color:var(--gray-d)">Sin pagos registrados todavía.</p>';
+  } else {
+    const filas = pagos.map(function (p, i) { return { p: p, i: i }; }).reverse().slice(0, 8);
+    box.innerHTML = '<strong style="display:block;margin-bottom:8px;color:var(--white);font-size:.8rem">Historial de pagos</strong>' +
+      filas.map(function (f) {
+        return '<div class="pago-row">' +
+          '<div class="pago-row-info">' +
+            '<div class="pago-row-valor">' + formatCOP(f.p.valor || 0) + '</div>' +
+            '<div class="pago-row-fecha">' + formatFecha(f.p.fecha) + '</div>' +
+          '</div>' +
+          (f.p.reciboUrl ? '<a href="' + f.p.reciboUrl + '" target="_blank" rel="noopener" class="pago-row-btn" title="Ver recibo"><i class="fa-solid fa-file-pdf"></i></a>' : '') +
+          '<button type="button" class="pago-row-btn pago-row-del" title="Eliminar este pago" onclick="borrarPago(' + f.i + ')"><i class="fa-solid fa-trash"></i></button>' +
+        '</div>';
+      }).join("");
+  }
 
   const ultimo = pagos[pagos.length - 1];
-  if (ultimo && ultimo.reciboUrl) {
-    ultimoReciboUrl = ultimo.reciboUrl;
-    document.getElementById("btnReciboWhatsapp").disabled = false;
-    document.getElementById("btnReciboCorreo").disabled = false;
-  }
+  document.getElementById("btnReciboWhatsapp").disabled = !(ultimo && ultimo.reciboUrl);
+  document.getElementById("btnReciboCorreo").disabled = !(ultimo && ultimo.reciboUrl);
+  if (ultimo && ultimo.reciboUrl) ultimoReciboUrl = ultimo.reciboUrl;
+}
+
+// Quita un pago puntual del historial (ej: uno duplicado por error). No
+// toca el estado ni el próximo pago del club — solo el registro histórico.
+function borrarPago(index) {
+  if (!clienteActual || !Array.isArray(clienteActual.pagos)) return;
+  const pago = clienteActual.pagos[index];
+  if (!pago) return;
+  if (!confirm("¿Eliminar este pago de " + formatCOP(pago.valor || 0) + " del " + formatFecha(pago.fecha) + "? No se puede deshacer.")) return;
+
+  const nuevaLista = clienteActual.pagos.slice();
+  nuevaLista.splice(index, 1);
+  db.collection("clientes").doc(clienteId).update({ pagos: nuevaLista }).then(function () {
+    clienteActual.pagos = nuevaLista;
+    pintarHistorialPagos();
+    registrarAuditoria("Pago eliminado del historial", clienteId, clienteActual.clubNombre, formatCOP(pago.valor || 0));
+    mostrarExito("Pago eliminado.");
+  }).catch(function (err) { mostrarError("No se pudo eliminar el pago: " + err.message); });
+}
+
+function mostrarPagoGuardado(texto) {
+  document.getElementById("pagoGuardadoTexto").textContent = texto;
+  const msg = document.getElementById("pagoGuardadoMsg");
+  msg.style.display = "flex";
+  setTimeout(function () { msg.style.display = "none"; }, 4000);
 }
 
 function leerFormulario() {
@@ -969,15 +1014,18 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
   }
 });
 
+let registrandoPago = false;
 document.getElementById("btnRegistrarPago").addEventListener("click", function () {
-  if (!clienteActual) return;
+  if (!clienteActual || registrandoPago) return;
   const valor = Number(document.getElementById("valorPago").value) || 0;
+  if (!valor) { mostrarError("Ingresa el valor recibido antes de registrar el pago."); return; }
   const fechaStr = document.getElementById("fechaPago").value || new Date().toISOString().slice(0, 10);
   const fechaPago = new Date(fechaStr + "T12:00:00");
   const proximo = new Date(fechaPago); proximo.setDate(proximo.getDate() + 30);
 
+  registrandoPago = true;
   const btn = this;
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Registrando...';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando recibo...';
 
   const pautadosActivos = document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("deportistasPautados").value) || 0) : 0;
   const numSociosRecibo = pautadosActivos ? Math.max(pautadosActivos, conteoRealSocios) : (clienteActual.numSocios || 0);
@@ -994,6 +1042,7 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
   });
 
   subirReciboPDF(pdf, "recibo-" + clienteId + "-" + Date.now() + ".pdf").then(function (url) {
+    btn.innerHTML = '<span class="spinner"></span> Guardando...';
     const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
     return db.collection("clientes").doc(clienteId).update({
       proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
@@ -1003,10 +1052,13 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
   }).then(function () {
     registrarAuditoria("Pago registrado", clienteId, clienteActual.clubNombre, formatCOP(valor));
     mostrarExito("Pago registrado y recibo generado.");
+    mostrarPagoGuardado("Pago de " + formatCOP(valor) + " guardado y recibo generado.");
+    registrandoPago = false;
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
     cargarCliente();
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
+    registrandoPago = false;
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
   });
 });
