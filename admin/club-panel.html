@@ -2410,6 +2410,7 @@ function pintarTabla() {
 
 // ── CRM: socios, estado de pago, comunicaciones ──
 function estadoPagoSocioCrm(socio) {
+  if (socio.becado) return { texto: "Becado", clase: "ok", vencido: false };
   if (!socio.pagoProximo) return { texto: "Sin definir", clase: "muted", vencido: false };
   const dias = diasHasta(socio.pagoProximo);
   if (dias === null) return { texto: "Sin definir", clase: "muted", vencido: false };
@@ -2482,6 +2483,13 @@ function pintarFicha() {
   pill.textContent = ep.texto;
   pill.className = "pill " + ep.clase;
 
+  const esBecado = !!socioSeleccionado.becado;
+  ["btnFichaWhatsapp", "btnFichaCorreo", "btnFichaPagado"].forEach(function (id) {
+    const el = document.getElementById(id);
+    el.disabled = esBecado;
+    el.style.opacity = esBecado ? ".5" : "1";
+  });
+
   const comms = (socioSeleccionado.comunicaciones || []).slice().reverse();
   const cont = document.getElementById("fichaComunicaciones");
   if (!comms.length) {
@@ -2504,7 +2512,7 @@ function registrarComunicacion(socioId, tipo, resumen) {
 }
 
 function mensajeRecordatorioWhatsapp(socio) {
-  const valor = socio.pagoValor || clubActual.pagoMensualidad || 0;
+  const valor = valorCobroSocio(socio, clubActual);
   let msg = "¡Hola! Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " +
     (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
   if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
@@ -2514,7 +2522,7 @@ function mensajeRecordatorioWhatsapp(socio) {
 }
 
 document.getElementById("btnFichaWhatsapp").addEventListener("click", function () {
-  if (!socioSeleccionado) return;
+  if (!socioSeleccionado || socioSeleccionado.becado) return;
   let tel = (socioSeleccionado.telefono || "").replace(/[^0-9]/g, "");
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
@@ -2525,7 +2533,7 @@ document.getElementById("btnFichaWhatsapp").addEventListener("click", function (
 });
 
 document.getElementById("btnFichaCorreo").addEventListener("click", function () {
-  if (!socioSeleccionado) return;
+  if (!socioSeleccionado || socioSeleccionado.becado) return;
   if (!socioSeleccionado.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
   enviarRecordatorioCorreo(socioSeleccionado).then(function () {
     mostrarExito("Correo enviado a " + socioSeleccionado.correo);
@@ -2535,13 +2543,13 @@ document.getElementById("btnFichaCorreo").addEventListener("click", function () 
 });
 
 document.getElementById("btnFichaPagado").addEventListener("click", function () {
-  if (!socioSeleccionado) return;
+  if (!socioSeleccionado || socioSeleccionado.becado) return;
   const hoy = new Date(); const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
   const proximoStr = proximo.toISOString().slice(0, 10);
   db.collection("clientes").doc(clubActual.id).collection("socios").doc(socioSeleccionado.id).update({
     pagoProximo: proximoStr,
     pagoUltimo: hoy.toISOString().slice(0, 10),
-    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: socioSeleccionado.pagoValor || clubActual.pagoMensualidad || 0 })
+    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: valorCobroSocio(socioSeleccionado, clubActual) })
   }).then(function () { mostrarExito("Pago registrado."); });
 });
 
@@ -2605,7 +2613,7 @@ document.getElementById("btnFiltroPend").addEventListener("click", function () {
 
 function enviarRecordatorioCorreo(socio) {
   if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
-  const valor = socio.pagoValor || clubActual.pagoMensualidad || 0;
+  const valor = valorCobroSocio(socio, clubActual);
   let mensaje = "Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " + (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
   if (clubActual.pagoNequiNumero) mensaje += " Puedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -3400,13 +3408,14 @@ document.getElementById("btnReporteCartera").addEventListener("click", function 
   const desde = document.getElementById("repCarDesde").value;
   const hasta = document.getElementById("repCarHasta").value;
 
-  let lista = SOCIOS.filter(function (s) { return !!s.pagoProximo; });
+  const totalBecados = SOCIOS.filter(function (s) { return s.becado; }).length;
+  let lista = SOCIOS.filter(function (s) { return !s.becado && !!s.pagoProximo; });
   if (desde) lista = lista.filter(function (s) { return s.pagoProximo >= desde; });
   if (hasta) lista = lista.filter(function (s) { return s.pagoProximo <= hasta; });
 
-  const totalEsperado = lista.reduce(function (acc, s) { return acc + (s.pagoValor || clubActual.pagoMensualidad || 0); }, 0);
+  const totalEsperado = lista.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
   const morosos = lista.filter(function (s) { return estadoPagoSocioCrm(s).vencido; });
-  const totalPendiente = morosos.reduce(function (acc, s) { return acc + (s.pagoValor || clubActual.pagoMensualidad || 0); }, 0);
+  const totalPendiente = morosos.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
 
   let filtrada = lista;
   if (estadoFiltro === "mora") filtrada = morosos;
@@ -3416,7 +3425,7 @@ document.getElementById("btnReporteCartera").addEventListener("click", function 
   const filas = filtrada.map(function (s) {
     return {
       nombre: s.nombre, categoria: s.categoria, telefono: s.telefono,
-      valor: s.pagoValor || clubActual.pagoMensualidad || 0,
+      valor: valorCobroSocio(s, clubActual),
       vence: s.pagoProximo, estadoTexto: estadoPagoSocioCrm(s).texto
     };
   });
@@ -3428,7 +3437,7 @@ document.getElementById("btnReporteCartera").addEventListener("click", function 
   const doc = generarReporteCarteraPDF({
     club: clubActual,
     filtroTexto: filtroPartes.join(" · "),
-    resumen: { totalEsperado: totalEsperado, totalMorosos: morosos.length, totalPendiente: totalPendiente },
+    resumen: { totalEsperado: totalEsperado, totalMorosos: morosos.length, totalPendiente: totalPendiente, totalBecados: totalBecados },
     filas: filas
   });
   doc.save("cartera-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");

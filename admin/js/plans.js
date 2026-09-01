@@ -45,6 +45,15 @@ function generarClaveApp() {
   return "BF-" + out;
 }
 
+// Valor real a cobrarle a un socio: $0 si está becado; si no, su propio
+// valor (el admin lo puede dejar distinto a la mensualidad estándar del
+// club, por ejemplo con un descuento por hermanos) o, si no tiene uno
+// propio, la mensualidad estándar del club.
+function valorCobroSocio(socio, club) {
+  if (socio && socio.becado) return 0;
+  return (socio && socio.pagoValor) || (club && club.pagoMensualidad) || 0;
+}
+
 // Devuelve { texto, clase } para pintar el estado de pago de un cliente
 function estadoPago(cliente) {
   if (cliente.estado === "pendiente") return { texto: "Registro pendiente", clase: "muted" };

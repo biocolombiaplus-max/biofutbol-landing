@@ -160,11 +160,12 @@ function generarReporteCarteraPDF(datos) {
 
   let y = informeEncabezado(doc, { club: datos.club, margin: margin, titulo: "REPORTE DE CARTERA", subtitulo: datos.filtroTexto || "Todos los socios" });
 
-  const cardW = (pageWidth - margin * 2 - 24) / 3;
+  const cardW = (pageWidth - margin * 2 - 36) / 4;
   const cards = [
     { label: "TOTAL ESPERADO", valor: informeFormatCOP(datos.resumen.totalEsperado), color: [11, 22, 38] },
     { label: "SOCIOS EN MORA", valor: String(datos.resumen.totalMorosos), color: [180, 45, 45] },
-    { label: "PENDIENTE POR COBRAR", valor: informeFormatCOP(datos.resumen.totalPendiente), color: [24, 168, 58] }
+    { label: "PENDIENTE POR COBRAR", valor: informeFormatCOP(datos.resumen.totalPendiente), color: [24, 168, 58] },
+    { label: "BECADOS (no cobran)", valor: String(datos.resumen.totalBecados || 0), color: [58, 66, 82] }
   ];
   cards.forEach(function (c, i) {
     const x = margin + i * (cardW + 12);

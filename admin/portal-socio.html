@@ -232,7 +232,7 @@ function pintar(socio, club) {
   document.getElementById("pColegio").textContent = socio.colegio || "—";
   document.getElementById("pJornada").textContent = socio.jornada || "—";
 
-  if (club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoWompiLink)) {
+  if (!socio.becado && club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoWompiLink)) {
     document.getElementById("pagoCard").style.display = "block";
     document.getElementById("pagoValorTxt").textContent = club.pagoMensualidad
       ? "Mensualidad: " + formatCOPPortal(club.pagoMensualidad)

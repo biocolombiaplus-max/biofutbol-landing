@@ -194,11 +194,24 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
       <div class="card">
         <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro y pagos</h3>
         <div class="status-row"><span class="k">Estado</span><span id="pagoSocioPill" class="pill muted">—</span></div>
-        <div class="field-row" style="margin-top:14px">
-          <div class="field"><label>Mensualidad (COP)</label><input type="number" id="pagoValor" min="0" step="1000"></div>
-          <div class="field"><label>Próximo pago</label><input type="date" id="pagoProximo"></div>
+
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:14px 0;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px">
+          <input type="checkbox" id="becado" style="width:19px;height:19px;accent-color:var(--gold);flex-shrink:0">
+          <span style="font-weight:700;font-size:.86rem"><i class="fa-solid fa-award" style="color:var(--gold)"></i> Deportista becado (no genera cobros)</span>
+        </label>
+
+        <div id="hermanosBox" style="display:none;margin-bottom:14px"></div>
+
+        <div id="cobroNormalBox">
+          <div class="field-row">
+            <div class="field"><label>Mensualidad (COP)</label><input type="number" id="pagoValor" min="0" step="1000"></div>
+            <div class="field"><label>Próximo pago</label><input type="date" id="pagoProximo"></div>
+          </div>
+          <div class="field"><label>Nota de tarifa (opcional)</label><input type="text" id="notaCobro" placeholder="Ej: Descuento por 3 hermanos en el club" maxlength="80"></div>
+          <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-bottom:14px">Si tiene hermanos en el club, pon aquí el valor ya con el descuento — el motivo queda anotado y visible en el recibo.</small>
         </div>
-        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnGuardarFechaCobro"><i class="fa-solid fa-calendar-check"></i> Guardar fecha de cobro</button>
+
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnGuardarFechaCobro"><i class="fa-solid fa-calendar-check"></i> Guardar cobro</button>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnMarcarPagado" style="margin-top:8px"><i class="fa-solid fa-check-double"></i> Marcar como pagado hoy (+30 días)</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecordarPago" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Recordar pago por WhatsApp</button>
         <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnRecibo" style="margin-top:8px"><i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago</button>
@@ -296,14 +309,19 @@ requireAccesoCliente(clienteId).then(function (r) {
   cargarSocio();
 });
 
+let TODOS_SOCIOS = [];
+
 function cargarSocio() {
   Promise.all([
     db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).get(),
-    db.collection("clientes").doc(clienteId).get()
+    db.collection("clientes").doc(clienteId).get(),
+    db.collection("clientes").doc(clienteId).collection("socios").get()
   ]).then(function (res) {
-    const doc = res[0], clubDoc = res[1];
+    const doc = res[0], clubDoc = res[1], todosSnap = res[2];
     if (!doc.exists) { document.getElementById("pageTitle").textContent = "Socio no encontrado"; return; }
     clubActual = clubDoc.exists ? clubDoc.data() : {};
+    TODOS_SOCIOS = [];
+    todosSnap.forEach(function (d) { TODOS_SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
     llenarSelectCategorias(document.getElementById("categoria"), true, clubActual.categoriasPersonalizadas);
     socioActual = Object.assign({ id: doc.id }, doc.data());
     document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
@@ -349,6 +367,9 @@ function cargarSocio() {
 
     document.getElementById("pagoValor").value = socioActual.pagoValor || (clubActual && clubActual.pagoMensualidad) || "";
     document.getElementById("pagoProximo").value = socioActual.pagoProximo || "";
+    document.getElementById("notaCobro").value = socioActual.notaCobro || "";
+    document.getElementById("becado").checked = !!socioActual.becado;
+    pintarHermanos();
     pintarPago();
 
     pintarCrecimientoYNutricion();
@@ -363,6 +384,7 @@ function pintarCarnet() {
 }
 
 function estadoPagoSocio(socio) {
+  if (socio.becado) return { texto: "Becado", clase: "ok", vencido: false };
   if (!socio.pagoProximo) return { texto: "Sin definir", clase: "muted", vencido: false };
   const dias = diasHasta(socio.pagoProximo);
   if (dias === null) return { texto: "Sin definir", clase: "muted", vencido: false };
@@ -377,9 +399,18 @@ function pintarPago() {
   pill.textContent = ep.texto;
   pill.className = "pill " + ep.clase;
 
+  const esBecado = !!socioActual.becado;
+  document.getElementById("cobroNormalBox").style.opacity = esBecado ? ".5" : "1";
+  document.getElementById("pagoValor").disabled = esBecado;
+  document.getElementById("pagoProximo").disabled = esBecado;
+
   const btnRecordar = document.getElementById("btnRecordarPago");
-  btnRecordar.disabled = !ep.vencido;
-  btnRecordar.style.opacity = ep.vencido ? "1" : ".5";
+  btnRecordar.disabled = esBecado || !ep.vencido;
+  btnRecordar.style.opacity = (esBecado || !ep.vencido) ? ".5" : "1";
+  document.getElementById("btnMarcarPagado").disabled = esBecado;
+  document.getElementById("btnMarcarPagado").style.opacity = esBecado ? ".5" : "1";
+  document.getElementById("btnRecibo").disabled = esBecado;
+  document.getElementById("btnRecibo").style.opacity = esBecado ? ".5" : "1";
 
   const ultimoEl = document.getElementById("ultimoRecordatorio");
   ultimoEl.textContent = socioActual.fechaUltimoRecordatorio
@@ -387,32 +418,77 @@ function pintarPago() {
     : "";
 
   const historial = socioActual.historialPagosSocio || [];
-  document.getElementById("historialPagosSocio").innerHTML = historial.length
-    ? "<strong style='color:var(--white)'>Historial:</strong><br>" + historial.slice().reverse().slice(0, 6).map(function (p) {
-        return formatFecha(new Date(p.fecha)) + " — " + formatCOP(p.valor || 0);
-      }).join("<br>")
-    : "Sin pagos registrados todavía.";
+  document.getElementById("historialPagosSocio").innerHTML = esBecado
+    ? "Becado — no genera cobros."
+    : (historial.length
+      ? "<strong style='color:var(--white)'>Historial:</strong><br>" + historial.slice().reverse().slice(0, 6).map(function (p) {
+          return formatFecha(new Date(p.fecha)) + " — " + formatCOP(p.valor || 0);
+        }).join("<br>")
+      : "Sin pagos registrados todavía.");
 }
 
+// Busca otros socios del club con el mismo teléfono o el mismo acudiente,
+// para que el admin vea de un vistazo si hay hermanos y pueda aplicarles
+// un valor consistente (ej: descuento por varios hermanos en el club).
+function detectarHermanos() {
+  const tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
+  const acud = (socioActual.acudiente || "").trim().toLowerCase();
+  if (!tel && !acud) return [];
+  return TODOS_SOCIOS.filter(function (s) {
+    if (s.id === socioId) return false;
+    const sTel = (s.telefono || "").replace(/[^0-9]/g, "");
+    const sAcud = (s.acudiente || "").trim().toLowerCase();
+    return (tel && sTel === tel) || (acud && sAcud === acud);
+  });
+}
+
+function pintarHermanos() {
+  const box = document.getElementById("hermanosBox");
+  const hermanos = detectarHermanos();
+  if (!hermanos.length) { box.style.display = "none"; return; }
+  box.style.display = "block";
+  box.innerHTML = '<div style="background:rgba(255,201,51,.08);border:1px solid rgba(255,201,51,.3);border-radius:10px;padding:12px 14px">' +
+    '<div style="font-weight:800;font-size:.78rem;color:var(--gold);margin-bottom:8px"><i class="fa-solid fa-people-roof"></i> Hermanos detectados en el club</div>' +
+    hermanos.map(function (h) {
+      const val = h.becado ? "Becado" : formatCOP(valorCobroSocio(h, clubActual));
+      return '<a href="socio.html?cliente=' + clienteId + '&id=' + h.id + '" style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:.82rem;color:var(--white);border-top:1px solid rgba(255,255,255,.08)">' +
+        '<span>' + esc(h.nombre || "Sin nombre") + '</span><span style="color:var(--gray)">' + val + '</span></a>';
+    }).join("") +
+    '<small style="color:var(--gray-d);font-size:.7rem;display:block;margin-top:8px">Detectado por mismo teléfono o acudiente. Ajusta la mensualidad de cada hermano si aplica descuento.</small>' +
+    '</div>';
+}
+
+document.getElementById("becado").addEventListener("change", function () {
+  socioActual.becado = this.checked;
+  pintarPago();
+});
+
 document.getElementById("btnGuardarFechaCobro").addEventListener("click", function () {
-  const valor = Number(document.getElementById("pagoValor").value) || 0;
+  const becado = document.getElementById("becado").checked;
+  const notaCobro = document.getElementById("notaCobro").value.trim();
+  const valor = becado ? 0 : (Number(document.getElementById("pagoValor").value) || 0);
   const proximoStr = document.getElementById("pagoProximo").value;
-  if (!proximoStr) { mostrarError("Elige la fecha de cobro."); return; }
+  if (!becado && !proximoStr) { mostrarError("Elige la fecha de cobro."); return; }
   db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    becado: becado,
+    notaCobro: notaCobro,
     pagoValor: valor,
     pagoProximo: proximoStr
   }).then(function () {
+    socioActual.becado = becado;
+    socioActual.notaCobro = notaCobro;
     socioActual.pagoValor = valor;
     socioActual.pagoProximo = proximoStr;
     pintarPago();
-    registrarAuditoria("Fecha de cobro actualizada", clienteId, socioActual.nombre, proximoStr);
-    mostrarExito("Fecha de cobro guardada.");
+    registrarAuditoria("Cobro del socio actualizado", clienteId, socioActual.nombre, becado ? "Becado" : formatCOP(valor));
+    mostrarExito(becado ? "Guardado como becado." : "Cobro guardado.");
   }).catch(function (err) {
     mostrarError("No se pudo guardar: " + err.message);
   });
 });
 
 document.getElementById("btnMarcarPagado").addEventListener("click", function () {
+  if (socioActual.becado) return;
   const valor = Number(document.getElementById("pagoValor").value) || 0;
   const hoy = new Date();
   const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
@@ -442,11 +518,12 @@ document.getElementById("btnMarcarPagado").addEventListener("click", function ()
 });
 
 document.getElementById("btnRecordarPago").addEventListener("click", function () {
+  if (socioActual.becado) return;
   let tel = (socioActual.telefono || "").replace(/[^0-9]/g, "");
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo)") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
 
-  const valor = Number(document.getElementById("pagoValor").value) || (clubActual && clubActual.pagoMensualidad) || 0;
+  const valor = valorCobroSocio(socioActual, clubActual);
   const nombreClub = (clubActual && clubActual.clubNombre) || "tu club";
   let mensaje = "¡Hola! Te recordamos la mensualidad de " + (socioActual.nombre || "tu deportista") + " en " + nombreClub +
     (valor ? ": " + formatCOP(valor) : "") + ".";
@@ -475,18 +552,20 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
 let ultimoReciboSocioUrl = null;
 
 document.getElementById("btnRecibo").addEventListener("click", function () {
+  if (socioActual.becado) return;
   const historial = socioActual.historialPagosSocio || [];
   const ultimo = historial.length ? historial[historial.length - 1] : null;
   const valor = ultimo ? ultimo.valor : (Number(document.getElementById("pagoValor").value) || 0);
   const fecha = ultimo ? new Date(ultimo.fecha + "T12:00:00") : new Date();
   const nombreClub = (clubActual && clubActual.clubNombre) || "BioFutbol";
+  const concepto = "Mensualidad — " + (socioActual.categoria || "socio") + (socioActual.notaCobro ? " (" + socioActual.notaCobro + ")" : "");
 
   const pdf = generarReciboPDF({
     emisorNombre: nombreClub,
     colorPrimario: (clubActual && clubActual.colorPrimario) || "#18A83A",
     pagadorNombre: socioActual.nombre || "—",
     pagadorDoc: socioActual.documento || "",
-    concepto: "Mensualidad — " + (socioActual.categoria || "socio"),
+    concepto: concepto,
     valor: valor,
     fecha: fecha
   });

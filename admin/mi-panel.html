@@ -239,7 +239,7 @@ requireAccesoSocio().then(function (r) {
 
 function pintarMora(socio) {
   const card = document.getElementById("moraCard");
-  if (!socio.pagoProximo) { card.style.display = "none"; return; }
+  if (socio.becado || !socio.pagoProximo) { card.style.display = "none"; return; }
   const dias = diasHasta(socio.pagoProximo);
   if (dias === null || dias > 5) { card.style.display = "none"; return; }
 
@@ -265,7 +265,7 @@ function pintar(socio, club) {
   document.getElementById("pColegio").textContent = socio.colegio || "—";
   document.getElementById("pJornada").textContent = socio.jornada || "—";
 
-  if (club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoWompiLink)) {
+  if (!socio.becado && club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoWompiLink)) {
     document.getElementById("pagoCard").style.display = "block";
     document.getElementById("pagoValorTxt").textContent = club.pagoMensualidad
       ? "Mensualidad: " + formatCOPPortal(club.pagoMensualidad)
