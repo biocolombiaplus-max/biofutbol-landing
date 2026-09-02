@@ -17,7 +17,21 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 .phead .name b{color:var(--green-l)}
 .phead .tag{font-size:.72rem;color:var(--gray-d);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .pcard{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:22px;margin-bottom:18px}
-.pcard h3{font-size:.98rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.pcard h3{font-size:.98rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.pcard h3 i{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.92rem;flex-shrink:0;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+#entrenoCard h3 i{background:linear-gradient(135deg,#2563eb,#1e3a8a)}
+#deportivoCard h3 i{background:linear-gradient(135deg,#0ea5a0,#075e56)}
+#saludCard h3 i{background:linear-gradient(135deg,#dc2626,#7f1d1d)}
+#crecimientoCard h3 i{background:linear-gradient(135deg,#22c55e,#14532d)}
+#nutricionCard h3 i{background:linear-gradient(135deg,#f97316,#9a3412)}
+#recetaCard h3 i{background:linear-gradient(135deg,#a855f7,#6b21a8)}
+#pagoCard{position:relative;overflow:hidden;border-color:rgba(255,201,51,.5);background:linear-gradient(160deg,rgba(255,201,51,.14),rgba(255,201,51,.03));animation:pagoGlow 2.8s ease-in-out infinite}
+#pagoCard::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);animation:pagoShine 3.2s ease-in-out infinite}
+@keyframes pagoGlow{0%,100%{box-shadow:0 0 0 rgba(255,201,51,0)}50%{box-shadow:0 0 26px rgba(255,201,51,.35)}}
+@keyframes pagoShine{0%{left:-60%}55%{left:120%}100%{left:120%}}
+#pagoCard h3{color:var(--gold)}
+#pagoCard h3 i{background:linear-gradient(135deg,var(--gold),#c98a0f);color:#241800}
+#pagoCard .btn-primary{background:linear-gradient(135deg,var(--gold),#c98a0f);box-shadow:0 8px 20px rgba(255,201,51,.3)}
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:.86rem}
 .profile-grid .k{color:var(--gray);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
 .profile-grid .v{font-weight:700;margin-top:2px}
@@ -111,7 +125,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     <p style="font-size:.76rem;color:var(--gray-d);margin-top:10px">Después de pagar, envía el comprobante al club por WhatsApp para que quede registrado.</p>
   </div>
 
-  <div class="pcard">
+  <div class="pcard" id="deportivoCard">
     <h3><i class="fa-solid fa-futbol"></i> Datos deportivos</h3>
     <div class="profile-grid">
       <div><div class="k">Categoría</div><div class="v" id="pCategoria">—</div></div>
@@ -154,7 +168,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     </details>
   </div>
 
-  <div class="pcard">
+  <div class="pcard" id="nutricionCard">
     <h3><i class="fa-solid fa-apple-whole"></i> Recomendación de alimentación</h3>
     <p style="font-size:.82rem;color:var(--gold);font-weight:700;margin-bottom:6px" id="nutricionBanda"></p>
     <p style="font-size:.84rem;color:var(--gray);margin-bottom:12px" id="nutricionEnfoque"></p>
@@ -162,7 +176,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     <div class="disclaimer"><i class="fa-solid fa-circle-info"></i> Guía general con productos fáciles de conseguir en Colombia. No reemplaza un plan hecho por un nutricionista.</div>
   </div>
 
-  <div class="pcard">
+  <div class="pcard" id="recetaCard">
     <h3><i class="fa-solid fa-utensils"></i> Receta de la semana</h3>
     <p style="font-size:.8rem;color:var(--gray);margin-bottom:10px" id="recetaTitulo"></p>
     <div id="recetaBox"></div>
