@@ -786,25 +786,13 @@ async function generarImagenCumpleanos(canvas, d) {
   // se encime. El resto del diseño se arma con un cursor "y" que va
   // bajando después de cada elemento — así el orden nunca se pisa,
   // sin importar el club, el nombre o la foto que se use.
-  const k = (H < W * 1.4 ? 0.74 : 1) * (d.escalaTexto || 1);
-  // Los huecos ENTRE secciones (foto→nombre, nombre→categoría, etc.) solo
-  // se comprimen en cuadrado — nunca se agrandan al subir el tamaño del
-  // título, o el mensaje final terminaría empujado bajo la barra inferior.
-  const kSpace = Math.min(k, 1);
-  let y = H * 0.062;
-
-  // Pastilla "CUMPLEAÑOS" pequeña, como preludio del titular grande.
-  const pillTxt = "🎉  CUMPLEAÑOS  🎉";
-  ctx.font = "800 " + Math.round(W * 0.026 * k) + "px Poppins, sans-serif";
-  const pillPadX = W * 0.045, pillH = H * 0.034 * k;
-  const pillW = ctx.measureText(pillTxt).width + pillPadX * 2;
-  y += pillH * 0.72;
-  imgRoundRect(ctx, W / 2 - pillW / 2, y - pillH * 0.7, pillW, pillH, pillH / 2);
-  ctx.fillStyle = imgRgba(cOro, .18); ctx.fill();
-  ctx.lineWidth = 2; ctx.strokeStyle = imgRgba(cOro, .55); ctx.stroke();
-  ctx.fillStyle = cOro;
-  ctx.fillText(pillTxt, W / 2, y + pillH * 0.16);
-  y += pillH * 0.95;
+  const kBase = H < W * 1.4 ? 0.74 : 1;
+  const k = kBase * (d.escalaTexto || 1);
+  // Los huecos ENTRE secciones y el tamaño de la foto se quedan fijos al
+  // formato (kBase) — nunca crecen con el control de tamaño de texto, o en
+  // cuadrado el mensaje final terminaría empujado bajo la barra inferior.
+  const kSpace = kBase;
+  let y = H * 0.09;
 
   // Titular "¡FELIZ CUMPLEAÑOS!" en el color elegido (o el dorado del
   // club), con una placa oscura detrás para que siempre se lea bien, sin
@@ -829,8 +817,10 @@ async function generarImagenCumpleanos(canvas, d) {
   ctx.restore();
   y += tGap + tFont * 0.62;
 
-  // Foto del cumpleañero, siempre bien debajo del titular.
-  const r = W * 0.235 * k;
+  // Foto del cumpleañero, siempre bien debajo del titular — su tamaño
+  // sigue el formato (kSpace), no el control de tamaño de texto, para
+  // dejarle siempre espacio de sobra al nombre/categoría/mensaje.
+  const r = W * 0.235 * kSpace;
   const cy = y + r;
   const glow = ctx.createRadialGradient(W / 2, cy, r * 0.6, W / 2, cy, r * 1.35);
   glow.addColorStop(0, imgRgba(cOro, .28));
@@ -856,21 +846,24 @@ async function generarImagenCumpleanos(canvas, d) {
   y += nombreFont * 1.05 * Math.max(nombreLineas, 1) + H * 0.014 * kSpace;
 
   if (d.categoria) {
-    ctx.font = "700 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
+    ctx.font = "800 " + Math.round(W * 0.046 * k) + "px Poppins, sans-serif";
     ctx.fillStyle = imgRgba(cOro, .95);
     ctx.fillText(d.categoria, W / 2, y);
-    y += H * 0.045 * kSpace;
+    y += H * 0.062 * kSpace;
   }
 
   y += H * 0.018 * kSpace;
-  // Nunca dejar que el mensaje final quede debajo de la barra inferior,
-  // sin importar qué tan grande se haya puesto el título — si el cursor
-  // llegó muy abajo (título/foto grandes), se sube el mensaje lo mínimo
-  // necesario para que siempre se alcance a leer.
-  y = Math.min(y, H - barraH - H * 0.09);
-  ctx.font = "600 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
+  // Si el nombre y la categoría ya usaron casi todo el espacio (título y
+  // foto grandes, nombre largo de dos líneas), el mensaje final se
+  // encoge para que quepa completo antes de la barra inferior — nunca se
+  // mueve hacia arriba, porque eso lo haría chocar con el texto de
+  // encima.
+  const espacioMsg = H - barraH - H * 0.03 - y;
+  const msgLineH = W * 0.04 * k;
+  const msgFit = Math.max(0.62, Math.min(1, espacioMsg / (msgLineH * 2.3)));
+  ctx.font = "600 " + Math.round(W * 0.028 * k * msgFit) + "px Poppins, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,.88)";
-  imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, y, W * 0.8, W * 0.04 * k, 3);
+  imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, y, W * 0.8, W * 0.04 * k * msgFit, 3);
 
   imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }
