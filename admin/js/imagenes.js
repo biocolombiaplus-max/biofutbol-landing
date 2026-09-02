@@ -155,7 +155,8 @@ function imgTeamBadge(ctx, cx, cy, r, letra, colorHex) {
 }
 
 // Igual que imgTeamBadge, pero si el equipo tiene escudo propio lo usa en
-// vez del círculo con iniciales.
+// vez del círculo con iniciales. Usa "contain" (Math.min) a propósito: un
+// escudo/logo se debe ver completo, nunca recortado.
 async function imgEquipoBadge(ctx, cx, cy, r, logoUrl, letra, colorHex) {
   const img = await imgLoadImage(logoUrl);
   if (img) {
@@ -164,6 +165,26 @@ async function imgEquipoBadge(ctx, cx, cy, r, logoUrl, letra, colorHex) {
     ctx.fillStyle = "#fff"; ctx.fill();
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
     const scale = Math.min((r * 1.8) / img.width, (r * 1.8) / img.height);
+    const w = img.width * scale, h = img.height * scale;
+    ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+    ctx.restore();
+  } else {
+    imgTeamBadge(ctx, cx, cy, r, letra, colorHex);
+  }
+}
+
+// Foto real de un jugador (no un logo): a diferencia de imgEquipoBadge,
+// usa "cover" (Math.max) para RECORTAR y llenar todo el círculo sin dejar
+// márgenes, sin importar si la foto subida es horizontal, vertical o de
+// cualquier tamaño — igual que un avatar de Instagram/WhatsApp.
+async function imgFotoCover(ctx, cx, cy, r, fotoUrl, letra, colorHex) {
+  const img = await imgLoadImage(fotoUrl);
+  if (img) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff"; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    const scale = Math.max((r * 2) / img.width, (r * 2) / img.height);
     const w = img.width * scale, h = img.height * scale;
     ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
     ctx.restore();
@@ -791,7 +812,7 @@ async function generarImagenCumpleanos(canvas, d) {
   ctx.fillStyle = glow;
   ctx.beginPath(); ctx.arc(W / 2, cy, r * 1.35, 0, Math.PI * 2); ctx.fill();
 
-  await imgEquipoBadge(ctx, W / 2, cy, r, d.fotoUrl, d.nombre, c1);
+  await imgFotoCover(ctx, W / 2, cy, r, d.fotoUrl, d.nombre, c1);
 
   // Estrellita de acento sobre el aro de la foto, como si fuera una
   // insignia — remata el efecto "muy premium" de la pieza.

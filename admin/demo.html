@@ -1946,7 +1946,7 @@ function pintarProfesores() {
   box.innerHTML = PROFESORES.map(function (p) {
     const cats = (p.categorias || []).length ? (p.categorias || []).join(" · ") : "Sin categorías asignadas";
     return '<div class="pat-card">' +
-      (p.fotoUrl ? '<img class="pat-logo" src="' + p.fotoUrl + '" style="border-radius:50%">' : '<div class="pat-logo-empty"><i class="fa-solid fa-whistle"></i></div>') +
+      (p.fotoUrl ? '<img class="pat-logo" src="' + p.fotoUrl + '" style="border-radius:50%;object-fit:cover">' : '<div class="pat-logo-empty"><i class="fa-solid fa-whistle"></i></div>') +
       '<div class="pat-info"><div class="pat-name">' + esc(p.nombre) + '</div>' +
       '<div class="pat-meta">' + esc(cats) + '</div>' +
       (p.authUid ? '<span class="pill ok" style="margin-top:5px">Con acceso</span>' : '<span class="pill muted" style="margin-top:5px">Sin acceso todavía</span>') +
