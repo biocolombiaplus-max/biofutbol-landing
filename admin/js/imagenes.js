@@ -207,6 +207,7 @@ async function generarImagenPartido(canvas, d) {
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
   const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
   const cGold = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
 
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -217,7 +218,7 @@ async function generarImagenPartido(canvas, d) {
   // Etiqueta "PRÓXIMO PARTIDO" en pastilla, más vistosa que texto plano.
   const labelY = escudoY + escudoR + H * 0.055;
   const labelTxt = "PRÓXIMO PARTIDO";
-  ctx.font = "800 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.03 * tScale) + "px Poppins, sans-serif";
   const labelPadX = W * 0.045, labelH = H * 0.034;
   const labelW = ctx.measureText(labelTxt).width + labelPadX * 2;
   imgRoundRect(ctx, W / 2 - labelW / 2, labelY - labelH * 0.68, labelW, labelH, labelH / 2);
@@ -297,9 +298,10 @@ async function generarImagenResultado(canvas, d) {
   const escudoY = H * 0.1;
   imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 " + Math.round(W * 0.028) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.028 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("RESULTADO FINAL", W / 2, escudoY + escudoR + H * 0.038);
 
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
@@ -347,12 +349,13 @@ async function generarImagenJornada(canvas, d) {
   const escudoR = W * 0.066;
   imgEscudo(ctx, logo, W / 2, H * 0.081, escudoR);
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 " + Math.round(W * 0.026) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.026 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("PRÓXIMA JORNADA", W / 2, H * 0.141);
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.039) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.039 * tScale) + "px Poppins, sans-serif";
   imgWrapText(ctx, (d.club && d.club.clubNombre ? d.club.clubNombre.toUpperCase() : "NUESTROS PARTIDOS"), W / 2, H * 0.171, W * 0.83, W * 0.0426, 1);
 
   const partidos = (d.partidos || []).slice(0, 5);
@@ -421,9 +424,10 @@ async function generarImagenGoleadores(canvas, d) {
   const escudoR = W * 0.08;
   imgEscudo(ctx, logo, W / 2, H * 0.091, escudoR);
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.041) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.041 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("TABLA DE GOLEADORES", W / 2, H * 0.161);
 
   const medallas = ["🥇", "🥈", "🥉"];
@@ -486,9 +490,10 @@ async function generarImagenTabla(canvas, d) {
   const escudoR = W * 0.08;
   imgEscudo(ctx, logo, W / 2, H * 0.091, escudoR);
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.041) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.041 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("TABLA DE POSICIONES", W / 2, H * 0.161);
 
   const filas = (d.filas || []).slice(0, 10);
@@ -550,9 +555,10 @@ async function generarImagenAliado(canvas, d) {
     topY += H * 0.03;
   }
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 " + Math.round(W * 0.026) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.026 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("ALIADO OFICIAL", W / 2, topY);
 
   const patLogo = await imgLoadImage(d.logoUrl);
@@ -569,7 +575,7 @@ async function generarImagenAliado(canvas, d) {
   }
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.054) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.054 * tScale) + "px Poppins, sans-serif";
   const nombreY = boxY + boxH + H * 0.075;
   imgWrapText(ctx, (d.nombre || "Nuestro aliado").toUpperCase(), W / 2, nombreY, W * 0.83, W * 0.059, 2);
 
@@ -691,14 +697,15 @@ async function generarImagenEntrenamiento(canvas, d) {
   const escudoY = H * 0.115;
   imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
 
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   const esHoy = d.tipo === "hoy";
   ctx.fillStyle = cAccent;
-  ctx.font = "800 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.03 * tScale) + "px Poppins, sans-serif";
   ctx.fillText(esHoy ? "¡HOY ENTRENAMOS!" : "RECORDATORIO · ENTRENAMOS MAÑANA", W / 2, escudoY + escudoR + H * 0.05);
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.066) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.066 * tScale) + "px Poppins, sans-serif";
   imgWrapText(ctx, d.categoria ? d.categoria.toUpperCase() : "TODAS LAS CATEGORÍAS", W / 2, escudoY + escudoR + H * 0.115, W * 0.85, W * 0.07, 2);
 
   const cardW = W * 0.84, cardH = H * 0.235, cardY = H * 0.48, cardX = (W - cardW) / 2;
@@ -779,7 +786,11 @@ async function generarImagenCumpleanos(canvas, d) {
   // se encime. El resto del diseño se arma con un cursor "y" que va
   // bajando después de cada elemento — así el orden nunca se pisa,
   // sin importar el club, el nombre o la foto que se use.
-  const k = H < W * 1.4 ? 0.74 : 1;
+  const k = (H < W * 1.4 ? 0.74 : 1) * (d.escalaTexto || 1);
+  // Los huecos ENTRE secciones (foto→nombre, nombre→categoría, etc.) solo
+  // se comprimen en cuadrado — nunca se agrandan al subir el tamaño del
+  // título, o el mensaje final terminaría empujado bajo la barra inferior.
+  const kSpace = Math.min(k, 1);
   let y = H * 0.062;
 
   // Pastilla "CUMPLEAÑOS" pequeña, como preludio del titular grande.
@@ -837,21 +848,26 @@ async function generarImagenCumpleanos(canvas, d) {
   ctx.restore();
   ctx.textBaseline = "alphabetic";
 
-  y = cy + r + H * 0.065;
+  y = cy + r + H * 0.065 * kSpace;
   ctx.fillStyle = "#fff";
   const nombreFont = W * 0.066 * k;
   ctx.font = "900 " + Math.round(nombreFont) + "px Poppins, sans-serif";
   const nombreLineas = imgWrapText(ctx, (d.nombre || "").toUpperCase(), W / 2, y, W * 0.85, nombreFont * 1.05, 2);
-  y += nombreFont * 1.05 * Math.max(nombreLineas, 1) + H * 0.014;
+  y += nombreFont * 1.05 * Math.max(nombreLineas, 1) + H * 0.014 * kSpace;
 
   if (d.categoria) {
     ctx.font = "700 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
     ctx.fillStyle = imgRgba(cOro, .95);
     ctx.fillText(d.categoria, W / 2, y);
-    y += H * 0.045;
+    y += H * 0.045 * kSpace;
   }
 
-  y += H * 0.018;
+  y += H * 0.018 * kSpace;
+  // Nunca dejar que el mensaje final quede debajo de la barra inferior,
+  // sin importar qué tan grande se haya puesto el título — si el cursor
+  // llegó muy abajo (título/foto grandes), se sube el mensaje lo mínimo
+  // necesario para que siempre se alcance a leer.
+  y = Math.min(y, H - barraH - H * 0.09);
   ctx.font = "600 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,.88)";
   imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, y, W * 0.8, W * 0.04 * k, 3);
@@ -871,9 +887,10 @@ async function generarImagenTorneo(canvas, d) {
   imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
+  const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
   ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 " + Math.round(W * 0.032) + "px Poppins, sans-serif";
+  ctx.font = "800 " + Math.round(W * 0.032 * tScale) + "px Poppins, sans-serif";
   ctx.fillText("🏆 NOS VAMOS AL TORNEO", W / 2, H * 0.11);
 
   const r = W * 0.19;
@@ -881,7 +898,7 @@ async function generarImagenTorneo(canvas, d) {
   await imgEquipoBadge(ctx, W / 2, cy, r, torneo.logoUrl, "🏆", (d.club && d.club.colorPrimario) || "#18A83A");
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.062) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.062 * tScale) + "px Poppins, sans-serif";
   imgWrapText(ctx, (torneo.nombre || "Torneo").toUpperCase(), W / 2, cy + r + H * 0.075, W * 0.85, W * 0.066, 2);
 
   const cardW = W * 0.82, cardH = H * 0.22, cardY = H * 0.56, cardX = (W - cardW) / 2;

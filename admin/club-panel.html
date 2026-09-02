@@ -115,6 +115,14 @@
 .tpl-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .tpl-pill{background:var(--card2);border:1.5px solid var(--card-b2);color:var(--gray);font-weight:800;font-size:.8rem;padding:9px 16px;border-radius:999px;cursor:pointer}
 .tpl-pill.on{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.08);background:color-mix(in srgb,var(--green) 8%,transparent)}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.tpl-card{display:flex;align-items:center;gap:11px;background:var(--card2);border:1.5px solid var(--card-b2);border-radius:14px;padding:12px;cursor:pointer;text-align:left;transition:border-color .15s,background .15s,box-shadow .15s,transform .15s;font-family:inherit}
+.tpl-card:hover{border-color:rgba(24,168,58,.4)}
+.tpl-card:active{transform:scale(.97)}
+.tpl-card.on{border-color:var(--green-l);background:rgba(24,168,58,.1);background:color-mix(in srgb,var(--green) 10%,transparent);box-shadow:0 4px 14px rgba(24,168,58,.2)}
+.tpl-card-ico{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.tpl-card-name{font-weight:800;font-size:.83rem;color:var(--white);line-height:1.25}
+@media (max-width:400px){.tpl-grid{grid-template-columns:1fr}}
 .pago-group-hdr{display:flex;align-items:center;gap:8px;color:var(--gray-d);font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:14px 2px 8px;text-transform:uppercase}
 .pago-group-hdr:first-child{padding-top:2px}
 .pago-item{background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px 16px;margin-bottom:10px}
@@ -595,16 +603,16 @@
       <div class="card">
         <h3><i class="fa-solid fa-image"></i> Crear imagen para redes sociales</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Genera gráficas con el escudo y los colores de tu club, listas para compartir en WhatsApp, Instagram o Facebook.</p>
-        <div class="tpl-pills">
-          <button class="tpl-pill on" data-tpl="jornada">Jornada</button>
-          <button class="tpl-pill" data-tpl="partido">Próximo partido</button>
-          <button class="tpl-pill" data-tpl="resultado">Resultado final</button>
-          <button class="tpl-pill" data-tpl="tabla_img">Tabla de posiciones</button>
-          <button class="tpl-pill" data-tpl="goleadores_img">Goleadores</button>
-          <button class="tpl-pill" data-tpl="aliado">Patrocinador / Aliado</button>
-          <button class="tpl-pill" data-tpl="entrenamiento">Entrenamiento</button>
-          <button class="tpl-pill" data-tpl="cumpleanos">Cumpleaños</button>
-          <button class="tpl-pill" data-tpl="torneo">Torneo</button>
+        <div class="tpl-grid">
+          <button type="button" class="tpl-card on" data-tpl="jornada"><div class="tpl-card-ico qt-1"><i class="fa-solid fa-calendar-days"></i></div><div class="tpl-card-name">Jornada</div></button>
+          <button type="button" class="tpl-card" data-tpl="partido"><div class="tpl-card-ico qt-4"><i class="fa-solid fa-futbol"></i></div><div class="tpl-card-name">Próximo partido</div></button>
+          <button type="button" class="tpl-card" data-tpl="resultado"><div class="tpl-card-ico qt-5"><i class="fa-solid fa-square-poll-vertical"></i></div><div class="tpl-card-name">Resultado final</div></button>
+          <button type="button" class="tpl-card" data-tpl="tabla_img"><div class="tpl-card-ico qt-10"><i class="fa-solid fa-ranking-star"></i></div><div class="tpl-card-name">Tabla de posiciones</div></button>
+          <button type="button" class="tpl-card" data-tpl="goleadores_img"><div class="tpl-card-ico qt-7"><i class="fa-solid fa-medal"></i></div><div class="tpl-card-name">Goleadores</div></button>
+          <button type="button" class="tpl-card" data-tpl="aliado"><div class="tpl-card-ico qt-9"><i class="fa-solid fa-handshake"></i></div><div class="tpl-card-name">Patrocinador / Aliado</div></button>
+          <button type="button" class="tpl-card" data-tpl="entrenamiento"><div class="tpl-card-ico qt-3"><i class="fa-solid fa-stopwatch"></i></div><div class="tpl-card-name">Entrenamiento</div></button>
+          <button type="button" class="tpl-card" data-tpl="cumpleanos"><div class="tpl-card-ico qt-12"><i class="fa-solid fa-cake-candles"></i></div><div class="tpl-card-name">Cumpleaños</div></button>
+          <button type="button" class="tpl-card" data-tpl="torneo"><div class="tpl-card-ico qt-8"><i class="fa-solid fa-trophy"></i></div><div class="tpl-card-name">Torneo</div></button>
         </div>
 
         <div id="form-jornada" class="tpl-form">
@@ -712,9 +720,13 @@
           <div class="field-row" style="margin-top:14px">
             <div class="field"><label>Color del texto / título</label><input type="color" id="imgColorTexto" style="height:44px;padding:4px;cursor:pointer"></div>
             <div class="field">
-              <label>Visibilidad del fondo <span id="imgOpacidadFondoVal">100%</span></label>
-              <input type="range" id="imgOpacidadFondo" min="25" max="100" value="100" style="width:100%;margin-top:12px">
+              <label>Tamaño del título <span id="imgEscalaTextoVal">100%</span></label>
+              <input type="range" id="imgEscalaTexto" min="80" max="115" value="100" style="width:100%;margin-top:12px">
             </div>
+          </div>
+          <div class="field" style="margin-top:14px">
+            <label>Visibilidad del fondo <span id="imgOpacidadFondoVal">100%</span></label>
+            <input type="range" id="imgOpacidadFondo" min="25" max="100" value="100" style="width:100%;margin-top:12px">
           </div>
           <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-top:6px">Ajusta esto si necesitas acomodar el texto o el fondo a tu gusto. La visibilidad del fondo solo aplica si subiste una imagen.</small>
         </div>
@@ -2937,9 +2949,9 @@ let ultimoBlobImg = null;
 let aImgLogoUrl = "";
 let cumImgFotoUrl = "";
 
-document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
+document.querySelectorAll(".tpl-card[data-tpl]").forEach(function (btn) {
   btn.addEventListener("click", function () {
-    document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (b) { b.classList.remove("on"); });
+    document.querySelectorAll(".tpl-card[data-tpl]").forEach(function (b) { b.classList.remove("on"); });
     document.querySelectorAll(".tpl-form").forEach(function (f) { f.style.display = "none"; });
     btn.classList.add("on");
     tplActual = btn.dataset.tpl;
@@ -2954,6 +2966,7 @@ let formatoImgActual = "story";
 let fondoImgUrl = "";
 let colorTextoActual = "#FFC933";
 let opacidadFondoActual = 1;
+let escalaTextoActual = 1;
 
 document.querySelectorAll(".tpl-pill[data-formato]").forEach(function (btn) {
   btn.addEventListener("click", function () {
@@ -2970,6 +2983,11 @@ document.getElementById("imgColorTexto").addEventListener("input", function () {
 document.getElementById("imgOpacidadFondo").addEventListener("input", function () {
   opacidadFondoActual = Number(this.value) / 100;
   document.getElementById("imgOpacidadFondoVal").textContent = this.value + "%";
+});
+
+document.getElementById("imgEscalaTexto").addEventListener("input", function () {
+  escalaTextoActual = Number(this.value) / 100;
+  document.getElementById("imgEscalaTextoVal").textContent = this.value + "%";
 });
 
 document.getElementById("imgFondoInput").addEventListener("change", function (e) {
@@ -3128,7 +3146,7 @@ function felicitarCumpleanos(socioId) {
 // ya seleccionado, listo para generar y compartir.
 function crearImagenCumpleanos(socioId) {
   irATab("imagenes");
-  const pill = document.querySelector('.tpl-pill[data-tpl="cumpleanos"]');
+  const pill = document.querySelector('.tpl-card[data-tpl="cumpleanos"]');
   if (pill) pill.click();
   const sel = document.getElementById("cumImgSocio");
   if (sel) {
@@ -3203,7 +3221,7 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
         fecha: p.fecha ? formatFechaSimple(p.fecha) : "", cancha: p.cancha || ""
       };
     });
-    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
+    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual, escalaTexto: escalaTextoActual });
     caption = "📅 Así queda nuestra próxima jornada — " + (clubActual.clubNombre || "el club") + " ⚽ #BioFutbol";
   } else if (tplActual === "partido") {
     const d = {
@@ -3216,7 +3234,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
@@ -3235,7 +3254,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival2 = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
@@ -3246,14 +3266,14 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
   } else if (tplActual === "tabla_img") {
     const filas = calcularTabla();
     if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); cancelar(); return; }
-    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
+    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual, escalaTexto: escalaTextoActual });
     caption = "📊 Así va la tabla de posiciones de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "goleadores_img") {
     const filas = calcularGoleadores().slice(0, 10).map(function (g) {
       return { nombre: g.nombre, goles: g.goles, equipoNombre: nombreEquipo(g.equipoId) };
     });
     if (!filas.length) { mostrarError("Todavía no hay goles registrados para generar la imagen."); cancelar(); return; }
-    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
+    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual, escalaTexto: escalaTextoActual });
     caption = "🥇 Tabla de goleadores de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "aliado") {
     const d = {
@@ -3267,7 +3287,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); cancelar(); return; }
     tarea = generarImagenAliado(canvas, d);
@@ -3283,7 +3304,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     if (!d.dia || !d.hora) { mostrarError("Ingresa al menos el día y la hora del entrenamiento."); cancelar(); return; }
     tarea = generarImagenEntrenamiento(canvas, d);
@@ -3297,7 +3319,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     if (!d.nombre) { mostrarError("Ingresa el nombre del cumpleañero."); cancelar(); return; }
     tarea = generarImagenCumpleanos(canvas, d);
@@ -3314,7 +3337,8 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       formato: formatoImgActual,
       fondoUrl: fondoImgUrl,
       colorTexto: colorTextoActual,
-      opacidadFondo: opacidadFondoActual
+      opacidadFondo: opacidadFondoActual,
+      escalaTexto: escalaTextoActual
     };
     tarea = generarImagenTorneo(canvas, d);
     caption = "🏆 ¡Nos vamos al " + t.nombre + "! " + (fechaTexto ? fechaTexto + " " : "") + (t.lugar ? "en " + t.lugar + " " : "") + "#BioFutbol";
