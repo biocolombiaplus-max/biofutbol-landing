@@ -61,6 +61,12 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 .next-training-card .nt-sub{font-size:.82rem;color:var(--gray);margin-top:2px}
 .otros-horarios{margin-top:14px;padding-top:14px;border-top:1px solid var(--card-b2);font-size:.8rem;color:var(--gray)}
 .otros-horarios div{padding:4px 0}
+.cumple-banner{position:relative;overflow:hidden;text-align:center;border-radius:var(--radius);padding:26px 22px;margin-bottom:18px;background:linear-gradient(135deg,#c98a0f,#18A83A 65%,#0e7d29);box-shadow:0 12px 32px rgba(255,201,51,.28)}
+.cumple-banner::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.28),transparent);animation:cumpleShine 3s ease-in-out infinite}
+@keyframes cumpleShine{0%{left:-60%}55%{left:120%}100%{left:120%}}
+.cumple-banner .cumple-emoji{font-size:1.8rem;margin-bottom:6px;letter-spacing:6px}
+.cumple-banner .cumple-title{font-size:1.5rem;font-weight:900;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.25);line-height:1.25}
+.cumple-banner .cumple-msg{font-size:.9rem;font-weight:700;color:rgba(255,255,255,.95);margin-top:8px;position:relative}
 </style>
 </head>
 <body>
@@ -69,6 +75,12 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     <svg width="34" height="42" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
     <div class="name">Bio<b>Futbol</b></div>
     <p class="tag">Portal del deportista</p>
+  </div>
+
+  <div class="cumple-banner" id="cumpleBanner" style="display:none">
+    <div class="cumple-emoji">🎉🎂🎈</div>
+    <div class="cumple-title">¡Feliz cumpleaños, <span id="cumpleNombre"></span>!</div>
+    <p class="cumple-msg" id="cumpleMsg"></p>
   </div>
 
   <div class="motiv-card"><i class="fa-solid fa-quote-left"></i><p id="fraseMotivacional"></p></div>
@@ -224,9 +236,26 @@ if (!clienteId || !socioId) {
   });
 }
 
+function esCumpleanosHoy(fechaNacimiento) {
+  if (!fechaNacimiento) return false;
+  const n = new Date(fechaNacimiento + "T12:00:00");
+  if (isNaN(n.getTime())) return false;
+  const hoy = new Date();
+  return n.getMonth() === hoy.getMonth() && n.getDate() === hoy.getDate();
+}
+
+function pintarCumpleanos(socio, club) {
+  const banner = document.getElementById("cumpleBanner");
+  if (!esCumpleanosHoy(socio.fechaNacimiento)) { banner.style.display = "none"; return; }
+  banner.style.display = "block";
+  document.getElementById("cumpleNombre").textContent = (socio.nombre || "").split(" ")[0] || "campeón";
+  document.getElementById("cumpleMsg").textContent = "Todo el equipo de " + ((club && club.clubNombre) || "tu club") + " te desea un día increíble. ¡Sigue brillando dentro y fuera de la cancha! ⚽";
+}
+
 function pintar(socio, club) {
   document.getElementById("fraseMotivacional").textContent = fraseMotivacionalDelDia();
   carnetRender(document.getElementById("carnetContainer"), socio, club, location.href, "portal");
+  pintarCumpleanos(socio, club);
   document.getElementById("pCategoria").textContent = socio.categoria || "—";
   document.getElementById("pTalla").textContent = socio.talla || "—";
   document.getElementById("pColegio").textContent = socio.colegio || "—";

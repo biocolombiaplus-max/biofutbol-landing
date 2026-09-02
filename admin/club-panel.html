@@ -239,6 +239,11 @@
 .plan-pautado-card.growing .plan-pautado-fill{background:linear-gradient(90deg,var(--gold),#ffe08a)}
 .plan-pautado-card.growing .plan-pautado-msg{color:var(--white);font-weight:600}
 .plan-pautado-card.growing .plan-pautado-msg i{color:var(--gold)}
+.cumple-card{position:relative;overflow:hidden;border-color:rgba(255,201,51,.45)!important;background:linear-gradient(135deg,rgba(255,201,51,.1),rgba(255,201,51,.03))}
+.cumple-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% -10%,rgba(255,201,51,.28),transparent 60%);pointer-events:none}
+.cumple-card h3{color:var(--gold)}
+.cumple-card .pat-card{background:rgba(11,22,38,.35);border-color:rgba(255,201,51,.22)}
+.cumple-card .pat-logo-empty{background:linear-gradient(135deg,var(--gold),#c98a0f);color:#241800}
 .pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
 .pat-card.off{opacity:.5}
 .pat-logo{width:56px;height:56px;border-radius:12px;object-fit:contain;background:rgba(255,255,255,.06);flex-shrink:0}
@@ -341,8 +346,9 @@
         <button type="button" class="btn btn-primary btn-sm" id="btnAsistenciaRapida" style="flex-shrink:0"><i class="fa-solid fa-clipboard-check"></i> Asistencia</button>
       </div>
 
-      <div class="card" id="cumpleanosCard" style="display:none;border-color:rgba(255,201,51,.4);background:rgba(255,201,51,.06);margin-bottom:18px">
-        <h3><i class="fa-solid fa-cake-candles"></i> ¡Hoy cumplen años!</h3>
+      <div class="card cumple-card" id="cumpleanosCard" style="display:none;margin-bottom:18px">
+        <h3><i class="fa-solid fa-cake-candles"></i> ¡Hoy cumplen años! 🎉</h3>
+        <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Felicítalos por WhatsApp y sorpréndelos con una imagen de cumpleaños hecha en segundos.</p>
         <div id="cumpleanosLista"></div>
       </div>
 
@@ -687,7 +693,7 @@
           <div class="field"><label>Torneo</label><select id="torImgTorneo"><option value="">Elige un torneo…</option></select></div>
         </div>
 
-        <div id="formatoFondoBlock" style="display:none;margin-top:6px">
+        <div id="formatoFondoBlock" style="margin-top:6px">
           <div class="field"><label>Formato</label>
             <div class="tpl-pills" style="margin-bottom:0">
               <button type="button" class="tpl-pill on" data-formato="story">9:16 · Historia</button>
@@ -2931,7 +2937,7 @@ document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
     tplActual = btn.dataset.tpl;
     document.getElementById("form-" + tplActual).style.display = "block";
     document.getElementById("imgActions").style.display = "none";
-    const necesitaFormatoFondo = tplActual === "entrenamiento" || tplActual === "cumpleanos" || tplActual === "torneo" || tplActual === "partido";
+    const necesitaFormatoFondo = ["entrenamiento", "cumpleanos", "torneo", "partido", "jornada", "resultado", "tabla_img", "goleadores_img", "aliado"].indexOf(tplActual) !== -1;
     document.getElementById("formatoFondoBlock").style.display = necesitaFormatoFondo ? "block" : "none";
   });
 });
@@ -3081,7 +3087,8 @@ function pintarAlertaCumpleanos() {
       '<div class="pat-info"><div class="pat-name">' + esc(s.nombre) + '</div>' +
       '<div class="pat-meta">' + esc(s.categoria || "") + '</div></div>' +
       '<div class="pat-actions">' +
-      '<button class="btn btn-primary btn-sm" onclick="felicitarCumpleanos(\'' + s.id + '\')"><i class="fa-brands fa-whatsapp"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="crearImagenCumpleanos(\'' + s.id + '\')" title="Crear imagen de cumpleaños"><i class="fa-solid fa-wand-magic-sparkles"></i></button>' +
+      '<button class="btn btn-primary btn-sm" onclick="felicitarCumpleanos(\'' + s.id + '\')" title="Felicitar por WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>' +
       '</div></div>';
   }).join("");
 }
@@ -3095,6 +3102,20 @@ function felicitarCumpleanos(socioId) {
   const mensaje = "🎉 ¡Feliz cumpleaños, " + s.nombre + "! Todo el equipo de " + (clubActual.clubNombre || "el club") + " te desea un día increíble. ¡Sigue brillando dentro y fuera de la cancha! 🎂⚽";
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Felicitación de cumpleaños enviada", clubActual.id, s.nombre, tel);
+}
+
+// Invita al administrador a crear de una vez la imagen del cumpleañero:
+// salta directo a Imágenes con la plantilla de Cumpleaños y ese socio
+// ya seleccionado, listo para generar y compartir.
+function crearImagenCumpleanos(socioId) {
+  irATab("imagenes");
+  const pill = document.querySelector('.tpl-pill[data-tpl="cumpleanos"]');
+  if (pill) pill.click();
+  const sel = document.getElementById("cumImgSocio");
+  if (sel) {
+    sel.value = socioId;
+    sel.dispatchEvent(new Event("change"));
+  }
 }
 
 function fechaTimestampAISO(ts) {
@@ -3163,7 +3184,7 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
         fecha: p.fecha ? formatFechaSimple(p.fecha) : "", cancha: p.cancha || ""
       };
     });
-    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos });
+    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos, formato: formatoImgActual, fondoUrl: fondoImgUrl });
     caption = "📅 Así queda nuestra próxima jornada — " + (clubActual.clubNombre || "el club") + " ⚽ #BioFutbol";
   } else if (tplActual === "partido") {
     const d = {
@@ -3189,7 +3210,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       rival: document.getElementById("rImgRival").value.trim(),
       golesPropio: Number(document.getElementById("rImgGolesPropio").value) || 0,
       golesRival: Number(document.getElementById("rImgGolesRival").value) || 0,
-      fecha: formatFechaBonita(document.getElementById("rImgFecha").value)
+      fecha: formatFechaBonita(document.getElementById("rImgFecha").value),
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival2 = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
@@ -3200,14 +3223,14 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
   } else if (tplActual === "tabla_img") {
     const filas = calcularTabla();
     if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); cancelar(); return; }
-    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas });
+    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl });
     caption = "📊 Así va la tabla de posiciones de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "goleadores_img") {
     const filas = calcularGoleadores().slice(0, 10).map(function (g) {
       return { nombre: g.nombre, goles: g.goles, equipoNombre: nombreEquipo(g.equipoId) };
     });
     if (!filas.length) { mostrarError("Todavía no hay goles registrados para generar la imagen."); cancelar(); return; }
-    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas });
+    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl });
     caption = "🥇 Tabla de goleadores de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "aliado") {
     const d = {
@@ -3217,7 +3240,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       ctaTexto: document.getElementById("aImgCta").value.trim(),
       descripcion: document.getElementById("aImgDescripcion").value.trim(),
       logoUrl: aImgLogoUrl,
-      mostrarEscudo: document.getElementById("aImgEscudo").checked
+      mostrarEscudo: document.getElementById("aImgEscudo").checked,
+      formato: formatoImgActual,
+      fondoUrl: fondoImgUrl
     };
     if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); cancelar(); return; }
     tarea = generarImagenAliado(canvas, d);
