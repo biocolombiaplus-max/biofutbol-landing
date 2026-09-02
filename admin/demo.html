@@ -117,6 +117,16 @@
 .tpl-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .tpl-pill{background:var(--card2);border:1.5px solid var(--card-b2);color:var(--gray);font-weight:800;font-size:.8rem;padding:9px 16px;border-radius:999px;cursor:pointer}
 .tpl-pill.on{border-color:var(--green-l);color:var(--green-l);background:rgba(24,168,58,.08);background:color-mix(in srgb,var(--green) 8%,transparent)}
+.pago-group-hdr{display:flex;align-items:center;gap:8px;color:var(--gray-d);font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:14px 2px 8px;text-transform:uppercase}
+.pago-group-hdr:first-child{padding-top:2px}
+.pago-item{background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.pago-item-top{display:flex;align-items:center;gap:12px}
+.pago-item-info{flex:1;min-width:0}
+.pago-item-info b{display:block;font-size:.88rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pago-item-info small{color:var(--gray);font-size:.72rem}
+.pago-item-right{text-align:right;flex-shrink:0}
+.pago-item-valor{display:block;font-size:.78rem;font-weight:800;color:var(--gray);margin-top:5px}
+.pago-item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .img-preview-wrap{display:flex;justify-content:center;margin-top:16px}
 .img-preview-wrap canvas{width:100%;max-width:340px;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.5);background:#05070a}
 .img-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
@@ -195,6 +205,7 @@
 .qt-9{background:linear-gradient(135deg,#ec4899,#831843)}
 .qt-10{background:linear-gradient(135deg,#0891b2,#164e63)}
 .qt-11{background:linear-gradient(135deg,#f43f5e,#7f1d1d)}
+.qt-12{background:linear-gradient(135deg,#ffc933,#8a5a00)}
 .asist-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:520px;overflow-y:auto;padding-right:2px}
 .asist-chip{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;border:1.5px solid var(--card-b2);background:var(--card2);cursor:pointer;transition:.12s;user-select:none}
 .asist-chip img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--card)}
@@ -305,6 +316,7 @@
     <div class="tab-groups" id="tabGroups">
       <button class="tab-group-btn on" data-group="inicio"><i class="fa-solid fa-house"></i> Inicio</button>
       <button class="tab-group-btn" data-group="socios"><i class="fa-solid fa-users"></i> Socios</button>
+      <button class="tab-group-btn" data-group="pagos"><i class="fa-solid fa-sack-dollar"></i> Pagos</button>
       <button class="tab-group-btn" data-group="deportivo"><i class="fa-solid fa-futbol"></i> Deportivo</button>
       <button class="tab-group-btn" data-group="comunicacion"><i class="fa-solid fa-bullhorn"></i> Comunicación</button>
       <button class="tab-group-btn" data-group="administracion"><i class="fa-solid fa-gear"></i> Administración</button>
@@ -314,6 +326,7 @@
         <button class="tab-btn on" data-tab="inicio" data-group="inicio"><i class="fa-solid fa-house"></i> Inicio</button>
         <button class="tab-btn" data-tab="socios" data-group="socios"><i class="fa-solid fa-users"></i> Socios</button>
         <button class="tab-btn" data-tab="profesores" data-group="socios"><i class="fa-solid fa-whistle"></i> Profesores</button>
+        <button class="tab-btn" data-tab="pagos" data-group="pagos"><i class="fa-solid fa-sack-dollar"></i> Pagos</button>
         <button class="tab-btn" data-tab="imagenes" data-group="comunicacion"><i class="fa-solid fa-image"></i> Imágenes</button>
         <button class="tab-btn" data-tab="patrocinadores" data-group="comunicacion"><i class="fa-solid fa-handshake"></i> Patrocinadores</button>
         <button class="tab-btn" data-tab="entrenamientos" data-group="deportivo"><i class="fa-solid fa-stopwatch"></i> Entrenamientos</button>
@@ -375,6 +388,11 @@
 
       <div class="section-label">Acceso rápido</div>
       <div class="quick-grid">
+        <button type="button" class="quick-tile qt-12" data-goto="pagos">
+          <div class="qt-ico"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div class="qt-title">Pagos</div>
+          <div class="qt-sub" id="qtPagosSub">—</div>
+        </button>
         <button type="button" class="quick-tile qt-1" data-goto="socios">
           <div class="qt-ico"><i class="fa-solid fa-users"></i></div>
           <div class="qt-title">Socios</div>
@@ -445,8 +463,6 @@
 
       <div class="crm-toolbar">
         <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
-        <button class="btn btn-ghost btn-sm" id="btnFiltroPend"><i class="fa-solid fa-filter"></i> Solo pendientes de pago</button>
-        <button class="btn btn-primary btn-sm" id="btnRecordarMasivoCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes</button>
       </div>
       <div class="detail-grid">
         <div class="card" style="margin-bottom:0">
@@ -470,9 +486,7 @@
             <div class="status-row"><span class="k">Teléfono</span><span id="fichaTelefono">—</span></div>
             <div class="status-row"><span class="k">Correo</span><span id="fichaCorreo">—</span></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-              <button class="btn btn-primary btn-sm" id="btnFichaWhatsapp"><i class="fa-brands fa-whatsapp"></i> Recordar por WhatsApp</button>
-              <button class="btn btn-ghost btn-sm" id="btnFichaCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo</button>
-              <button class="btn btn-ghost btn-sm" id="btnFichaPagado"><i class="fa-solid fa-check-double"></i> Marcar pagado</button>
+              <button class="btn btn-primary btn-sm" id="btnFichaIrPagos"><i class="fa-solid fa-sack-dollar"></i> Ir a Gestión de pagos</button>
               <a href="#" id="btnFichaEditar" class="btn btn-ghost btn-sm"><i class="fa-solid fa-id-card"></i> Ver ficha completa</a>
             </div>
             <div style="margin-top:18px">
@@ -539,6 +553,60 @@
       <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-people-group"></i> Tu equipo de profesores</h3>
         <div id="listaProfesores"><p class="empty">Todavía no has agregado profesores.</p></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-pagos">
+      <div class="card">
+        <h3><i class="fa-solid fa-chart-pie"></i> Resumen de cartera</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">De un vistazo, cómo va la cartera del club este mes.</p>
+        <div class="stat-grid" id="pagosResumen" style="margin:16px 0 0"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A dónde le paga cada socio. Se usa en los recordatorios de pago y en el portal del deportista.</p>
+        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
+        <div class="field-row">
+          <div class="field"><label>Nequi — número</label><input type="text" id="mcNequiNumero" placeholder="3001234567"></div>
+          <div class="field"><label>Nequi — a nombre de</label><input type="text" id="mcNequiTitular"></div>
+        </div>
+        <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-brands fa-whatsapp"></i> CRM de cobro</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A quién le debes recordar el pago y a quién enviarle el soporte de lo que ya pagó — todo por WhatsApp primero, correo como respaldo.</p>
+        <div class="crm-toolbar">
+          <input type="text" class="search-input" id="pagosBuscar" placeholder="Buscar socio por nombre...">
+          <button class="btn btn-primary btn-sm" id="btnRecordarMasivoCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes</button>
+        </div>
+        <div class="tpl-pills">
+          <button type="button" class="tpl-pill on" data-pagofiltro="todos">Todos</button>
+          <button type="button" class="tpl-pill" data-pagofiltro="vencidos">Vencidos</button>
+          <button type="button" class="tpl-pill" data-pagofiltro="porvencer">Por vencer</button>
+          <button type="button" class="tpl-pill" data-pagofiltro="aldia">Al día</button>
+          <button type="button" class="tpl-pill" data-pagofiltro="becados">Becados</button>
+        </div>
+        <div id="listaPagos"><p class="empty">Cargando...</p></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-sack-dollar"></i> Reporte de cartera</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con quién debe, cuánto y hace cuánto está vencido, más un resumen para saber cómo va la cartera del club de un vistazo.</p>
+        <div class="field-row">
+          <div class="field"><label>Estado</label>
+            <select id="repCarEstado">
+              <option value="todos">Todos los socios con cobro definido</option>
+              <option value="mora" selected>Solo en mora / por vencer</option>
+              <option value="aldia">Solo al día</option>
+            </select>
+          </div>
+          <div class="field"><label>Vence desde (opcional)</label><input type="date" id="repCarDesde"></div>
+        </div>
+        <div class="field"><label>Vence hasta (opcional)</label><input type="date" id="repCarHasta"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteCartera"><i class="fa-solid fa-file-pdf"></i> Generar PDF de cartera</button>
       </div>
     </div>
 
@@ -1054,23 +1122,6 @@
         <p style="font-size:.72rem;color:var(--gray-d);margin-bottom:14px">El filtro de fechas solo aplica a jugadores registrados desde que existe este reporte — los registrados antes siempre aparecen si no filtras por fecha.</p>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteJugadores"><i class="fa-solid fa-file-pdf"></i> Generar PDF de jugadores</button>
       </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-sack-dollar"></i> Reporte de cartera</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con quién debe, cuánto y hace cuánto está vencido, más un resumen para saber cómo va la cartera del club de un vistazo.</p>
-        <div class="field-row">
-          <div class="field"><label>Estado</label>
-            <select id="repCarEstado">
-              <option value="todos">Todos los socios con cobro definido</option>
-              <option value="mora" selected>Solo en mora / por vencer</option>
-              <option value="aldia">Solo al día</option>
-            </select>
-          </div>
-          <div class="field"><label>Vence desde (opcional)</label><input type="date" id="repCarDesde"></div>
-        </div>
-        <div class="field"><label>Vence hasta (opcional)</label><input type="date" id="repCarHasta"></div>
-        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteCartera"><i class="fa-solid fa-file-pdf"></i> Generar PDF de cartera</button>
-      </div>
     </div>
 
     <div class="tab-panel" id="tab-miclub">
@@ -1115,18 +1166,6 @@
         </div>
         <div class="field"><label>Color terciario (opcional)</label><input type="color" id="mcColorTerciario" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
         <div id="mcColorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A dónde le paga cada socio. Se usa en los recordatorios de pago y en el portal del deportista.</p>
-        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
-        <div class="field-row">
-          <div class="field"><label>Nequi — número</label><input type="text" id="mcNequiNumero" placeholder="3001234567"></div>
-          <div class="field"><label>Nequi — a nombre de</label><input type="text" id="mcNequiTitular"></div>
-        </div>
-        <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
-        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -1184,7 +1223,7 @@ let profFotoUrl = "";
 let profCategoriasSeleccionadas = [];
 let ultimaClaveProfCreada = "";
 let socioSeleccionado = null;
-let soloPendientesCrm = false;
+let filtroPagos = "todos";
 let moduloEquiposActivo = false;
 const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla", "goleadores", "llave", "torneos"];
 
@@ -1344,6 +1383,7 @@ function aplicarIconoDelClub(cliente) {
 const TAB_GRUPOS = {
   inicio: ["inicio"],
   socios: ["socios", "profesores"],
+  pagos: ["pagos"],
   deportivo: ["entrenamientos", "equipos", "fixture", "tabla", "goleadores", "llave", "torneos"],
   comunicacion: ["imagenes", "patrocinadores"],
   administracion: ["informes", "miclub"]
@@ -1454,6 +1494,7 @@ function pintarInicio() {
   }
 
   document.getElementById("qtSociosSub").textContent = SOCIOS.length + " registrados";
+  document.getElementById("qtPagosSub").textContent = pendientes ? (pendientes + " pendiente" + (pendientes === 1 ? "" : "s")) : "Todo al día";
   ["qtEquipos", "qtFixture", "qtTabla", "qtGoleadores", "qtLlave"].forEach(function (id) {
     document.getElementById(id).classList.toggle("locked", !moduloEquiposActivo);
   });
@@ -2477,6 +2518,7 @@ function escucharSocios() {
     snap.forEach(function (d) { SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
     SOCIOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
     pintarListaSocios();
+    pintarListaPagos();
     pintarInicio();
     pintarSelectSociosImg();
     pintarAlertaCumpleanos();
@@ -2494,7 +2536,6 @@ function pintarListaSocios() {
   const box = document.getElementById("listaSocios");
   const q = (document.getElementById("crmBuscar").value || "").toLowerCase().trim();
   let lista = SOCIOS.filter(function (s) { return !q || (s.nombre || "").toLowerCase().includes(q); });
-  if (soloPendientesCrm) lista = lista.filter(function (s) { return estadoPagoSocioCrm(s).vencido; });
 
   if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
   box.innerHTML = lista.map(function (s) {
@@ -2535,13 +2576,6 @@ function pintarFicha() {
   pill.textContent = ep.texto;
   pill.className = "pill " + ep.clase;
 
-  const esBecado = !!socioSeleccionado.becado;
-  ["btnFichaWhatsapp", "btnFichaCorreo", "btnFichaPagado"].forEach(function (id) {
-    const el = document.getElementById(id);
-    el.disabled = esBecado;
-    el.style.opacity = esBecado ? ".5" : "1";
-  });
-
   const comms = (socioSeleccionado.comunicaciones || []).slice().reverse();
   const cont = document.getElementById("fichaComunicaciones");
   if (!comms.length) {
@@ -2573,36 +2607,11 @@ function mensajeRecordatorioWhatsapp(socio) {
   return msg;
 }
 
-document.getElementById("btnFichaWhatsapp").addEventListener("click", function () {
-  if (!socioSeleccionado || socioSeleccionado.becado) return;
-  let tel = (socioSeleccionado.telefono || "").replace(/[^0-9]/g, "");
-  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
-  if (!tel) return;
-  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRecordatorioWhatsapp(socioSeleccionado)), "_blank");
-  registrarComunicacion(socioSeleccionado.id, "whatsapp", "Recordatorio de pago enviado por WhatsApp").then(function () {
-    mostrarExito("Recordatorio enviado y registrado.");
-  });
-});
-
-document.getElementById("btnFichaCorreo").addEventListener("click", function () {
-  if (!socioSeleccionado || socioSeleccionado.becado) return;
-  if (!socioSeleccionado.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
-  enviarRecordatorioCorreo(socioSeleccionado).then(function () {
-    mostrarExito("Correo enviado a " + socioSeleccionado.correo);
-  }).catch(function (err) {
-    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
-  });
-});
-
-document.getElementById("btnFichaPagado").addEventListener("click", function () {
-  if (!socioSeleccionado || socioSeleccionado.becado) return;
-  const hoy = new Date(); const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
-  const proximoStr = proximo.toISOString().slice(0, 10);
-  db.collection("clientes").doc(clubActual.id).collection("socios").doc(socioSeleccionado.id).update({
-    pagoProximo: proximoStr,
-    pagoUltimo: hoy.toISOString().slice(0, 10),
-    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: valorCobroSocio(socioSeleccionado, clubActual) })
-  }).then(function () { mostrarExito("Pago registrado."); });
+document.getElementById("btnFichaIrPagos").addEventListener("click", function () {
+  if (!socioSeleccionado) return;
+  irATab("pagos");
+  document.getElementById("pagosBuscar").value = socioSeleccionado.nombre || "";
+  pintarListaPagos();
 });
 
 document.getElementById("btnFichaNota").addEventListener("click", function () {
@@ -2659,12 +2668,6 @@ document.getElementById("btnCopiarLinkProf").addEventListener("click", function 
 });
 
 document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);
-document.getElementById("btnFiltroPend").addEventListener("click", function () {
-  soloPendientesCrm = !soloPendientesCrm;
-  this.classList.toggle("btn-primary", soloPendientesCrm);
-  this.classList.toggle("btn-ghost", !soloPendientesCrm);
-  pintarListaSocios();
-});
 
 function enviarRecordatorioCorreo(socio) {
   if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
@@ -2709,6 +2712,213 @@ document.getElementById("btnRecordarMasivoCorreo").addEventListener("click", fun
   }
   siguiente(0);
 });
+
+// ── Gestión de pagos: CRM de cobro con WhatsApp como canal primario ──
+function socioPorId(id) {
+  return SOCIOS.find(function (s) { return s.id === id; }) || null;
+}
+
+function categoriaPago(s) {
+  if (s.becado) return "becados";
+  if (!s.pagoProximo) return "sindefinir";
+  const dias = diasHasta(s.pagoProximo);
+  if (dias === null) return "sindefinir";
+  if (dias < 0) return "vencidos";
+  if (dias <= 5) return "porvencer";
+  return "aldia";
+}
+
+function pintarResumenPagos() {
+  const cont = document.getElementById("pagosResumen");
+  if (!cont) return;
+  const conCobro = SOCIOS.filter(function (s) { return !s.becado && !!s.pagoProximo; });
+  const esperado = conCobro.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
+  const vencidos = SOCIOS.filter(function (s) { return categoriaPago(s) === "vencidos"; }).length;
+  const porVencer = SOCIOS.filter(function (s) { return categoriaPago(s) === "porvencer"; }).length;
+  const becados = SOCIOS.filter(function (s) { return s.becado; }).length;
+  cont.innerHTML =
+    '<div class="stat ok"><div class="n">' + formatCOP(esperado) + '</div><div class="l">Esperado este mes</div></div>' +
+    '<div class="stat bad"><div class="n">' + vencidos + '</div><div class="l">Vencidos</div></div>' +
+    '<div class="stat warn"><div class="n">' + porVencer + '</div><div class="l">Por vencer (5 días)</div></div>' +
+    '<div class="stat"><div class="n">' + becados + '</div><div class="l">Becados</div></div>';
+}
+
+function filaPago(s, cat) {
+  const ep = estadoPagoSocioCrm(s);
+  const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
+  const valor = valorCobroSocio(s, clubActual);
+  let acciones;
+  if (cat === "vencidos" || cat === "porvencer") {
+    acciones = '<button type="button" class="btn btn-primary btn-sm" onclick="enviarRecordatorioWhatsapp(\'' + s.id + '\',this)"><i class="fa-brands fa-whatsapp"></i> Recordar por WhatsApp</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" onclick="enviarRecordatorioCorreoLista(\'' + s.id + '\',this)"><i class="fa-solid fa-envelope"></i> Recordar por correo</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" onclick="marcarPagadoDesdeLista(\'' + s.id + '\',this)"><i class="fa-solid fa-check-double"></i> Marcar pagado</button>';
+  } else if (cat === "aldia") {
+    acciones = (s.historialPagosSocio || []).length
+      ? '<button type="button" class="btn btn-primary btn-sm" onclick="enviarSoporteWhatsapp(\'' + s.id + '\',this)"><i class="fa-brands fa-whatsapp"></i> Enviar soporte por WhatsApp</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="enviarSoporteCorreo(\'' + s.id + '\',this)"><i class="fa-solid fa-envelope"></i> Enviar soporte por correo</button>'
+      : '<small style="color:var(--gray-d);font-size:.72rem">Sin pagos registrados todavía.</small>';
+  } else if (cat === "becados") {
+    acciones = '<small style="color:var(--gray-d);font-size:.72rem">Becado — no genera cobros.</small>';
+  } else {
+    acciones = '<small style="color:var(--gray-d);font-size:.72rem">Configura el cobro desde su ficha completa.</small>';
+  }
+  return '<div class="pago-item">' +
+    '<div class="pago-item-top">' +
+      '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
+      '<div class="pago-item-info"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
+      '<div class="pago-item-right"><span class="pill ' + ep.clase + '">' + ep.texto + '</span>' + (valor ? '<span class="pago-item-valor">' + formatCOP(valor) + '</span>' : '') + '</div>' +
+    '</div>' +
+    '<div class="pago-item-actions">' + acciones + '<a class="btn btn-ghost btn-sm" href="socio.html?cliente=' + clubActual.id + '&id=' + s.id + '"><i class="fa-solid fa-id-card"></i> Ficha</a></div>' +
+  '</div>';
+}
+
+function pintarListaPagos() {
+  const box = document.getElementById("listaPagos");
+  if (!box) return;
+  pintarResumenPagos();
+  const q = (document.getElementById("pagosBuscar").value || "").toLowerCase().trim();
+  let lista = SOCIOS.filter(function (s) { return !q || (s.nombre || "").toLowerCase().includes(q); });
+  if (filtroPagos !== "todos") lista = lista.filter(function (s) { return categoriaPago(s) === filtroPagos; });
+
+  if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
+
+  const grupos = [
+    { key: "vencidos", titulo: "Vencidos", icono: "fa-triangle-exclamation" },
+    { key: "porvencer", titulo: "Por vencer", icono: "fa-clock" },
+    { key: "aldia", titulo: "Al día", icono: "fa-circle-check" },
+    { key: "becados", titulo: "Becados", icono: "fa-star" },
+    { key: "sindefinir", titulo: "Sin cobro definido", icono: "fa-circle-question" }
+  ];
+
+  let html = "";
+  grupos.forEach(function (g) {
+    const items = lista.filter(function (s) { return categoriaPago(s) === g.key; });
+    if (!items.length) return;
+    html += '<div class="pago-group-hdr"><i class="fa-solid ' + g.icono + '"></i> ' + g.titulo + ' (' + items.length + ')</div>';
+    html += items.map(function (s) { return filaPago(s, g.key); }).join("");
+  });
+  box.innerHTML = html || '<p class="empty">No hay socios para mostrar.</p>';
+}
+
+document.getElementById("pagosBuscar").addEventListener("input", pintarListaPagos);
+document.querySelectorAll(".tpl-pill[data-pagofiltro]").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".tpl-pill[data-pagofiltro]").forEach(function (b) { b.classList.remove("on"); });
+    btn.classList.add("on");
+    filtroPagos = btn.dataset.pagofiltro;
+    pintarListaPagos();
+  });
+});
+
+function enviarRecordatorioWhatsapp(id, btn) {
+  const s = socioPorId(id);
+  if (!s || s.becado) return;
+  let tel = (s.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRecordatorioWhatsapp(s)), "_blank");
+  registrarComunicacion(s.id, "whatsapp", "Recordatorio de pago enviado por WhatsApp").then(function () {
+    mostrarExito("Recordatorio enviado y registrado.");
+  });
+}
+
+function enviarRecordatorioCorreoLista(id, btn) {
+  const s = socioPorId(id);
+  if (!s || s.becado) return;
+  if (!s.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
+  const original = btn ? btn.innerHTML : "";
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...'; }
+  enviarRecordatorioCorreo(s).then(function () {
+    mostrarExito("Correo enviado a " + s.correo);
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+  }).finally(function () {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  });
+}
+
+function marcarPagadoDesdeLista(id, btn) {
+  const s = socioPorId(id);
+  if (!s || s.becado) return;
+  const hoy = new Date(); const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  db.collection("clientes").doc(clubActual.id).collection("socios").doc(s.id).update({
+    pagoProximo: proximo.toISOString().slice(0, 10),
+    pagoUltimo: hoy.toISOString().slice(0, 10),
+    historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: valorCobroSocio(s, clubActual) })
+  }).then(function () { mostrarExito("Pago registrado."); });
+}
+
+function generarSoporteSocio(s) {
+  const historial = s.historialPagosSocio || [];
+  const ultimo = historial.length ? historial[historial.length - 1] : null;
+  const valor = ultimo ? ultimo.valor : valorCobroSocio(s, clubActual);
+  const fecha = ultimo ? new Date(ultimo.fecha + "T12:00:00") : new Date();
+  const concepto = "Mensualidad — " + (s.categoria || "socio") + (s.notaCobro ? " (" + s.notaCobro + ")" : "");
+  const pdf = generarReciboPDF({
+    emisorNombre: clubActual.clubNombre || "BioFutbol",
+    colorPrimario: clubActual.colorPrimario || "#18A83A",
+    pagadorNombre: s.nombre || "—",
+    pagadorDoc: s.documento || "",
+    concepto: concepto,
+    valor: valor,
+    fecha: fecha
+  });
+  return subirReciboPDF(pdf, "recibo-" + s.id + "-" + Date.now() + ".pdf").then(function (url) {
+    registrarAuditoria("Recibo de socio generado", clubActual.id, s.nombre, formatCOP(valor));
+    return url;
+  });
+}
+
+function enviarSoporteWhatsapp(id, btn) {
+  const s = socioPorId(id);
+  if (!s) return;
+  let tel = (s.telefono || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  const original = btn ? btn.innerHTML : "";
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...'; }
+  generarSoporteSocio(s).then(function (url) {
+    const mensaje = "¡Hola! Aquí tienes el comprobante de pago de " + (s.nombre || "tu deportista") + ": " + url;
+    window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+    return registrarComunicacion(s.id, "whatsapp", "Comprobante de pago enviado por WhatsApp");
+  }).then(function () {
+    mostrarExito("Comprobante enviado por WhatsApp.");
+  }).catch(function (err) {
+    mostrarError("No se pudo generar/enviar el comprobante: " + err.message);
+  }).finally(function () {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  });
+}
+
+function enviarSoporteCorreo(id, btn) {
+  const s = socioPorId(id);
+  if (!s) return;
+  if (!s.correo) { mostrarError("Este socio no tiene correo registrado."); return; }
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") { mostrarError("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."); return; }
+  const original = btn ? btn.innerHTML : "";
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...'; }
+  generarSoporteSocio(s).then(function (url) {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: s.correo,
+      to_name: s.nombre || "",
+      club_nombre: clubActual.clubNombre || "",
+      asunto: "Comprobante de pago — " + (clubActual.clubNombre || "BioFutbol"),
+      mensaje: "Aquí tienes el comprobante de pago de " + (s.nombre || "tu deportista") + ".",
+      boton_texto: "Ver comprobante",
+      boton_url: url,
+      contrato_url: url
+    }).then(function () {
+      return registrarComunicacion(s.id, "correo", "Comprobante de pago enviado por correo");
+    });
+  }).then(function () {
+    mostrarExito("Comprobante enviado a " + s.correo);
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el comprobante: " + (err.text || err.message));
+  }).finally(function () {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  });
+}
 
 // ── Imágenes para redes sociales ──
 let tplActual = "jornada";
