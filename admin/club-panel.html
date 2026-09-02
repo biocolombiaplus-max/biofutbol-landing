@@ -709,6 +709,14 @@
             <input type="file" id="imgFondoInput" accept="image/*" style="display:none">
             <button type="button" class="btn btn-ghost btn-sm" id="btnQuitarFondo" style="display:none;margin-top:8px">Quitar fondo</button>
           </div>
+          <div class="field-row" style="margin-top:14px">
+            <div class="field"><label>Color del texto / título</label><input type="color" id="imgColorTexto" style="height:44px;padding:4px;cursor:pointer"></div>
+            <div class="field">
+              <label>Visibilidad del fondo <span id="imgOpacidadFondoVal">100%</span></label>
+              <input type="range" id="imgOpacidadFondo" min="25" max="100" value="100" style="width:100%;margin-top:12px">
+            </div>
+          </div>
+          <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-top:6px">Ajusta esto si necesitas acomodar el texto o el fondo a tu gusto. La visibilidad del fondo solo aplica si subiste una imagen.</small>
         </div>
 
         <button type="button" class="btn btn-primary btn-block" id="btnGenerarImagen" style="margin-top:18px"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar imagen</button>
@@ -2944,6 +2952,8 @@ document.querySelectorAll(".tpl-pill[data-tpl]").forEach(function (btn) {
 
 let formatoImgActual = "story";
 let fondoImgUrl = "";
+let colorTextoActual = "#FFC933";
+let opacidadFondoActual = 1;
 
 document.querySelectorAll(".tpl-pill[data-formato]").forEach(function (btn) {
   btn.addEventListener("click", function () {
@@ -2951,6 +2961,15 @@ document.querySelectorAll(".tpl-pill[data-formato]").forEach(function (btn) {
     btn.classList.add("on");
     formatoImgActual = btn.dataset.formato;
   });
+});
+
+document.getElementById("imgColorTexto").addEventListener("input", function () {
+  colorTextoActual = this.value;
+});
+
+document.getElementById("imgOpacidadFondo").addEventListener("input", function () {
+  opacidadFondoActual = Number(this.value) / 100;
+  document.getElementById("imgOpacidadFondoVal").textContent = this.value + "%";
 });
 
 document.getElementById("imgFondoInput").addEventListener("change", function (e) {
@@ -3184,7 +3203,7 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
         fecha: p.fecha ? formatFechaSimple(p.fecha) : "", cancha: p.cancha || ""
       };
     });
-    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos, formato: formatoImgActual, fondoUrl: fondoImgUrl });
+    tarea = generarImagenJornada(canvas, { club: clubActual, partidos: partidos, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
     caption = "📅 Así queda nuestra próxima jornada — " + (clubActual.clubNombre || "el club") + " ⚽ #BioFutbol";
   } else if (tplActual === "partido") {
     const d = {
@@ -3195,7 +3214,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       hora: formatoHora12(document.getElementById("pImgHora").value),
       lugar: document.getElementById("pImgLugar").value.trim(),
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
@@ -3212,7 +3233,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       golesRival: Number(document.getElementById("rImgGolesRival").value) || 0,
       fecha: formatFechaBonita(document.getElementById("rImgFecha").value),
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     if (!d.rival) { mostrarError("Ingresa el equipo rival."); cancelar(); return; }
     const eqRival2 = EQUIPOS.find(function (x) { return x.nombre === d.rival; });
@@ -3223,14 +3246,14 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
   } else if (tplActual === "tabla_img") {
     const filas = calcularTabla();
     if (!filas.length) { mostrarError("Todavía no hay equipos o partidos jugados para generar la tabla."); cancelar(); return; }
-    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl });
+    tarea = generarImagenTabla(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
     caption = "📊 Así va la tabla de posiciones de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "goleadores_img") {
     const filas = calcularGoleadores().slice(0, 10).map(function (g) {
       return { nombre: g.nombre, goles: g.goles, equipoNombre: nombreEquipo(g.equipoId) };
     });
     if (!filas.length) { mostrarError("Todavía no hay goles registrados para generar la imagen."); cancelar(); return; }
-    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl });
+    tarea = generarImagenGoleadores(canvas, { club: clubActual, filas: filas, formato: formatoImgActual, fondoUrl: fondoImgUrl, colorTexto: colorTextoActual, opacidadFondo: opacidadFondoActual });
     caption = "🥇 Tabla de goleadores de " + (clubActual.clubNombre || "nuestro club") + " #BioFutbol";
   } else if (tplActual === "aliado") {
     const d = {
@@ -3242,7 +3265,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       logoUrl: aImgLogoUrl,
       mostrarEscudo: document.getElementById("aImgEscudo").checked,
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     if (!d.nombre) { mostrarError("Ingresa el nombre del patrocinador."); cancelar(); return; }
     tarea = generarImagenAliado(canvas, d);
@@ -3256,7 +3281,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       hora: document.getElementById("entImgHora").value.trim(),
       sede: document.getElementById("entImgSede").value.trim(),
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     if (!d.dia || !d.hora) { mostrarError("Ingresa al menos el día y la hora del entrenamiento."); cancelar(); return; }
     tarea = generarImagenEntrenamiento(canvas, d);
@@ -3268,7 +3295,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       categoria: document.getElementById("cumImgCategoria").value.trim(),
       fotoUrl: cumImgFotoUrl,
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     if (!d.nombre) { mostrarError("Ingresa el nombre del cumpleañero."); cancelar(); return; }
     tarea = generarImagenCumpleanos(canvas, d);
@@ -3283,7 +3312,9 @@ document.getElementById("btnGenerarImagen").addEventListener("click", function (
       club: clubActual,
       torneo: { nombre: t.nombre, logoUrl: t.logoUrl, fechaTexto: fechaTexto, lugar: t.lugar, valorInscripcion: t.valorInscripcion },
       formato: formatoImgActual,
-      fondoUrl: fondoImgUrl
+      fondoUrl: fondoImgUrl,
+      colorTexto: colorTextoActual,
+      opacidadFondo: opacidadFondoActual
     };
     tarea = generarImagenTorneo(canvas, d);
     caption = "🏆 ¡Nos vamos al " + t.nombre + "! " + (fechaTexto ? fechaTexto + " " : "") + (t.lugar ? "en " + t.lugar + " " : "") + "#BioFutbol";
@@ -4253,6 +4284,8 @@ function precargarFormMiClub() {
   document.getElementById("mcColorPrimario").value = clubActual.colorPrimario || "#18A83A";
   document.getElementById("mcColorSecundario").value = clubActual.colorSecundario || "#0e7d29";
   document.getElementById("mcColorTerciario").value = clubActual.colorTerciario || "#FFC933";
+  document.getElementById("imgColorTexto").value = clubActual.colorTerciario || "#FFC933";
+  colorTextoActual = document.getElementById("imgColorTexto").value;
   document.getElementById("mcMensualidad").value = clubActual.pagoMensualidad || "";
   document.getElementById("mcNequiNumero").value = clubActual.pagoNequiNumero || "";
   document.getElementById("mcNequiTitular").value = clubActual.pagoNequiTitular || "";

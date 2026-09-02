@@ -201,12 +201,12 @@ async function generarImagenPartido(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
   const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
-  const cGold = (d.club && d.club.colorTerciario) || "#FFC933";
+  const cGold = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   ctx.textAlign = "center";
 
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -289,7 +289,7 @@ async function generarImagenResultado(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -298,7 +298,7 @@ async function generarImagenResultado(canvas, d) {
   imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   ctx.font = "800 " + Math.round(W * 0.028) + "px Poppins, sans-serif";
   ctx.fillText("RESULTADO FINAL", W / 2, escudoY + escudoR + H * 0.038);
 
@@ -340,7 +340,7 @@ async function generarImagenJornada(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -348,7 +348,7 @@ async function generarImagenJornada(canvas, d) {
   imgEscudo(ctx, logo, W / 2, H * 0.081, escudoR);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   ctx.font = "800 " + Math.round(W * 0.026) + "px Poppins, sans-serif";
   ctx.fillText("PRÓXIMA JORNADA", W / 2, H * 0.141);
   ctx.fillStyle = "#fff";
@@ -394,7 +394,7 @@ async function generarImagenJornada(canvas, d) {
     ctx.fillText("VS", W / 2, badgeCy + H * 0.005);
 
     ctx.font = "700 " + Math.round(W * 0.0213) + "px Poppins, sans-serif";
-    ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+    ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
     const infoTxt = [p.fecha, p.hora].filter(Boolean).join(" · ");
     if (infoTxt) ctx.fillText(infoTxt, W / 2, y + H * 0.0177);
     if (p.cancha) {
@@ -414,7 +414,7 @@ async function generarImagenGoleadores(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -433,7 +433,7 @@ async function generarImagenGoleadores(canvas, d) {
   const rowH = Math.min(H * 0.0667, (zonaBottom - zonaTop) / filasN);
   const padX = W * 0.0556;
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
-  const cOro = (d.club && d.club.colorTerciario) || "#FFC933";
+  const cOro = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
 
   if (!filas.length) {
     ctx.fillStyle = "rgba(255,255,255,.7)";
@@ -479,7 +479,7 @@ async function generarImagenTabla(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
@@ -537,7 +537,7 @@ async function generarImagenAliado(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   let topY = H * 0.083;
@@ -551,7 +551,7 @@ async function generarImagenAliado(canvas, d) {
   }
 
   ctx.textAlign = "center";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   ctx.font = "800 " + Math.round(W * 0.026) + "px Poppins, sans-serif";
   ctx.fillText("ALIADO OFICIAL", W / 2, topY);
 
@@ -611,11 +611,16 @@ const IMG_FORMATOS = {
   square: { w: 1080, h: 1080, label: "1:1 · Cuadrada" }
 };
 
-function imgFondoPersonalizado(ctx, w, h, fondoImg, club) {
+function imgFondoPersonalizado(ctx, w, h, fondoImg, club, opacidad) {
   if (fondoImg) {
+    ctx.fillStyle = "#05070a";
+    ctx.fillRect(0, 0, w, h);
     const scale = Math.max(w / fondoImg.width, h / fondoImg.height);
     const iw = fondoImg.width * scale, ih = fondoImg.height * scale;
+    ctx.save();
+    ctx.globalAlpha = opacidad != null ? opacidad : 1;
     ctx.drawImage(fondoImg, (w - iw) / 2, (h - ih) / 2, iw, ih);
+    ctx.restore();
     const overlay = ctx.createLinearGradient(0, 0, 0, h);
     overlay.addColorStop(0, "rgba(5,7,10,.5)");
     overlay.addColorStop(.55, "rgba(5,7,10,.28)");
@@ -677,44 +682,45 @@ async function generarImagenEntrenamiento(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
+  const cAccent = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   const logo = await imgLoadImage(d.club && d.club.logoUrl);
-  const escudoR = W * 0.075;
-  const escudoY = H * 0.13;
+  const escudoR = W * 0.11;
+  const escudoY = H * 0.115;
   imgEscudo(ctx, logo, W / 2, escudoY, escudoR);
 
   ctx.textAlign = "center";
   const esHoy = d.tipo === "hoy";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
-  ctx.font = "800 " + Math.round(W * 0.032) + "px Poppins, sans-serif";
-  ctx.fillText(esHoy ? "¡HOY ENTRENAMOS!" : "RECORDATORIO · ENTRENAMOS MAÑANA", W / 2, escudoY + escudoR + H * 0.045);
+  ctx.fillStyle = cAccent;
+  ctx.font = "800 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
+  ctx.fillText(esHoy ? "¡HOY ENTRENAMOS!" : "RECORDATORIO · ENTRENAMOS MAÑANA", W / 2, escudoY + escudoR + H * 0.05);
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.068) + "px Poppins, sans-serif";
-  imgWrapText(ctx, d.categoria ? d.categoria.toUpperCase() : "TODAS LAS CATEGORÍAS", W / 2, escudoY + escudoR + H * 0.11, W * 0.85, W * 0.072, 2);
+  ctx.font = "900 " + Math.round(W * 0.066) + "px Poppins, sans-serif";
+  imgWrapText(ctx, d.categoria ? d.categoria.toUpperCase() : "TODAS LAS CATEGORÍAS", W / 2, escudoY + escudoR + H * 0.115, W * 0.85, W * 0.07, 2);
 
-  const cardW = W * 0.82, cardH = H * 0.24, cardY = H * 0.46, cardX = (W - cardW) / 2;
+  const cardW = W * 0.84, cardH = H * 0.235, cardY = H * 0.48, cardX = (W - cardW) / 2;
   imgRoundRect(ctx, cardX, cardY, cardW, cardH, 24);
-  ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.fill();
-  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.stroke();
+  ctx.fillStyle = "rgba(5,7,10,.45)"; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.22)"; ctx.stroke();
 
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(cardH * 0.32) + "px Poppins, sans-serif";
+  imgFitFont(ctx, d.dia || "", cardW * 0.86, "900", cardH * 0.32, cardH * 0.16);
   ctx.fillText(d.dia || "", W / 2, cardY + cardH * 0.4);
-  ctx.font = "800 " + Math.round(cardH * 0.24) + "px Poppins, sans-serif";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillStyle = cAccent;
+  imgFitFont(ctx, d.hora || "", cardW * 0.86, "800", cardH * 0.24, cardH * 0.11);
   ctx.fillText(d.hora || "", W / 2, cardY + cardH * 0.7);
   if (d.sede) {
-    ctx.font = "600 " + Math.round(cardH * 0.15) + "px Poppins, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,.75)";
-    ctx.fillText(d.sede, W / 2, cardY + cardH * 0.92);
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    imgFitFont(ctx, d.sede, cardW * 0.86, "600", cardH * 0.15, cardH * 0.08);
+    imgWrapText(ctx, d.sede, W / 2, cardY + cardH * 0.92, cardW * 0.9, cardH * 0.16, 1);
   }
 
   ctx.font = "600 " + Math.round(W * 0.03) + "px Poppins, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,.8)";
-  imgWrapText(ctx, esHoy ? "¡No faltes! Nos vemos en la cancha 💪⚽" : "Prepárate, mañana seguimos mejorando 💪⚽", W / 2, cardY + cardH + H * 0.06, W * 0.78, W * 0.038, 2);
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  imgWrapText(ctx, esHoy ? "¡No faltes! Nos vemos en la cancha 💪⚽" : "Prepárate, mañana seguimos mejorando 💪⚽", W / 2, cardY + cardH + H * 0.065, W * 0.78, W * 0.04, 2);
 
   imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }
@@ -759,53 +765,62 @@ async function generarImagenCumpleanos(canvas, d) {
   const ctx = canvas.getContext("2d");
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
-  const cOro = (d.club && d.club.colorTerciario) || "#FFC933";
+  const cOro = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
-  const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
   ctx.textAlign = "center";
 
   imgConfeti(ctx, W, H, [cOro, c1, "#ff6b8b", "#4fc3f7", "#ffffff"], H * 0.02, H * 0.98);
 
   // El formato cuadrado tiene ~44% menos alto que la historia con el mismo
-  // ancho — sin este factor, el titular y la foto tuvieron que reducirse o
-  // se encimaban. "k" comprime tipografía/foto solo en cuadrado.
-  const k = H < W * 1.4 ? 0.72 : 1;
+  // ancho — "k" compacta tipografía/foto solo en cuadrado para que nada
+  // se encime. El resto del diseño se arma con un cursor "y" que va
+  // bajando después de cada elemento — así el orden nunca se pisa,
+  // sin importar el club, el nombre o la foto que se use.
+  const k = H < W * 1.4 ? 0.74 : 1;
+  let y = H * 0.062;
 
-  // Pastilla "CUMPLEAÑOS" pequeña arriba, como preludio del titular grande.
+  // Pastilla "CUMPLEAÑOS" pequeña, como preludio del titular grande.
   const pillTxt = "🎉  CUMPLEAÑOS  🎉";
   ctx.font = "800 " + Math.round(W * 0.026 * k) + "px Poppins, sans-serif";
-  const pillPadX = W * 0.045, pillH = H * 0.032;
+  const pillPadX = W * 0.045, pillH = H * 0.034 * k;
   const pillW = ctx.measureText(pillTxt).width + pillPadX * 2;
-  const pillY = H * 0.075;
-  imgRoundRect(ctx, W / 2 - pillW / 2, pillY - pillH * 0.7, pillW, pillH, pillH / 2);
+  y += pillH * 0.72;
+  imgRoundRect(ctx, W / 2 - pillW / 2, y - pillH * 0.7, pillW, pillH, pillH / 2);
   ctx.fillStyle = imgRgba(cOro, .18); ctx.fill();
   ctx.lineWidth = 2; ctx.strokeStyle = imgRgba(cOro, .55); ctx.stroke();
   ctx.fillStyle = cOro;
-  ctx.fillText(pillTxt, W / 2, pillY + pillH * 0.14);
+  ctx.fillText(pillTxt, W / 2, y + pillH * 0.16);
+  y += pillH * 0.95;
 
-  // Titular grande "¡FELIZ CUMPLEAÑOS!" — el foco visual de toda la
-  // imagen: tipografía juvenil bien gruesa, con degradado dorado y
-  // resplandor, tal como pide un look "muy pro, muy premium".
-  const tituloY = H * 0.155;
-  const tituloLineGap = W * 0.095 * k;
+  // Titular "¡FELIZ CUMPLEAÑOS!" en el color elegido (o el dorado del
+  // club), con una placa oscura detrás para que siempre se lea bien, sin
+  // importar qué tan clara o "ocupada" sea la foto de fondo. Se dibuja
+  // ANTES de calcular dónde va la foto, y la foto se dibuja bien abajo —
+  // nunca se pisan entre sí.
+  const tFont = Math.round(W * 0.08 * k);
+  const tGap = tFont * 1.1;
+  const plateW = W * 0.92, plateH = tGap * 2 + tFont * 0.5;
+  imgRoundRect(ctx, W / 2 - plateW / 2, y, plateW, plateH, 22);
+  ctx.fillStyle = "rgba(5,7,10,.42)"; ctx.fill();
+
+  y += tFont * 0.88;
   ctx.save();
-  ctx.font = "900 " + Math.round(W * 0.088 * k) + "px Poppins, sans-serif";
-  const tituloGrad = ctx.createLinearGradient(W * 0.5 - W * 0.42, 0, W * 0.5 + W * 0.42, 0);
-  tituloGrad.addColorStop(0, "#fff8e0");
-  tituloGrad.addColorStop(.45, cOro);
-  tituloGrad.addColorStop(1, "#fff8e0");
-  ctx.fillStyle = tituloGrad;
-  ctx.shadowColor = imgRgba(cOro, .55);
-  ctx.shadowBlur = W * 0.035;
-  imgWrapText(ctx, "¡FELIZ", W / 2, tituloY, W * 0.92, W * 0.086 * k, 1);
-  imgWrapText(ctx, "CUMPLEAÑOS!", W / 2, tituloY + tituloLineGap, W * 0.94, W * 0.086 * k, 1);
+  ctx.font = "900 " + tFont + "px Poppins, sans-serif";
+  ctx.fillStyle = cOro;
+  ctx.shadowColor = "rgba(0,0,0,.6)";
+  ctx.shadowBlur = W * 0.01;
+  ctx.shadowOffsetY = W * 0.005;
+  ctx.fillText("¡FELIZ", W / 2, y);
+  ctx.fillText("CUMPLEAÑOS!", W / 2, y + tGap);
   ctx.restore();
+  y += tGap + tFont * 0.62;
 
-  const r = W * 0.25 * k;
-  const cy = tituloY + tituloLineGap + H * (k < 1 ? 0.205 : 0.135);
+  // Foto del cumpleañero, siempre bien debajo del titular.
+  const r = W * 0.235 * k;
+  const cy = y + r;
   const glow = ctx.createRadialGradient(W / 2, cy, r * 0.6, W / 2, cy, r * 1.35);
   glow.addColorStop(0, imgRgba(cOro, .28));
   glow.addColorStop(1, imgRgba(cOro, 0));
@@ -814,27 +829,32 @@ async function generarImagenCumpleanos(canvas, d) {
 
   await imgFotoCover(ctx, W / 2, cy, r, d.fotoUrl, d.nombre, c1);
 
-  // Estrellita de acento sobre el aro de la foto, como si fuera una
-  // insignia — remata el efecto "muy premium" de la pieza.
+  // Estrellita de acento sobre el aro de la foto, como una insignia.
   ctx.save();
-  ctx.font = "900 " + Math.round(W * 0.07 * k) + "px Poppins, sans-serif";
+  ctx.font = "900 " + Math.round(W * 0.065 * k) + "px Poppins, sans-serif";
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText("⭐", W / 2 + r * 0.78, cy - r * 0.78);
+  ctx.fillText("⭐", W / 2 + r * 0.76, cy - r * 0.76);
   ctx.restore();
+  ctx.textBaseline = "alphabetic";
 
+  y = cy + r + H * 0.065;
   ctx.fillStyle = "#fff";
-  ctx.font = "900 " + Math.round(W * 0.07 * k) + "px Poppins, sans-serif";
-  imgWrapText(ctx, (d.nombre || "").toUpperCase(), W / 2, cy + r + H * 0.06, W * 0.85, W * 0.075 * k, 2);
+  const nombreFont = W * 0.066 * k;
+  ctx.font = "900 " + Math.round(nombreFont) + "px Poppins, sans-serif";
+  const nombreLineas = imgWrapText(ctx, (d.nombre || "").toUpperCase(), W / 2, y, W * 0.85, nombreFont * 1.05, 2);
+  y += nombreFont * 1.05 * Math.max(nombreLineas, 1) + H * 0.014;
 
   if (d.categoria) {
-    ctx.font = "700 " + Math.round(W * 0.03 * k) + "px Poppins, sans-serif";
+    ctx.font = "700 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
     ctx.fillStyle = imgRgba(cOro, .95);
-    ctx.fillText(d.categoria, W / 2, cy + r + H * 0.118);
+    ctx.fillText(d.categoria, W / 2, y);
+    y += H * 0.045;
   }
 
-  ctx.font = "600 " + Math.round(W * 0.03 * k) + "px Poppins, sans-serif";
+  y += H * 0.018;
+  ctx.font = "600 " + Math.round(W * 0.028 * k) + "px Poppins, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,.88)";
-  imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, cy + r + H * 0.2, W * 0.8, W * 0.042 * k, 3);
+  imgWrapText(ctx, "Todo el equipo de " + ((d.club && d.club.clubNombre) || "tu club") + " te desea un día increíble ⚽🎂", W / 2, y, W * 0.8, W * 0.04 * k, 3);
 
   imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }
@@ -848,11 +868,11 @@ async function generarImagenTorneo(canvas, d) {
   const torneo = d.torneo || {};
 
   const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club);
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
 
   const barraH = H * 0.11;
   ctx.textAlign = "center";
-  ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+  ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
   ctx.font = "800 " + Math.round(W * 0.032) + "px Poppins, sans-serif";
   ctx.fillText("🏆 NOS VAMOS AL TORNEO", W / 2, H * 0.11);
 
@@ -883,7 +903,7 @@ async function generarImagenTorneo(canvas, d) {
   if (torneo.valorInscripcion) {
     const inscTxt = "Inscripción: $" + Number(torneo.valorInscripcion).toLocaleString("es-CO");
     imgFitFont(ctx, inscTxt, cardW * 0.9, "800", cardH * 0.2, cardH * 0.1);
-    ctx.fillStyle = (d.club && d.club.colorTerciario) || "#FFC933";
+    ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
     ctx.fillText(inscTxt, W / 2, cardY + cardH * 0.9);
   }
 
