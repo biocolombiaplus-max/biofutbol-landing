@@ -35,6 +35,21 @@
 .creco-info>i{background:rgba(255,255,255,.08);color:var(--gray)}
 details.creco-detalle{margin-top:14px}
 details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;color:var(--gray);padding:6px 0}
+
+/* ── Uniformes del socio: cada cargo con su barra de avance de pago,
+   pensado para que quepan varios uniformes al año con abonos parciales. ── */
+.uni-row{background:var(--card2);border:1px solid var(--card-b2);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+.uni-row-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.uni-row-nombre{font-weight:800;font-size:.88rem}
+.uni-row-fecha{font-size:.72rem;color:var(--gray-d);margin-top:1px}
+.uni-row-bar{height:6px;border-radius:99px;background:var(--card);overflow:hidden;margin-bottom:8px}
+.uni-row-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--green-l));transition:width .3s}
+.uni-row-nums{display:flex;justify-content:space-between;gap:8px;font-size:.76rem;color:var(--gray);margin-bottom:10px}
+.uni-row-nums b{color:var(--white)}
+.uni-row-actions{display:flex;gap:8px}
+.uni-row-actions .btn{flex:1}
+.uni-form{background:var(--card2);border:1px dashed var(--card-b2);border-radius:12px;padding:14px;margin-top:10px}
+.uni-form .field:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -222,6 +237,43 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
       </div>
 
       <div class="card">
+        <h3><i class="fa-solid fa-file-signature"></i> Inscripción</h3>
+        <div class="status-row"><span class="k">Estado</span><span id="inscripcionPill" class="pill muted">—</span></div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Valor de inscripción (COP)</label><input type="number" id="inscripcionValor" min="0" step="1000"></div>
+          <div class="field"><label>Fecha de pago</label><input type="date" id="inscripcionFecha"></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
+          <input type="checkbox" id="inscripcionPagada" style="width:19px;height:19px;accent-color:var(--green-l);flex-shrink:0">
+          <span style="font-weight:700;font-size:.86rem">Ya pagó la inscripción</span>
+        </label>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnGuardarInscripcion"><i class="fa-solid fa-floppy-disk"></i> Guardar inscripción</button>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-shirt"></i> Uniformes</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Cada uniforme que compre durante el año, con su propio pago parcial o total y saldo pendiente — igual que en una tienda.</p>
+        <div id="uniformesLista"></div>
+        <p id="uniformesVacio" style="display:none;font-size:.82rem;color:var(--gray-d);text-align:center;padding:10px 0">Todavía no hay uniformes registrados.</p>
+
+        <div class="uni-form" id="uniFormNuevo" style="display:none">
+          <div class="field"><label>Uniforme</label><input type="text" id="uniNuevoConcepto" list="listaUniformesClub" placeholder="Ej: Uniforme titular"></div>
+          <div class="field-row">
+            <div class="field"><label>Valor total (COP)</label><input type="number" id="uniNuevoValor" min="0" step="1000"></div>
+            <div class="field"><label>Abono inicial (opcional)</label><input type="number" id="uniNuevoAbono" min="0" step="1000" placeholder="0"></div>
+          </div>
+          <div class="field"><label>Fecha</label><input type="date" id="uniNuevoFecha"></div>
+          <datalist id="listaUniformesClub"></datalist>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="btn btn-primary btn-sm" id="btnGuardarUniNuevo" style="flex:1"><i class="fa-solid fa-check"></i> Agregar</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarUniNuevo" style="flex:1">Cancelar</button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="btnAgregarUniforme" style="margin-top:10px"><i class="fa-solid fa-plus"></i> Agregar uniforme</button>
+      </div>
+
+      <div class="card">
         <h3><i class="fa-solid fa-id-badge"></i> Carnet digital</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Con el escudo y los colores de este club. Se actualiza solo cuando cambias la foto, el estado o los datos del socio.</p>
         <div class="carnet-wrap" id="carnetContainer"></div>
@@ -371,6 +423,9 @@ function cargarSocio() {
     document.getElementById("becado").checked = !!socioActual.becado;
     pintarHermanos();
     pintarPago();
+    pintarInscripcion();
+    pintarUniformes();
+    cargarCatalogoUniformesClub();
 
     pintarCrecimientoYNutricion();
     pintarCarnet();
@@ -531,6 +586,11 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
   if (clubActual && clubActual.pagoNequiNumero) {
     mensaje += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   }
+  if (clubActual && clubActual.pagoBancoNumero) {
+    let banco = "Cuenta " + (clubActual.pagoBancoTipo || "bancaria") + (clubActual.pagoBancoNombre ? " " + clubActual.pagoBancoNombre : "") + ": " + clubActual.pagoBancoNumero;
+    if (clubActual.pagoBancoTitular) banco += " (" + clubActual.pagoBancoTitular + (clubActual.pagoBancoDocumento ? " — " + clubActual.pagoBancoDocumento : "") + ")";
+    mensaje += "\n\nO por transferencia — " + banco + ".";
+  }
   if (clubActual && clubActual.pagoWompiLink) {
     mensaje += "\n\nO con tarjeta/PSE aquí: " + clubActual.pagoWompiLink;
   }
@@ -654,6 +714,141 @@ document.getElementById("fotoInput").addEventListener("change", function (e) {
     status.style.display = "none";
     mostrarError("No se pudo subir la foto: " + err.message);
   });
+});
+
+// ── Inscripción ──
+function pintarInscripcion() {
+  const ins = socioActual.inscripcion || {};
+  document.getElementById("inscripcionValor").value = ins.valor || "";
+  document.getElementById("inscripcionFecha").value = ins.fecha || "";
+  document.getElementById("inscripcionPagada").checked = !!ins.pagada;
+  const pill = document.getElementById("inscripcionPill");
+  if (!ins.valor) { pill.textContent = "Sin definir"; pill.className = "pill muted"; }
+  else if (ins.pagada) { pill.textContent = "Pagada"; pill.className = "pill ok"; }
+  else { pill.textContent = "Pendiente"; pill.className = "pill warn"; }
+}
+
+document.getElementById("btnGuardarInscripcion").addEventListener("click", function () {
+  const inscripcion = {
+    valor: Number(document.getElementById("inscripcionValor").value) || 0,
+    fecha: document.getElementById("inscripcionFecha").value,
+    pagada: document.getElementById("inscripcionPagada").checked
+  };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ inscripcion: inscripcion }).then(function () {
+    socioActual.inscripcion = inscripcion;
+    pintarInscripcion();
+    registrarAuditoria("Inscripción del socio actualizada", clienteId, socioActual.nombre, inscripcion.pagada ? "Pagada" : "Pendiente");
+    mostrarExito("Inscripción guardada.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+// ── Uniformes: varios cargos al año, cada uno con su propio abono parcial
+// o total y saldo pendiente calculado (nunca se guarda el saldo, para que
+// no se desincronice — siempre valorTotal menos abonado). ──
+function cargarCatalogoUniformesClub() {
+  db.collection("clientes").doc(clienteId).collection("uniformes").get().then(function (snap) {
+    const dl = document.getElementById("listaUniformesClub");
+    dl.innerHTML = "";
+    snap.forEach(function (doc) {
+      const nombre = doc.data().nombre;
+      if (!nombre) return;
+      const opt = document.createElement("option");
+      opt.value = nombre;
+      dl.appendChild(opt);
+    });
+  }).catch(function () {});
+}
+
+function formatFechaCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function pintarUniformes() {
+  const lista = socioActual.uniformes || [];
+  const box = document.getElementById("uniformesLista");
+  document.getElementById("uniformesVacio").style.display = lista.length ? "none" : "block";
+  box.innerHTML = lista.map(function (u) {
+    const saldo = Math.max(0, (u.valorTotal || 0) - (u.abonado || 0));
+    const pct = u.valorTotal ? Math.min(100, Math.round(((u.abonado || 0) / u.valorTotal) * 100)) : 0;
+    const estado = saldo <= 0 ? { texto: "Pagado", clase: "ok" } : (u.abonado > 0 ? { texto: "Pago parcial", clase: "warn" } : { texto: "Pendiente", clase: "bad" });
+    return '<div class="uni-row">' +
+      '<div class="uni-row-top">' +
+        '<div><div class="uni-row-nombre">' + esc(u.concepto || "Uniforme") + '</div><div class="uni-row-fecha">' + formatFechaCorta(u.fecha) + '</div></div>' +
+        '<span class="pill ' + estado.clase + '">' + estado.texto + '</span>' +
+      '</div>' +
+      '<div class="uni-row-bar"><div class="uni-row-bar-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="uni-row-nums"><span>Total <b>' + formatCOP(u.valorTotal || 0) + '</b></span><span>Abonado <b>' + formatCOP(u.abonado || 0) + '</b></span><span>Saldo <b>' + formatCOP(saldo) + '</b></span></div>' +
+      '<div class="uni-row-actions">' +
+        (saldo > 0 ? '<button type="button" class="btn btn-primary btn-sm" data-abonar="' + u.id + '"><i class="fa-solid fa-hand-holding-dollar"></i> Abonar pago</button>' : '') +
+        '<button type="button" class="btn btn-ghost btn-sm" data-eliminar-uni="' + u.id + '"><i class="fa-solid fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function guardarUniformes(lista) {
+  return db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({ uniformes: lista }).then(function () {
+    socioActual.uniformes = lista;
+    pintarUniformes();
+  });
+}
+
+document.getElementById("btnAgregarUniforme").addEventListener("click", function () {
+  document.getElementById("uniFormNuevo").style.display = "block";
+  document.getElementById("uniNuevoFecha").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("uniNuevoConcepto").focus();
+});
+
+document.getElementById("btnCancelarUniNuevo").addEventListener("click", function () {
+  document.getElementById("uniFormNuevo").style.display = "none";
+  document.getElementById("uniNuevoConcepto").value = "";
+  document.getElementById("uniNuevoValor").value = "";
+  document.getElementById("uniNuevoAbono").value = "";
+});
+
+document.getElementById("btnGuardarUniNuevo").addEventListener("click", function () {
+  const concepto = document.getElementById("uniNuevoConcepto").value.trim();
+  const valorTotal = Number(document.getElementById("uniNuevoValor").value) || 0;
+  const abonado = Math.min(Number(document.getElementById("uniNuevoAbono").value) || 0, valorTotal);
+  const fecha = document.getElementById("uniNuevoFecha").value || new Date().toISOString().slice(0, 10);
+  if (!concepto) { mostrarError("Ingresa qué uniforme es."); return; }
+  if (!valorTotal) { mostrarError("Ingresa el valor total del uniforme."); return; }
+  const nuevo = { id: "u_" + Date.now(), concepto: concepto, valorTotal: valorTotal, abonado: abonado, fecha: fecha };
+  const lista = (socioActual.uniformes || []).concat([nuevo]);
+  guardarUniformes(lista).then(function () {
+    document.getElementById("btnCancelarUniNuevo").click();
+    registrarAuditoria("Uniforme agregado al socio", clienteId, socioActual.nombre, concepto + " — " + formatCOP(valorTotal));
+    mostrarExito("Uniforme agregado.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+document.getElementById("uniformesLista").addEventListener("click", function (e) {
+  const btnAbonar = e.target.closest("[data-abonar]");
+  if (btnAbonar) {
+    const id = btnAbonar.dataset.abonar;
+    const lista = socioActual.uniformes || [];
+    const u = lista.find(function (x) { return x.id === id; });
+    if (!u) return;
+    const saldo = Math.max(0, (u.valorTotal || 0) - (u.abonado || 0));
+    const monto = Number(prompt('¿Cuánto abona a "' + u.concepto + '"? (saldo pendiente: ' + formatCOP(saldo) + ')', saldo)) || 0;
+    if (monto <= 0) return;
+    u.abonado = Math.min(u.valorTotal, (u.abonado || 0) + monto);
+    guardarUniformes(lista).then(function () {
+      registrarAuditoria("Abono a uniforme registrado", clienteId, socioActual.nombre, u.concepto + " — " + formatCOP(monto));
+      mostrarExito("Abono registrado.");
+    }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+    return;
+  }
+  const btnEliminar = e.target.closest("[data-eliminar-uni]");
+  if (btnEliminar) {
+    const id = btnEliminar.dataset.eliminarUni;
+    const lista = (socioActual.uniformes || []).filter(function (x) { return x.id !== id; });
+    if (!confirm("¿Eliminar este uniforme del historial?")) return;
+    guardarUniformes(lista).then(function () { mostrarExito("Uniforme eliminado."); }).catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+  }
 });
 
 function pintarCrecimientoYNutricion() {
