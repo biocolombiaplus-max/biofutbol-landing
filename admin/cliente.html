@@ -96,10 +96,19 @@
             <div class="status-row" style="margin-top:4px"><span class="k">Deportistas registrados ahora</span><span id="pnConteoReal" class="pill muted">—</span></div>
             <div class="status-row"><span class="k">Cobro mínimo mensual</span><span id="pnMinimo" class="pill muted">—</span></div>
             <div class="status-row" id="pnExcedenteRow" style="display:none"><span class="k">Excedente sobre lo pautado</span><span id="pnExcedente" class="pill warn">—</span></div>
+            <div class="status-row" id="pnReferidosRow" style="display:none"><span class="k">Descuento por referidos (<span id="pnReferidosCount">0</span> activo/s)</span><span id="pnReferidosDesc" class="pill ok">-10%</span></div>
             <div class="status-row" style="margin-top:6px;border-top:1px solid var(--card-b2);padding-top:10px"><span class="k" style="font-weight:800">Total sugerido a cobrar</span><span id="pnTotal" class="pill ok" style="font-size:.9rem">—</span></div>
             <button type="button" class="btn btn-ghost btn-sm btn-block" id="btnUsarValorPautado" style="margin-top:12px"><i class="fa-solid fa-arrow-down"></i> Usar este valor en "Valor recibido"</button>
             <button type="button" class="btn btn-primary btn-sm btn-block" id="btnEnviarPlanWhatsapp" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviar resumen de pago por WhatsApp</button>
           </div>
+        </div>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <div class="field">
+            <label><i class="fa-solid fa-gift"></i> ¿Quién refirió a este club? (opcional)</label>
+            <select id="referidoPor"><option value="">— Llegó directo, nadie lo refirió —</option></select>
+          </div>
+          <p style="font-size:.76rem;color:var(--gray-d)">Mientras este club esté <b>activo</b>, el club que lo refirió gana 10% de descuento en su propia mensualidad de BioFutbol (acumulable por cada referido activo).</p>
         </div>
       </div>
 
@@ -290,6 +299,7 @@ requireSuperAdmin().then(function (user) {
     llenarSelectPaises(document.getElementById("clubPais"));
     document.getElementById("estado").value = "pendiente";
     document.getElementById("sendLinkCard").style.display = "block";
+    poblarSelectReferidoPor();
   }
 });
 
@@ -336,6 +346,16 @@ function marcarPlanSeleccionado(planKey) {
 // pautado, y si el club ya creció por encima de ese mínimo, se calcula
 // el excedente automáticamente al mismo valor pautado por deportista.
 let conteoRealSocios = 0;
+// Cuántos clubes referidos por ESTE club (referidoPor === clienteId) están
+// activos ahora mismo — cada uno da 10% de descuento, acumulable hasta un
+// tope razonable para no regalar la mensualidad completa.
+let referidosActivosCount = 0;
+const DESCUENTO_POR_REFERIDO = 0.10;
+const DESCUENTO_REFERIDOS_MAX = 0.5;
+
+function descuentoReferidosPct() {
+  return Math.min(referidosActivosCount * DESCUENTO_POR_REFERIDO, DESCUENTO_REFERIDOS_MAX);
+}
 
 function recalcularPlanNegociado() {
   const activo = document.getElementById("planNegociadoActivo").checked;
@@ -347,7 +367,9 @@ function recalcularPlanNegociado() {
   const facturables = Math.max(pautados, conteoRealSocios);
   const excedente = Math.max(0, conteoRealSocios - pautados);
   const minimo = pautados * valorUnit;
-  const total = facturables * valorUnit;
+  const subtotal = facturables * valorUnit;
+  const descuentoPct = descuentoReferidosPct();
+  const total = Math.round(subtotal * (1 - descuentoPct));
 
   const conteoPill = document.getElementById("pnConteoReal");
   conteoPill.textContent = conteoRealSocios;
@@ -356,7 +378,43 @@ function recalcularPlanNegociado() {
   document.getElementById("pnMinimo").className = "pill muted";
   document.getElementById("pnExcedenteRow").style.display = excedente > 0 ? "flex" : "none";
   if (excedente > 0) document.getElementById("pnExcedente").textContent = excedente + " deportista" + (excedente === 1 ? "" : "s") + " · " + formatCOP(excedente * valorUnit);
+  document.getElementById("pnReferidosRow").style.display = descuentoPct > 0 ? "flex" : "none";
+  if (descuentoPct > 0) {
+    document.getElementById("pnReferidosCount").textContent = referidosActivosCount;
+    document.getElementById("pnReferidosDesc").textContent = "-" + Math.round(descuentoPct * 100) + "%";
+  }
   document.getElementById("pnTotal").textContent = pautados && valorUnit ? formatCOP(total) : "—";
+}
+
+// Llena el selector de "quién refirió a este club" con todos los demás
+// clientes, y cuenta cuántos club referidos POR este club siguen activos
+// (para aplicarle a este mismo club el 10% de descuento acumulado).
+function poblarSelectReferidoPor() {
+  const sel = document.getElementById("referidoPor");
+  db.collection("clientes").get().then(function (snap) {
+    const opciones = [];
+    snap.forEach(function (doc) {
+      if (doc.id === clienteId) return;
+      opciones.push({ id: doc.id, nombre: doc.data().clubNombre || "(sin nombre)" });
+    });
+    opciones.sort(function (a, b) { return a.nombre.localeCompare(b.nombre); });
+    opciones.forEach(function (o) {
+      const opt = document.createElement("option");
+      opt.value = o.id; opt.textContent = o.nombre;
+      sel.appendChild(opt);
+    });
+    sel.value = (clienteActual && clienteActual.referidoPor) || "";
+  });
+}
+
+function cargarReferidosActivos() {
+  if (!clienteId) return;
+  db.collection("clientes").where("referidoPor", "==", clienteId).get().then(function (snap) {
+    let count = 0;
+    snap.forEach(function (doc) { if ((doc.data().estado || "") === "activo") count++; });
+    referidosActivosCount = count;
+    recalcularPlanNegociado();
+  });
 }
 
 document.getElementById("planNegociadoActivo").addEventListener("change", recalcularPlanNegociado);
@@ -367,8 +425,9 @@ document.getElementById("btnUsarValorPautado").addEventListener("click", functio
   const pautados = Number(document.getElementById("deportistasPautados").value) || 0;
   const valorUnit = Number(document.getElementById("valorPorDeportista").value) || 0;
   const facturables = Math.max(pautados, conteoRealSocios);
-  document.getElementById("valorPago").value = facturables * valorUnit;
-  mostrarExito("Valor a cobrar actualizado con el plan pautado.");
+  const descuentoPct = descuentoReferidosPct();
+  document.getElementById("valorPago").value = Math.round(facturables * valorUnit * (1 - descuentoPct));
+  mostrarExito("Valor a cobrar actualizado con el plan pautado" + (descuentoPct > 0 ? " (con el descuento por referidos ya incluido)." : "."));
 });
 
 document.getElementById("btnEnviarPlanWhatsapp").addEventListener("click", function () {
@@ -377,15 +436,17 @@ document.getElementById("btnEnviarPlanWhatsapp").addEventListener("click", funct
   const valorUnit = Number(document.getElementById("valorPorDeportista").value) || 0;
   if (!pautados || !valorUnit) { mostrarError("Define primero los deportistas pautados y el valor por deportista."); return; }
   const facturables = Math.max(pautados, conteoRealSocios);
-  const total = facturables * valorUnit;
+  const descuentoPct = descuentoReferidosPct();
+  const total = Math.round(facturables * valorUnit * (1 - descuentoPct));
 
   let tel = (clienteActual.repTelefono || document.getElementById("repTelefono").value || "").replace(/[^0-9]/g, "");
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
 
   const nombreClub = clienteActual.clubNombre || document.getElementById("clubNombre").value || "tu club";
+  const lineaDescuento = descuentoPct > 0 ? ("Este valor ya incluye tu " + Math.round(descuentoPct * 100) + "% de descuento por referidos. 🎁\n\n") : "";
   const mensaje = "¡Hola! Te enviamos el resumen de pago de " + nombreClub + " en BioFutbol:\n\n" +
-    "Total a pagar: " + formatCOP(total) + "\n\n" +
+    "Total a pagar: " + formatCOP(total) + "\n\n" + lineaDescuento +
     "Apenas confirmes el pago, programamos la capacitación virtual con todo el personal que la necesite. El manejo de la app es muy sencillo, pero con la capacitación le sacan el máximo provecho desde el primer día.\n\n" +
     "Puedes pagar desde cualquier banco con nuestra llave:\n@OTO262\nA nombre de Juan Carlos Cáceres — C.C. 88262856\n\n" +
     "O por Nequi:\n3204324590\nA nombre de Nicol Bustos\n\n" +
@@ -413,6 +474,8 @@ function cargarCliente() {
     document.getElementById("planNegociadoActivo").checked = clienteActual.planNegociadoActivo !== false;
     document.getElementById("deportistasPautados").value = clienteActual.deportistasPautados || "";
     document.getElementById("valorPorDeportista").value = clienteActual.valorPorDeportista || "";
+    poblarSelectReferidoPor();
+    cargarReferidosActivos();
     recalcularPlanNegociado();
     document.getElementById("claveApp").value = clienteActual.claveApp || "";
     document.getElementById("moduloEquipos").checked = !!(clienteActual.modulosActivos && clienteActual.modulosActivos.equipos);
@@ -736,6 +799,8 @@ function leerFormulario() {
     planNegociadoActivo: document.getElementById("planNegociadoActivo").checked,
     deportistasPautados: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("deportistasPautados").value) || 0) : 0,
     valorPorDeportista: document.getElementById("planNegociadoActivo").checked ? (Number(document.getElementById("valorPorDeportista").value) || 0) : 0,
+    referidoPor: document.getElementById("referidoPor").value || "",
+    referidoPorNombre: document.getElementById("referidoPor").value ? document.getElementById("referidoPor").selectedOptions[0].textContent : "",
     usuarioApp: repEmail,
     estado: document.getElementById("estado").value,
     notas: document.getElementById("notas").value.trim(),

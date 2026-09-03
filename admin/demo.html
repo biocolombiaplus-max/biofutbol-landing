@@ -236,6 +236,30 @@
 .next-training-card .nt-title{font-size:.68rem;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.04em}
 .next-training-card .nt-body{font-size:.92rem;font-weight:800}
 .next-training-card .nt-sub{font-size:.78rem;color:var(--gray);margin-top:2px}
+
+/* ── Banner de referidos: invita al club a recomendar BioFutbol y ganar
+   descuento — grande, con movimiento, estilo publicitario premium. ── */
+.refer-banner{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;padding:24px 22px;margin-top:24px;background:linear-gradient(135deg,#0B1626,#123322 55%,#1a4a1f);border:1px solid rgba(255,201,51,.35);box-shadow:0 16px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);animation:referGlow 3s ease-in-out infinite}
+@keyframes referGlow{0%,100%{box-shadow:0 16px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08),0 0 0 rgba(255,201,51,0)}50%{box-shadow:0 16px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08),0 0 34px rgba(255,201,51,.35)}}
+.refer-banner::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 8% 10%,rgba(255,201,51,.22),transparent 45%),radial-gradient(circle at 95% 100%,rgba(24,168,58,.35),transparent 50%),radial-gradient(rgba(255,255,255,.12) 1px,transparent 1.6px);background-size:auto,auto,16px 16px}
+.refer-banner::after{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;z-index:0;pointer-events:none;background:linear-gradient(120deg,transparent,rgba(255,255,255,.16),transparent);animation:referShine 4s ease-in-out infinite}
+@keyframes referShine{0%{left:-60%}55%{left:130%}100%{left:130%}}
+.refer-banner-close{position:absolute;top:12px;right:12px;z-index:2;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.72rem;opacity:.7;transition:.2s}
+.refer-banner-close:hover{background:rgba(255,255,255,.22);opacity:1}
+.refer-banner-top{position:relative;z-index:1;display:flex;align-items:center;gap:12px}
+.refer-banner-ico{flex:none;width:50px;height:50px;border-radius:14px;background:linear-gradient(150deg,var(--gold),#c98f00);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#1a1200;box-shadow:0 6px 16px rgba(255,201,51,.35),inset 0 1px 0 rgba(255,255,255,.5);animation:referIcoPop 2.4s ease-in-out infinite}
+@keyframes referIcoPop{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.06)}50%{transform:rotate(6deg) scale(1)}75%{transform:rotate(-3deg) scale(1.02)}}
+.refer-banner-tag{display:inline-flex;align-items:center;gap:6px;font-size:.64rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:rgba(255,201,51,.12);border:1px solid rgba(255,201,51,.35);padding:4px 10px;border-radius:999px;margin-bottom:6px}
+.refer-banner-tag i{font-size:.5rem;animation:referDotPulse 1.5s ease-in-out infinite}
+@keyframes referDotPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.refer-banner-title{font-size:1.14rem;font-weight:900;color:#fff;line-height:1.28}
+.refer-banner-title b{color:var(--gold)}
+.refer-banner-sub{font-size:.82rem;color:rgba(255,255,255,.7);margin-top:7px;line-height:1.5;max-width:540px}
+.refer-banner-cta{position:relative;z-index:1;margin-top:18px;display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#25d366,#128c3e);color:#fff;font-weight:900;font-size:.9rem;padding:13px 22px;border-radius:999px;border:none;cursor:pointer;box-shadow:0 10px 24px rgba(37,211,102,.35),0 0 0 1px rgba(255,255,255,.15);animation:referCtaPulse 2s ease-in-out infinite;transition:transform .15s}
+.refer-banner-cta:active{transform:scale(.97)}
+@keyframes referCtaPulse{0%,100%{box-shadow:0 10px 24px rgba(37,211,102,.35),0 0 0 1px rgba(255,255,255,.15),0 0 0 rgba(37,211,102,0)}50%{box-shadow:0 10px 24px rgba(37,211,102,.35),0 0 0 1px rgba(255,255,255,.15),0 0 18px rgba(37,211,102,.65)}}
+.refer-banner-note{position:relative;z-index:1;display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.42);margin-top:11px}
+@media(max-width:520px){.refer-banner{padding:20px 16px}.refer-banner-title{font-size:1.02rem}.refer-banner-ico{width:42px;height:42px;font-size:1.2rem}}
 .plan-pautado-card{margin-bottom:18px;transition:.3s}
 .plan-pautado-nums{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
 .plan-pautado-nums b{font-size:1.5rem;font-weight:900;color:var(--white)}
@@ -367,6 +391,20 @@
         <div class="hero-pills" id="heroPills"></div>
         <div class="hero-stats" id="heroStats"></div>
         <div class="hero-progress" id="heroProgressWrap" style="display:none"><div class="hero-progress-fill" id="heroProgressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="refer-banner" id="referBanner">
+        <button type="button" class="refer-banner-close" id="referBannerClose" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        <div class="refer-banner-top">
+          <div class="refer-banner-ico"><i class="fa-solid fa-gift"></i></div>
+          <div style="flex:1;min-width:0">
+            <span class="refer-banner-tag"><i class="fa-solid fa-circle"></i> Programa de referidos</span>
+            <div class="refer-banner-title">Recomienda BioFutbol a otro club o escuela y gana <b>10% de descuento</b></div>
+            <div class="refer-banner-sub">Comparte tu experiencia con otro director técnico o dueño de escuela. Si se une a BioFutbol, tu mensualidad baja automáticamente mientras el club referido siga activo.</div>
+          </div>
+        </div>
+        <button type="button" class="refer-banner-cta" id="btnReferirWhatsapp"><i class="fa-brands fa-whatsapp"></i> Recomendar por WhatsApp</button>
+        <div class="refer-banner-note"><i class="fa-solid fa-circle-info"></i> Tu amigo escribe directo a nuestro WhatsApp y queda registrado como referido tuyo.</div>
       </div>
 
       <div class="next-training-card" id="nextTrainingCard" style="display:none">
@@ -1375,6 +1413,30 @@ function cargarAnuncio() {
 document.getElementById("adClose").addEventListener("click", function () {
   document.getElementById("adBanner").classList.remove("on");
   try { sessionStorage.setItem("adBannerCerrado", "1"); } catch (e) {}
+});
+
+// Banner de referidos: invita a recomendar BioFutbol a otro club/escuela.
+// El botón abre el selector de contactos de WhatsApp con un mensaje que ya
+// trae adentro un link a nuestro WhatsApp con el nombre del club — así el
+// amigo llega identificado como referido de este club.
+try { if (sessionStorage.getItem("referBannerCerrado") === "1") document.getElementById("referBanner").style.display = "none"; } catch (e) {}
+
+document.getElementById("referBannerClose").addEventListener("click", function () {
+  document.getElementById("referBanner").style.display = "none";
+  try { sessionStorage.setItem("referBannerCerrado", "1"); } catch (e) {}
+});
+
+document.getElementById("btnReferirWhatsapp").addEventListener("click", function () {
+  const miClub = (clubActual && clubActual.clubNombre) || "mi escuela";
+  const linkContacto = "https://wa.me/573505457420?text=" + encodeURIComponent(
+    "¡Hola! Vengo de parte de " + miClub + ", me recomendaron BioFutbol y quiero conocer más 😊"
+  );
+  const mensaje = "¡Hola! 👋 Te quiero recomendar *BioFutbol*, el software con el que manejamos *" + miClub +
+    "* (pagos, asistencia, torneos, comunicación con los padres, imágenes para redes... todo en un solo lugar y muy fácil de usar).\n\n" +
+    "Si tu club o escuela también quiere organizarse así, escríbeles por acá y cuéntales que vienes de mi parte:\n" + linkContacto + "\n\n" +
+    "¡Seguro nos dan un beneficio a los dos! 🎉⚽";
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
+  if (clubActual) registrarAuditoria("Recomendación de BioFutbol enviada por WhatsApp", clubActual.id, clubActual.clubNombre);
 });
 
 // Para que cuando el club "agregue a inicio" desde su celular, salga el

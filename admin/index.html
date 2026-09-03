@@ -150,8 +150,10 @@ function filaCliente(c) {
   const esCliente = esClientePagando(c);
   const accion = esCliente ? "—" :
     '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
+  const referido = c.referidoPorNombre ?
+    '<div style="font-size:.68rem;color:var(--gold);font-weight:700;margin-top:2px"><i class="fa-solid fa-gift"></i> Referido por ' + esc(c.referidoPorNombre) + '</div>' : "";
   return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
-    '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong></td>' +
+    '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong>' + referido + '</td>' +
     '<td>' + esc(c.repNombre || "—") + '</td>' +
     '<td>' + esc(plan) + '</td>' +
     '<td>' + (c.numSocios || "—") + '</td>' +
