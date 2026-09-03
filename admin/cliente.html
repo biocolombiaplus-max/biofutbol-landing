@@ -17,6 +17,17 @@
 .pago-row-btn:hover{border-color:var(--green-l);color:var(--green-l)}
 .pago-row-del:hover{border-color:var(--red);color:var(--red)}
 .pago-guardado-msg{display:none;align-items:center;gap:7px;background:rgba(24,168,58,.1);border:1px solid rgba(24,168,58,.35);color:var(--green-l);font-size:.76rem;font-weight:700;padding:8px 12px;border-radius:9px;margin-top:8px}
+
+/* ── Métodos de pago (Cobro a socios): cada uno en su propia "mini
+   tarjeta" con ícono de color, para distinguirlos de un vistazo. ── */
+.pay-method{background:rgba(255,255,255,.025);border:1px solid var(--card-b2);border-radius:14px;padding:16px;margin-bottom:14px}
+.pay-method:last-child{margin-bottom:0}
+.pay-method-head{display:flex;align-items:center;gap:10px;font-weight:800;font-size:.86rem;margin-bottom:14px;color:var(--white)}
+.pay-method-head i{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.86rem;flex-shrink:0;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.pay-method-head.pm-nequi i{background:linear-gradient(135deg,#a855f7,#d6249f)}
+.pay-method-head.pm-banco i{background:linear-gradient(135deg,#0ea5a0,#075e56)}
+.pay-method-head.pm-link i{background:linear-gradient(135deg,#2563eb,#1e3a8a)}
+.pay-method .field:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -153,12 +164,46 @@
         <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Cuánto le cobra este club a cada socio, y a dónde debe pagar. Se usa en los recordatorios de pago por WhatsApp y en el portal del deportista.</p>
         <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="pagoMensualidad" min="0" step="1000" placeholder="Ej: 50000"></div>
-        <div class="field-row">
-          <div class="field"><label>Nequi — número</label><input type="text" id="pagoNequiNumero" placeholder="3001234567"></div>
-          <div class="field"><label>Nequi — a nombre de</label><input type="text" id="pagoNequiTitular"></div>
+
+        <div class="pay-method">
+          <div class="pay-method-head pm-nequi"><i class="fa-solid fa-mobile-screen-button"></i> Nequi</div>
+          <div class="field-row">
+            <div class="field"><label>Número</label><input type="text" id="pagoNequiNumero" placeholder="3001234567"></div>
+            <div class="field"><label>A nombre de</label><input type="text" id="pagoNequiTitular"></div>
+          </div>
         </div>
-        <div class="field"><label>Link de pago (Wompi, PSE, tarjeta u otro)</label><input type="url" id="pagoWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
-        <p style="font-size:.76rem;color:var(--gray-d)">Con Wompi puedes crear un link de pago gratis (sin necesitar página web) desde <a href="https://comercios.wompi.co" target="_blank" rel="noopener" style="color:var(--green-l)">comercios.wompi.co</a> — aceptan PSE, tarjeta y Nequi.</p>
+
+        <div class="pay-method">
+          <div class="pay-method-head pm-banco"><i class="fa-solid fa-building-columns"></i> Cuenta bancaria</div>
+          <div class="field-row">
+            <div class="field"><label>Banco</label><input type="text" id="pagoBancoNombre" list="listaBancos" placeholder="Ej: Bancolombia"></div>
+            <div class="field"><label>Tipo de cuenta</label>
+              <select id="pagoBancoTipo">
+                <option value="">Selecciona...</option>
+                <option value="Ahorros">Ahorros</option>
+                <option value="Corriente">Corriente</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Número de cuenta</label><input type="text" id="pagoBancoNumero" placeholder="Ej: 123-456789-00"></div>
+            <div class="field"><label>A nombre de</label><input type="text" id="pagoBancoTitular"></div>
+          </div>
+          <div class="field"><label>Cédula o NIT del titular (opcional)</label><input type="text" id="pagoBancoDocumento" placeholder="Ej: 900.123.456-7"></div>
+          <datalist id="listaBancos">
+            <option value="Bancolombia"><option value="Davivienda"><option value="BBVA Colombia">
+            <option value="Banco de Bogotá"><option value="Banco de Occidente"><option value="Banco Popular">
+            <option value="Banco AV Villas"><option value="Banco Caja Social"><option value="Banco Agrario">
+            <option value="Scotiabank Colpatria"><option value="Itaú"><option value="Banco Falabella">
+            <option value="Bancoomeva"><option value="Confiar Cooperativa">
+          </datalist>
+        </div>
+
+        <div class="pay-method">
+          <div class="pay-method-head pm-link"><i class="fa-solid fa-link"></i> Link de pago</div>
+          <div class="field"><label>Wompi, PSE, tarjeta u otro</label><input type="url" id="pagoWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+          <p style="font-size:.76rem;color:var(--gray-d);margin-top:8px">Con Wompi puedes crear un link de pago gratis (sin necesitar página web) desde <a href="https://comercios.wompi.co" target="_blank" rel="noopener" style="color:var(--green-l)">comercios.wompi.co</a> — aceptan PSE, tarjeta y Nequi.</p>
+        </div>
       </div>
 
       <div class="card">
@@ -487,6 +532,11 @@ function cargarCliente() {
     document.getElementById("pagoMensualidad").value = clienteActual.pagoMensualidad || "";
     document.getElementById("pagoNequiNumero").value = clienteActual.pagoNequiNumero || "";
     document.getElementById("pagoNequiTitular").value = clienteActual.pagoNequiTitular || "";
+    document.getElementById("pagoBancoNombre").value = clienteActual.pagoBancoNombre || "";
+    document.getElementById("pagoBancoTipo").value = clienteActual.pagoBancoTipo || "";
+    document.getElementById("pagoBancoNumero").value = clienteActual.pagoBancoNumero || "";
+    document.getElementById("pagoBancoTitular").value = clienteActual.pagoBancoTitular || "";
+    document.getElementById("pagoBancoDocumento").value = clienteActual.pagoBancoDocumento || "";
     document.getElementById("pagoWompiLink").value = clienteActual.pagoWompiLink || "";
     if (clienteActual.plan) marcarPlanSeleccionado(clienteActual.plan);
 
@@ -810,6 +860,11 @@ function leerFormulario() {
     pagoMensualidad: Number(document.getElementById("pagoMensualidad").value) || 0,
     pagoNequiNumero: document.getElementById("pagoNequiNumero").value.trim(),
     pagoNequiTitular: document.getElementById("pagoNequiTitular").value.trim(),
+    pagoBancoNombre: document.getElementById("pagoBancoNombre").value.trim(),
+    pagoBancoTipo: document.getElementById("pagoBancoTipo").value,
+    pagoBancoNumero: document.getElementById("pagoBancoNumero").value.trim(),
+    pagoBancoTitular: document.getElementById("pagoBancoTitular").value.trim(),
+    pagoBancoDocumento: document.getElementById("pagoBancoDocumento").value.trim(),
     pagoWompiLink: document.getElementById("pagoWompiLink").value.trim()
   };
 }
@@ -824,6 +879,11 @@ function sincronizarMarca(id, data) {
     pagoMensualidad: data.pagoMensualidad || 0,
     pagoNequiNumero: data.pagoNequiNumero || "",
     pagoNequiTitular: data.pagoNequiTitular || "",
+    pagoBancoNombre: data.pagoBancoNombre || "",
+    pagoBancoTipo: data.pagoBancoTipo || "",
+    pagoBancoNumero: data.pagoBancoNumero || "",
+    pagoBancoTitular: data.pagoBancoTitular || "",
+    pagoBancoDocumento: data.pagoBancoDocumento || "",
     pagoWompiLink: data.pagoWompiLink || ""
   }, { merge: true });
 }
