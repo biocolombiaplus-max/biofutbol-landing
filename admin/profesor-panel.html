@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Panel del profesor | BioFutbol</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B1626">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BioFutbol">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
@@ -120,6 +127,7 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 <script src="js/festivos.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
+<script src="js/pwa-icon.js"></script>
 <script>
 function esc(s) {
   return String(s || "").replace(/[&<>"']/g, function (m) {
@@ -144,6 +152,7 @@ requireAccesoProfesor().then(function (r) {
   profesorActual = r.profesor;
   clubActual = r.club || {};
   document.getElementById("wrap").style.display = "block";
+  pwaAplicarIconoClub(clubActual, "./profesor-panel.html");
   document.getElementById("clubNombreTxt").textContent = clubActual.clubNombre || "BioFutbol";
   if (clubActual.logoUrl) {
     document.getElementById("clubLogoImg").src = clubActual.logoUrl;

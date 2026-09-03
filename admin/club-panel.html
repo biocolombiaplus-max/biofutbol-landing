@@ -1260,6 +1260,7 @@
 <script src="js/imagenes.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/audit.js"></script>
+<script src="js/pwa-icon.js"></script>
 <script>
 let clubActual = null;
 let EQUIPOS = [];
@@ -1439,29 +1440,11 @@ document.getElementById("btnReferirWhatsapp").addEventListener("click", function
 });
 
 // Para que cuando el club "agregue a inicio" desde su celular, salga el
-// escudo de SU club (no el logo genérico de BioFutbol). Reemplazamos el
-// manifest y los íconos por unos generados al vuelo con su logo.
+// escudo de SU club (no el logo genérico de BioFutbol) — con un acabado
+// premium (fondo con la identidad de BioFutbol + resplandor con el color
+// del club). El generador compartido vive en js/pwa-icon.js.
 function aplicarIconoDelClub(cliente) {
-  if (!cliente.logoUrl) return;
-  document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach(function (l) {
-    l.href = cliente.logoUrl;
-  });
-  const manifest = {
-    name: (cliente.clubNombre || "BioFutbol") + " - Panel",
-    short_name: cliente.clubNombre || "BioFutbol",
-    start_url: "./club-panel.html",
-    display: "standalone",
-    background_color: "#0B1626",
-    theme_color: cliente.colorPrimario || "#18A83A",
-    icons: [
-      { src: cliente.logoUrl, sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: cliente.logoUrl, sizes: "512x512", type: "image/png", purpose: "any" }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
-  document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
-  const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta && cliente.colorPrimario) themeMeta.content = cliente.colorPrimario;
+  pwaAplicarIconoClub(cliente, "./club-panel.html");
 }
 
 // Categorías del nivel 1 de navegación: cada una agrupa varias pestañas

@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Portal del deportista | BioFutbol</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B1626">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BioFutbol">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="admin.css">
@@ -198,6 +205,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="js/crecimiento.js"></script>
 <script src="js/avatar.js"></script>
 <script src="js/carnet.js"></script>
+<script src="js/pwa-icon.js"></script>
 <script>
 function formatCOPPortal(n) { return "$" + Number(n || 0).toLocaleString("es-CO"); }
 
@@ -230,6 +238,7 @@ if (!clienteId || !socioId) {
     const socio = Object.assign({ id: doc.id }, doc.data());
     pintar(socio, club);
     document.getElementById("wrap").style.display = "block";
+    pwaAplicarIconoClub(club, "./portal-socio.html?cliente=" + encodeURIComponent(clienteId) + "&id=" + encodeURIComponent(socioId));
 
     if (horariosSnap) {
       const horarios = [];
