@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de dispositivos | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+body{background:radial-gradient(1100px 560px at 50% -12%,rgba(24,168,58,.16),transparent 60%),var(--bg);overflow:hidden;height:100vh}
+.sim-page{display:flex;flex-direction:column;height:100vh}
+
+.sim-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--card-b);flex-shrink:0}
+
+.sim-controls{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--card-b);flex-shrink:0;transition:.25s}
+
+.device-switch{display:inline-flex;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:4px;gap:4px}
+.device-switch button{display:flex;align-items:center;gap:8px;padding:9px 16px;border:none;border-radius:10px;background:transparent;color:var(--gray);font-weight:800;font-size:.84rem;cursor:pointer;transition:.15s}
+.device-switch button i{font-size:1rem}
+.device-switch button.on{background:linear-gradient(135deg,var(--green-l),var(--green-d));color:#fff;box-shadow:0 6px 16px rgba(24,168,58,.35)}
+.device-switch button:not(.on):hover{color:var(--white);background:rgba(255,255,255,.05)}
+
+.sim-url-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sim-url-row select,.sim-url-row input{background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:9px 12px;color:var(--white);font-size:.82rem;min-width:220px}
+.sim-url-row select:focus,.sim-url-row input:focus{outline:none;border-color:var(--green)}
+
+/* ── Escenario: aquí vive el dispositivo, centrado y auto-escalado
+   con JS para que siempre quepa perfecto sin importar el tamaño de
+   la ventana o del proyector durante la capacitación. ── */
+.sim-stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;overflow:hidden}
+.device-frame{position:relative;flex-shrink:0}
+.device-frame:not(.on){display:none!important}
+
+/* — iPhone — pantalla interna 390×844, el mismo tamaño lógico (CSS px)
+   de un iPhone real, para que la web adentro responda EXACTAMENTE
+   igual que en un teléfono de verdad (no un recorte más angosto). ── */
+.device-frame.iphone{width:418px;height:872px;border-radius:64px;background:linear-gradient(155deg,#3a3a3f,#161618 55%,#0b0b0c);padding:14px;box-shadow:0 40px 90px rgba(0,0,0,.65),inset 0 1px 1px rgba(255,255,255,.18),inset 0 -1px 1px rgba(0,0,0,.6)}
+.device-frame.iphone .device-screen{width:100%;height:100%;border-radius:50px;overflow:hidden;background:#000;position:relative}
+.device-frame.iphone .device-island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;z-index:5}
+.device-frame.iphone .device-home{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:140px;height:5px;background:rgba(255,255,255,.75);border-radius:3px;z-index:5}
+.device-frame.iphone .side-btn{position:absolute;background:#232326;border:1px solid rgba(255,255,255,.08)}
+.device-frame.iphone .side-btn.mute{left:-3px;top:140px;width:4px;height:32px;border-radius:2px}
+.device-frame.iphone .side-btn.vol-up{left:-3px;top:185px;width:4px;height:56px;border-radius:2px}
+.device-frame.iphone .side-btn.vol-down{left:-3px;top:250px;width:4px;height:56px;border-radius:2px}
+.device-frame.iphone .side-btn.power{right:-3px;top:205px;width:4px;height:78px;border-radius:2px}
+
+/* — Android — pantalla interna 412×892, tamaño lógico típico de un
+   Android grande actual (Pixel/Galaxy). ── */
+.device-frame.android{width:434px;height:914px;border-radius:42px;background:linear-gradient(155deg,#33383c,#131619 55%,#08090a);padding:11px;box-shadow:0 40px 90px rgba(0,0,0,.65),inset 0 1px 1px rgba(255,255,255,.14),inset 0 -1px 1px rgba(0,0,0,.6)}
+.device-frame.android .device-screen{width:100%;height:100%;border-radius:30px;overflow:hidden;background:#000;position:relative}
+.device-frame.android .device-camera{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:16px;height:16px;background:#000;border:2px solid #24282c;border-radius:50%;z-index:5}
+.device-frame.android .device-gesture{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:150px;height:5px;background:rgba(255,255,255,.6);border-radius:3px;z-index:5}
+.device-frame.android .side-btn{position:absolute;right:-3px;background:#26292d;border:1px solid rgba(255,255,255,.08);border-radius:2px}
+.device-frame.android .side-btn.vol{top:160px;width:4px;height:74px}
+.device-frame.android .side-btn.power{top:250px;width:4px;height:50px}
+
+/* — PC / Proyector — pantalla interna 1280×800, resolución lógica típica
+   de laptop, para que se vea la versión de escritorio real, no la móvil. ── */
+.device-frame.pc{width:1280px;height:842px;border-radius:16px;background:#12161c;box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.pc-bar{height:42px;background:#181d24;display:flex;align-items:center;gap:9px;padding:0 14px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.pc-dot.r{background:#ff5f57}.pc-dot.y{background:#febc2e}.pc-dot.g{background:#28c840}
+.pc-address{flex:1;background:#0b0e13;border-radius:8px;padding:7px 14px;font-size:.78rem;color:var(--gray);margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
+.pc-address i{color:var(--green-l);font-size:.72rem}
+.device-frame.pc .device-screen{flex:1;background:#000}
+
+.device-screen iframe{width:100%;height:100%;border:none;display:block;background:#fff}
+
+/* ── Modo presentación: solo el dispositivo, aire de sobra, con un
+   botón flotante para salir — pensado para compartir pantalla. ── */
+body.presentacion .sim-topbar,body.presentacion .sim-controls{display:none}
+.btn-salir-presentacion{position:fixed;top:18px;right:18px;z-index:50;display:none}
+body.presentacion .btn-salir-presentacion{display:inline-flex}
+
+@media(max-width:760px){
+  .sim-controls{justify-content:flex-start}
+  .sim-url-row select,.sim-url-row input{min-width:160px}
+}
+</style>
+</head>
+<body>
+<div class="sim-page">
+  <div class="sim-topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Simulador de dispositivos</span>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="btnPresentacion"><i class="fa-solid fa-expand"></i> Modo presentación</button>
+      <a href="index.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+    </div>
+  </div>
+
+  <div class="sim-controls">
+    <div class="device-switch" id="deviceSwitch">
+      <button type="button" data-device="iphone" class="on"><i class="fa-brands fa-apple"></i> iPhone</button>
+      <button type="button" data-device="android"><i class="fa-brands fa-android"></i> Android</button>
+      <button type="button" data-device="pc"><i class="fa-solid fa-desktop"></i> PC / Proyector</button>
+    </div>
+
+    <div class="sim-url-row">
+      <select id="simPreset">
+        <option value="demo.html">Demo interactiva completa</option>
+        <option value="club-login.html">Inicio de sesión — Club</option>
+        <option value="socio-login.html">Inicio de sesión — Socio</option>
+        <option value="profesor-login.html">Inicio de sesión — Profesor</option>
+        <option value="manual-club.html">Manual del club</option>
+        <option value="manual-padres.html">Manual de padres</option>
+        <option value="../index.html">Landing pública</option>
+        <option value="__custom__">URL personalizada...</option>
+      </select>
+      <input type="text" id="simUrlCustom" placeholder="Pega cualquier link de BioFutbol..." style="display:none">
+      <button type="button" class="btn btn-primary btn-sm" id="btnCargar"><i class="fa-solid fa-arrow-right"></i> Cargar</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="btnRecargar" title="Recargar"><i class="fa-solid fa-rotate-right"></i></button>
+    </div>
+  </div>
+
+  <div class="sim-stage" id="simStage">
+    <div class="device-frame iphone on" id="frameIphone">
+      <div class="device-screen"><div class="device-island"></div><div class="device-home"></div><iframe id="iframeIphone" src="demo.html"></iframe></div>
+      <div class="side-btn mute"></div><div class="side-btn vol-up"></div><div class="side-btn vol-down"></div><div class="side-btn power"></div>
+    </div>
+    <div class="device-frame android" id="frameAndroid">
+      <div class="device-screen"><div class="device-camera"></div><div class="device-gesture"></div><iframe id="iframeAndroid" src="demo.html"></iframe></div>
+      <div class="side-btn vol"></div><div class="side-btn power"></div>
+    </div>
+    <div class="device-frame pc" id="framePc">
+      <div class="pc-bar"><span class="pc-dot r"></span><span class="pc-dot y"></span><span class="pc-dot g"></span><div class="pc-address"><i class="fa-solid fa-lock"></i><span id="pcAddressTxt">demo.html</span></div></div>
+      <div class="device-screen"><iframe id="iframePc" src="demo.html"></iframe></div>
+    </div>
+  </div>
+</div>
+
+<button type="button" class="btn btn-primary btn-sm btn-salir-presentacion" id="btnSalirPresentacion"><i class="fa-solid fa-compress"></i> Salir de presentación</button>
+
+<script>
+let deviceActual = "iphone";
+
+function iframeActivo() {
+  return document.getElementById("iframe" + deviceActual.charAt(0).toUpperCase() + deviceActual.slice(1));
+}
+
+function cargarUrl(url) {
+  if (!url) return;
+  document.getElementById("iframeIphone").src = url;
+  document.getElementById("iframeAndroid").src = url;
+  document.getElementById("iframePc").src = url;
+  document.getElementById("pcAddressTxt").textContent = url.replace(/^\.\.\//, "biofutbol.app/");
+}
+
+document.getElementById("simPreset").addEventListener("change", function () {
+  const custom = document.getElementById("simUrlCustom");
+  if (this.value === "__custom__") {
+    custom.style.display = "inline-block";
+    custom.focus();
+  } else {
+    custom.style.display = "none";
+    cargarUrl(this.value);
+  }
+});
+
+document.getElementById("btnCargar").addEventListener("click", function () {
+  const preset = document.getElementById("simPreset").value;
+  if (preset === "__custom__") {
+    const val = document.getElementById("simUrlCustom").value.trim();
+    if (val) cargarUrl(val);
+  } else {
+    cargarUrl(preset);
+  }
+});
+
+document.getElementById("simUrlCustom").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") document.getElementById("btnCargar").click();
+});
+
+document.getElementById("btnRecargar").addEventListener("click", function () {
+  const f = iframeActivo();
+  if (f) f.src = f.src;
+});
+
+document.getElementById("deviceSwitch").addEventListener("click", function (e) {
+  const btn = e.target.closest("button[data-device]");
+  if (!btn) return;
+  deviceActual = btn.dataset.device;
+  document.querySelectorAll("#deviceSwitch button").forEach(function (b) { b.classList.toggle("on", b === btn); });
+  document.querySelectorAll(".device-frame").forEach(function (f) { f.classList.toggle("on", f.id === "frame" + deviceActual.charAt(0).toUpperCase() + deviceActual.slice(1)); });
+  ajustarEscala();
+});
+
+function ajustarEscala() {
+  const stage = document.getElementById("simStage");
+  const frame = document.querySelector(".device-frame.on");
+  if (!frame) return;
+  frame.style.transform = "none";
+  const stageRect = stage.getBoundingClientRect();
+  const margen = 36;
+  const availW = Math.max(100, stageRect.width - margen * 2);
+  const availH = Math.max(100, stageRect.height - margen * 2);
+  const w = frame.offsetWidth, h = frame.offsetHeight;
+  const escala = Math.min(availW / w, availH / h, 1.6);
+  frame.style.transform = "scale(" + escala + ")";
+}
+
+window.addEventListener("resize", ajustarEscala);
+window.addEventListener("load", ajustarEscala);
+setTimeout(ajustarEscala, 60);
+
+function togglePresentacion(on) {
+  document.body.classList.toggle("presentacion", on);
+  setTimeout(ajustarEscala, 50);
+}
+document.getElementById("btnPresentacion").addEventListener("click", function () { togglePresentacion(true); });
+document.getElementById("btnSalirPresentacion").addEventListener("click", function () { togglePresentacion(false); });
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && document.body.classList.contains("presentacion")) togglePresentacion(false);
+});
+</script>
+</body>
+</html>
