@@ -99,8 +99,8 @@ if (!clubId) {
 let fotoUrl = "";
 const categoriasSeleccionadas = [];
 
-function inicializarCategorias(extra) {
-  document.getElementById("categoriasBox").innerHTML = categoriasConPersonalizadas(extra).map(function (c) {
+function inicializarCategorias(extra, baseOverride) {
+  document.getElementById("categoriasBox").innerHTML = categoriasConPersonalizadas(extra, baseOverride).map(function (c) {
     return '<button type="button" class="tpl-pill" data-cat="' + c + '">' + c + '</button>';
   }).join("");
   document.querySelectorAll("#categoriasBox .tpl-pill").forEach(function (btn) {
@@ -116,7 +116,7 @@ function inicializarCategorias(extra) {
 
 if (clubId) {
   db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
-    inicializarCategorias(doc.exists ? doc.data().categoriasPersonalizadas : []);
+    inicializarCategorias(doc.exists ? doc.data().categoriasPersonalizadas : [], doc.exists ? doc.data().categoriasEstandar : []);
   }).catch(function () { inicializarCategorias([]); });
 } else {
   inicializarCategorias([]);

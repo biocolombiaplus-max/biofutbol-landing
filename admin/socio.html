@@ -342,7 +342,7 @@ function categoriaSeleccionada() {
 }
 function setCategoriaValor(valor) {
   const sel = document.getElementById("categoria");
-  if (valor && categoriasConPersonalizadas(clubActual && clubActual.categoriasPersonalizadas).indexOf(valor) === -1) {
+  if (valor && categoriasConPersonalizadas(clubActual && clubActual.categoriasPersonalizadas, clubActual && clubActual.categoriasEstandar).indexOf(valor) === -1) {
     sel.value = "__otra__";
     document.getElementById("categoriaOtra").style.display = "block";
     document.getElementById("categoriaOtra").value = valor;
@@ -374,7 +374,7 @@ function cargarSocio() {
     clubActual = clubDoc.exists ? clubDoc.data() : {};
     TODOS_SOCIOS = [];
     todosSnap.forEach(function (d) { TODOS_SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
-    llenarSelectCategorias(document.getElementById("categoria"), true, clubActual.categoriasPersonalizadas);
+    llenarSelectCategorias(document.getElementById("categoria"), true, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar);
     socioActual = Object.assign({ id: doc.id }, doc.data());
     document.getElementById("pageTitle").textContent = socioActual.nombre || "Socio";
     document.getElementById("nombre").value = socioActual.nombre || "";

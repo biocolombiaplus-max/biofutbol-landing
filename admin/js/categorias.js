@@ -23,14 +23,21 @@ function categoriaPorFechaNacimiento(fechaNacimiento) {
 
 // Combina las categorías estándar con las personalizadas que cada club
 // puede agregar (ej: "Iniciación", "Cebollitas", "Baby") desde Mi club.
-function categoriasConPersonalizadas(extra) {
-  const propias = Array.isArray(extra) ? extra.filter(Boolean) : [];
-  return CATEGORIAS_FUTBOL.concat(propias);
+// baseOverride: si el club editó o eliminó alguna de las 16 estándar
+// (clubActual.categoriasEstandar), esa lista reemplaza a CATEGORIAS_FUTBOL
+// como base — si no, se usan las 16 de siempre, sin tocar nada.
+function categoriasBase(baseOverride) {
+  return Array.isArray(baseOverride) && baseOverride.length ? baseOverride : CATEGORIAS_FUTBOL;
 }
 
-function llenarSelectCategorias(select, incluirOtra, extra) {
+function categoriasConPersonalizadas(extra, baseOverride) {
+  const propias = Array.isArray(extra) ? extra.filter(Boolean) : [];
+  return categoriasBase(baseOverride).concat(propias);
+}
+
+function llenarSelectCategorias(select, incluirOtra, extra, baseOverride) {
   select.innerHTML = '<option value="">Selecciona...</option>' +
-    categoriasConPersonalizadas(extra).map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("") +
+    categoriasConPersonalizadas(extra, baseOverride).map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("") +
     (incluirOtra ? '<option value="__otra__">Otra (escribir)</option>' : "");
 }
 
@@ -38,12 +45,13 @@ function llenarSelectCategorias(select, incluirOtra, extra) {
 // formativo (Sub-6, Sub-7... Mayores) en vez de alfabético. Las
 // categorías personalizadas del club quedan al final, en el orden en que
 // se agregaron.
-function ordenCategoria(categoria, extra) {
-  const i = CATEGORIAS_FUTBOL.indexOf(categoria);
+function ordenCategoria(categoria, extra, baseOverride) {
+  const base = categoriasBase(baseOverride);
+  const i = base.indexOf(categoria);
   if (i !== -1) return i;
   const propias = Array.isArray(extra) ? extra : [];
   const j = propias.indexOf(categoria);
-  return j === -1 ? 999 : CATEGORIAS_FUTBOL.length + j;
+  return j === -1 ? 999 : base.length + j;
 }
 
 // Conecta un <input type="date"> de fecha de nacimiento con un <select> de

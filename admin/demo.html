@@ -1279,6 +1279,13 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-list-check"></i> Categorías estándar</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Las 16 categorías de Sub-6 a Mayores vienen listas de una vez, pero puedes renombrar o quitar las que tu club no use — se actualiza al instante en todos los formularios y filtros.</p>
+        <div class="goles-list" id="mcCategoriasEstandar" style="justify-content:flex-start"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnRestaurarCategorias" style="margin-top:14px"><i class="fa-solid fa-rotate-left"></i> Restaurar las 16 categorías estándar</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-layer-group"></i> Categorías personalizadas</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Súmale a las categorías estándar (Sub-6 a Mayores) las propias de tu escuela — por ejemplo Iniciación, Cebollitas o Baby. Quedan disponibles al instante en todos los formularios y filtros del club, incluyendo el registro de socios y profesores.</p>
         <div class="field-row" style="align-items:flex-end">
@@ -1377,7 +1384,7 @@ Promise.resolve({ user: DEMO_USER_MOCK, cliente: DEMO_CLUB }).then(function (r) 
 // al cargar el panel y de nuevo cada vez que se agrega/quita una categoría
 // propia, para que los cambios se vean al instante sin recargar.
 function refrescarSelectsCategorias() {
-  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas);
+  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar);
   document.getElementById("profCategoriasBox").innerHTML =
     CATS_CLUB.map(function (c) { return '<button type="button" class="tpl-pill' + (profCategoriasSeleccionadas.indexOf(c) !== -1 ? " on" : "") + '" data-cat="' + c + '">' + c + '</button>'; }).join("");
   document.querySelectorAll("#profCategoriasBox .tpl-pill").forEach(function (btn) {
@@ -3836,7 +3843,7 @@ document.getElementById("btnReporteJugadores").addEventListener("click", functio
     if (!mapa[cat]) mapa[cat] = [];
     mapa[cat].push(s);
   });
-  const grupos = Object.keys(mapa).sort(function (a, b) { return ordenCategoria(a, clubActual.categoriasPersonalizadas) - ordenCategoria(b, clubActual.categoriasPersonalizadas); })
+  const grupos = Object.keys(mapa).sort(function (a, b) { return ordenCategoria(a, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar) - ordenCategoria(b, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar); })
     .map(function (cat) {
       return { categoria: cat, socios: mapa[cat].slice().sort(function (x, y) { return (x.nombre || "").localeCompare(y.nombre || ""); }) };
     });
@@ -4390,7 +4397,8 @@ function sincronizarMarca(id, data) {
     pagoBancoDocumento: data.pagoBancoDocumento != null ? data.pagoBancoDocumento : (clubActual.pagoBancoDocumento || ""),
     pagoWompiLink: data.pagoWompiLink != null ? data.pagoWompiLink : (clubActual.pagoWompiLink || ""),
     entrenaFestivos: data.entrenaFestivos != null ? data.entrenaFestivos : (clubActual.entrenaFestivos !== false),
-    categoriasPersonalizadas: data.categoriasPersonalizadas != null ? data.categoriasPersonalizadas : (clubActual.categoriasPersonalizadas || [])
+    categoriasPersonalizadas: data.categoriasPersonalizadas != null ? data.categoriasPersonalizadas : (clubActual.categoriasPersonalizadas || []),
+    categoriasEstandar: data.categoriasEstandar != null ? data.categoriasEstandar : (clubActual.categoriasEstandar || [])
   }, { merge: true });
 }
 
@@ -4415,8 +4423,59 @@ function precargarFormMiClub() {
   document.getElementById("mcWompiLink").value = clubActual.pagoWompiLink || "";
   if (clubActual.logoUrl) { document.getElementById("mcLogoPreview").src = clubActual.logoUrl; document.getElementById("mcLogoPreview").style.display = "block"; document.getElementById("mcLogoEmpty").style.display = "none"; }
   if (clubActual.bannerUrl) { document.getElementById("mcBannerPreview").src = clubActual.bannerUrl; document.getElementById("mcBannerPreview").style.display = "block"; document.getElementById("mcBannerEmpty").style.display = "none"; }
+  pintarCategoriasEstandar();
   pintarCategoriasPersonalizadas();
 }
+
+// Las 16 categorías de Sub-6 a Mayores, pero editables por club: se puede
+// renombrar o quitar cualquiera. clubActual.categoriasEstandar solo existe
+// una vez que el club edita algo — mientras tanto se muestran las 16 de
+// siempre (CATEGORIAS_FUTBOL), sin necesidad de guardar nada de más.
+function pintarCategoriasEstandar() {
+  const lista = clubActual.categoriasEstandar || CATEGORIAS_FUTBOL;
+  document.getElementById("mcCategoriasEstandar").innerHTML = lista.map(function (c, i) {
+    return '<span class="goles-chip">' + esc(c) +
+      ' <button type="button" onclick="renombrarCategoriaEstandar(' + i + ')" style="color:var(--gray)" title="Renombrar"><i class="fa-solid fa-pen"></i></button>' +
+      ' <button type="button" onclick="quitarCategoriaEstandar(' + i + ')" title="Quitar"><i class="fa-solid fa-xmark"></i></button></span>';
+  }).join("");
+}
+
+function guardarCategoriasEstandar(lista) {
+  return db.collection("clientes").doc(clubActual.id).update({ categoriasEstandar: lista }).then(function () {
+    clubActual.categoriasEstandar = lista;
+    sincronizarMarca(clubActual.id, { categoriasEstandar: lista });
+    pintarCategoriasEstandar();
+    refrescarSelectsCategorias();
+  });
+}
+
+function quitarCategoriaEstandar(i) {
+  const lista = (clubActual.categoriasEstandar || CATEGORIAS_FUTBOL).slice();
+  const nombre = lista[i];
+  if (!confirm('¿Quitar "' + nombre + '" de las categorías del club?')) return;
+  lista.splice(i, 1);
+  guardarCategoriasEstandar(lista).catch(function (err) { mostrarError("No se pudo quitar la categoría: " + err.message); });
+}
+
+function renombrarCategoriaEstandar(i) {
+  const lista = (clubActual.categoriasEstandar || CATEGORIAS_FUTBOL).slice();
+  const actual = lista[i];
+  const nuevo = (prompt('Nuevo nombre para "' + actual + '":', actual) || "").trim();
+  if (!nuevo || nuevo === actual) return;
+  lista[i] = nuevo;
+  guardarCategoriasEstandar(lista).catch(function (err) { mostrarError("No se pudo renombrar: " + err.message); });
+}
+
+document.getElementById("btnRestaurarCategorias").addEventListener("click", function () {
+  if (!confirm("¿Restaurar las 16 categorías estándar originales? Se perderán los cambios que hayas hecho aquí.")) return;
+  db.collection("clientes").doc(clubActual.id).update({ categoriasEstandar: firebase.firestore.FieldValue.delete() }).then(function () {
+    delete clubActual.categoriasEstandar;
+    sincronizarMarca(clubActual.id, { categoriasEstandar: [] });
+    pintarCategoriasEstandar();
+    refrescarSelectsCategorias();
+    mostrarExito("Categorías estándar restauradas.");
+  }).catch(function (err) { mostrarError("No se pudo restaurar: " + err.message); });
+});
 
 function pintarCategoriasPersonalizadas() {
   const propias = clubActual.categoriasPersonalizadas || [];
@@ -4445,7 +4504,7 @@ document.getElementById("btnAgregarCategoria").addEventListener("click", functio
   const input = document.getElementById("mcNuevaCategoria");
   const nombre = input.value.trim();
   if (!nombre) { mostrarError("Escribe el nombre de la categoría."); return; }
-  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas);
+  const CATS_CLUB = categoriasConPersonalizadas(clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar);
   if (CATS_CLUB.some(function (c) { return c.toLowerCase() === nombre.toLowerCase(); })) {
     mostrarError("Esa categoría ya existe.");
     return;

@@ -86,9 +86,11 @@ function demoAplicarCampos(actual, cambios, esUpdate) {
         else obj[partes[i]] = Object.assign({}, obj[partes[i]]);
         obj = obj[partes[i]];
       }
+      if (valor && valor.__campoDemo === "delete") { delete obj[partes[partes.length - 1]]; return; }
       obj[partes[partes.length - 1]] = demoResolverValor(obj[partes[partes.length - 1]], valor);
       return;
     }
+    if (valor && valor.__campoDemo === "delete") { delete resultado[clave]; return; }
     resultado[clave] = demoResolverValor(actual[clave], valor);
   });
   return resultado;
@@ -214,7 +216,8 @@ const firebase = {
     FieldValue: {
       serverTimestamp: function () { return { __campoDemo: "serverTimestamp" }; },
       increment: function (n) { return { __campoDemo: "increment", n: n }; },
-      arrayUnion: function () { return { __campoDemo: "arrayUnion", items: Array.prototype.slice.call(arguments) }; }
+      arrayUnion: function () { return { __campoDemo: "arrayUnion", items: Array.prototype.slice.call(arguments) }; },
+      delete: function () { return { __campoDemo: "delete" }; }
     },
     Timestamp: {
       fromDate: function (d) { return demoTimestamp(d); }

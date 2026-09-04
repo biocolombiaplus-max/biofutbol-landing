@@ -188,9 +188,10 @@ if (!clubId) {
 
 let fotoUrl = "";
 let categoriasPersonalizadasClub = [];
+let categoriasEstandarClub = [];
 
 function inicializarCategorias() {
-  llenarSelectCategorias(document.getElementById("categoria"), true, categoriasPersonalizadasClub);
+  llenarSelectCategorias(document.getElementById("categoria"), true, categoriasPersonalizadasClub, categoriasEstandarClub);
   wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
   document.getElementById("categoria").addEventListener("change", function () {
     document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
@@ -200,6 +201,7 @@ function inicializarCategorias() {
 if (clubId) {
   db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
     if (doc.exists && doc.data().categoriasPersonalizadas) categoriasPersonalizadasClub = doc.data().categoriasPersonalizadas;
+    if (doc.exists && doc.data().categoriasEstandar) categoriasEstandarClub = doc.data().categoriasEstandar;
   }).catch(function () {}).then(inicializarCategorias);
 } else {
   inicializarCategorias();
