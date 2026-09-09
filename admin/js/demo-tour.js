@@ -10,7 +10,7 @@ const TOUR_PASOS = [
   { tab: "inicio", selector: "#tab-inicio .quick-grid", titulo: "Todo tu club, a un toque", texto: "Cada módulo de la app accesible desde el inicio — nadie en tu equipo se pierde buscando dónde hacer algo." },
   { tab: "socios", selector: "#tab-socios #listaSocios", titulo: "Cada jugador, con su estado de pago al día", texto: "Verde, amarillo o rojo: sabes quién está al día y a quién recordarle, sin cuadernos ni Excel." },
   { tab: "profesores", selector: "#tab-profesores #listaProfesores", titulo: "Un acceso propio para cada profesor", texto: "Cada entrenador ve solo sus categorías, toma su propia asistencia y consulta a sus alumnos — sin tocar nada administrativo." },
-  { tab: "imagenes", selector: "#tab-imagenes .tpl-pills", titulo: "Imágenes profesionales en segundos", texto: "Convocatorias, resultados, cumpleaños, torneos... generadas con el escudo y los colores de tu club, listas para WhatsApp e Instagram." },
+  { tab: "imagenes", selector: "#tab-imagenes .img-preview-wrap", accion: tourGenerarEjemploPartido, titulo: "Imágenes profesionales en segundos", texto: "Mira: este ejemplo se generó solo, con los datos de tu próximo partido, el escudo y los colores de tu club — listo para WhatsApp e Instagram. Convocatorias, resultados, cumpleaños, torneos... todo así de profesional." },
   { tab: "patrocinadores", selector: "#tab-patrocinadores #listaPatrocinadores", titulo: "Consigue y muestra a tus patrocinadores", texto: "Dale visibilidad a los negocios que apoyan tu escuela — y úsalo para conseguir más aliados." },
   { tab: "entrenamientos", selector: "#tab-entrenamientos #asistenciaCard", titulo: "Asistencia en vivo, sin quitarle tiempo al entrenador", texto: "Se activa con un toque y todos quedan presentes por defecto — el profe solo marca a quien falta." },
   { tab: "fixture", selector: "#tab-fixture #listaPartidos", titulo: "Fixture y resultados, compartibles con un clic", texto: "Programa el partido y envía toda la info a los papás: fecha, hora, cancha, uniforme y hasta el arbitraje." },
@@ -20,6 +20,22 @@ const TOUR_PASOS = [
   { tab: "informes", selector: "#tab-informes #nutriTabla", titulo: "El estado nutricional de todo tu club, de un vistazo", texto: "Detecta a tiempo si el peso o la talla de algún deportista pueden estar afectando su rendimiento, con recomendaciones listas para compartir con los padres." },
   { tab: "miclub", selector: "#tab-miclub #mcLogoBox", titulo: "100% personalizable a tu club", texto: "Tu escudo, tus colores, tu mensualidad, tus datos de pago — la app se adapta a ti, no al revés." }
 ];
+
+// Genera automáticamente un ejemplo real de "Próximo partido" (con el
+// primer partido pendiente del club de ejemplo) para que el paso de
+// imágenes del recorrido muestre un resultado terminado, no solo el
+// formulario vacío — vende mucho más así.
+function tourGenerarEjemploPartido() {
+  const card = document.querySelector('.tpl-card[data-tpl="partido"]');
+  if (card && !card.classList.contains("on")) card.click();
+  const select = document.getElementById("pImgPartido");
+  if (select && select.options.length > 1) {
+    select.value = select.options[1].value;
+    select.dispatchEvent(new Event("change"));
+  }
+  const btn = document.getElementById("btnGenerarImagen");
+  if (btn) btn.click();
+}
 
 let tourPasoActual = -1;
 let tourResizeHandler = null;
@@ -96,7 +112,9 @@ function tourMostrarPaso(i) {
   document.getElementById("tourSiguiente").textContent = i === TOUR_PASOS.length - 1 ? "Terminar" : "Siguiente";
   document.querySelectorAll("#tourDots .tc-dot").forEach(function (d, di) { d.classList.toggle("on", di === i); });
 
-  setTimeout(function () { tourPosicionar(paso); }, 260);
+  if (typeof paso.accion === "function") paso.accion();
+
+  setTimeout(function () { tourPosicionar(paso); }, paso.accion ? 650 : 260);
 }
 
 function tourPosicionar(paso) {

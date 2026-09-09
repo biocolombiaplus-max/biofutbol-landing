@@ -193,6 +193,30 @@ async function imgFotoCover(ctx, cx, cy, r, fotoUrl, letra, colorHex) {
   }
 }
 
+// Rayos de luz diagonales, tipo afiche de partido: le dan al fondo el
+// dramatismo de una gráfica deportiva profesional (no solo un resplandor
+// plano). Usa "screen" para que se vean como luz, nunca como manchas.
+function imgRayosLuz(ctx, w, h, colorHex) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const n = 5;
+  for (let i = 0; i < n; i++) {
+    const cx = w * (0.08 + i * 0.24);
+    const rayW = w * 0.17;
+    ctx.save();
+    ctx.translate(cx, h * 0.5);
+    ctx.rotate(-0.27);
+    const grad = ctx.createLinearGradient(-rayW / 2, 0, rayW / 2, 0);
+    grad.addColorStop(0, "rgba(255,255,255,0)");
+    grad.addColorStop(0.5, imgRgba(colorHex, 0.12));
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(-rayW / 2, -h, rayW, h * 2);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 // d = { club, propio, propioLogoUrl, rival, rivalLogoUrl, fecha, hora, lugar, formato, fondoUrl }
 async function generarImagenPartido(canvas, d) {
   const fmt = IMG_FORMATOS[d.formato] || IMG_FORMATOS.story;
@@ -200,13 +224,15 @@ async function generarImagenPartido(canvas, d) {
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
 
-  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
-  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
-
-  const barraH = H * 0.11;
   const c1 = (d.club && d.club.colorPrimario) || "#18A83A";
   const c2 = (d.club && d.club.colorSecundario) || "#0e7d29";
   const cGold = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
+
+  const fondoImg = d.fondoUrl ? await imgLoadImage(d.fondoUrl) : null;
+  imgFondoPersonalizado(ctx, W, H, fondoImg, d.club, d.opacidadFondo);
+  imgRayosLuz(ctx, W, H, cGold);
+
+  const barraH = H * 0.11;
   const tScale = d.escalaTexto || 1;
   ctx.textAlign = "center";
 
@@ -261,24 +287,33 @@ async function generarImagenPartido(canvas, d) {
   ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.stroke();
 
   if (d.fecha) {
-    imgFitFont(ctx, d.fecha, cardW * 0.88, "700", cardH * 0.2, cardH * 0.1);
+    const fechaTxt = d.fecha.toUpperCase();
+    imgFitFont(ctx, fechaTxt, cardW * 0.88, "800", cardH * 0.23, cardH * 0.1);
     ctx.fillStyle = "#fff";
-    ctx.fillText(d.fecha, W / 2, cardY + cardH * 0.32);
+    ctx.fillText(fechaTxt, W / 2, cardY + cardH * 0.33);
   }
   if (d.hora) {
-    ctx.font = "800 " + Math.round(cardH * 0.34) + "px Poppins, sans-serif";
+    ctx.font = "900 " + Math.round(cardH * 0.36) + "px Poppins, sans-serif";
     ctx.fillStyle = cGold;
-    ctx.fillText(d.hora, W / 2, cardY + cardH * 0.68);
+    ctx.fillText(d.hora, W / 2, cardY + cardH * 0.7);
   }
   if (d.lugar) {
     ctx.font = "600 " + Math.round(cardH * 0.15) + "px Poppins, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,.78)";
-    imgWrapText(ctx, d.lugar, W / 2, cardY + cardH * 0.92, cardW * 0.9, cardH * 0.16, 1);
+    imgWrapText(ctx, d.lugar, W / 2, cardY + cardH * 0.94, cardW * 0.9, cardH * 0.16, 1);
   }
 
-  ctx.font = "600 " + Math.round(W * 0.028) + "px Poppins, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,.8)";
-  ctx.fillText("¡No te lo pierdas! 💪⚽", W / 2, cardY + cardH + H * 0.055);
+  // Pastilla de llamado a la acción, bien vistosa, en vez de texto plano.
+  const ctaTxt = "¡NO TE LO PIERDAS! 🔥";
+  const ctaY = cardY + cardH + H * 0.058;
+  ctx.font = "900 " + Math.round(W * 0.033) + "px Poppins, sans-serif";
+  const ctaPadX = W * 0.05, ctaH = H * 0.043;
+  const ctaW = ctx.measureText(ctaTxt).width + ctaPadX * 2;
+  imgRoundRect(ctx, W / 2 - ctaW / 2, ctaY - ctaH * 0.7, ctaW, ctaH, ctaH / 2);
+  ctx.fillStyle = cGold;
+  ctx.fill();
+  ctx.fillStyle = "#0B1626";
+  ctx.fillText(ctaTxt, W / 2, ctaY + ctaH * 0.12);
 
   imgBarraInferiorGen(ctx, d.club, W, H, barraH);
 }
