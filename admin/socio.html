@@ -142,7 +142,14 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <div class="field"><label>Alergias o condiciones médicas</label><input type="text" id="alergias"></div>
         <div class="field-row">
           <div class="field"><label>Contacto de emergencia</label><input type="text" id="emergenciaNombre"></div>
-          <div class="field"><label>Teléfono de emergencia</label><input type="text" id="emergenciaTelefono"></div>
+          <div class="field">
+            <label>Teléfono de emergencia</label>
+            <div class="tel-input-wrap" id="emergenciaTelWrap">
+              <span class="tel-indicativo">+57</span>
+              <input type="tel" id="emergenciaTelefono" placeholder="300 123 4567" inputmode="numeric">
+            </div>
+            <small class="tel-hint" id="emergenciaTelHint" style="display:none">Revisa el número, parece incompleto.</small>
+          </div>
         </div>
       </div>
 
@@ -150,7 +157,14 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
         <h3><i class="fa-solid fa-user-shield"></i> Acudiente y autorizaciones</h3>
         <div class="field-row">
           <div class="field"><label>Acudiente</label><input type="text" id="acudiente"></div>
-          <div class="field"><label>Teléfono</label><input type="text" id="telefono"></div>
+          <div class="field">
+            <label>Teléfono</label>
+            <div class="tel-input-wrap" id="telWrap">
+              <span class="tel-indicativo">+57</span>
+              <input type="tel" id="telefono" placeholder="300 123 4567" inputmode="numeric">
+            </div>
+            <small class="tel-hint" id="telHint" style="display:none">Revisa el número, parece incompleto.</small>
+          </div>
         </div>
         <div class="field"><label>Correo</label><input type="email" id="correo"></div>
         <div class="status-row"><span class="k">Autorización de imagen</span><span id="pillImagen" class="pill muted">—</span></div>
@@ -316,6 +330,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/categorias.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/crecimiento.js"></script>
 <script src="js/motivacion.js"></script>
@@ -333,6 +348,8 @@ let clubActual = null;
 
 llenarSelectCategorias(document.getElementById("categoria"), true);
 wireCategoriaAutomatica(document.getElementById("fechaNacimiento"), document.getElementById("categoria"));
+wireValidacionTelefono(document.getElementById("telWrap"), document.getElementById("telHint"));
+wireValidacionTelefono(document.getElementById("emergenciaTelWrap"), document.getElementById("emergenciaTelHint"));
 document.getElementById("categoria").addEventListener("change", function () {
   document.getElementById("categoriaOtra").style.display = this.value === "__otra__" ? "block" : "none";
 });
@@ -372,6 +389,8 @@ function cargarSocio() {
     const doc = res[0], clubDoc = res[1], todosSnap = res[2];
     if (!doc.exists) { document.getElementById("pageTitle").textContent = "Socio no encontrado"; return; }
     clubActual = clubDoc.exists ? clubDoc.data() : {};
+    iniciarInputTelefono(document.getElementById("telWrap"), clubActual.clubPais);
+    iniciarInputTelefono(document.getElementById("emergenciaTelWrap"), clubActual.clubPais);
     TODOS_SOCIOS = [];
     todosSnap.forEach(function (d) { TODOS_SOCIOS.push(Object.assign({ id: d.id }, d.data())); });
     llenarSelectCategorias(document.getElementById("categoria"), true, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar);
@@ -401,13 +420,13 @@ function cargarSocio() {
     document.getElementById("colegio").value = socioActual.colegio || "";
     document.getElementById("jornada").value = socioActual.jornada || "";
     document.getElementById("acudiente").value = socioActual.acudiente || "";
-    document.getElementById("telefono").value = socioActual.telefono || "";
+    cargarTelefonoEnInput(document.getElementById("telWrap"), socioActual.telefono || "");
     document.getElementById("correo").value = socioActual.correo || "";
     document.getElementById("eps").value = socioActual.eps || "";
     document.getElementById("grupoSanguineo").value = socioActual.grupoSanguineo || "";
     document.getElementById("alergias").value = socioActual.alergias || "";
     document.getElementById("emergenciaNombre").value = socioActual.emergenciaNombre || "";
-    document.getElementById("emergenciaTelefono").value = socioActual.emergenciaTelefono || "";
+    cargarTelefonoEnInput(document.getElementById("emergenciaTelWrap"), socioActual.emergenciaTelefono || "");
     document.getElementById("estado").value = socioActual.estado || "Activo";
     document.getElementById("observaciones").value = socioActual.observaciones || "";
 
@@ -477,7 +496,7 @@ function pintarPago() {
     ? "Becado — no genera cobros."
     : (historial.length
       ? "<strong style='color:var(--white)'>Historial:</strong><br>" + historial.slice().reverse().slice(0, 6).map(function (p) {
-          return formatFecha(new Date(p.fecha)) + " — " + formatCOP(p.valor || 0);
+          return formatFecha(new Date(p.fecha)) + " — " + formatMoneda(p.valor || 0, clubActual.moneda);
         }).join("<br>")
       : "Sin pagos registrados todavía.");
 }
@@ -505,7 +524,7 @@ function pintarHermanos() {
   box.innerHTML = '<div style="background:rgba(255,201,51,.08);border:1px solid rgba(255,201,51,.3);border-radius:10px;padding:12px 14px">' +
     '<div style="font-weight:800;font-size:.78rem;color:var(--gold);margin-bottom:8px"><i class="fa-solid fa-people-roof"></i> Hermanos detectados en el club</div>' +
     hermanos.map(function (h) {
-      const val = h.becado ? "Becado" : formatCOP(valorCobroSocio(h, clubActual));
+      const val = h.becado ? "Becado" : formatMoneda(valorCobroSocio(h, clubActual), clubActual.moneda);
       return '<a href="socio.html?cliente=' + clienteId + '&id=' + h.id + '" style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:.82rem;color:var(--white);border-top:1px solid rgba(255,255,255,.08)">' +
         '<span>' + esc(h.nombre || "Sin nombre") + '</span><span style="color:var(--gray)">' + val + '</span></a>';
     }).join("") +
@@ -535,7 +554,7 @@ document.getElementById("btnGuardarFechaCobro").addEventListener("click", functi
     socioActual.pagoValor = valor;
     socioActual.pagoProximo = proximoStr;
     pintarPago();
-    registrarAuditoria("Cobro del socio actualizado", clienteId, socioActual.nombre, becado ? "Becado" : formatCOP(valor));
+    registrarAuditoria("Cobro del socio actualizado", clienteId, socioActual.nombre, becado ? "Becado" : formatMoneda(valor, clubActual.moneda));
     mostrarExito(becado ? "Guardado como becado." : "Cobro guardado.");
   }).catch(function (err) {
     mostrarError("No se pudo guardar: " + err.message);
@@ -565,7 +584,7 @@ document.getElementById("btnMarcarPagado").addEventListener("click", function ()
     socioActual.historialPagosSocio = (socioActual.historialPagosSocio || []).concat([nuevoPago]);
     document.getElementById("pagoProximo").value = proximoStr;
     pintarPago();
-    registrarAuditoria("Pago de socio registrado", clienteId, socioActual.nombre, formatCOP(valor));
+    registrarAuditoria("Pago de socio registrado", clienteId, socioActual.nombre, formatMoneda(valor, clubActual.moneda));
     mostrarExito("Pago registrado. Próximo vencimiento actualizado.");
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
@@ -581,10 +600,10 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
   const valor = valorCobroSocio(socioActual, clubActual);
   const nombreClub = (clubActual && clubActual.clubNombre) || "tu club";
   let mensaje = "¡Hola! Te recordamos la mensualidad de " + (socioActual.nombre || "tu deportista") + " en " + nombreClub +
-    (valor ? ": " + formatCOP(valor) : "") + ".";
+    (valor ? ": " + formatMoneda(valor, clubActual.moneda) : "") + ".";
 
   if (clubActual && clubActual.pagoNequiNumero) {
-    mensaje += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+    mensaje += "\n\nPuedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   }
   if (clubActual && clubActual.pagoBancoNumero) {
     let banco = "Cuenta " + (clubActual.pagoBancoTipo || "bancaria") + (clubActual.pagoBancoNombre ? " " + clubActual.pagoBancoNombre : "") + ": " + clubActual.pagoBancoNumero;
@@ -637,7 +656,7 @@ document.getElementById("btnRecibo").addEventListener("click", function () {
     document.getElementById("btnReciboSocioWhatsapp").disabled = false;
     document.getElementById("btnReciboSocioCorreo").disabled = false;
     pdf.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
-    registrarAuditoria("Recibo de socio generado", clienteId, socioActual.nombre, formatCOP(valor));
+    registrarAuditoria("Recibo de socio generado", clienteId, socioActual.nombre, formatMoneda(valor, clubActual.moneda));
     mostrarExito("Recibo generado. Ya lo puedes enviar por WhatsApp o correo.");
   }).catch(function (err) {
     mostrarError("No se pudo generar el recibo: " + err.message);
@@ -780,7 +799,7 @@ function pintarUniformes() {
         '<span class="pill ' + estado.clase + '">' + estado.texto + '</span>' +
       '</div>' +
       '<div class="uni-row-bar"><div class="uni-row-bar-fill" style="width:' + pct + '%"></div></div>' +
-      '<div class="uni-row-nums"><span>Total <b>' + formatCOP(u.valorTotal || 0) + '</b></span><span>Abonado <b>' + formatCOP(u.abonado || 0) + '</b></span><span>Saldo <b>' + formatCOP(saldo) + '</b></span></div>' +
+      '<div class="uni-row-nums"><span>Total <b>' + formatMoneda(u.valorTotal || 0, clubActual.moneda) + '</b></span><span>Abonado <b>' + formatMoneda(u.abonado || 0, clubActual.moneda) + '</b></span><span>Saldo <b>' + formatMoneda(saldo, clubActual.moneda) + '</b></span></div>' +
       '<div class="uni-row-actions">' +
         (saldo > 0 ? '<button type="button" class="btn btn-primary btn-sm" data-abonar="' + u.id + '"><i class="fa-solid fa-hand-holding-dollar"></i> Abonar pago</button>' : '') +
         '<button type="button" class="btn btn-ghost btn-sm" data-eliminar-uni="' + u.id + '"><i class="fa-solid fa-trash"></i></button>' +
@@ -820,7 +839,7 @@ document.getElementById("btnGuardarUniNuevo").addEventListener("click", function
   const lista = (socioActual.uniformes || []).concat([nuevo]);
   guardarUniformes(lista).then(function () {
     document.getElementById("btnCancelarUniNuevo").click();
-    registrarAuditoria("Uniforme agregado al socio", clienteId, socioActual.nombre, concepto + " — " + formatCOP(valorTotal));
+    registrarAuditoria("Uniforme agregado al socio", clienteId, socioActual.nombre, concepto + " — " + formatMoneda(valorTotal, clubActual.moneda));
     mostrarExito("Uniforme agregado.");
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
@@ -833,11 +852,11 @@ document.getElementById("uniformesLista").addEventListener("click", function (e)
     const u = lista.find(function (x) { return x.id === id; });
     if (!u) return;
     const saldo = Math.max(0, (u.valorTotal || 0) - (u.abonado || 0));
-    const monto = Number(prompt('¿Cuánto abona a "' + u.concepto + '"? (saldo pendiente: ' + formatCOP(saldo) + ')', saldo)) || 0;
+    const monto = Number(prompt('¿Cuánto abona a "' + u.concepto + '"? (saldo pendiente: ' + formatMoneda(saldo, clubActual.moneda) + ')', saldo)) || 0;
     if (monto <= 0) return;
     u.abonado = Math.min(u.valorTotal, (u.abonado || 0) + monto);
     guardarUniformes(lista).then(function () {
-      registrarAuditoria("Abono a uniforme registrado", clienteId, socioActual.nombre, u.concepto + " — " + formatCOP(monto));
+      registrarAuditoria("Abono a uniforme registrado", clienteId, socioActual.nombre, u.concepto + " — " + formatMoneda(monto, clubActual.moneda));
       mostrarExito("Abono registrado.");
     }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
     return;
@@ -981,13 +1000,13 @@ document.getElementById("btnGuardar").addEventListener("click", function () {
     colegio: document.getElementById("colegio").value.trim(),
     jornada: document.getElementById("jornada").value.trim(),
     acudiente: document.getElementById("acudiente").value.trim(),
-    telefono: document.getElementById("telefono").value.trim(),
+    telefono: leerTelefonoDeInput(document.getElementById("telWrap")),
     correo: document.getElementById("correo").value.trim(),
     eps: document.getElementById("eps").value.trim(),
     grupoSanguineo: document.getElementById("grupoSanguineo").value.trim(),
     alergias: document.getElementById("alergias").value.trim(),
     emergenciaNombre: document.getElementById("emergenciaNombre").value.trim(),
-    emergenciaTelefono: document.getElementById("emergenciaTelefono").value.trim(),
+    emergenciaTelefono: leerTelefonoDeInput(document.getElementById("emergenciaTelWrap")),
     estado: document.getElementById("estado").value,
     observaciones: document.getElementById("observaciones").value.trim()
   };
