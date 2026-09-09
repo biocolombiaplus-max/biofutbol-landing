@@ -911,7 +911,7 @@ async function generarImagenTorneo(canvas, d) {
   }
 
   if (torneo.valorInscripcion) {
-    const inscTxt = "Inscripción: $" + Number(torneo.valorInscripcion).toLocaleString("es-CO");
+    const inscTxt = "Inscripción: " + formatMoneda(torneo.valorInscripcion, d.club && d.club.moneda);
     imgFitFont(ctx, inscTxt, cardW * 0.9, "800", cardH * 0.2, cardH * 0.1);
     ctx.fillStyle = d.colorTexto || (d.club && d.club.colorTerciario) || "#FFC933";
     ctx.fillText(inscTxt, W / 2, cardY + cardH * 0.9);

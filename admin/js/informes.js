@@ -1,8 +1,6 @@
 // ── INFORMES / REPORTES EN PDF ──
 // Requiere jsPDF ya cargado (window.jspdf).
 
-function informeFormatCOP(n) { return "$" + Number(n || 0).toLocaleString("es-CO"); }
-
 function informeEdad(fechaNacimiento) {
   if (!fechaNacimiento) return null;
   const n = new Date(fechaNacimiento + "T12:00:00");
@@ -160,11 +158,12 @@ function generarReporteCarteraPDF(datos) {
 
   let y = informeEncabezado(doc, { club: datos.club, margin: margin, titulo: "REPORTE DE CARTERA", subtitulo: datos.filtroTexto || "Todos los socios" });
 
+  const moneda = datos.club && datos.club.moneda;
   const cardW = (pageWidth - margin * 2 - 36) / 4;
   const cards = [
-    { label: "TOTAL ESPERADO", valor: informeFormatCOP(datos.resumen.totalEsperado), color: [11, 22, 38] },
+    { label: "TOTAL ESPERADO", valor: formatMoneda(datos.resumen.totalEsperado, moneda), color: [11, 22, 38] },
     { label: "SOCIOS EN MORA", valor: String(datos.resumen.totalMorosos), color: [180, 45, 45] },
-    { label: "PENDIENTE POR COBRAR", valor: informeFormatCOP(datos.resumen.totalPendiente), color: [24, 168, 58] },
+    { label: "PENDIENTE POR COBRAR", valor: formatMoneda(datos.resumen.totalPendiente, moneda), color: [24, 168, 58] },
     { label: "BECADOS (no cobran)", valor: String(datos.resumen.totalBecados || 0), color: [58, 66, 82] }
   ];
   cards.forEach(function (c, i) {
@@ -192,7 +191,7 @@ function generarReporteCarteraPDF(datos) {
     { label: "ESTADO", w: pageWidth - margin * 2 - (128 + 68 + 84 + 76 + 62) }
   ];
   const filas = datos.filas.map(function (f) {
-    return [f.nombre || "Sin nombre", f.categoria || "—", f.telefono || "—", informeFormatCOP(f.valor), f.vence || "—", f.estadoTexto || "—"];
+    return [f.nombre || "Sin nombre", f.categoria || "—", f.telefono || "—", formatMoneda(f.valor, moneda), f.vence || "—", f.estadoTexto || "—"];
   });
   y = informeTabla(doc, { y: y, margin: margin, pageHeight: pageHeight, columnas: columnas, filas: filas });
 

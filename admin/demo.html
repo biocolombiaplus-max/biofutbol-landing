@@ -2999,6 +2999,7 @@ function generarSoporteSocio(s) {
     pagadorDoc: s.documento || "",
     concepto: concepto,
     valor: valor,
+    moneda: clubActual.moneda,
     fecha: fecha
   });
   return subirReciboPDF(pdf, "recibo-" + s.id + "-" + Date.now() + ".pdf").then(function (url) {

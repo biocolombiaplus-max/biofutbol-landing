@@ -646,6 +646,7 @@ document.getElementById("btnRecibo").addEventListener("click", function () {
     pagadorDoc: socioActual.documento || "",
     concepto: concepto,
     valor: valor,
+    moneda: clubActual && clubActual.moneda,
     fecha: fecha
   });
 

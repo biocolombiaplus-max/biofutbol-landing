@@ -15,7 +15,9 @@ function reciboNumero() {
 // opts = {
 //   emisorNombre, emisorLogoUrl, colorPrimario,
 //   pagadorNombre, pagadorDoc (NIT/documento, opcional),
-//   concepto, valor, fecha (Date), numSocios (opcional, número),
+//   concepto, valor, moneda (opcional — código ISO, ej. "ARS"; sin
+//   moneda se factura en COP, que es el caso del pago del club a
+//   BioFutbol), fecha (Date), numSocios (opcional, número),
 //   notaPie (opcional)
 // }
 // Devuelve el objeto jsPDF (doc) ya armado — el llamador decide si
@@ -64,7 +66,7 @@ function generarReciboPDF(opts) {
   doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
   doc.text("VALOR PAGADO", 40, y + 20);
   doc.setFontSize(19);
-  doc.text(formatCOPRecibo(opts.valor), 40, y + 42);
+  doc.text(formatMoneda(opts.valor, opts.moneda), 40, y + 42);
   y += 54 + 24;
 
   doc.setDrawColor(225, 225, 225); doc.line(28, y, W - 28, y); y += 18;
@@ -74,10 +76,6 @@ function generarReciboPDF(opts) {
   doc.setFontSize(7); doc.text("Generado con BioFutbol", W / 2, y + 6, { align: "center" });
 
   return doc;
-}
-
-function formatCOPRecibo(n) {
-  return "$" + Number(n || 0).toLocaleString("es-CO");
 }
 
 // Sube el PDF a Cloudinary y devuelve la URL (requiere cloudinary-config.js)
