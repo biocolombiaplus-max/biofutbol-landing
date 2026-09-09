@@ -139,11 +139,14 @@ function cargarTelefonoEnInput(wrapEl, valorCompleto) {
 }
 
 // Devuelve el número completo (indicativo + local) listo para guardar o
-// para armar un link de wa.me.
+// para armar un link de wa.me. Si el campo local quedó vacío (típico en
+// campos opcionales, como el teléfono de emergencia) devuelve "" en vez
+// de guardar el indicativo solo, que no es un número real.
 function leerTelefonoDeInput(wrapEl) {
   const indicativo = wrapEl.dataset.indicativo || "";
   const input = wrapEl.querySelector("input");
-  return indicativo + soloDigitos(input ? input.value : "");
+  const local = soloDigitos(input ? input.value : "");
+  return local ? indicativo + local : "";
 }
 
 // Marca el campo en rojo (y opcionalmente muestra un mensajito) apenas el

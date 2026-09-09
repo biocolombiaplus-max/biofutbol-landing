@@ -49,7 +49,14 @@
 
       <div class="field"><label>Nombre completo *</label><input type="text" id="nombre" required></div>
       <div class="field-row">
-        <div class="field"><label>Teléfono *</label><input type="text" id="telefono" placeholder="573001234567" required></div>
+        <div class="field">
+          <label>Teléfono *</label>
+          <div class="tel-input-wrap" id="telWrap">
+            <span class="tel-indicativo">+57</span>
+            <input type="tel" id="telefono" placeholder="300 123 4567" inputmode="numeric" required>
+          </div>
+          <small class="tel-hint" id="telHint" style="display:none">Revisa el número, parece incompleto.</small>
+        </div>
         <div class="field"><label>Correo (opcional)</label><input type="email" id="correo"></div>
       </div>
       <div class="field">
@@ -82,6 +89,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/categorias.js"></script>
+<script src="js/paises.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const clubId = params.get("club");
@@ -114,12 +122,19 @@ function inicializarCategorias(extra, baseOverride) {
   });
 }
 
+wireValidacionTelefono(document.getElementById("telWrap"), document.getElementById("telHint"));
+
 if (clubId) {
   db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
     inicializarCategorias(doc.exists ? doc.data().categoriasPersonalizadas : [], doc.exists ? doc.data().categoriasEstandar : []);
-  }).catch(function () { inicializarCategorias([]); });
+    iniciarInputTelefono(document.getElementById("telWrap"), doc.exists ? doc.data().clubPais : "Colombia");
+  }).catch(function () {
+    inicializarCategorias([]);
+    iniciarInputTelefono(document.getElementById("telWrap"), "Colombia");
+  });
 } else {
   inicializarCategorias([]);
+  iniciarInputTelefono(document.getElementById("telWrap"), "Colombia");
 }
 
 document.getElementById("fotoInput").addEventListener("change", function (e) {
@@ -145,6 +160,13 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
   errorBox.style.display = "none";
 
   const btn = document.getElementById("submitBtn");
+
+  if (!numeroLocalValido(document.getElementById("telWrap").querySelector("input").value)) {
+    errorBox.textContent = "Revisa el teléfono, parece incompleto.";
+    errorBox.style.display = "block";
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Enviando...';
 
@@ -152,7 +174,7 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
     fotoUrl: fotoUrl,
     creado: firebase.firestore.FieldValue.serverTimestamp(),
     nombre: document.getElementById("nombre").value.trim(),
-    telefono: document.getElementById("telefono").value.trim(),
+    telefono: leerTelefonoDeInput(document.getElementById("telWrap")),
     correo: document.getElementById("correo").value.trim(),
     categorias: categoriasSeleccionadas.slice(),
     authUid: "",

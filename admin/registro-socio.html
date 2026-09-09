@@ -52,6 +52,7 @@
             <option value="RC">Registro civil (RC)</option>
             <option value="TI">Tarjeta de identidad (TI)</option>
             <option value="CC">Cédula de ciudadanía (CC)</option>
+            <option value="Otro">Otro / Pasaporte</option>
           </select>
         </div>
         <div class="field"><label>Número de documento *</label><input type="text" id="documento" inputmode="numeric" required></div>
@@ -124,13 +125,27 @@
       <div class="field"><label>Alergias o condiciones médicas</label><input type="text" id="alergias" placeholder="Ej: asma, alergia a la penicilina — o déjalo en blanco"></div>
       <div class="field-row">
         <div class="field"><label>Contacto de emergencia</label><input type="text" id="emergenciaNombre" placeholder="Nombre"></div>
-        <div class="field"><label>Teléfono de emergencia</label><input type="text" id="emergenciaTelefono" placeholder="573001234567"></div>
+        <div class="field">
+          <label>Teléfono de emergencia</label>
+          <div class="tel-input-wrap" id="emergenciaTelWrap">
+            <span class="tel-indicativo">+57</span>
+            <input type="tel" id="emergenciaTelefono" placeholder="300 123 4567" inputmode="numeric">
+          </div>
+          <small class="tel-hint" id="emergenciaTelHint" style="display:none">Revisa el número, parece incompleto.</small>
+        </div>
       </div>
 
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-user-shield"></i> Acudiente (si es menor de edad)</h3>
       <div class="field-row">
         <div class="field"><label>Nombre del acudiente</label><input type="text" id="acudiente"></div>
-        <div class="field"><label>Teléfono de contacto *</label><input type="text" id="telefono" placeholder="573001234567" required></div>
+        <div class="field">
+          <label>Teléfono de contacto *</label>
+          <div class="tel-input-wrap" id="telWrap">
+            <span class="tel-indicativo">+57</span>
+            <input type="tel" id="telefono" placeholder="300 123 4567" inputmode="numeric" required>
+          </div>
+          <small class="tel-hint" id="telHint" style="display:none">Revisa el número, parece incompleto.</small>
+        </div>
       </div>
       <div class="field"><label>Correo (opcional)</label><input type="email" id="correo"></div>
 
@@ -173,6 +188,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/cloudinary-config.js"></script>
 <script src="js/categorias.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/nutricion.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
@@ -198,12 +214,23 @@ function inicializarCategorias() {
   });
 }
 
+wireValidacionTelefono(document.getElementById("telWrap"), document.getElementById("telHint"));
+wireValidacionTelefono(document.getElementById("emergenciaTelWrap"), document.getElementById("emergenciaTelHint"));
+
 if (clubId) {
   db.collection("clientes").doc(clubId).collection("publico").doc("marca").get().then(function (doc) {
     if (doc.exists && doc.data().categoriasPersonalizadas) categoriasPersonalizadasClub = doc.data().categoriasPersonalizadas;
     if (doc.exists && doc.data().categoriasEstandar) categoriasEstandarClub = doc.data().categoriasEstandar;
-  }).catch(function () {}).then(inicializarCategorias);
+    const pais = doc.exists ? doc.data().clubPais : "Colombia";
+    iniciarInputTelefono(document.getElementById("telWrap"), pais);
+    iniciarInputTelefono(document.getElementById("emergenciaTelWrap"), pais);
+  }).catch(function () {
+    iniciarInputTelefono(document.getElementById("telWrap"), "Colombia");
+    iniciarInputTelefono(document.getElementById("emergenciaTelWrap"), "Colombia");
+  }).then(inicializarCategorias);
 } else {
+  iniciarInputTelefono(document.getElementById("telWrap"), "Colombia");
+  iniciarInputTelefono(document.getElementById("emergenciaTelWrap"), "Colombia");
   inicializarCategorias();
 }
 
@@ -250,6 +277,13 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar registro';
     return;
   }
+  if (!numeroLocalValido(document.getElementById("telWrap").querySelector("input").value)) {
+    errorBox.textContent = "Revisa el teléfono de contacto, parece incompleto.";
+    errorBox.style.display = "block";
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar registro';
+    return;
+  }
 
   const data = {
     fotoUrl: fotoUrl,
@@ -272,9 +306,9 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
     grupoSanguineo: document.getElementById("grupoSanguineo").value,
     alergias: document.getElementById("alergias").value.trim(),
     emergenciaNombre: document.getElementById("emergenciaNombre").value.trim(),
-    emergenciaTelefono: document.getElementById("emergenciaTelefono").value.trim(),
+    emergenciaTelefono: leerTelefonoDeInput(document.getElementById("emergenciaTelWrap")),
     acudiente: document.getElementById("acudiente").value.trim(),
-    telefono: document.getElementById("telefono").value.trim(),
+    telefono: leerTelefonoDeInput(document.getElementById("telWrap")),
     correo: document.getElementById("correo").value.trim(),
     estado: "Activo",
     observaciones: document.getElementById("observaciones").value.trim(),
