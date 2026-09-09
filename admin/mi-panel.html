@@ -142,7 +142,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
     <h3><i class="fa-solid fa-money-bill-wave"></i> Cómo pagar la mensualidad</h3>
     <p style="font-size:.86rem;color:var(--gray);margin-bottom:12px" id="pagoValorTxt"></p>
     <div id="pagoNequiBox" style="display:none;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div><div class="k" style="font-size:.68rem;color:var(--gray);text-transform:uppercase;font-weight:700">Nequi</div><div style="font-weight:800" id="pagoNequiTxt">—</div></div>
+      <div><div class="k" style="font-size:.68rem;color:var(--gray);text-transform:uppercase;font-weight:700" id="pagoNequiLabel">Nequi</div><div style="font-weight:800" id="pagoNequiTxt">—</div></div>
       <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarNequi"><i class="fa-solid fa-copy"></i> Copiar</button>
     </div>
     <div id="pagoBancoBox" style="display:none;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-bottom:10px">
@@ -232,6 +232,7 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/nutricion.js"></script>
 <script src="js/crecimiento.js"></script>
 <script src="js/motivacion.js"></script>
@@ -242,7 +243,6 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
 <script src="js/audit.js"></script>
 <script src="js/pwa-icon.js"></script>
 <script>
-function formatCOPPortal(n) { return "$" + Number(n || 0).toLocaleString("es-CO"); }
 
 document.getElementById("btnSalir").addEventListener("click", function (e) {
   e.preventDefault();
@@ -297,14 +297,14 @@ requireAccesoSocio().then(function (r) {
   // requireAccesoSocio ya redirige o muestra la pantalla de bloqueo.
 });
 
-function pintarMora(socio) {
+function pintarMora(socio, club) {
   const card = document.getElementById("moraCard");
   if (socio.becado || !socio.pagoProximo) { card.style.display = "none"; return; }
   const dias = diasHasta(socio.pagoProximo);
   if (dias === null || dias > 5) { card.style.display = "none"; return; }
 
   card.style.display = "block";
-  const valor = socio.pagoValor ? " (" + formatCOPPortal(socio.pagoValor) + ")" : "";
+  const valor = socio.pagoValor ? " (" + formatMoneda(socio.pagoValor, club.moneda) + ")" : "";
   if (dias < 0) {
     card.className = "mora-card venc";
     document.getElementById("moraTitulo").innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Tu mensualidad está vencida';
@@ -332,7 +332,7 @@ function pintarCumpleanos(socio, club) {
   document.getElementById("cumpleMsg").textContent = "Todo el equipo de " + ((club && club.clubNombre) || "tu club") + " te desea un día increíble. ¡Sigue brillando dentro y fuera de la cancha! ⚽";
 }
 
-function pintarOtrosPagos(socio) {
+function pintarOtrosPagos(socio, club) {
   const ins = socio.inscripcion || {};
   const uniformes = socio.uniformes || [];
   if (!ins.valor && !uniformes.length) return;
@@ -341,7 +341,7 @@ function pintarOtrosPagos(socio) {
   if (ins.valor) {
     const row = document.getElementById("inscripcionRow");
     row.style.display = "flex";
-    document.getElementById("inscripcionValorTxt").textContent = formatCOPPortal(ins.valor);
+    document.getElementById("inscripcionValorTxt").textContent = formatMoneda(ins.valor, club.moneda);
     const pill = document.getElementById("inscripcionEstadoPill");
     pill.textContent = ins.pagada ? "Pagada" : "Pendiente";
     pill.className = "pill " + (ins.pagada ? "ok" : "warn");
@@ -368,7 +368,7 @@ function pintarOtrosPagos(socio) {
 
     const nums = document.createElement("div");
     nums.style.cssText = "font-size:.78rem;color:var(--gray)";
-    nums.textContent = "Total " + formatCOPPortal(u.valorTotal || 0) + " · Abonado " + formatCOPPortal(u.abonado || 0) + " · Saldo " + formatCOPPortal(saldo);
+    nums.textContent = "Total " + formatMoneda(u.valorTotal || 0, club.moneda) + " · Abonado " + formatMoneda(u.abonado || 0, club.moneda) + " · Saldo " + formatMoneda(saldo, club.moneda);
 
     wrap.appendChild(top); wrap.appendChild(nums);
     box.appendChild(wrap);
@@ -379,7 +379,7 @@ function pintar(socio, club) {
   document.getElementById("fraseMotivacional").textContent = fraseMotivacionalDelDia();
   carnetRender(document.getElementById("carnetContainer"), socio, club, location.href, "portal");
   pintarCumpleanos(socio, club);
-  pintarMora(socio);
+  pintarMora(socio, club);
   document.getElementById("pCategoria").textContent = socio.categoria || "—";
   document.getElementById("pTalla").textContent = socio.talla || "—";
   document.getElementById("pColegio").textContent = socio.colegio || "—";
@@ -388,9 +388,10 @@ function pintar(socio, club) {
   if (!socio.becado && club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoBancoNumero || club.pagoWompiLink)) {
     document.getElementById("pagoCard").style.display = "block";
     document.getElementById("pagoValorTxt").textContent = club.pagoMensualidad
-      ? "Mensualidad: " + formatCOPPortal(club.pagoMensualidad)
+      ? "Mensualidad: " + formatMoneda(club.pagoMensualidad, club.moneda)
       : "Contacta al club para conocer el valor de la mensualidad.";
     if (club.pagoNequiNumero) {
+      document.getElementById("pagoNequiLabel").textContent = club.pagoNequiApp || "Nequi";
       document.getElementById("pagoNequiBox").style.display = "flex";
       document.getElementById("pagoNequiTxt").textContent = club.pagoNequiNumero + (club.pagoNequiTitular ? " — " + club.pagoNequiTitular : "");
     }
@@ -408,7 +409,7 @@ function pintar(socio, club) {
     }
   }
 
-  pintarOtrosPagos(socio);
+  pintarOtrosPagos(socio, club);
 
   if (socio.eps || socio.grupoSanguineo || socio.alergias || socio.emergenciaNombre) {
     document.getElementById("saludCard").style.display = "block";
