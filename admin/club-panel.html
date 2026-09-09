@@ -604,14 +604,15 @@
       <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A dónde le paga cada socio. Se usa en los recordatorios de pago y en el portal del deportista.</p>
-        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
+        <div class="field"><label id="mcMensualidadLabel">Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
 
         <div class="pay-method">
-          <div class="pay-method-head pm-nequi"><i class="fa-solid fa-mobile-screen-button"></i> Nequi</div>
+          <div class="pay-method-head pm-nequi"><i class="fa-solid fa-mobile-screen-button"></i> Billetera digital</div>
           <div class="field-row">
-            <div class="field"><label>Número</label><input type="text" id="mcNequiNumero" placeholder="3001234567"></div>
-            <div class="field"><label>A nombre de</label><input type="text" id="mcNequiTitular"></div>
+            <div class="field"><label>Cuál (Nequi, Yape, Mercado Pago...)</label><input type="text" id="mcNequiApp" placeholder="Ej: Nequi"></div>
+            <div class="field"><label>Número o usuario</label><input type="text" id="mcNequiNumero" placeholder="300 123 4567"></div>
           </div>
+          <div class="field"><label>A nombre de</label><input type="text" id="mcNequiTitular"></div>
         </div>
 
         <div class="pay-method">
@@ -630,19 +631,13 @@
             <div class="field"><label>Número de cuenta</label><input type="text" id="mcBancoNumero" placeholder="Ej: 123-456789-00"></div>
             <div class="field"><label>A nombre de</label><input type="text" id="mcBancoTitular"></div>
           </div>
-          <div class="field"><label>Cédula o NIT del titular (opcional)</label><input type="text" id="mcBancoDocumento" placeholder="Ej: 900.123.456-7"></div>
-          <datalist id="listaBancos">
-            <option value="Bancolombia"><option value="Davivienda"><option value="BBVA Colombia">
-            <option value="Banco de Bogotá"><option value="Banco de Occidente"><option value="Banco Popular">
-            <option value="Banco AV Villas"><option value="Banco Caja Social"><option value="Banco Agrario">
-            <option value="Scotiabank Colpatria"><option value="Itaú"><option value="Banco Falabella">
-            <option value="Bancoomeva"><option value="Confiar Cooperativa">
-          </datalist>
+          <div class="field"><label id="mcBancoDocumentoLabel">Cédula o NIT del titular (opcional)</label><input type="text" id="mcBancoDocumento" placeholder="Ej: 900.123.456-7"></div>
+          <datalist id="listaBancos"></datalist>
         </div>
 
         <div class="pay-method">
           <div class="pay-method-head pm-link"><i class="fa-solid fa-link"></i> Link de pago</div>
-          <div class="field"><label>Wompi, PSE, tarjeta u otro</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+          <div class="field"><label id="mcWompiLabel">Wompi, PSE, tarjeta u otro</label><input type="url" id="mcWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
         </div>
 
         <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
@@ -941,7 +936,7 @@
         <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
       </div>
 
-      <div class="card" style="margin-top:18px">
+      <div class="card" style="margin-top:18px" id="festivosCard">
         <h3><i class="fa-solid fa-champagne-glasses"></i> Días festivos</h3>
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
           <input type="checkbox" id="entrenaFestivosCheck" checked style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
@@ -1304,6 +1299,7 @@
 <script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
 <script src="js/categorias.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/informes.js"></script>
 <script src="js/recibo.js"></script>
 <script src="js/nutricion.js"></script>
@@ -1373,6 +1369,7 @@ requireClub().then(function (r) {
   escucharProfesores();
   refrescarSelectsCategorias();
   document.getElementById("entrenaFestivosCheck").checked = clubActual.entrenaFestivos !== false;
+  document.getElementById("festivosCard").style.display = (!clubActual.clubPais || clubActual.clubPais === "Colombia") ? "block" : "none";
   precargarFormImagenes();
   cargarAnuncio();
   precargarFormMiClub();
@@ -2276,7 +2273,7 @@ function mensajePartido(p) {
   if (p.cancha) msg += "📍 Lugar: " + p.cancha + "\n";
   if (p.mapsUrl) msg += "🗺️ Cómo llegar: " + p.mapsUrl + "\n";
   if (p.uniformeId && nombreUniforme(p.uniformeId)) msg += "👕 Uniforme: " + nombreUniforme(p.uniformeId) + "\n";
-  if (p.arbitraje) msg += "💰 Valor arbitraje: " + formatCOP(p.arbitraje) + "\n";
+  if (p.arbitraje) msg += "💰 Valor arbitraje: " + formatMoneda(p.arbitraje, clubActual.moneda) + "\n";
   if (p.notas) msg += "\n📝 " + p.notas + "\n";
   msg += "\n¡Los esperamos! 🔥";
   return msg;
@@ -2451,8 +2448,8 @@ function recordarInscripcion(torneoId, socioId) {
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
   let msg = "¡Hola! Te recordamos la inscripción de " + (s.nombre || "tu deportista") + " al torneo *" + torneo.nombre + "*" +
-    (torneo.valorInscripcion ? ": " + formatCOP(torneo.valorInscripcion) : "") + ".";
-  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+    (torneo.valorInscripcion ? ": " + formatMoneda(torneo.valorInscripcion, clubActual.moneda) : "") + ".";
+  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   const bancoTorneo = textoCuentaBancaria(clubActual);
   if (bancoTorneo) msg += "\n\nO por transferencia — " + bancoTorneo + ".";
   msg += "\n\n¡Gracias!";
@@ -2736,8 +2733,8 @@ function textoCuentaBancaria(club) {
 function mensajeRecordatorioWhatsapp(socio) {
   const valor = valorCobroSocio(socio, clubActual);
   let msg = "¡Hola! Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " +
-    (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
-  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+    (clubActual.clubNombre || "tu club") + (valor ? ": " + formatMoneda(valor, clubActual.moneda) : "") + ".";
+  if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   const banco = textoCuentaBancaria(clubActual);
   if (banco) msg += "\n\nO por transferencia — " + banco + ".";
   if (clubActual.pagoWompiLink) msg += "\n\nO con tarjeta/PSE aquí: " + clubActual.pagoWompiLink;
@@ -2807,8 +2804,8 @@ document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios
 function enviarRecordatorioCorreo(socio) {
   if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
   const valor = valorCobroSocio(socio, clubActual);
-  let mensaje = "Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " + (clubActual.clubNombre || "tu club") + (valor ? ": " + formatCOP(valor) : "") + ".";
-  if (clubActual.pagoNequiNumero) mensaje += " Puedes pagar por Nequi al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
+  let mensaje = "Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " + (clubActual.clubNombre || "tu club") + (valor ? ": " + formatMoneda(valor, clubActual.moneda) : "") + ".";
+  if (clubActual.pagoNequiNumero) mensaje += " Puedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   const bancoCorreo = textoCuentaBancaria(clubActual);
   if (bancoCorreo) mensaje += " O por transferencia — " + bancoCorreo + ".";
   emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -2874,7 +2871,7 @@ function pintarResumenPagos() {
   const porVencer = SOCIOS.filter(function (s) { return categoriaPago(s) === "porvencer"; }).length;
   const becados = SOCIOS.filter(function (s) { return s.becado; }).length;
   cont.innerHTML =
-    '<div class="stat ok"><div class="n">' + formatCOP(esperado) + '</div><div class="l">Esperado este mes</div></div>' +
+    '<div class="stat ok"><div class="n">' + formatMoneda(esperado, clubActual.moneda) + '</div><div class="l">Esperado este mes</div></div>' +
     '<div class="stat bad"><div class="n">' + vencidos + '</div><div class="l">Vencidos</div></div>' +
     '<div class="stat warn"><div class="n">' + porVencer + '</div><div class="l">Por vencer (5 días)</div></div>' +
     '<div class="stat"><div class="n">' + becados + '</div><div class="l">Becados</div></div>';
@@ -2903,7 +2900,7 @@ function filaPago(s, cat) {
     '<div class="pago-item-top">' +
       '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
       '<div class="pago-item-info"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
-      '<div class="pago-item-right"><span class="pill ' + ep.clase + '">' + ep.texto + '</span>' + (valor ? '<span class="pago-item-valor">' + formatCOP(valor) + '</span>' : '') + '</div>' +
+      '<div class="pago-item-right"><span class="pill ' + ep.clase + '">' + ep.texto + '</span>' + (valor ? '<span class="pago-item-valor">' + formatMoneda(valor, clubActual.moneda) + '</span>' : '') + '</div>' +
     '</div>' +
     '<div class="pago-item-actions">' + acciones + '<a class="btn btn-ghost btn-sm" href="socio.html?cliente=' + clubActual.id + '&id=' + s.id + '"><i class="fa-solid fa-id-card"></i> Ficha</a></div>' +
   '</div>';
@@ -3001,7 +2998,7 @@ function generarSoporteSocio(s) {
     fecha: fecha
   });
   return subirReciboPDF(pdf, "recibo-" + s.id + "-" + Date.now() + ".pdf").then(function (url) {
-    registrarAuditoria("Recibo de socio generado", clubActual.id, s.nombre, formatCOP(valor));
+    registrarAuditoria("Recibo de socio generado", clubActual.id, s.nombre, formatMoneda(valor, clubActual.moneda));
     return url;
   });
 }
@@ -4118,10 +4115,11 @@ document.getElementById("btnGuardarHorario").addEventListener("click", function 
 });
 
 function opsExcepciones() {
+  const esColombia = !clubActual || !clubActual.clubPais || clubActual.clubPais === "Colombia";
   return {
     cancelaciones: EXCEPCIONES.filter(function (e) { return e.tipo === "cancelacion"; }),
     extras: EXCEPCIONES.filter(function (e) { return e.tipo === "extra"; }),
-    entrenaFestivos: clubActual ? clubActual.entrenaFestivos !== false : true
+    entrenaFestivos: esColombia ? (clubActual ? clubActual.entrenaFestivos !== false : true) : true
   };
 }
 
@@ -4403,10 +4401,13 @@ function sincronizarMarca(id, data) {
   return db.collection("clientes").doc(id).collection("publico").doc("marca").set({
     clubNombre: data.clubNombre != null ? data.clubNombre : (clubActual.clubNombre || ""),
     logoUrl: clubActual.logoUrl || "",
+    clubPais: clubActual.clubPais || "Colombia",
+    moneda: clubActual.moneda || monedaDePais(clubActual.clubPais),
     colorPrimario: data.colorPrimario || clubActual.colorPrimario || "#18A83A",
     colorSecundario: data.colorSecundario || clubActual.colorSecundario || "#0e7d29",
     colorTerciario: data.colorTerciario || clubActual.colorTerciario || "#FFC933",
     pagoMensualidad: data.pagoMensualidad != null ? data.pagoMensualidad : (clubActual.pagoMensualidad || 0),
+    pagoNequiApp: data.pagoNequiApp != null ? data.pagoNequiApp : (clubActual.pagoNequiApp || ""),
     pagoNequiNumero: data.pagoNequiNumero != null ? data.pagoNequiNumero : (clubActual.pagoNequiNumero || ""),
     pagoNequiTitular: data.pagoNequiTitular != null ? data.pagoNequiTitular : (clubActual.pagoNequiTitular || ""),
     pagoBancoNombre: data.pagoBancoNombre != null ? data.pagoBancoNombre : (clubActual.pagoBancoNombre || ""),
@@ -4432,6 +4433,7 @@ function precargarFormMiClub() {
   document.getElementById("imgColorTexto").value = clubActual.colorTerciario || "#FFC933";
   colorTextoActual = document.getElementById("imgColorTexto").value;
   document.getElementById("mcMensualidad").value = clubActual.pagoMensualidad || "";
+  document.getElementById("mcNequiApp").value = clubActual.pagoNequiApp || "";
   document.getElementById("mcNequiNumero").value = clubActual.pagoNequiNumero || "";
   document.getElementById("mcNequiTitular").value = clubActual.pagoNequiTitular || "";
   document.getElementById("mcBancoNombre").value = clubActual.pagoBancoNombre || "";
@@ -4444,6 +4446,21 @@ function precargarFormMiClub() {
   if (clubActual.bannerUrl) { document.getElementById("mcBannerPreview").src = clubActual.bannerUrl; document.getElementById("mcBannerPreview").style.display = "block"; document.getElementById("mcBannerEmpty").style.display = "none"; }
   pintarCategoriasEstandar();
   pintarCategoriasPersonalizadas();
+  actualizarUIporPaisClub();
+}
+
+// Todo lo que depende del país del club (definido una vez, en su registro):
+// bancos sugeridos, etiquetas de documento, nota de Wompi y la moneda que
+// se muestra junto a "Mensualidad por socio". El país en sí no se edita
+// aquí — eso lo controla BioFutbol desde cliente.html.
+function actualizarUIporPaisClub() {
+  const pais = clubActual.clubPais || "Colombia";
+  const esColombia = pais === "Colombia";
+  const moneda = clubActual.moneda || monedaDePais(pais);
+  document.getElementById("mcMensualidadLabel").textContent = "Mensualidad por socio (" + moneda + ")";
+  document.getElementById("mcBancoDocumentoLabel").textContent = (esColombia ? "Cédula o NIT" : "Documento") + " del titular (opcional)";
+  document.getElementById("mcWompiLabel").textContent = esColombia ? "Wompi, PSE, tarjeta u otro" : "Pasarela de pago (Mercado Pago, PayU, PayPal, tarjeta...)";
+  document.getElementById("listaBancos").innerHTML = bancosDePais(pais).map(function (b) { return '<option value="' + b + '">'; }).join("");
 }
 
 // Las 16 categorías de Sub-6 a Mayores, pero editables por club: se puede
@@ -4610,6 +4627,7 @@ document.getElementById("mcBannerInput").addEventListener("change", function (e)
 document.getElementById("btnGuardarCobro").addEventListener("click", function () {
   const data = {
     pagoMensualidad: Number(document.getElementById("mcMensualidad").value) || 0,
+    pagoNequiApp: document.getElementById("mcNequiApp").value.trim(),
     pagoNequiNumero: document.getElementById("mcNequiNumero").value.trim(),
     pagoNequiTitular: document.getElementById("mcNequiTitular").value.trim(),
     pagoBancoNombre: document.getElementById("mcBancoNombre").value.trim(),

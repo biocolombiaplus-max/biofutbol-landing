@@ -71,8 +71,13 @@
           <div class="field"><label>Ciudad</label><input type="text" id="clubCiudad"></div>
         </div>
         <div class="field-row">
-          <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
+          <div class="field"><label id="clubNitLabel">NIT (opcional)</label><input type="text" id="clubNit"></div>
           <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
+        </div>
+        <div class="field">
+          <label>Moneda en la que le cobra a sus socios</label>
+          <select id="clubMoneda"></select>
+          <small>Se sugiere según el país, pero se puede cambiar. Solo afecta lo que el club le cobra a sus deportistas — tu cobro a este club sigue en pesos colombianos.</small>
         </div>
       </div>
 
@@ -80,11 +85,18 @@
         <h3><i class="fa-solid fa-id-card"></i> Representante legal</h3>
         <div class="field-row">
           <div class="field"><label>Nombre completo</label><input type="text" id="repNombre"></div>
-          <div class="field"><label>Cédula</label><input type="text" id="repCedula"></div>
+          <div class="field"><label id="repCedulaLabel">Cédula</label><input type="text" id="repCedula"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Correo</label><input type="email" id="repEmail"></div>
-          <div class="field"><label>WhatsApp (con indicativo)</label><input type="text" id="repTelefono" placeholder="573001234567"></div>
+          <div class="field">
+            <label>WhatsApp</label>
+            <div class="tel-input-wrap" id="repTelWrap">
+              <span class="tel-indicativo">+57</span>
+              <input type="tel" id="repTelefono" placeholder="300 123 4567" inputmode="numeric">
+            </div>
+            <small class="tel-hint" id="repTelHint" style="display:none">Revisa el número, parece incompleto.</small>
+          </div>
         </div>
       </div>
 
@@ -163,14 +175,15 @@
       <div class="card">
         <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Cuánto le cobra este club a cada socio, y a dónde debe pagar. Se usa en los recordatorios de pago por WhatsApp y en el portal del deportista.</p>
-        <div class="field"><label>Mensualidad por socio (COP)</label><input type="number" id="pagoMensualidad" min="0" step="1000" placeholder="Ej: 50000"></div>
+        <div class="field"><label id="pagoMensualidadLabel">Mensualidad por socio (COP)</label><input type="number" id="pagoMensualidad" min="0" step="1000" placeholder="Ej: 50000"></div>
 
         <div class="pay-method">
-          <div class="pay-method-head pm-nequi"><i class="fa-solid fa-mobile-screen-button"></i> Nequi</div>
+          <div class="pay-method-head pm-nequi"><i class="fa-solid fa-mobile-screen-button"></i> Billetera digital</div>
           <div class="field-row">
-            <div class="field"><label>Número</label><input type="text" id="pagoNequiNumero" placeholder="3001234567"></div>
-            <div class="field"><label>A nombre de</label><input type="text" id="pagoNequiTitular"></div>
+            <div class="field"><label>Cuál (Nequi, Yape, Mercado Pago...)</label><input type="text" id="pagoNequiApp" placeholder="Ej: Nequi"></div>
+            <div class="field"><label>Número o usuario</label><input type="text" id="pagoNequiNumero" placeholder="300 123 4567"></div>
           </div>
+          <div class="field"><label>A nombre de</label><input type="text" id="pagoNequiTitular"></div>
         </div>
 
         <div class="pay-method">
@@ -189,20 +202,14 @@
             <div class="field"><label>Número de cuenta</label><input type="text" id="pagoBancoNumero" placeholder="Ej: 123-456789-00"></div>
             <div class="field"><label>A nombre de</label><input type="text" id="pagoBancoTitular"></div>
           </div>
-          <div class="field"><label>Cédula o NIT del titular (opcional)</label><input type="text" id="pagoBancoDocumento" placeholder="Ej: 900.123.456-7"></div>
-          <datalist id="listaBancos">
-            <option value="Bancolombia"><option value="Davivienda"><option value="BBVA Colombia">
-            <option value="Banco de Bogotá"><option value="Banco de Occidente"><option value="Banco Popular">
-            <option value="Banco AV Villas"><option value="Banco Caja Social"><option value="Banco Agrario">
-            <option value="Scotiabank Colpatria"><option value="Itaú"><option value="Banco Falabella">
-            <option value="Bancoomeva"><option value="Confiar Cooperativa">
-          </datalist>
+          <div class="field"><label id="pagoBancoDocumentoLabel">Cédula o NIT del titular (opcional)</label><input type="text" id="pagoBancoDocumento" placeholder="Ej: 900.123.456-7"></div>
+          <datalist id="listaBancos"></datalist>
         </div>
 
         <div class="pay-method">
           <div class="pay-method-head pm-link"><i class="fa-solid fa-link"></i> Link de pago</div>
-          <div class="field"><label>Wompi, PSE, tarjeta u otro</label><input type="url" id="pagoWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
-          <p style="font-size:.76rem;color:var(--gray-d);margin-top:8px">Con Wompi puedes crear un link de pago gratis (sin necesitar página web) desde <a href="https://comercios.wompi.co" target="_blank" rel="noopener" style="color:var(--green-l)">comercios.wompi.co</a> — aceptan PSE, tarjeta y Nequi.</p>
+          <div class="field"><label id="pagoWompiLabel">Wompi, PSE, tarjeta u otro</label><input type="url" id="pagoWompiLink" placeholder="https://checkout.wompi.co/l/..."></div>
+          <p style="font-size:.76rem;color:var(--gray-d);margin-top:8px" id="pagoWompiNota">Con Wompi puedes crear un link de pago gratis (sin necesitar página web) desde <a href="https://comercios.wompi.co" target="_blank" rel="noopener" style="color:var(--green-l)">comercios.wompi.co</a> — aceptan PSE, tarjeta y Nequi.</p>
         </div>
       </div>
 
@@ -335,6 +342,39 @@ const esNuevo = params.get("new") === "1" || !clienteId;
 let clienteActual = null;
 let ultimoReciboUrl = null;
 
+// Todo lo que depende del país del club: moneda sugerida, indicativo del
+// WhatsApp del representante, bancos del datalist, y las etiquetas de
+// documento (cédula/NIT es cosa de Colombia, en el resto se pide algo más
+// genérico). "esColombia" también decide si mostramos la nota de Wompi
+// (pasarela colombiana) o un texto neutral para cualquier otro país.
+function actualizarUIporPais(pais) {
+  const esColombia = pais === "Colombia";
+  document.getElementById("clubNitLabel").textContent = esColombia ? "NIT (opcional)" : "Identificación tributaria (opcional)";
+  document.getElementById("repCedulaLabel").textContent = esColombia ? "Cédula" : "Documento de identidad";
+  document.getElementById("pagoBancoDocumentoLabel").textContent = (esColombia ? "Cédula o NIT" : "Documento") + " del titular (opcional)";
+  document.getElementById("pagoWompiLabel").textContent = esColombia ? "Wompi, PSE, tarjeta u otro" : "Pasarela de pago (Mercado Pago, PayU, PayPal, tarjeta...)";
+  document.getElementById("pagoWompiNota").style.display = esColombia ? "block" : "none";
+  document.getElementById("listaBancos").innerHTML = bancosDePais(pais).map(function (b) { return '<option value="' + b + '">'; }).join("");
+  iniciarInputTelefono(document.getElementById("repTelWrap"), pais);
+  actualizarLabelMensualidad();
+}
+
+function actualizarLabelMensualidad() {
+  document.getElementById("pagoMensualidadLabel").textContent = "Mensualidad por socio (" + (document.getElementById("clubMoneda").value || "COP") + ")";
+}
+
+let monedaTocadaAMano = false;
+document.getElementById("clubMoneda").addEventListener("change", function () {
+  monedaTocadaAMano = true;
+  actualizarLabelMensualidad();
+});
+document.getElementById("clubPais").addEventListener("change", function () {
+  const pais = this.value;
+  if (!monedaTocadaAMano) document.getElementById("clubMoneda").value = monedaDePais(pais);
+  actualizarUIporPais(pais);
+});
+wireValidacionTelefono(document.getElementById("repTelWrap"), document.getElementById("repTelHint"));
+
 requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
   pintarPlanGrid();
@@ -342,6 +382,8 @@ requireSuperAdmin().then(function (user) {
     cargarCliente();
   } else {
     llenarSelectPaises(document.getElementById("clubPais"));
+    llenarSelectMonedas(document.getElementById("clubMoneda"));
+    actualizarUIporPais(document.getElementById("clubPais").value);
     document.getElementById("estado").value = "pendiente";
     document.getElementById("sendLinkCard").style.display = "block";
     poblarSelectReferidoPor();
@@ -484,7 +526,7 @@ document.getElementById("btnEnviarPlanWhatsapp").addEventListener("click", funct
   const descuentoPct = descuentoReferidosPct();
   const total = Math.round(facturables * valorUnit * (1 - descuentoPct));
 
-  let tel = (clienteActual.repTelefono || document.getElementById("repTelefono").value || "").replace(/[^0-9]/g, "");
+  let tel = (clienteActual.repTelefono || leerTelefonoDeInput(document.getElementById("repTelWrap")) || "").replace(/[^0-9]/g, "");
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
 
@@ -508,13 +550,15 @@ function cargarCliente() {
     document.getElementById("pageTitle").textContent = clienteActual.clubNombre || "Cliente";
     document.getElementById("clubNombre").value = clienteActual.clubNombre || "";
     llenarSelectPaises(document.getElementById("clubPais"), clienteActual.clubPais);
+    llenarSelectMonedas(document.getElementById("clubMoneda"), clienteActual.moneda || monedaDePais(clienteActual.clubPais));
+    actualizarUIporPais(document.getElementById("clubPais").value);
+    cargarTelefonoEnInput(document.getElementById("repTelWrap"), clienteActual.repTelefono);
     document.getElementById("clubNit").value = clienteActual.clubNit || "";
     document.getElementById("clubCiudad").value = clienteActual.clubCiudad || "";
     document.getElementById("clubDireccion").value = clienteActual.clubDireccion || "";
     document.getElementById("repNombre").value = clienteActual.repNombre || "";
     document.getElementById("repCedula").value = clienteActual.repCedula || "";
     document.getElementById("repEmail").value = clienteActual.repEmail || "";
-    document.getElementById("repTelefono").value = clienteActual.repTelefono || "";
     document.getElementById("numSocios").value = clienteActual.numSocios || "";
     document.getElementById("planNegociadoActivo").checked = clienteActual.planNegociadoActivo !== false;
     document.getElementById("deportistasPautados").value = clienteActual.deportistasPautados || "";
@@ -530,6 +574,7 @@ function cargarCliente() {
     document.getElementById("colorSecundario").value = clienteActual.colorSecundario || "#0e7d29";
     document.getElementById("colorTerciario").value = clienteActual.colorTerciario || "#FFC933";
     document.getElementById("pagoMensualidad").value = clienteActual.pagoMensualidad || "";
+    document.getElementById("pagoNequiApp").value = clienteActual.pagoNequiApp || "";
     document.getElementById("pagoNequiNumero").value = clienteActual.pagoNequiNumero || "";
     document.getElementById("pagoNequiTitular").value = clienteActual.pagoNequiTitular || "";
     document.getElementById("pagoBancoNombre").value = clienteActual.pagoBancoNombre || "";
@@ -837,13 +882,14 @@ function leerFormulario() {
   return {
     clubNombre: document.getElementById("clubNombre").value.trim(),
     clubPais: document.getElementById("clubPais").value,
+    moneda: document.getElementById("clubMoneda").value,
     clubNit: document.getElementById("clubNit").value.trim(),
     clubCiudad: document.getElementById("clubCiudad").value.trim(),
     clubDireccion: document.getElementById("clubDireccion").value.trim(),
     repNombre: document.getElementById("repNombre").value.trim(),
     repCedula: document.getElementById("repCedula").value.trim(),
     repEmail: repEmail,
-    repTelefono: document.getElementById("repTelefono").value.trim(),
+    repTelefono: leerTelefonoDeInput(document.getElementById("repTelWrap")),
     plan: planEl ? planEl.value : null,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
     planNegociadoActivo: document.getElementById("planNegociadoActivo").checked,
@@ -858,6 +904,7 @@ function leerFormulario() {
     colorSecundario: document.getElementById("colorSecundario").value,
     colorTerciario: document.getElementById("colorTerciario").value,
     pagoMensualidad: Number(document.getElementById("pagoMensualidad").value) || 0,
+    pagoNequiApp: document.getElementById("pagoNequiApp").value.trim(),
     pagoNequiNumero: document.getElementById("pagoNequiNumero").value.trim(),
     pagoNequiTitular: document.getElementById("pagoNequiTitular").value.trim(),
     pagoBancoNombre: document.getElementById("pagoBancoNombre").value.trim(),
@@ -873,10 +920,13 @@ function sincronizarMarca(id, data) {
   db.collection("clientes").doc(id).collection("publico").doc("marca").set({
     clubNombre: data.clubNombre || "",
     logoUrl: (clienteActual && clienteActual.logoUrl) || "",
+    clubPais: data.clubPais != null ? data.clubPais : (clienteActual && clienteActual.clubPais) || "Colombia",
+    moneda: data.moneda != null ? data.moneda : (clienteActual && clienteActual.moneda) || "COP",
     colorPrimario: data.colorPrimario || "#18A83A",
     colorSecundario: data.colorSecundario || "#0e7d29",
     colorTerciario: data.colorTerciario || "#FFC933",
     pagoMensualidad: data.pagoMensualidad || 0,
+    pagoNequiApp: data.pagoNequiApp != null ? data.pagoNequiApp : (clienteActual && clienteActual.pagoNequiApp) || "",
     pagoNequiNumero: data.pagoNequiNumero || "",
     pagoNequiTitular: data.pagoNequiTitular || "",
     pagoBancoNombre: data.pagoBancoNombre || "",
@@ -1045,7 +1095,7 @@ document.getElementById("btnEnviarAcceso").addEventListener("click", function ()
 
 document.getElementById("btnEnviarBienvenida").addEventListener("click", function () {
   if (!clienteActual) return;
-  let tel = (clienteActual.repTelefono || document.getElementById("repTelefono").value || "").replace(/[^0-9]/g, "");
+  let tel = (clienteActual.repTelefono || leerTelefonoDeInput(document.getElementById("repTelWrap")) || "").replace(/[^0-9]/g, "");
   if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
   const nombreClub = clienteActual.clubNombre || document.getElementById("clubNombre").value || "tu club";

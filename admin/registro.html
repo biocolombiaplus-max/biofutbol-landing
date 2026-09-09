@@ -40,6 +40,11 @@
         <div class="field"><label>NIT (opcional)</label><input type="text" id="clubNit"></div>
         <div class="field"><label>Dirección</label><input type="text" id="clubDireccion"></div>
       </div>
+      <div class="field">
+        <label>¿En qué moneda le vas a cobrar a tus socios? *</label>
+        <select id="clubMoneda" required></select>
+        <small>La sugerimos según el país, pero la puedes cambiar si cobras en otra.</small>
+      </div>
       <div class="field" style="display:flex;align-items:flex-start;gap:9px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px">
         <input type="checkbox" id="sinLogo" style="width:17px;height:17px;margin-top:2px;flex:none;accent-color:var(--green)">
         <label for="sinLogo" style="margin:0;cursor:pointer;font-weight:600;color:var(--white)">
@@ -53,11 +58,18 @@
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-id-card"></i> Representante legal</h3>
       <div class="field-row">
         <div class="field"><label>Nombre completo *</label><input type="text" id="repNombre" required></div>
-        <div class="field"><label>Cédula *</label><input type="text" id="repCedula" required></div>
+        <div class="field"><label id="repCedulaLabel">Cédula *</label><input type="text" id="repCedula" required></div>
       </div>
       <div class="field-row">
         <div class="field"><label>Correo *</label><input type="email" id="repEmail" required></div>
-        <div class="field"><label>WhatsApp (con indicativo) *</label><input type="text" id="repTelefono" placeholder="573001234567" required></div>
+        <div class="field">
+          <label>WhatsApp *</label>
+          <div class="tel-input-wrap" id="repTelWrap">
+            <span class="tel-indicativo">+57</span>
+            <input type="tel" id="repTelefono" placeholder="300 123 4567" inputmode="numeric" required>
+          </div>
+          <small class="tel-hint" id="repTelHint" style="display:none">Revisa el número, parece incompleto.</small>
+        </div>
       </div>
 
       <h3 style="font-size:.9rem;margin:22px 0 14px;color:var(--gray)"><i class="fa-solid fa-tags"></i> Plan contratado</h3>
@@ -91,6 +103,21 @@
 <script src="js/paises.js"></script>
 <script>
 llenarSelectPaises(document.getElementById("clubPais"));
+llenarSelectMonedas(document.getElementById("clubMoneda"));
+iniciarInputTelefono(document.getElementById("repTelWrap"), document.getElementById("clubPais").value);
+wireValidacionTelefono(document.getElementById("repTelWrap"), document.getElementById("repTelHint"));
+
+// Al elegir el país se sugieren la moneda y el indicativo de WhatsApp que
+// le corresponden — pero si el club ya tocó la moneda a mano, respetamos
+// lo que eligió y solo actualizamos el indicativo del teléfono.
+let monedaTocadaAMano = false;
+document.getElementById("clubMoneda").addEventListener("change", function () { monedaTocadaAMano = true; });
+document.getElementById("clubPais").addEventListener("change", function () {
+  const pais = this.value;
+  if (!monedaTocadaAMano) document.getElementById("clubMoneda").value = monedaDePais(pais);
+  iniciarInputTelefono(document.getElementById("repTelWrap"), pais);
+  document.getElementById("repCedulaLabel").textContent = (pais === "Colombia" ? "Cédula" : "Documento de identidad") + " *";
+});
 
 const grid = document.getElementById("planGrid");
 grid.innerHTML = Object.keys(PLANES).map(function (key) {
@@ -122,6 +149,13 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
   const planEl = document.querySelector('input[name="plan"]:checked');
   if (!planEl) { errorBox.textContent = "Selecciona un plan."; errorBox.style.display = "block"; return; }
 
+  const repTelWrap = document.getElementById("repTelWrap");
+  if (!numeroLocalValido(repTelWrap.querySelector("input").value)) {
+    errorBox.textContent = "Revisa el número de WhatsApp del representante, parece incompleto.";
+    errorBox.style.display = "block";
+    return;
+  }
+
   const btn = document.getElementById("submitBtn");
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Enviando...';
@@ -129,13 +163,14 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
   const data = {
     clubNombre: document.getElementById("clubNombre").value.trim(),
     clubPais: document.getElementById("clubPais").value,
+    moneda: document.getElementById("clubMoneda").value,
     clubNit: document.getElementById("clubNit").value.trim(),
     clubCiudad: document.getElementById("clubCiudad").value.trim(),
     clubDireccion: document.getElementById("clubDireccion").value.trim(),
     repNombre: document.getElementById("repNombre").value.trim(),
     repCedula: document.getElementById("repCedula").value.trim(),
     repEmail: document.getElementById("repEmail").value.trim(),
-    repTelefono: document.getElementById("repTelefono").value.trim(),
+    repTelefono: leerTelefonoDeInput(repTelWrap),
     plan: planEl.value,
     numSocios: Number(document.getElementById("numSocios").value) || 0,
     necesitaLogo: document.getElementById("sinLogo").checked,
