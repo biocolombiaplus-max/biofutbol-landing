@@ -42,6 +42,24 @@ function catalogoPlanes(pais) {
   return esColombiaPais(pais) ? PLANES : PLANES_INTL;
 }
 
+// Sugiere la llave del plan que corresponde a un número de socios/deportistas,
+// dentro del catálogo del país (Colombia por rango de socios, resto del mundo
+// por rango de deportistas) — usado por ejemplo para sugerir plan al cotizar.
+function planClavePorNumSocios(numSocios, pais) {
+  const n = Number(numSocios) || 0;
+  if (esColombiaPais(pais)) {
+    if (n <= 100) return "hasta100";
+    if (n <= 200) return "101-200";
+    if (n <= 500) return "201-500";
+    return "mas1000";
+  }
+  if (n <= 50) return "intl_hasta50";
+  if (n <= 100) return "intl_51_100";
+  if (n <= 200) return "intl_101_200";
+  if (n <= 500) return "intl_201_500";
+  return "intl_mas500";
+}
+
 // Texto del valor mensual de un plan, según el país del club: en Colombia
 // sigue siendo un valor fijo por socio en pesos; en cualquier otro país es
 // un valor FIJO total al mes en dólares (no se multiplica por socios), con
@@ -51,7 +69,7 @@ function planPrecioMensualTexto(plan, pais) {
   let texto = "$" + plan.mensualUSD + " USD/mes";
   if (typeof monedaDePais === "function" && typeof equivalenteUsdEnMoneda === "function") {
     const equiv = equivalenteUsdEnMoneda(plan.mensualUSD, monedaDePais(pais));
-    if (equiv) texto += " (≈ " + equiv + ")";
+    if (equiv) texto += " (aprox. " + equiv + ")";
   }
   return texto;
 }

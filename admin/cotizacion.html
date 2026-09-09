@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cotización comercial | Panel BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.cot-result{display:none;margin-top:18px;background:rgba(24,168,58,.08);border:1px solid rgba(24,168,58,.3);border-radius:12px;padding:18px}
+.cot-result h4{font-size:.92rem;font-weight:800;margin-bottom:10px;color:var(--green-l)}
+.cot-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.cot-plan-preview{background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-top:6px;font-size:.82rem;color:var(--gray)}
+.cot-plan-preview strong{color:var(--white)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Panel administrativo</span>
+    </div>
+    <div class="top-actions">
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link" style="margin-top:22px"><i class="fa-solid fa-arrow-left"></i> Volver al panel</a>
+  <div class="section-head" style="margin-top:0">
+    <h2><i class="fa-solid fa-file-invoice-dollar"></i> Cotización comercial</h2>
+  </div>
+  <p style="color:var(--gray);font-size:.86rem;margin:-8px 0 18px;max-width:640px">
+    Genera un PDF profesional y detallado para enviarle a un club o escuela interesado, con todas las
+    funcionalidades de BioFutbol y el precio ya calculado según su número de deportistas.
+  </p>
+
+  <div class="success-box" id="successBox"></div>
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="card">
+    <h3><i class="fa-solid fa-shield-halved"></i> Datos del club interesado</h3>
+    <div class="field-row">
+      <div class="field"><label>Nombre del club o escuela *</label><input type="text" id="cotClub" placeholder="Ej: Halcones F.C."></div>
+      <div class="field"><label>Nombre de contacto *</label><input type="text" id="cotContacto" placeholder="Ej: Andrea Gómez"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Correo (opcional)</label><input type="email" id="cotEmail" placeholder="correo@ejemplo.com"></div>
+      <div class="field">
+        <label>WhatsApp (opcional)</label>
+        <div class="tel-input-wrap" id="cotTelWrap">
+          <span class="tel-indicativo">+57</span>
+          <input type="tel" id="cotTelefono" placeholder="300 123 4567" inputmode="numeric">
+        </div>
+        <small class="tel-hint" id="cotTelHint" style="display:none">Revisa el número, parece incompleto.</small>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>País del club</label><select id="cotPais"></select></div>
+      <div class="field"><label>Número de deportistas/socios estimado *</label><input type="number" id="cotNumSocios" min="1" placeholder="Ej: 80"></div>
+    </div>
+    <div class="cot-plan-preview" id="cotPlanPreview"></div>
+
+    <button type="button" class="btn btn-primary btn-block" id="btnGenerarCotizacion" style="margin-top:18px">
+      <i class="fa-solid fa-file-pdf"></i> Generar cotización en PDF
+    </button>
+
+    <div class="cot-result" id="cotResult">
+      <h4><i class="fa-solid fa-circle-check"></i> Cotización lista</h4>
+      <a class="btn btn-ghost btn-sm" id="cotVerPdf" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Ver / descargar PDF</a>
+      <div class="cot-actions">
+        <button type="button" class="btn btn-primary btn-sm" id="cotBtnWhatsapp"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="cotBtnEmail"><i class="fa-solid fa-envelope"></i> Enviar por correo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
+<script src="js/audit.js"></script>
+<script src="js/cloudinary-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/cotizacion.js"></script>
+<script>
+let ultimaCotizacion = null;
+
+requireSuperAdmin().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  llenarSelectPaises(document.getElementById("cotPais"));
+  iniciarInputTelefono(document.getElementById("cotTelWrap"), document.getElementById("cotPais").value);
+  wireValidacionTelefono(document.getElementById("cotTelWrap"), document.getElementById("cotTelHint"));
+  actualizarPreviewPlan();
+});
+
+document.getElementById("cotPais").addEventListener("change", function () {
+  iniciarInputTelefono(document.getElementById("cotTelWrap"), this.value);
+  actualizarPreviewPlan();
+});
+document.getElementById("cotNumSocios").addEventListener("input", actualizarPreviewPlan);
+
+function actualizarPreviewPlan() {
+  const pais = document.getElementById("cotPais").value;
+  const numSocios = Number(document.getElementById("cotNumSocios").value) || 0;
+  const box = document.getElementById("cotPlanPreview");
+  if (!numSocios) { box.textContent = "Ingresa el número de deportistas para ver el plan sugerido."; return; }
+  const clave = planClavePorNumSocios(numSocios, pais);
+  const plan = catalogoPlanes(pais)[clave];
+  box.innerHTML = "Plan sugerido: <strong>" + esc(plan.label) + "</strong> — " +
+    esc(planPrecioMensualTexto(plan, pais)) +
+    (esColombiaPais(pais) ? " · Implementación: " + esc(formatCOP(plan.implementacion)) : "");
+}
+
+function mostrarError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function mostrarExito(msg) {
+  const box = document.getElementById("successBox");
+  box.textContent = msg;
+  box.style.display = "block";
+  setTimeout(function () { box.style.display = "none"; }, 3500);
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+document.getElementById("btnGenerarCotizacion").addEventListener("click", function () {
+  const clubNombre = document.getElementById("cotClub").value.trim();
+  const contactoNombre = document.getElementById("cotContacto").value.trim();
+  const contactoEmail = document.getElementById("cotEmail").value.trim();
+  const pais = document.getElementById("cotPais").value;
+  const numSocios = Number(document.getElementById("cotNumSocios").value) || 0;
+  const telLocal = leerTelefonoDeInput(document.getElementById("cotTelWrap"));
+  const contactoTelefono = telLocal ? "+" + telLocal : "";
+
+  if (!clubNombre) { mostrarError("Ingresa el nombre del club o escuela."); return; }
+  if (!contactoNombre) { mostrarError("Ingresa el nombre de la persona de contacto."); return; }
+  if (!numSocios) { mostrarError("Ingresa el número estimado de deportistas/socios."); return; }
+
+  const datos = {
+    clubNombre: clubNombre, contactoNombre: contactoNombre, contactoEmail: contactoEmail,
+    contactoTelefono: contactoTelefono, pais: pais, numSocios: numSocios
+  };
+
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+  document.getElementById("cotResult").style.display = "none";
+
+  generarCotizacionPDF(datos).then(function (blob) {
+    const slug = clubNombre.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "club";
+    return subirACloudinary(blob, "cotizaciones", slug + "-" + Date.now() + ".pdf");
+  }).then(function (url) {
+    ultimaCotizacion = Object.assign({}, datos, { pdfUrl: url });
+    return db.collection("cotizaciones").add(Object.assign({}, datos, {
+      pdfUrl: url,
+      fecha: firebase.firestore.FieldValue.serverTimestamp(),
+      creadoPor: auth.currentUser ? auth.currentUser.email : null
+    }));
+  }).then(function () {
+    document.getElementById("cotVerPdf").href = ultimaCotizacion.pdfUrl;
+    document.getElementById("cotBtnEmail").disabled = !contactoEmail;
+    document.getElementById("cotResult").style.display = "block";
+    registrarAuditoria("Cotización generada", null, clubNombre, contactoEmail || contactoTelefono);
+    mostrarExito("Cotización generada correctamente.");
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar cotización en PDF';
+  }).catch(function (err) {
+    mostrarError("No se pudo generar la cotización: " + err.message);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Generar cotización en PDF';
+  });
+});
+
+document.getElementById("cotBtnWhatsapp").addEventListener("click", function () {
+  if (!ultimaCotizacion) return;
+  const tel = (ultimaCotizacion.contactoTelefono || "").replace(/\D/g, "");
+  const mensaje = "¡Hola " + (ultimaCotizacion.contactoNombre || "") + "! Te compartimos la cotización de BioFutbol para " +
+    (ultimaCotizacion.clubNombre || "tu club") + ", la app líder en Latinoamérica para la administración de clubes y escuelas de fútbol con Inteligencia Artificial.\n\n" +
+    "Puedes verla aquí: " + ultimaCotizacion.pdfUrl + "\n\nCualquier duda, quedamos atentos.";
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+});
+
+document.getElementById("cotBtnEmail").addEventListener("click", function () {
+  if (!ultimaCotizacion || !ultimaCotizacion.contactoEmail) return;
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") {
+    mostrarError("Falta configurar EmailJS en js/firebase-config.js para enviar correos.");
+    return;
+  }
+  const btn = this;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email: ultimaCotizacion.contactoEmail,
+    to_name: ultimaCotizacion.contactoNombre || "",
+    club_nombre: ultimaCotizacion.clubNombre || "",
+    asunto: "Cotización BioFutbol — " + (ultimaCotizacion.clubNombre || ""),
+    mensaje: "Te compartimos la cotización de BioFutbol para " + (ultimaCotizacion.clubNombre || "tu club") + ".",
+    boton_texto: "Ver cotización",
+    boton_url: ultimaCotizacion.pdfUrl,
+    contrato_url: ultimaCotizacion.pdfUrl
+  }).then(function () {
+    registrarAuditoria("Cotización enviada por correo", null, ultimaCotizacion.clubNombre, ultimaCotizacion.contactoEmail);
+    mostrarExito("Correo enviado a " + ultimaCotizacion.contactoEmail);
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + (err.text || err.message));
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-envelope"></i> Enviar por correo';
+  });
+});
+</script>
+</body>
+</html>

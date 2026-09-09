@@ -167,5 +167,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if esSuperAdmin();
     }
+
+    // Cotizaciones comerciales enviadas a clubes interesados: uso interno
+    // exclusivo del súper-admin (herramienta de ventas, no del club).
+    match /cotizaciones/{docId} {
+      allow read, write: if esSuperAdmin();
+    }
   }
 }
