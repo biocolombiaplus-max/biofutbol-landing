@@ -110,6 +110,7 @@ tbody tr:hover{background:rgba(24,168,58,.05);background:color-mix(in srgb,var(-
 .plan-opt .pn{font-weight:800;font-size:.86rem}
 .plan-opt .pv{font-size:.78rem;color:var(--green-l);font-weight:700;margin-top:4px}
 .plan-opt .ps{font-size:.7rem;color:var(--gray);margin-top:2px}
+.plan-launch{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--gold);background:rgba(255,201,51,.12);border:1px solid rgba(255,201,51,.35);padding:3px 9px;border-radius:999px;margin-top:8px}
 
 .center-note{text-align:center;font-size:.8rem;color:var(--gray-d);margin-top:18px}
 .center-note a{color:var(--green-l);font-weight:700}

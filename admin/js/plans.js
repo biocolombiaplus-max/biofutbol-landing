@@ -1,17 +1,45 @@
 // Planes de BioFutbol — deben coincidir siempre con los precios publicados en la landing.
-// mensual: precio por socio/mes en Colombia (COP). mensualUSD: precio FIJO
-// total al mes (no por socio) para clubes fuera de Colombia. Se mantiene la
-// llave "mas1000" por compatibilidad con clientes ya guardados con ese plan,
-// aunque el rango real ahora arranca en 501.
+// Catálogo para Colombia: precio por socio/mes en pesos + implementación
+// única. Se mantiene la llave "mas1000" por compatibilidad con clientes ya
+// guardados con ese plan, aunque el rango real ahora arranca en 501.
 const PLANES = {
-  hasta100: { label: "Hasta 100 socios", implementacion: 350000, mensual: 2500, mensualUSD: 90 },
-  "101-200": { label: "101 a 200 socios", implementacion: 450000, mensual: 2000, mensualUSD: 130 },
-  "201-500": { label: "201 a 500 socios", implementacion: 490000, mensual: 1500, mensualUSD: 170 },
-  mas1000: { label: "Más de 500 socios", implementacion: 750000, mensual: 1000, mensualUSD: 200 }
+  hasta100: { label: "Hasta 100 socios", implementacion: 350000, mensual: 2500 },
+  "101-200": { label: "101 a 200 socios", implementacion: 450000, mensual: 2000 },
+  "201-500": { label: "201 a 500 socios", implementacion: 490000, mensual: 1500 },
+  mas1000: { label: "Más de 500 socios", implementacion: 750000, mensual: 1000 }
 };
+
+// Catálogo para clubes fuera de Colombia: valor FIJO mensual en dólares (no
+// se multiplica por socios, ni lleva implementación). Es un precio de
+// lanzamiento, pensado para los primeros 10 clubes internacionales — pero
+// el sistema no bloquea a nadie después de esos 10, solo lo muestra como
+// referencia en el panel del súper-admin (ver contadorClubesIntl en
+// cliente.html). Llaves con prefijo "intl_" para que nunca choquen con las
+// de PLANES, aunque un club cambie de país después de elegir plan.
+const PLANES_INTL = {
+  intl_hasta50: { label: "Hasta 50 deportistas", mensualUSD: 30 },
+  intl_51_100: { label: "51 a 100 deportistas", mensualUSD: 50 },
+  intl_101_200: { label: "101 a 200 deportistas", mensualUSD: 70 },
+  intl_201_500: { label: "201 a 500 deportistas", mensualUSD: 95 },
+  intl_mas500: { label: "Más de 500 deportistas", mensualUSD: 120 }
+};
+
+// Los dos catálogos juntos, para cuando solo se necesita mostrar el label
+// de un plan ya guardado (sin importar el catálogo al que pertenezca).
+const PLANES_TODOS = Object.assign({}, PLANES, PLANES_INTL);
 
 function formatCOP(n) {
   return "$" + Number(n || 0).toLocaleString("es-CO");
+}
+
+function esColombiaPais(pais) {
+  return !pais || pais === "Colombia";
+}
+
+// El catálogo de planes que corresponde a un país: PLANES (Colombia, COP,
+// por socio) o PLANES_INTL (resto de países, USD, fijo).
+function catalogoPlanes(pais) {
+  return esColombiaPais(pais) ? PLANES : PLANES_INTL;
 }
 
 // Texto del valor mensual de un plan, según el país del club: en Colombia
@@ -19,25 +47,13 @@ function formatCOP(n) {
 // un valor FIJO total al mes en dólares (no se multiplica por socios), con
 // el equivalente aproximado en la moneda local si aplica.
 function planPrecioMensualTexto(plan, pais) {
-  const esColombia = !pais || pais === "Colombia";
-  if (esColombia) return formatCOP(plan.mensual) + "/socio/mes";
+  if (esColombiaPais(pais)) return formatCOP(plan.mensual) + "/socio/mes";
   let texto = "$" + plan.mensualUSD + " USD/mes";
   if (typeof monedaDePais === "function" && typeof equivalenteUsdEnMoneda === "function") {
     const equiv = equivalenteUsdEnMoneda(plan.mensualUSD, monedaDePais(pais));
     if (equiv) texto += " (≈ " + equiv + ")";
   }
   return texto;
-}
-
-// Texto de la implementación única de un plan: en Colombia en pesos; fuera
-// de Colombia, su equivalente aproximado en dólares (mismo valor, solo
-// convertido para que se entienda en el país del club).
-function planImplementacionTexto(plan, pais) {
-  const esColombia = !pais || pais === "Colombia";
-  if (esColombia) return formatCOP(plan.implementacion);
-  const tasaCop = (typeof TASA_USD_APROX !== "undefined" && TASA_USD_APROX.COP) || 4000;
-  const usd = Math.round(plan.implementacion / tasaCop / 5) * 5;
-  return "$" + usd + " USD (aprox.)";
 }
 
 function formatFecha(ts) {

@@ -123,15 +123,19 @@ document.getElementById("clubPais").addEventListener("change", function () {
 const grid = document.getElementById("planGrid");
 function pintarPlanGrid() {
   const pais = document.getElementById("clubPais").value;
+  const esColombia = esColombiaPais(pais);
+  const catalogo = catalogoPlanes(pais);
   const seleccionado = document.querySelector('input[name="plan"]:checked');
   const seleccionadoValor = seleccionado ? seleccionado.value : null;
-  grid.innerHTML = Object.keys(PLANES).map(function (key) {
-    const p = PLANES[key];
+  grid.innerHTML = Object.keys(catalogo).map(function (key) {
+    const p = catalogo[key];
     return '<label class="plan-opt" data-plan="' + key + '">' +
       '<input type="radio" name="plan" value="' + key + '" required>' +
       '<div class="pn">' + p.label + '</div>' +
       '<div class="pv">' + planPrecioMensualTexto(p, pais) + '</div>' +
-      '<div class="ps">Implementación ' + planImplementacionTexto(p, pais) + '</div>' +
+      (esColombia
+        ? '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>'
+        : '<div class="plan-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento · primeros 10 clubes</div>') +
       '</label>';
   }).join("");
   grid.querySelectorAll(".plan-opt").forEach(function (opt) {

@@ -103,6 +103,7 @@
       <div class="card">
         <h3><i class="fa-solid fa-tags"></i> Plan y socios</h3>
         <div class="plan-grid" id="planGrid"></div>
+        <p class="center-note" id="contadorClubesIntl" style="display:none"></p>
         <div class="field"><label>Número de socios/deportistas (estimado)</label><input type="number" id="numSocios" min="1"></div>
 
         <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
@@ -358,6 +359,35 @@ function actualizarUIporPais(pais) {
   iniciarInputTelefono(document.getElementById("repTelWrap"), pais);
   actualizarLabelMensualidad();
   pintarPlanGrid();
+  actualizarContadorClubesIntl(pais);
+}
+
+// Cuenta cuántos clubes de fuera de Colombia hay ya registrados, solo para
+// que el súper-admin sepa si sigue dentro de los "primeros 10" del precio
+// de lanzamiento — es informativo, el sistema no bloquea a nadie después.
+let conteoClubesIntlCache = null;
+function actualizarContadorClubesIntl(pais) {
+  const el = document.getElementById("contadorClubesIntl");
+  if (esColombiaPais(pais)) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.textContent = "Consultando cupos de lanzamiento...";
+  function pintar(count) {
+    const numero = count + 1;
+    el.textContent = numero <= 10
+      ? "Este sería el club internacional número " + numero + " de los primeros 10 con precio de lanzamiento."
+      : "Ya hay " + count + " clubes internacionales registrados con precio de lanzamiento (más de los primeros 10) — este club entra con el mismo precio, solo para que lo tengas presente.";
+  }
+  if (conteoClubesIntlCache !== null) { pintar(conteoClubesIntlCache); return; }
+  db.collection("clientes").get().then(function (snap) {
+    let count = 0;
+    snap.forEach(function (doc) {
+      if (doc.id === clienteId) return;
+      const d = doc.data();
+      if (d.clubPais && d.clubPais !== "Colombia") count++;
+    });
+    conteoClubesIntlCache = count;
+    pintar(count);
+  }).catch(function () { el.style.display = "none"; });
 }
 
 function actualizarLabelMensualidad() {
@@ -406,15 +436,19 @@ document.getElementById("btnEnviarLink").addEventListener("click", function () {
 function pintarPlanGrid() {
   const grid = document.getElementById("planGrid");
   const pais = document.getElementById("clubPais").value;
+  const esColombia = esColombiaPais(pais);
+  const catalogo = catalogoPlanes(pais);
   const seleccionado = document.querySelector('input[name="plan"]:checked');
   const seleccionadoValor = seleccionado ? seleccionado.value : null;
-  grid.innerHTML = Object.keys(PLANES).map(function (key) {
-    const p = PLANES[key];
+  grid.innerHTML = Object.keys(catalogo).map(function (key) {
+    const p = catalogo[key];
     return '<label class="plan-opt" data-plan="' + key + '">' +
       '<input type="radio" name="plan" value="' + key + '">' +
       '<div class="pn">' + p.label + '</div>' +
       '<div class="pv">' + planPrecioMensualTexto(p, pais) + '</div>' +
-      '<div class="ps">Implementación ' + planImplementacionTexto(p, pais) + '</div>' +
+      (esColombia
+        ? '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>'
+        : '<div class="plan-launch"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento · primeros 10 clubes</div>') +
       '</label>';
   }).join("");
   grid.querySelectorAll(".plan-opt").forEach(function (opt) {

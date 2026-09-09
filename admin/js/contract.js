@@ -5,8 +5,8 @@ function generarContratoPDF(cliente) {
   return new Promise(function (resolve) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
-    const plan = PLANES[cliente.plan] || { label: "—", implementacion: 0, mensual: 0 };
-    const esColombia = !cliente.clubPais || cliente.clubPais === "Colombia";
+    const esColombia = esColombiaPais(cliente.clubPais);
+    const plan = PLANES_TODOS[cliente.plan] || { label: "—", implementacion: 0, mensual: 0, mensualUSD: 0 };
     const margin = 54;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -127,7 +127,6 @@ function generarContratoPDF(cliente) {
           [(cliente.numSocios || 0) + " socios registrados a la fecha de firma — total mensual estimado", formatCOP(plan.mensual * (cliente.numSocios || 0))]
         ]
         : [
-          ["Implementación inicial (pago único)", planImplementacionTexto(plan, cliente.clubPais)],
           ["Mensualidad fija (sin importar el número de socios/deportistas)", planPrecioMensualTexto(plan, cliente.clubPais)]
         ];
       const boxH = filas.length * 22 + 16;
@@ -153,11 +152,15 @@ function generarContratoPDF(cliente) {
     paragraph(
       esColombia
         ? "Este valor se ajustará automáticamente según el número real de socios activos cada mes, de acuerdo con lo registrado en la plataforma."
-        : "Este es un valor fijo mensual que no cambia según el número de socios o deportistas activos que tenga el club dentro del rango de su plan."
+        : "Este es un valor fijo mensual que no cambia según el número de socios o deportistas activos que tenga el club dentro del rango de su plan. Es un precio de lanzamiento para los primeros clubes de fuera de Colombia que se registren en BioFutbol."
     );
 
     heading("CUARTA — PLAZO DE ENTREGA");
-    paragraph("EL PRESTADOR entregará la aplicación funcionando en un plazo máximo de siete (7) días hábiles, contados a partir de la recepción de la información completa y el pago de la implementación inicial.");
+    paragraph(
+      esColombia
+        ? "EL PRESTADOR entregará la aplicación funcionando en un plazo máximo de siete (7) días hábiles, contados a partir de la recepción de la información completa y el pago de la implementación inicial."
+        : "EL PRESTADOR entregará la aplicación funcionando en un plazo máximo de siete (7) días hábiles, contados a partir de la recepción de la información completa."
+    );
 
     heading("QUINTA — VIGENCIA Y TERMINACIÓN");
     paragraph("El presente contrato tiene vigencia mensual, renovable automáticamente. Cualquiera de las partes podrá darlo por terminado con un preaviso de al menos ocho (8) días calendario, sin penalidad alguna.");

@@ -147,7 +147,7 @@ let filtroActivo = "todos";
 function filaCliente(c) {
   const ep = estadoPago(c);
   const registrados = SOCIOS_COUNT[c.id];
-  const plan = PLANES[c.plan] ? PLANES[c.plan].label : (c.plan || "—");
+  const plan = PLANES_TODOS[c.plan] ? PLANES_TODOS[c.plan].label : (c.plan || "—");
   const esCliente = esClientePagando(c);
   const accion = esCliente ? "—" :
     '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
