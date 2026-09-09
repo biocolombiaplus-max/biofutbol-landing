@@ -6,6 +6,7 @@ function generarContratoPDF(cliente) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const plan = PLANES[cliente.plan] || { label: "—", implementacion: 0, mensual: 0 };
+    const esColombia = !cliente.clubPais || cliente.clubPais === "Colombia";
     const margin = 54;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -82,15 +83,15 @@ function generarContratoPDF(cliente) {
     y += 26;
 
     const fecha = new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
-    paragraph("En " + (cliente.clubCiudad || "Colombia") + ", a " + fecha + ".");
+    paragraph("En " + (cliente.clubCiudad || cliente.clubPais || "Colombia") + ", a " + fecha + ".");
 
     heading("PARTES");
     paragraph(
       "Entre los suscritos, por una parte BIOMARKETING, titular de la marca BioFutbol (en adelante, “EL PRESTADOR”), " +
       "y por otra parte " + (cliente.clubNombre || "—") +
-      (cliente.clubNit ? ", identificado con NIT " + cliente.clubNit : "") +
+      (cliente.clubNit ? (esColombia ? ", identificado con NIT " : ", identificado con documento de identificación tributaria ") + cliente.clubNit : "") +
       ", representado legalmente por " + (cliente.repNombre || "—") +
-      ", identificado con cédula de ciudadanía No. " + (cliente.repCedula || "—") +
+      (esColombia ? ", identificado con cédula de ciudadanía No. " : ", identificado con documento de identidad No. ") + (cliente.repCedula || "—") +
       " (en adelante, “EL CLIENTE”), hemos acordado celebrar el presente contrato, el cual se regirá por las siguientes cláusulas:"
     );
 
@@ -167,12 +168,15 @@ function generarContratoPDF(cliente) {
 
     heading("NOVENA — PROTECCIÓN Y TRATAMIENTO DE DATOS PERSONALES");
     paragraph(
-      "EL PRESTADOR actúa como encargado del tratamiento de los datos personales de EL CLIENTE y de los socios o " +
-      "deportistas registrados en la aplicación (nombres, documentos de identidad, fecha de nacimiento, datos de " +
-      "contacto, información básica de salud cuando aplique, y fotografías), conforme a la Ley 1581 de 2012, el " +
-      "Decreto 1377 de 2013 y demás normas vigentes en Colombia sobre protección de datos personales — o, si " +
-      (cliente.clubNombre || "el club") + " opera fuera de Colombia, conforme a la normativa de protección de datos " +
-      "vigente en su país."
+      esColombia
+        ? ("EL PRESTADOR actúa como encargado del tratamiento de los datos personales de EL CLIENTE y de los socios o " +
+          "deportistas registrados en la aplicación (nombres, documentos de identidad, fecha de nacimiento, datos de " +
+          "contacto, información básica de salud cuando aplique, y fotografías), conforme a la Ley 1581 de 2012, el " +
+          "Decreto 1377 de 2013 y demás normas vigentes en Colombia sobre protección de datos personales.")
+        : ("EL PRESTADOR actúa como encargado del tratamiento de los datos personales de EL CLIENTE y de los socios o " +
+          "deportistas registrados en la aplicación (nombres, documentos de identidad, fecha de nacimiento, datos de " +
+          "contacto, información básica de salud cuando aplique, y fotografías), conforme a la normativa de protección " +
+          "de datos personales vigente en " + (cliente.clubPais || "el país donde opera el club") + ".")
     );
     paragraph(
       "Estos datos se usan única y exclusivamente para la operación de la aplicación (gestión deportiva y " +
@@ -225,7 +229,7 @@ function generarContratoPDF(cliente) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
     doc.text("BioMarketing · BioFutbol", margin, y);
-    doc.text((cliente.repNombre || "—") + (cliente.repCedula ? " · C.C. " + cliente.repCedula : ""), pageWidth - margin - 200, y, { maxWidth: 200 });
+    doc.text((cliente.repNombre || "—") + (cliente.repCedula ? (esColombia ? " · C.C. " : " · Doc. ") + cliente.repCedula : ""), pageWidth - margin - 200, y, { maxWidth: 200 });
 
     // ── Encabezado delgado (páginas 2 en adelante) y pie de página en todas ──
     const totalPaginas = doc.internal.getNumberOfPages();
