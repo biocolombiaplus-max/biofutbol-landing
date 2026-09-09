@@ -4,7 +4,7 @@
 // pensando en la expansión regional.
 const PAISES = [
   "Colombia",
-  "Venezuela", "Ecuador", "Perú", "Bolivia", "Chile", "Argentina", "Uruguay", "Paraguay", "Brasil",
+  "México", "Venezuela", "Ecuador", "Perú", "Bolivia", "Chile", "Argentina", "Uruguay", "Paraguay", "Brasil",
   "Panamá", "Costa Rica", "Nicaragua", "Honduras", "El Salvador", "Guatemala",
   "Otro"
 ];
@@ -22,6 +22,7 @@ function llenarSelectPaises(select, seleccionado) {
 // escriba a mano.
 const PAISES_INFO = {
   "Colombia": { indicativo: "57", moneda: "COP", bancos: ["Bancolombia", "Davivienda", "BBVA Colombia", "Banco de Bogotá", "Banco de Occidente", "Banco Popular", "Banco AV Villas", "Banco Caja Social", "Banco Agrario", "Scotiabank Colpatria", "Itaú", "Banco Falabella", "Bancoomeva", "Confiar Cooperativa"] },
+  "México": { indicativo: "52", moneda: "MXN", bancos: ["BBVA México", "Banorte", "Santander México", "Citibanamex", "HSBC México", "Scotiabank México", "Banco Azteca", "Banco Inbursa"] },
   "Venezuela": { indicativo: "58", moneda: "VES", bancos: ["Banco de Venezuela", "Banesco", "Mercantil Banco", "BBVA Provincial", "Banco Bicentenario", "Banco del Tesoro", "Bancaribe", "BOD (Banco Occidental de Descuento)"] },
   "Ecuador": { indicativo: "593", moneda: "USD", bancos: ["Banco Pichincha", "Banco Guayaquil", "Produbanco", "Banco del Pacífico", "Banco Bolivariano", "Banco Internacional", "Cooperativa JEP"] },
   "Perú": { indicativo: "51", moneda: "PEN", bancos: ["BCP (Banco de Crédito del Perú)", "BBVA Perú", "Interbank", "Scotiabank Perú", "Banco de la Nación", "BanBif", "Banco Pichincha Perú"] },
@@ -47,10 +48,24 @@ function indicativoDePais(pais) { return paisInfo(pais).indicativo; }
 function monedaDePais(pais) { return paisInfo(pais).moneda; }
 function bancosDePais(pais) { return paisInfo(pais).bancos; }
 
+// Billetera digital más común en cada país — solo como sugerencia inicial
+// (por ejemplo, para la demo o como placeholder); el club siempre puede
+// escribir la que realmente usa en "billetera digital" (pagoNequiApp).
+const BILLETERA_TIPICA = {
+  "Colombia": "Nequi", "México": "Mercado Pago", "Venezuela": "Pago Móvil",
+  "Ecuador": "Banco del Barrio", "Perú": "Yape", "Bolivia": "Tigo Money",
+  "Chile": "MACH", "Argentina": "Mercado Pago", "Uruguay": "Mi Dinero",
+  "Paraguay": "Tigo Money", "Brasil": "Pix", "Panamá": "Yappy",
+  "Costa Rica": "SINPE Móvil", "Nicaragua": "Tigo Money", "Honduras": "Tigo Money",
+  "El Salvador": "Chivo Wallet", "Guatemala": "Tigo Money"
+};
+function billeteraTipica(pais) { return BILLETERA_TIPICA[pais] || "Billetera digital"; }
+
 // Monedas que se pueden elegir a mano (por si el club cobra en una
 // distinta a la de su país — dolarización informal, etc.)
 const MONEDAS = [
   { code: "COP", label: "Peso colombiano (COP)" },
+  { code: "MXN", label: "Peso mexicano (MXN)" },
   { code: "USD", label: "Dólar estadounidense (USD)" },
   { code: "VES", label: "Bolívar venezolano (VES)" },
   { code: "PEN", label: "Sol peruano (PEN)" },
@@ -69,7 +84,7 @@ const MONEDAS = [
 const MONEDA_LOCALE = {
   COP: "es-CO", USD: "es-US", VES: "es-VE", PEN: "es-PE", BOB: "es-BO",
   CLP: "es-CL", ARS: "es-AR", UYU: "es-UY", PYG: "es-PY", BRL: "pt-BR",
-  CRC: "es-CR", NIO: "es-NI", HNL: "es-HN", GTQ: "es-GT"
+  CRC: "es-CR", NIO: "es-NI", HNL: "es-HN", GTQ: "es-GT", MXN: "es-MX"
 };
 
 // Tasas de referencia APROXIMADAS (unidades de moneda local por 1 USD),
@@ -77,8 +92,8 @@ const MONEDA_LOCALE = {
 // en dólares de los planes de BioFutbol — nunca se usan para cobrar. Se
 // deben revisar y actualizar de vez en cuando a mano.
 const TASA_USD_APROX = {
-  COP: 4000, ARS: 1000, VES: 40, PEN: 3.8, BOB: 6.9, CLP: 950,
-  UYU: 40, PYG: 7300, BRL: 5.5, CRC: 520, NIO: 36.7, HNL: 24.7, GTQ: 7.7
+  COP: 4000, USD: 1, ARS: 1000, VES: 40, PEN: 3.8, BOB: 6.9, CLP: 950,
+  UYU: 40, PYG: 7300, BRL: 5.5, CRC: 520, NIO: 36.7, HNL: 24.7, GTQ: 7.7, MXN: 18
 };
 
 // Devuelve el equivalente aproximado de un valor en USD, formateado en la

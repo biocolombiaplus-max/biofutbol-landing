@@ -16,15 +16,97 @@ const DEMO_CLUB = {
   colorPrimario: "#18A83A",
   colorSecundario: "#0e7d29",
   colorTerciario: "#FFC933",
+  clubPais: "Colombia",
+  moneda: "COP",
   entrenaFestivos: true,
   modulosActivos: { equipos: true },
   pagoMensualidad: 60000,
+  pagoNequiApp: "Nequi",
   pagoNequiNumero: "300 000 0000",
   pagoNequiTitular: "Unión Tenerife F.C",
   estado: "activo",
   deportistasPautados: 8,
   valorPorDeportista: 2500
 };
+
+// ── Adaptar la demo al país que el visitante quiera simular ──
+// Lee "?pais=Argentina" de la URL: si viene y es un país válido distinto
+// de Colombia, cambia el nombre, la ciudad, la moneda, la mensualidad y la
+// billetera del club de ejemplo para que la demo se sienta local a quien la
+// está viendo — sin tocar nada del producto real. Sin el parámetro (o con
+// uno inválido) la demo sigue mostrando a Unión Tenerife F.C. en Colombia
+// como siempre, así que ningún link ya compartido se rompe.
+const DEMO_IDENTIDADES = {
+  "México": { clubNombre: "Deportivo Condesa", ciudad: "Condesa, Ciudad de México", direccion: "Cancha Parque México" },
+  "Venezuela": { clubNombre: "Real Maracay F.C.", ciudad: "Maracay, Aragua", direccion: "Complejo Deportivo José Casanova Godoy" },
+  "Ecuador": { clubNombre: "Deportivo Cumbayá F.C.", ciudad: "Cumbayá, Quito", direccion: "Cancha Parque Central" },
+  "Perú": { clubNombre: "Alianza San Isidro F.C.", ciudad: "San Isidro, Lima", direccion: "Complejo Deportivo Municipal" },
+  "Bolivia": { clubNombre: "Club Atlético Sucre", ciudad: "Sucre", direccion: "Estadio Patria" },
+  "Chile": { clubNombre: "Unión Ñuñoa F.C.", ciudad: "Ñuñoa, Santiago", direccion: "Estadio Municipal de Ñuñoa" },
+  "Argentina": { clubNombre: "Atlético San Telmo", ciudad: "San Telmo, Buenos Aires", direccion: "Club de Barrio San Telmo" },
+  "Uruguay": { clubNombre: "Nacional Pocitos F.C.", ciudad: "Pocitos, Montevideo", direccion: "Complejo Deportivo Pocitos" },
+  "Paraguay": { clubNombre: "Sport Club Asunción", ciudad: "Asunción", direccion: "Polideportivo Municipal" },
+  "Brasil": { clubNombre: "Grêmio Ipanema F.C.", ciudad: "Ipanema, Rio de Janeiro", direccion: "Complexo Esportivo Municipal" },
+  "Panamá": { clubNombre: "Deportivo Bella Vista", ciudad: "Bella Vista, Panamá", direccion: "Complejo Deportivo Bella Vista" },
+  "Costa Rica": { clubNombre: "Escuela Curridabat F.C.", ciudad: "Curridabat, San José", direccion: "Polideportivo de Curridabat" },
+  "Nicaragua": { clubNombre: "Deportivo Bolonia", ciudad: "Bolonia, Managua", direccion: "Complejo Deportivo Bolonia" },
+  "Honduras": { clubNombre: "Real Comayagüela", ciudad: "Comayagüela", direccion: "Estadio Marcelo Tinoco" },
+  "El Salvador": { clubNombre: "Deportivo Escalón", ciudad: "Escalón, San Salvador", direccion: "Cancha Municipal Escalón" },
+  "Guatemala": { clubNombre: "Deportivo Zona 10", ciudad: "Zona 10, Ciudad de Guatemala", direccion: "Complejo Deportivo Zona 10" }
+};
+
+// Cambia de página con ?pais=X (o lo quita si vuelve a Colombia). La usan
+// tanto el selector del banner como el de la bienvenida del recorrido.
+function demoIrAPais(pais) {
+  const url = new URL(location.href);
+  if (pais && pais !== "Colombia") url.searchParams.set("pais", pais);
+  else url.searchParams.delete("pais");
+  location.href = url.toString();
+}
+
+(function adaptarDemoAlPais() {
+  const pais = new URLSearchParams(location.search).get("pais");
+  const identidad = pais && DEMO_IDENTIDADES[pais];
+  if (!identidad) return;
+
+  Object.assign(DEMO_CLUB, identidad, {
+    clubPais: pais,
+    moneda: monedaDePais(pais),
+    pagoNequiApp: billeteraTipica(pais),
+    pagoNequiTitular: identidad.clubNombre
+  });
+})();
+
+// Todos los valores de dinero del seed están escritos en pesos colombianos
+// (COP). Si el visitante eligió otro país, esta función los reescala
+// proporcionalmente a la moneda de ese país (misma "sensación" de precio,
+// nunca un número absurdo como "$60.000 USD/mes" por un solo jugador) —
+// se llama una sola vez, al final de poblarDemo(), ya con todo sembrado.
+function demoReescalarMoneda() {
+  const pais = DEMO_CLUB.clubPais;
+  if (!pais || pais === "Colombia") return;
+  const tasaCop = TASA_USD_APROX.COP;
+  const tasaDestino = TASA_USD_APROX[DEMO_CLUB.moneda];
+  if (!tasaDestino) return;
+  const factor = tasaDestino / tasaCop;
+  function r(v) { return Math.round((v * factor) / 5) * 5; }
+
+  DEMO_CLUB.pagoMensualidad = r(DEMO_CLUB.pagoMensualidad);
+
+  const base = "clientes/" + DEMO_CLIENTE_ID;
+  const socios = DEMO_STORE[base + "/socios"] || {};
+  Object.keys(socios).forEach(function (id) {
+    const s = socios[id];
+    if (s.pagoValor) s.pagoValor = r(s.pagoValor);
+    if (s.historialPagosSocio) s.historialPagosSocio.forEach(function (h) { h.valor = r(h.valor); });
+  });
+
+  const torneos = DEMO_STORE[base + "/torneos"] || {};
+  Object.keys(torneos).forEach(function (id) { if (torneos[id].valorInscripcion) torneos[id].valorInscripcion = r(torneos[id].valorInscripcion); });
+
+  const partidos = DEMO_STORE[base + "/partidos"] || {};
+  Object.keys(partidos).forEach(function (id) { if (partidos[id].arbitraje) partidos[id].arbitraje = r(partidos[id].arbitraje); });
+}
 
 const DEMO_USER_MOCK = { email: "demo@biofutbol.com", uid: "demo-uid" };
 
@@ -136,4 +218,6 @@ function demoSeedColeccion(path, filas) {
   ]);
 
   DEMO_STORE["config"] = { anuncio: { texto: "Así se ve la barra de anuncios: prográmala una vez y se muestra sola a todos tus socios.", activo: true, color: "#0e7d29", colorTexto: "#ffffff", etiqueta: "Ejemplo", botonTexto: "Ver más", link: "https://wa.me/573505457420" } };
+
+  demoReescalarMoneda();
 })();

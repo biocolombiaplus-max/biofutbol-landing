@@ -299,6 +299,7 @@
 .demo-banner .db-text{font-size:.84rem;font-weight:700;color:#fff}
 .demo-banner .db-cta{flex:none;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),#e6ac00);color:#241a00;font-weight:900;font-size:.8rem;padding:9px 18px;border-radius:999px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(255,201,51,.35)}
 .demo-banner .db-tour{flex:none;display:inline-flex;align-items:center;gap:6px;background:transparent;border:1.5px solid var(--green-l);color:var(--green-l);font-weight:800;font-size:.78rem;padding:8px 16px;border-radius:999px;cursor:pointer}
+.demo-banner .db-pais{flex:none;display:inline-flex;align-items:center;gap:6px;background:rgba(255,201,51,.12);border:1.5px solid var(--gold);color:var(--gold);font-weight:800;font-size:.78rem;padding:8px 16px;border-radius:999px;cursor:pointer}
 .tour-spotlight{position:fixed;z-index:9991;border-radius:14px;box-shadow:0 0 0 9999px rgba(3,6,10,.72);pointer-events:none;transition:left .32s ease,top .32s ease,width .32s ease,height .32s ease;display:none;border:2px solid var(--green-l)}
 .tour-card{position:fixed;z-index:9992;background:var(--card);border:1.5px solid var(--green-l);border-radius:16px;padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.55);display:none;transition:left .32s ease,top .32s ease}
 .tour-card .tc-step{font-size:.66rem;font-weight:800;color:var(--green-l);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
@@ -311,6 +312,11 @@
 .tour-card #tourSaltar{display:block;text-align:center;font-size:.74rem;color:var(--gray-d);margin-top:12px}
 .tour-welcome{position:fixed;inset:0;z-index:9995;background:rgba(3,6,10,.85);display:flex;align-items:center;justify-content:center;padding:20px}
 .tour-welcome-card{max-width:420px;background:var(--card);border:1.5px solid var(--green-l);border-radius:20px;padding:32px 28px;text-align:center}
+.tour-pais-picker{background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px 16px;margin-bottom:18px;text-align:left}
+.tour-pais-picker label{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;color:var(--white);margin-bottom:8px}
+.tour-pais-picker label i{color:var(--green-l)}
+.tour-pais-picker select{width:100%;background:var(--card);border:1.5px solid var(--card-b2);color:var(--white);font-size:.86rem;font-weight:600;padding:10px 12px;border-radius:10px}
+.tour-pais-picker small{display:block;margin-top:8px;color:var(--gray-d);font-size:.72rem;line-height:1.4}
 .disclaimer{font-size:.78rem;color:var(--gray-d);background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;line-height:1.5}
 .disclaimer b{color:var(--white)}
 .disclaimer ul{color:var(--gray)}
@@ -331,8 +337,9 @@
 <div class="demo-banner">
   <span class="db-tag">Demo</span>
   <span class="db-text">Estás viendo el panel de BioFutbol con datos de ejemplo — navega libremente por todos los módulos.</span>
+  <button type="button" class="db-pais" id="btnCambiarPais"><i class="fa-solid fa-earth-americas"></i> <span id="btnCambiarPaisTxt">Cambiar país</span></button>
   <button type="button" class="db-tour" id="btnVerRecorrido"><i class="fa-solid fa-route"></i> Ver recorrido guiado</button>
-  <a class="db-cta" href="https://wa.me/573505457420?text=%C2%A1Hola!%20Vi%20la%20demo%20de%20BioFutbol%20y%20quiero%20activarla%20para%20mi%20club." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Actívala hoy por $1.500 COP/deportista</a>
+  <a class="db-cta" href="https://wa.me/573505457420?text=%C2%A1Hola!%20Vi%20la%20demo%20de%20BioFutbol%20y%20quiero%20activarla%20para%20mi%20club." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Actívala hoy — escríbenos</a>
 </div>
 <div class="ad-banner" id="adBanner">
   <div class="ad-icon-bubble"><i class="fa-solid fa-bullhorn"></i></div>
@@ -1295,12 +1302,12 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/demo-mock.js"></script>
 <script src="js/demo-seed.js"></script>
 <script src="js/demo-tour.js"></script>
-<script src="js/plans.js"></script>
 <script src="js/categorias.js"></script>
-<script src="js/paises.js"></script>
 <script src="js/informes.js"></script>
 <script src="js/recibo.js"></script>
 <script src="js/nutricion.js"></script>
@@ -4639,6 +4646,12 @@ document.getElementById("btnVerRecorrido").addEventListener("click", function ()
   const bienvenida = document.getElementById("tourWelcome");
   if (bienvenida) bienvenida.remove();
   tourIniciar();
+});
+
+document.getElementById("btnCambiarPaisTxt").textContent = "Cambiar país (" + (DEMO_CLUB.clubPais || "Colombia") + ")";
+document.getElementById("btnCambiarPais").addEventListener("click", function () {
+  if (document.getElementById("tourWelcome")) return;
+  tourMostrarBienvenida();
 });
 
 setTimeout(function () { tourMostrarBienvenida(); }, 900);

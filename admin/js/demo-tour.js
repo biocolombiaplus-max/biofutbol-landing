@@ -6,7 +6,7 @@
 
 const TOUR_PASOS = [
   { tab: "inicio", selector: "#tab-inicio #heroStats", titulo: "Tu panel, de un vistazo", texto: "Cuántos socios tienes, cuántos partidos van jugados y quién debe — todo lo importante, en la primera pantalla." },
-  { tab: "inicio", selector: "#tab-inicio #nextTrainingCard", titulo: "El próximo entrenamiento, imposible de perder", texto: "Brilla solo, respeta los festivos colombianos, y desde aquí mismo activas la asistencia con un toque." },
+  { tab: "inicio", selector: "#tab-inicio #nextTrainingCard", titulo: "El próximo entrenamiento, imposible de perder", texto: "Brilla solo, respeta los días festivos si tu club así lo maneja, y desde aquí mismo activas la asistencia con un toque." },
   { tab: "inicio", selector: "#tab-inicio .quick-grid", titulo: "Todo tu club, a un toque", texto: "Cada módulo de la app accesible desde el inicio — nadie en tu equipo se pierde buscando dónde hacer algo." },
   { tab: "socios", selector: "#tab-socios #listaSocios", titulo: "Cada jugador, con su estado de pago al día", texto: "Verde, amarillo o rojo: sabes quién está al día y a quién recordarle, sin cuadernos ni Excel." },
   { tab: "profesores", selector: "#tab-profesores #listaProfesores", titulo: "Un acceso propio para cada profesor", texto: "Cada entrenador ve solo sus categorías, toma su propia asistencia y consulta a sus alumnos — sin tocar nada administrativo." },
@@ -132,11 +132,21 @@ function tourMostrarBienvenida() {
     '<div class="tour-welcome-card">' +
     '<div style="font-size:2.2rem;margin-bottom:10px">⚽</div>' +
     '<h3 style="font-size:1.2rem;font-weight:900;margin-bottom:10px">¡Bienvenido a la demo de BioFutbol!</h3>' +
-    '<p style="font-size:.9rem;color:var(--gray);line-height:1.6;margin-bottom:22px">Te mostramos, en menos de 2 minutos, cómo se ve y funciona la app completa — con datos de ejemplo de Unión Tenerife F.C. Al final, activa BioFutbol en tu propio club.</p>' +
+    '<p style="font-size:.9rem;color:var(--gray);line-height:1.6;margin-bottom:18px">Te mostramos, en menos de 2 minutos, cómo se ve y funciona la app completa — con datos de ejemplo de <b id="tourClubNombre">' + esc(DEMO_CLUB.clubNombre) + '</b>. Al final, activa BioFutbol en tu propio club.</p>' +
+    '<div class="tour-pais-picker">' +
+    '<label for="tourPaisSelect"><i class="fa-solid fa-earth-americas"></i> ¿De qué país es tu club?</label>' +
+    '<select id="tourPaisSelect"></select>' +
+    '<small>La demo se adapta al instante: moneda, indicativo de WhatsApp y bancos.</small>' +
+    '</div>' +
     '<button type="button" class="btn btn-primary btn-block" id="tourBtnEmpezar"><i class="fa-solid fa-play"></i> Empezar recorrido guiado</button>' +
     '<button type="button" class="btn btn-ghost btn-block" id="tourBtnExplorar" style="margin-top:10px">Prefiero explorar libremente</button>' +
     '</div>';
   document.body.appendChild(div);
+
+  const selectPais = document.getElementById("tourPaisSelect");
+  llenarSelectPaises(selectPais, DEMO_CLUB.clubPais);
+  selectPais.addEventListener("change", function () { demoIrAPais(this.value); });
+
   document.getElementById("tourBtnEmpezar").addEventListener("click", function () {
     div.remove();
     tourIniciar();
