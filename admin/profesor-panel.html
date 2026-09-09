@@ -189,7 +189,7 @@ requireAccesoProfesor().then(function (r) {
     const opts = {
       cancelaciones: excepciones.filter(function (e) { return e.tipo === "cancelacion"; }),
       extras: excepciones.filter(function (e) { return e.tipo === "extra"; }),
-      entrenaFestivos: clubActual.entrenaFestivos !== false
+      entrenaFestivos: (!clubActual.clubPais || clubActual.clubPais === "Colombia") ? (clubActual.entrenaFestivos !== false) : true
     };
     pintarMiHorarioProfesor(horarios, categorias, sedes, opts);
     pintarAlumnos();

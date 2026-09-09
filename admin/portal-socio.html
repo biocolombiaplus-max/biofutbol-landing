@@ -275,7 +275,7 @@ if (!clienteId || !socioId) {
       const opts = {
         cancelaciones: excepciones.filter(function (e) { return e.tipo === "cancelacion"; }),
         extras: excepciones.filter(function (e) { return e.tipo === "extra"; }),
-        entrenaFestivos: club.entrenaFestivos !== false
+        entrenaFestivos: (!club.clubPais || club.clubPais === "Colombia") ? (club.entrenaFestivos !== false) : true
       };
       pintarEntrenamientos(horarios, socio.categoria, sedes, opts);
     }
