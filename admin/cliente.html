@@ -357,6 +357,7 @@ function actualizarUIporPais(pais) {
   document.getElementById("listaBancos").innerHTML = bancosDePais(pais).map(function (b) { return '<option value="' + b + '">'; }).join("");
   iniciarInputTelefono(document.getElementById("repTelWrap"), pais);
   actualizarLabelMensualidad();
+  pintarPlanGrid();
 }
 
 function actualizarLabelMensualidad() {
@@ -404,13 +405,16 @@ document.getElementById("btnEnviarLink").addEventListener("click", function () {
 
 function pintarPlanGrid() {
   const grid = document.getElementById("planGrid");
+  const pais = document.getElementById("clubPais").value;
+  const seleccionado = document.querySelector('input[name="plan"]:checked');
+  const seleccionadoValor = seleccionado ? seleccionado.value : null;
   grid.innerHTML = Object.keys(PLANES).map(function (key) {
     const p = PLANES[key];
     return '<label class="plan-opt" data-plan="' + key + '">' +
       '<input type="radio" name="plan" value="' + key + '">' +
       '<div class="pn">' + p.label + '</div>' +
-      '<div class="pv">' + formatCOP(p.mensual) + '/socio/mes</div>' +
-      '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>' +
+      '<div class="pv">' + planPrecioMensualTexto(p, pais) + '</div>' +
+      '<div class="ps">Implementación ' + planImplementacionTexto(p, pais) + '</div>' +
       '</label>';
   }).join("");
   grid.querySelectorAll(".plan-opt").forEach(function (opt) {
@@ -419,6 +423,10 @@ function pintarPlanGrid() {
       opt.classList.add("on");
       opt.querySelector("input").checked = true;
     });
+    if (seleccionadoValor && opt.dataset.plan === seleccionadoValor) {
+      opt.classList.add("on");
+      opt.querySelector("input").checked = true;
+    }
   });
 }
 

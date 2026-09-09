@@ -1,13 +1,43 @@
 // Planes de BioFutbol — deben coincidir siempre con los precios publicados en la landing.
+// mensual: precio por socio/mes en Colombia (COP). mensualUSD: precio FIJO
+// total al mes (no por socio) para clubes fuera de Colombia. Se mantiene la
+// llave "mas1000" por compatibilidad con clientes ya guardados con ese plan,
+// aunque el rango real ahora arranca en 501.
 const PLANES = {
-  hasta100: { label: "Hasta 100 socios", implementacion: 350000, mensual: 4000 },
-  "101-200": { label: "101 a 200 socios", implementacion: 450000, mensual: 3000 },
-  "201-500": { label: "201 a 500 socios", implementacion: 490000, mensual: 2500 },
-  mas1000: { label: "Más de 1.000 socios", implementacion: 750000, mensual: 2000 }
+  hasta100: { label: "Hasta 100 socios", implementacion: 350000, mensual: 2500, mensualUSD: 90 },
+  "101-200": { label: "101 a 200 socios", implementacion: 450000, mensual: 2000, mensualUSD: 130 },
+  "201-500": { label: "201 a 500 socios", implementacion: 490000, mensual: 1500, mensualUSD: 170 },
+  mas1000: { label: "Más de 500 socios", implementacion: 750000, mensual: 1000, mensualUSD: 200 }
 };
 
 function formatCOP(n) {
   return "$" + Number(n || 0).toLocaleString("es-CO");
+}
+
+// Texto del valor mensual de un plan, según el país del club: en Colombia
+// sigue siendo un valor fijo por socio en pesos; en cualquier otro país es
+// un valor FIJO total al mes en dólares (no se multiplica por socios), con
+// el equivalente aproximado en la moneda local si aplica.
+function planPrecioMensualTexto(plan, pais) {
+  const esColombia = !pais || pais === "Colombia";
+  if (esColombia) return formatCOP(plan.mensual) + "/socio/mes";
+  let texto = "$" + plan.mensualUSD + " USD/mes";
+  if (typeof monedaDePais === "function" && typeof equivalenteUsdEnMoneda === "function") {
+    const equiv = equivalenteUsdEnMoneda(plan.mensualUSD, monedaDePais(pais));
+    if (equiv) texto += " (≈ " + equiv + ")";
+  }
+  return texto;
+}
+
+// Texto de la implementación única de un plan: en Colombia en pesos; fuera
+// de Colombia, su equivalente aproximado en dólares (mismo valor, solo
+// convertido para que se entienda en el país del club).
+function planImplementacionTexto(plan, pais) {
+  const esColombia = !pais || pais === "Colombia";
+  if (esColombia) return formatCOP(plan.implementacion);
+  const tasaCop = (typeof TASA_USD_APROX !== "undefined" && TASA_USD_APROX.COP) || 4000;
+  const usd = Math.round(plan.implementacion / tasaCop / 5) * 5;
+  return "$" + usd + " USD (aprox.)";
 }
 
 function formatFecha(ts) {

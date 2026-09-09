@@ -72,6 +72,24 @@ const MONEDA_LOCALE = {
   CRC: "es-CR", NIO: "es-NI", HNL: "es-HN", GTQ: "es-GT"
 };
 
+// Tasas de referencia APROXIMADAS (unidades de moneda local por 1 USD),
+// solo para mostrar al club un equivalente informativo junto al precio real
+// en dólares de los planes de BioFutbol — nunca se usan para cobrar. Se
+// deben revisar y actualizar de vez en cuando a mano.
+const TASA_USD_APROX = {
+  COP: 4000, ARS: 1000, VES: 40, PEN: 3.8, BOB: 6.9, CLP: 950,
+  UYU: 40, PYG: 7300, BRL: 5.5, CRC: 520, NIO: 36.7, HNL: 24.7, GTQ: 7.7
+};
+
+// Devuelve el equivalente aproximado de un valor en USD, formateado en la
+// moneda local dada — o null si la moneda ya es USD o no hay tasa cargada.
+function equivalenteUsdEnMoneda(valorUsd, moneda) {
+  if (!moneda || moneda === "USD") return null;
+  const tasa = TASA_USD_APROX[moneda];
+  if (!tasa) return null;
+  return formatMoneda(valorUsd * tasa, moneda);
+}
+
 function llenarSelectMonedas(select, seleccionada) {
   select.innerHTML = MONEDAS.map(function (m) { return '<option value="' + m.code + '">' + m.label + '</option>'; }).join("");
   select.value = seleccionada && MONEDAS.some(function (m) { return m.code === seleccionada; }) ? seleccionada : "COP";

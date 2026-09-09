@@ -120,11 +120,16 @@ function generarContratoPDF(cliente) {
     );
 
     (function () {
-      const filas = [
-        ["Implementación inicial (pago único)", formatCOP(plan.implementacion)],
-        ["Mensualidad por socio/deportista activo", formatCOP(plan.mensual)],
-        [(cliente.numSocios || 0) + " socios registrados a la fecha de firma — total mensual estimado", formatCOP(plan.mensual * (cliente.numSocios || 0))]
-      ];
+      const filas = esColombia
+        ? [
+          ["Implementación inicial (pago único)", formatCOP(plan.implementacion)],
+          ["Mensualidad por socio/deportista activo", formatCOP(plan.mensual)],
+          [(cliente.numSocios || 0) + " socios registrados a la fecha de firma — total mensual estimado", formatCOP(plan.mensual * (cliente.numSocios || 0))]
+        ]
+        : [
+          ["Implementación inicial (pago único)", planImplementacionTexto(plan, cliente.clubPais)],
+          ["Mensualidad fija (sin importar el número de socios/deportistas)", planPrecioMensualTexto(plan, cliente.clubPais)]
+        ];
       const boxH = filas.length * 22 + 16;
       checkPageBreak(boxH + 10);
       doc.setFillColor(244, 249, 246);
@@ -145,7 +150,11 @@ function generarContratoPDF(cliente) {
       y += boxH + 14;
     })();
 
-    paragraph("Este valor se ajustará automáticamente según el número real de socios activos cada mes, de acuerdo con lo registrado en la plataforma.");
+    paragraph(
+      esColombia
+        ? "Este valor se ajustará automáticamente según el número real de socios activos cada mes, de acuerdo con lo registrado en la plataforma."
+        : "Este es un valor fijo mensual que no cambia según el número de socios o deportistas activos que tenga el club dentro del rango de su plan."
+    );
 
     heading("CUARTA — PLAZO DE ENTREGA");
     paragraph("EL PRESTADOR entregará la aplicación funcionando en un plazo máximo de siete (7) días hábiles, contados a partir de la recepción de la información completa y el pago de la implementación inicial.");

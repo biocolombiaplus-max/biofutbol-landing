@@ -423,20 +423,6 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .delivery strong{font-size:1.2rem;color:#fff}
 .delivery span{opacity:.94;font-size:.96rem}
 
-.urgency-strip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;background:linear-gradient(135deg,#ff3b1f,#ff8a00);border-radius:20px;padding:30px 26px;box-shadow:0 12px 34px rgba(255,59,31,.4);margin-bottom:44px;position:relative;overflow:hidden;animation:pulse-urgency 2.4s infinite}
-.urgency-strip i{color:#fff}
-.urgency-strip strong{font-size:1.08rem;color:#fff;display:block}
-.urgency-strip span{opacity:.95;font-size:.88rem;color:#fff}
-.ut-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);color:#fff;padding:6px 16px;border-radius:999px;font-size:.72rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
-.urgency-strip h3{font-size:1.35rem;color:#fff;font-weight:900;line-height:1.25}
-.ut-desc{color:rgba(255,255,255,.96);font-size:.94rem;max-width:620px;line-height:1.6}
-.ut-desc strong{color:#fff}
-.ut-timer{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);padding:9px 20px;border-radius:999px;font-weight:800;font-size:.92rem;color:#fff}
-.ut-timer b{font-variant-numeric:tabular-nums;letter-spacing:.03em;font-size:1rem}
-.btn-offer{background:#fff;color:#c62b12;font-weight:900;padding:15px 32px;border-radius:14px;font-size:1.02rem;display:inline-flex;align-items:center;gap:10px;box-shadow:0 10px 26px rgba(0,0,0,.25);transition:.2s;margin-top:4px}
-.btn-offer:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 32px rgba(0,0,0,.3)}
-.ut-fine{font-size:.76rem;color:rgba(255,255,255,.85)}
-
 /* ── PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 .plan{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:30px 24px;display:flex;flex-direction:column;transition:.25s;position:relative}
@@ -446,19 +432,23 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .plan .members{color:var(--gray);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .plan .setup{margin-top:12px;font-size:.82rem;color:var(--gray);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .plan .setup b{color:var(--white);font-size:1.05rem}
-.plan .setup-was{color:var(--red);text-decoration:line-through;font-weight:700}
-.plan .setup-free{color:#fff;font-weight:900;background:linear-gradient(135deg,#ff8a00,#ff5c1f);border:none;padding:3px 12px;border-radius:999px;font-size:.72rem;letter-spacing:.02em;text-transform:uppercase;box-shadow:0 4px 14px rgba(255,106,0,.5);animation:pulse-urgency 2.2s infinite}
 .plan .price{font-size:2.05rem;font-weight:900;color:var(--green-l);margin:6px 0 10px}
 .plan .price small{font-size:.9rem;color:var(--gray);font-weight:600}
-.plan .price-was{font-size:1.15rem;color:var(--red);text-decoration:line-through;font-weight:700;margin-right:6px}
-.plan .launch-box{display:flex;align-items:flex-start;gap:8px;background:rgba(255,201,51,.08);border:1px solid rgba(255,201,51,.3);border-radius:12px;padding:10px 12px;font-size:.74rem;font-weight:700;color:var(--gold);line-height:1.5;margin-bottom:6px}
-.plan .launch-box i{margin-top:2px;flex:none}
 .plan ul{margin:18px 0 24px;flex:1}
 .plan li{display:flex;align-items:flex-start;gap:8px;font-size:.86rem;color:var(--white);margin-bottom:9px}
 .plan li i{color:var(--green-l);margin-top:3px}
 .plan .btn-ghost,.plan .btn-primary{justify-content:center;width:100%;font-size:.92rem;padding:13px 20px}
 .pricing-note{text-align:center;color:var(--gray);font-size:.88rem;margin-top:30px}
 .pricing-note a{color:var(--green-l);font-weight:700}
+
+.intl-pricing{margin-top:36px;background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:32px 28px;text-align:center}
+.intl-pricing-head{display:inline-flex;align-items:center;gap:10px;font-size:1.08rem;font-weight:900;color:var(--gold);margin-bottom:10px}
+.intl-pricing p{color:var(--gray);font-size:.9rem;line-height:1.6;max-width:660px;margin:0 auto 24px}
+.intl-pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+.intl-pricing-grid>div{background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:18px 14px;display:flex;flex-direction:column;gap:6px}
+.intl-members{color:var(--gray);font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.intl-price{font-size:1.2rem;font-weight:900;color:var(--green-l)}
+.intl-pricing .btn-ghost{display:inline-flex}
 
 /* ── COMPARISON ── */
 .compare{background:var(--bg2)}
@@ -527,7 +517,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .hero p.lead{margin-left:auto;margin-right:auto}
   .hero-actions,.hero-badges{justify-content:center}
   .hero-visual{margin-top:36px}
-  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid{grid-template-columns:repeat(2,1fr)}
+  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid,.intl-pricing-grid{grid-template-columns:repeat(2,1fr)}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .spotlight-row,.spotlight-row.rev{grid-template-columns:1fr}
   .spotlight-row .spot-text,.spotlight-row.rev .spot-text{order:1}
@@ -539,7 +529,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
 }
 @media(max-width:560px){
   section{padding:70px 0}
-  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr}
+  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid,.intl-pricing-grid{grid-template-columns:1fr}
   .hero{padding-top:130px}
   .container.nav-inner{padding:0 12px}
   .logo{font-size:1.1rem;gap:6px}
@@ -1210,22 +1200,11 @@ fbq('track', 'PageView');
       <h2>Un plan a la medida de tu club</h2>
       <p>Pagas una sola vez la implementación de tu app y luego un valor fijo mensual por socio activo. Así de simple.</p>
     </div>
-    <div class="urgency-strip reveal">
-      <span class="ut-badge"><i class="fa-solid fa-bolt"></i> Oferta de lanzamiento · Solo hoy</span>
-      <h3>Hoy no pagas implementación y todos los planes bajan de precio</h3>
-      <p class="ut-desc">Escríbenos antes de la medianoche y te regalamos el desarrollo inicial 100% a la medida de tu app, <strong>además</strong> hoy el valor mensual por socio baja en los 4 planes — desde <strong>$1.500 por socio al mes</strong> según el tamaño de tu club.</p>
-      <div class="ut-timer"><i class="fa-solid fa-clock"></i> Esta oferta termina en <b id="offerCountdown">--:--:--</b></div>
-      <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20oferta%20de%20lanzamiento%20de%20hoy%20en%20BioFutbol%3A%20implementaci%C3%B3n%20gratis%20y%20%242.500%20por%20socio" class="btn-offer" target="_blank" rel="noopener">
-        <i class="fa-brands fa-whatsapp"></i> Quiero el precio de lanzamiento hoy
-      </a>
-      <span class="ut-fine">Mañana la implementación y el valor mensual de cada plan vuelven a su precio normal.</span>
-    </div>
     <div class="pricing-grid">
       <div class="plan reveal">
         <span class="members">Hasta 100 socios</span>
-        <div class="setup">Implementación única: <s class="setup-was">$350.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="price"><s class="price-was">$4.000</s> $2.500 <small>/socio/mes</small></div>
-        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $4.000/socio/mes.</div>
+        <div class="setup">Implementación única: $350.000</div>
+        <div class="price">$2.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
           <li><i class="fa-solid fa-check"></i> Gestión de socios y cobros</li>
@@ -1236,9 +1215,8 @@ fbq('track', 'PageView');
       </div>
       <div class="plan featured reveal">
         <span class="members">101 a 200 socios</span>
-        <div class="setup">Implementación única: <s class="setup-was">$450.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="price"><s class="price-was">$3.000</s> $2.500 <small>/socio/mes</small></div>
-        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $3.000/socio/mes.</div>
+        <div class="setup">Implementación única: $450.000</div>
+        <div class="price">$2.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Reportes de recaudo</li>
@@ -1249,9 +1227,8 @@ fbq('track', 'PageView');
       </div>
       <div class="plan reveal">
         <span class="members">201 a 500 socios</span>
-        <div class="setup">Implementación única: <s class="setup-was">$490.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="price"><s class="price-was">$2.500</s> $1.800 <small>/socio/mes</small></div>
-        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $2.500/socio/mes.</div>
+        <div class="setup">Implementación única: $490.000</div>
+        <div class="price">$1.500 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Multi-sede</li>
@@ -1261,20 +1238,29 @@ fbq('track', 'PageView');
         <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20201%20a%20500%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
       </div>
       <div class="plan reveal">
-        <span class="members">Más de 1.000 socios</span>
-        <div class="setup">Implementación única: <s class="setup-was">$750.000</s> <span class="setup-free">Gratis hoy</span></div>
-        <div class="price"><s class="price-was">$2.000</s> $1.500 <small>/socio/mes</small></div>
-        <div class="launch-box"><i class="fa-solid fa-bolt"></i> Precio de lanzamiento de hoy — mañana vuelve a $2.000/socio/mes.</div>
+        <span class="members">Más de 500 socios</span>
+        <div class="setup">Implementación única: $750.000</div>
+        <div class="price">$1.000 <small>/socio/mes</small></div>
         <ul>
           <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
           <li><i class="fa-solid fa-check"></i> Integraciones a medida</li>
           <li><i class="fa-solid fa-check"></i> Atención prioritaria</li>
           <li><i class="fa-solid fa-check"></i> Entrega en 7 días</li>
         </ul>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20m%C3%A1s%20de%201.000%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
+        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20m%C3%A1s%20de%20500%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
       </div>
     </div>
-    <p class="pricing-note reveal">¿Tu club tiene entre 501 y 1.000 socios? <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20entre%20500%20y%201000%20socios%2C%20quiero%20una%20cotizaci%C3%B3n" target="_blank" rel="noopener">Escríbenos aquí</a> y te armamos un plan intermedio a tu medida.</p>
+    <div class="intl-pricing reveal">
+      <div class="intl-pricing-head"><i class="fa-solid fa-earth-americas"></i> ¿Tu club está fuera de Colombia?</div>
+      <p>BioFutbol también funciona en toda Suramérica y Centroamérica. Fuera de Colombia el plan es un valor fijo mensual en dólares (no cambia según el número de socios), con el equivalente aproximado en tu moneda local calculado automáticamente al registrar tu club.</p>
+      <div class="intl-pricing-grid">
+        <div><span class="intl-members">Hasta 100 socios</span><span class="intl-price">$90 USD/mes</span></div>
+        <div><span class="intl-members">101 a 200 socios</span><span class="intl-price">$130 USD/mes</span></div>
+        <div><span class="intl-members">201 a 500 socios</span><span class="intl-price">$170 USD/mes</span></div>
+        <div><span class="intl-members">Más de 500 socios</span><span class="intl-price">$200 USD/mes</span></div>
+      </div>
+      <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20est%C3%A1%20fuera%20de%20Colombia%20y%20quiero%20saber%20m%C3%A1s%20sobre%20los%20planes%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+    </div>
   </div>
 </section>
 
@@ -1423,22 +1409,6 @@ var io = new IntersectionObserver(function(entries){
   entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
 },{threshold:.15});
 document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-
-// Cuenta regresiva de la oferta "solo hoy" (hasta medianoche, hora local del visitante)
-function updateOfferCountdown() {
-  var el = document.getElementById('offerCountdown');
-  if (!el) return;
-  var now = new Date();
-  var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-  var diff = Math.max(0, midnight - now);
-  var h = Math.floor(diff / 3600000);
-  var m = Math.floor((diff % 3600000) / 60000);
-  var s = Math.floor((diff % 60000) / 1000);
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  el.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
-}
-updateOfferCountdown();
-setInterval(updateOfferCountdown, 1000);
 
 // Meta Pixel: eventos de conversión para optimizar la campaña (no solo PageView)
 document.addEventListener('click', function(e){

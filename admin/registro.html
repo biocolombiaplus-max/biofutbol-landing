@@ -117,25 +117,36 @@ document.getElementById("clubPais").addEventListener("change", function () {
   if (!monedaTocadaAMano) document.getElementById("clubMoneda").value = monedaDePais(pais);
   iniciarInputTelefono(document.getElementById("repTelWrap"), pais);
   document.getElementById("repCedulaLabel").textContent = (pais === "Colombia" ? "Cédula" : "Documento de identidad") + " *";
+  pintarPlanGrid();
 });
 
 const grid = document.getElementById("planGrid");
-grid.innerHTML = Object.keys(PLANES).map(function (key) {
-  const p = PLANES[key];
-  return '<label class="plan-opt" data-plan="' + key + '">' +
-    '<input type="radio" name="plan" value="' + key + '" required>' +
-    '<div class="pn">' + p.label + '</div>' +
-    '<div class="pv">' + formatCOP(p.mensual) + '/socio/mes</div>' +
-    '<div class="ps">Implementación ' + formatCOP(p.implementacion) + '</div>' +
-    '</label>';
-}).join("");
-grid.querySelectorAll(".plan-opt").forEach(function (opt) {
-  opt.addEventListener("click", function () {
-    grid.querySelectorAll(".plan-opt").forEach(function (o) { o.classList.remove("on"); });
-    opt.classList.add("on");
-    opt.querySelector("input").checked = true;
+function pintarPlanGrid() {
+  const pais = document.getElementById("clubPais").value;
+  const seleccionado = document.querySelector('input[name="plan"]:checked');
+  const seleccionadoValor = seleccionado ? seleccionado.value : null;
+  grid.innerHTML = Object.keys(PLANES).map(function (key) {
+    const p = PLANES[key];
+    return '<label class="plan-opt" data-plan="' + key + '">' +
+      '<input type="radio" name="plan" value="' + key + '" required>' +
+      '<div class="pn">' + p.label + '</div>' +
+      '<div class="pv">' + planPrecioMensualTexto(p, pais) + '</div>' +
+      '<div class="ps">Implementación ' + planImplementacionTexto(p, pais) + '</div>' +
+      '</label>';
+  }).join("");
+  grid.querySelectorAll(".plan-opt").forEach(function (opt) {
+    opt.addEventListener("click", function () {
+      grid.querySelectorAll(".plan-opt").forEach(function (o) { o.classList.remove("on"); });
+      opt.classList.add("on");
+      opt.querySelector("input").checked = true;
+    });
+    if (seleccionadoValor && opt.dataset.plan === seleccionadoValor) {
+      opt.classList.add("on");
+      opt.querySelector("input").checked = true;
+    }
   });
-});
+}
+pintarPlanGrid();
 
 document.getElementById("sinLogo").addEventListener("change", function (e) {
   document.getElementById("sinLogoNota").style.display = e.target.checked ? "block" : "none";
