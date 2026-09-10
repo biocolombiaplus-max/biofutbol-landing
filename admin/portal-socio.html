@@ -135,6 +135,10 @@ details.creco-detalle summary{cursor:pointer;font-size:.78rem;font-weight:700;co
       </div>
       <div style="font-weight:800;white-space:pre-line" id="pagoBancoTxt">—</div>
     </div>
+    <div id="pagoEfectivoBox" style="display:none;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div class="k" style="font-size:.68rem;color:var(--gray);text-transform:uppercase;font-weight:700">Efectivo</div>
+      <div style="font-weight:800" id="pagoEfectivoTxt">Aceptamos pago en efectivo</div>
+    </div>
     <a id="pagoWompiBtn" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-block" style="display:none"><i class="fa-solid fa-credit-card"></i> Pagar con tarjeta / PSE</a>
     <p style="font-size:.76rem;color:var(--gray-d);margin-top:10px">Después de pagar, envía el comprobante al club por WhatsApp para que quede registrado.</p>
   </div>
@@ -352,7 +356,7 @@ function pintar(socio, club) {
   document.getElementById("pColegio").textContent = socio.colegio || "—";
   document.getElementById("pJornada").textContent = socio.jornada || "—";
 
-  if (!socio.becado && club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoBancoNumero || club.pagoWompiLink)) {
+  if (!socio.becado && club && (club.pagoMensualidad || club.pagoNequiNumero || club.pagoBancoNumero || club.pagoEfectivo || club.pagoWompiLink)) {
     document.getElementById("pagoCard").style.display = "block";
     document.getElementById("pagoValorTxt").textContent = club.pagoMensualidad
       ? "Mensualidad: " + formatMoneda(club.pagoMensualidad, club.moneda)
@@ -369,6 +373,10 @@ function pintar(socio, club) {
         "\nN.° " + club.pagoBancoNumero +
         (club.pagoBancoTitular ? "\nA nombre de " + club.pagoBancoTitular : "") +
         (club.pagoBancoDocumento ? " · " + club.pagoBancoDocumento : "");
+    }
+    if (club.pagoEfectivo) {
+      document.getElementById("pagoEfectivoBox").style.display = "block";
+      document.getElementById("pagoEfectivoTxt").textContent = "Aceptamos pago en efectivo" + (club.pagoEfectivoNota ? " — " + club.pagoEfectivoNota : "");
     }
     if (club.pagoWompiLink) {
       document.getElementById("pagoWompiBtn").style.display = "flex";

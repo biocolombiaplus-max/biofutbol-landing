@@ -24,6 +24,8 @@ const DEMO_CLUB = {
   pagoNequiApp: "Nequi",
   pagoNequiNumero: "300 000 0000",
   pagoNequiTitular: "Unión Tenerife F.C",
+  pagoEfectivo: true,
+  pagoEfectivoNota: "Con el profesor, en la cancha",
   estado: "activo",
   deportistasPautados: 8,
   valorPorDeportista: 2500

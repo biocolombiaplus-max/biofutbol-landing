@@ -610,6 +610,9 @@ document.getElementById("btnRecordarPago").addEventListener("click", function ()
     if (clubActual.pagoBancoTitular) banco += " (" + clubActual.pagoBancoTitular + (clubActual.pagoBancoDocumento ? " — " + clubActual.pagoBancoDocumento : "") + ")";
     mensaje += "\n\nO por transferencia — " + banco + ".";
   }
+  if (clubActual && clubActual.pagoEfectivo) {
+    mensaje += "\n\nTambién recibimos pago en efectivo" + (clubActual.pagoEfectivoNota ? " — " + clubActual.pagoEfectivoNota : "") + ".";
+  }
   if (clubActual && clubActual.pagoWompiLink) {
     mensaje += "\n\nO con tarjeta/PSE aquí: " + clubActual.pagoWompiLink;
   }
