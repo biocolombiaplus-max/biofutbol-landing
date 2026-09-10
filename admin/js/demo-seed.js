@@ -108,6 +108,9 @@ function demoReescalarMoneda() {
 
   const partidos = DEMO_STORE[base + "/partidos"] || {};
   Object.keys(partidos).forEach(function (id) { if (partidos[id].arbitraje) partidos[id].arbitraje = r(partidos[id].arbitraje); });
+
+  const gastos = DEMO_STORE[base + "/gastos"] || {};
+  Object.keys(gastos).forEach(function (id) { if (gastos[id].valor) gastos[id].valor = r(gastos[id].valor); });
 }
 
 const DEMO_USER_MOCK = { email: "demo@biofutbol.com", uid: "demo-uid" };
@@ -141,12 +144,12 @@ function demoSeedColeccion(path, filas) {
 
   demoSeedColeccion(base + "/socios", [
     { id: "s1", nombre: "Samuel Torres Martínez", categoria: "Sub-12", camiseta: 9, posicion: "Delantero", pieHabil: "Derecho", telefono: "3001112233", correo: "papa.samuel@correo.com", documento: "1102345671", fechaNacimiento: "2014-03-12", talla: "10", colegio: "IE Tenerife", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(9), pagoUltimo: fechaIso(-21), historialPagosSocio: [{ fecha: fechaIso(-21), valor: 60000 }], entrenamientosAsistidos: 17, entrenamientosProgramados: 20, creado: tsHace(210) },
-    { id: "s2", nombre: "Isabella Ramírez Cortés", categoria: "Sub-12", camiseta: 7, posicion: "Mediocampista", pieHabil: "Izquierdo", telefono: "3002223344", correo: "mama.isa@correo.com", documento: "1102345672", fechaNacimiento: "2014-07-02", talla: "8", colegio: "IE Tenerife", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(-3), entrenamientosAsistidos: 19, entrenamientosProgramados: 20, creado: tsHace(190) },
-    { id: "s3", nombre: "Juan David Pérez Suárez", categoria: "Sub-10", camiseta: 5, posicion: "Defensa", pieHabil: "Derecho", telefono: "3003334455", correo: "", documento: "1102345673", fechaNacimiento: "2016-01-20", talla: "8", colegio: "Col. San José", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(21), entrenamientosAsistidos: 12, entrenamientosProgramados: 14, creado: tsHace(150) },
+    { id: "s2", nombre: "Isabella Ramírez Cortés", categoria: "Sub-12", camiseta: 7, posicion: "Mediocampista", pieHabil: "Izquierdo", telefono: "3002223344", correo: "mama.isa@correo.com", documento: "1102345672", fechaNacimiento: "2014-07-02", talla: "8", colegio: "IE Tenerife", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(-3), historialPagosSocio: [{ fecha: fechaIso(-6), valor: 60000 }], entrenamientosAsistidos: 19, entrenamientosProgramados: 20, creado: tsHace(190) },
+    { id: "s3", nombre: "Juan David Pérez Suárez", categoria: "Sub-10", camiseta: 5, posicion: "Defensa", pieHabil: "Derecho", telefono: "3003334455", correo: "", documento: "1102345673", fechaNacimiento: "2016-01-20", talla: "8", colegio: "Col. San José", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(21), historialPagosSocio: [{ fecha: fechaIso(-14), valor: 60000 }], entrenamientosAsistidos: 12, entrenamientosProgramados: 14, creado: tsHace(150) },
     { id: "s4", nombre: "Mariana Gómez López", categoria: "Sub-10", camiseta: 3, posicion: "Defensa", pieHabil: "Derecho", telefono: "3004445566", correo: "familia.gomez@correo.com", documento: "1102345674", fechaNacimiento: "2016-09-08", talla: "6", colegio: "Col. San José", estado: "Activo", pagoValor: 60000, pagoProximo: fechaIso(14), entrenamientosAsistidos: 13, entrenamientosProgramados: 14, creado: tsHace(150) },
-    { id: "s5", nombre: "Santiago Rodríguez Díaz", categoria: "Sub-15", camiseta: 10, posicion: "Delantero", pieHabil: "Derecho", telefono: "3005556677", correo: "", documento: "1102345675", fechaNacimiento: "2011-05-30", talla: "M", colegio: "IE Tenerife", estado: "Activo", pagoValor: 70000, pagoProximo: fechaIso(-8), entrenamientosAsistidos: 24, entrenamientosProgramados: 26, creado: tsHace(300) },
-    { id: "s6", nombre: "Valentina Herrera Ruiz", categoria: "Sub-15", camiseta: 8, posicion: "Mediocampista", pieHabil: "Izquierdo", telefono: "3006667788", correo: "papa.herrera@correo.com", documento: "1102345676", fechaNacimiento: "2011-11-14", talla: "M", colegio: "IE Tenerife", estado: "Activo", pagoValor: 70000, pagoProximo: fechaIso(5), entrenamientosAsistidos: 22, entrenamientosProgramados: 26, creado: tsHace(300) },
-    { id: "s7", nombre: "Emmanuel Castro Vega", categoria: "Sub-8", camiseta: 1, posicion: "Portero", pieHabil: "Derecho", acudiente: "Rosa Vega", telefono: "3007778899", correo: "", documento: "1102345677", fechaNacimiento: "2018-02-17", talla: "6", colegio: "Jardín Los Angelitos", estado: "Activo", pagoValor: 50000, pagoProximo: fechaIso(18), entrenamientosAsistidos: 8, entrenamientosProgramados: 9, creado: tsHace(60) },
+    { id: "s5", nombre: "Santiago Rodríguez Díaz", categoria: "Sub-15", camiseta: 10, posicion: "Delantero", pieHabil: "Derecho", telefono: "3005556677", correo: "", documento: "1102345675", fechaNacimiento: "2011-05-30", talla: "M", colegio: "IE Tenerife", estado: "Activo", pagoValor: 70000, pagoProximo: fechaIso(-8), historialPagosSocio: [{ fecha: fechaIso(-9), valor: 70000 }], entrenamientosAsistidos: 24, entrenamientosProgramados: 26, creado: tsHace(300) },
+    { id: "s6", nombre: "Valentina Herrera Ruiz", categoria: "Sub-15", camiseta: 8, posicion: "Mediocampista", pieHabil: "Izquierdo", telefono: "3006667788", correo: "papa.herrera@correo.com", documento: "1102345676", fechaNacimiento: "2011-11-14", talla: "M", colegio: "IE Tenerife", estado: "Activo", pagoValor: 70000, pagoProximo: fechaIso(5), historialPagosSocio: [{ fecha: fechaIso(-18), valor: 70000 }], entrenamientosAsistidos: 22, entrenamientosProgramados: 26, creado: tsHace(300) },
+    { id: "s7", nombre: "Emmanuel Castro Vega", categoria: "Sub-8", camiseta: 1, posicion: "Portero", pieHabil: "Derecho", acudiente: "Rosa Vega", telefono: "3007778899", correo: "", documento: "1102345677", fechaNacimiento: "2018-02-17", talla: "6", colegio: "Jardín Los Angelitos", estado: "Activo", pagoValor: 50000, pagoProximo: fechaIso(18), historialPagosSocio: [{ fecha: fechaIso(-4), valor: 50000 }], entrenamientosAsistidos: 8, entrenamientosProgramados: 9, creado: tsHace(60) },
     { id: "s8", nombre: "Mateo Castro Vega", categoria: "Sub-8", camiseta: 2, posicion: "Defensa", pieHabil: "Derecho", acudiente: "Rosa Vega", telefono: "3007778899", correo: "familia.castro@correo.com", documento: "1102345678", fechaNacimiento: "2018-06-25", talla: "6", colegio: "Jardín Los Angelitos", estado: "Activo", pagoValor: 40000, notaCobro: "Descuento por 2 hermanos en el club", pagoProximo: fechaIso(18), entrenamientosAsistidos: 4, entrenamientosProgramados: 9, creado: tsHace(60) },
     { id: "s9", nombre: "Tomás Fernández Silva", categoria: "Sub-12", camiseta: 4, posicion: "Defensa", pieHabil: "Izquierdo", telefono: "3009990011", correo: "", documento: "1102345679", fechaNacimiento: "2014-10-05", talla: "10", colegio: "IE Tenerife", estado: "Activo", becado: true, notaCobro: "Beca deportiva por rendimiento", entrenamientosAsistidos: 16, entrenamientosProgramados: 20, creado: tsHace(210) }
   ]);
@@ -199,6 +202,13 @@ function demoSeedColeccion(path, filas) {
     { id: "pat1", nombre: "Almacén Deportivo El Gol", tier: "oro", contacto: "300 111 2233", descripcion: "20% de descuento para socios", logoUrl: "", activo: true },
     { id: "pat2", nombre: "Panadería La Espiga", tier: "plata", contacto: "300 222 3344", descripcion: "Refrigerio después de cada partido", logoUrl: "", activo: true },
     { id: "pat3", nombre: "Droguería San Rafael", tier: "bronce", contacto: "300 333 4455", descripcion: "", logoUrl: "", activo: true }
+  ]);
+
+  demoSeedColeccion(base + "/gastos", [
+    { id: "g1", concepto: "Arriendo cancha municipal", categoria: "Arriendo y sede", valor: 150000, fecha: fechaIso(-16), notas: "" },
+    { id: "g2", concepto: "Balones y petos de entrenamiento", categoria: "Implementos y uniformes", valor: 70000, fecha: fechaIso(-10), notas: "" },
+    { id: "g3", concepto: "Arbitraje jornada Sub-12", categoria: "Arbitraje y torneos", valor: 40000, fecha: fechaIso(-5), notas: "" },
+    { id: "g4", concepto: "Transporte a partido fuera de casa", categoria: "Transporte", valor: 25000, fecha: fechaIso(-2), notas: "" }
   ]);
 
   demoSeedColeccion(base + "/partidos", [

@@ -99,6 +99,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
+    // Gastos del club: información financiera interna, a diferencia de
+    // patrocinadores/equipos/etc. no es pública — solo el súper-admin o el
+    // propio club dueño pueden leerla y editarla.
+    match /clientes/{clienteId}/gastos/{docId} {
+      allow read, write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+    }
     match /clientes/{clienteId}/sedes/{docId} {
       allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);

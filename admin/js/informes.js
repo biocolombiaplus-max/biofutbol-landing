@@ -199,6 +199,78 @@ function generarReporteCarteraPDF(datos) {
   return doc;
 }
 
+// datos = { club, periodoTexto, resumen: {ingresos, gastos, utilidad},
+//   porCategoria: [{categoria, total}], filas: [{fecha, concepto, categoria, valor}] }
+// Control financiero del club: ingresos reales (pagos de socios ya
+// registrados) contra gastos registrados, con la utilidad (ganancia o
+// pérdida) del periodo — el "estado de resultados" simple del club.
+function generarInformeFinancieroPDF(datos) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 40;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  let y = informeEncabezado(doc, { club: datos.club, margin: margin, titulo: "INFORME FINANCIERO", subtitulo: datos.periodoTexto || "" });
+
+  const moneda = datos.club && datos.club.moneda;
+  const utilidadPositiva = datos.resumen.utilidad >= 0;
+  const cardW = (pageWidth - margin * 2 - 24) / 3;
+  const cards = [
+    { label: "INGRESOS", valor: formatMoneda(datos.resumen.ingresos, moneda), color: [24, 168, 58] },
+    { label: "GASTOS", valor: formatMoneda(datos.resumen.gastos, moneda), color: [180, 45, 45] },
+    { label: utilidadPositiva ? "UTILIDAD (GANANCIA)" : "UTILIDAD (PÉRDIDA)", valor: formatMoneda(datos.resumen.utilidad, moneda), color: [11, 22, 38] }
+  ];
+  cards.forEach(function (c, i) {
+    const x = margin + i * (cardW + 12);
+    doc.setFillColor(c.color[0], c.color[1], c.color[2]);
+    doc.roundedRect(x, y, cardW, 60, 8, 8, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8.4); doc.setTextColor(255, 255, 255);
+    doc.text(c.label, x + 14, y + 22);
+    doc.setFontSize(17);
+    if (i === 2) doc.setTextColor(255, 201, 51); else doc.setTextColor(255, 255, 255);
+    doc.text(informeTruncar(doc, c.valor, cardW - 28), x + 14, y + 46);
+  });
+  y += 60 + 30;
+
+  if (datos.porCategoria && datos.porCategoria.length) {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.setTextColor(11, 22, 38);
+    doc.text("Gastos por categoría", margin, y);
+    y += 12;
+    const colCat = [
+      { label: "CATEGORÍA", w: pageWidth - margin * 2 - 110 },
+      { label: "TOTAL", w: 110, align: "right" }
+    ];
+    const filasCat = datos.porCategoria.map(function (c) { return [c.categoria, formatMoneda(c.total, moneda)]; });
+    y = informeTabla(doc, { y: y, margin: margin, pageHeight: pageHeight, columnas: colCat, filas: filasCat });
+    y += 26;
+  }
+
+  if (y + 50 > pageHeight - margin - 40) { doc.addPage(); y = margin; }
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.setTextColor(11, 22, 38);
+  doc.text("Detalle de gastos (" + datos.filas.length + ")", margin, y);
+  y += 12;
+
+  if (!datos.filas.length) {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(120, 120, 120);
+    doc.text("No hay gastos registrados en este periodo.", margin, y + 10);
+  } else {
+    const columnas = [
+      { label: "FECHA", w: 66 },
+      { label: "CONCEPTO", w: 190 },
+      { label: "CATEGORÍA", w: pageWidth - margin * 2 - (66 + 190 + 86) },
+      { label: "VALOR", w: 86, align: "right" }
+    ];
+    const filas = datos.filas.map(function (f) {
+      return [f.fecha || "—", f.concepto || "—", f.categoria || "—", formatMoneda(f.valor, moneda)];
+    });
+    informeTabla(doc, { y: y, margin: margin, pageHeight: pageHeight, columnas: columnas, filas: filas });
+  }
+
+  informePie(doc, { club: datos.club, margin: margin, titulo: "Informe financiero" });
+  return doc;
+}
+
 // datos = { club, socio: {nombre, documento, categoria}, tipo, fechaTexto,
 //   horarioTexto (opcional), lugar (opcional), observaciones (opcional),
 //   firmante (opcional) }

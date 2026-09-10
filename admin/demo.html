@@ -638,6 +638,12 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-scale-balanced"></i> Control financiero</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">Ingresos reales (pagos ya registrados) contra gastos registrados este mes — así vas viendo la ganancia del club, sin complicarte.</p>
+        <div class="stat-grid" id="finanzasResumen" style="margin:16px 0 0"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-money-bill-wave"></i> Cobro a socios</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A dónde le paga cada socio. Se usa en los recordatorios de pago y en el portal del deportista.</p>
         <div class="field"><label id="mcMensualidadLabel">Mensualidad por socio (COP)</label><input type="number" id="mcMensualidad" min="0" step="1000"></div>
@@ -686,6 +692,42 @@
         </div>
 
         <button type="button" class="btn btn-primary btn-sm" id="btnGuardarCobro"><i class="fa-solid fa-floppy-disk"></i> Guardar cobro</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-receipt"></i> Gastos del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Registra cada gasto (arriendo, implementos, arbitraje, transporte...) para tener control financiero real, no solo de lo que entra.</p>
+        <div class="field-row">
+          <div class="field"><label>Concepto</label><input type="text" id="gastoConcepto" placeholder="Ej: Arriendo cancha municipal"></div>
+          <div class="field"><label>Categoría</label><select id="gastoCategoria"></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label id="gastoValorLabel">Valor (COP)</label><input type="number" id="gastoValor" min="0" step="1000" placeholder="Ej: 150000"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="gastoFecha"></div>
+        </div>
+        <div class="field"><label>Notas (opcional)</label><input type="text" id="gastoNotas" placeholder="Ej: Pago a nombre de..."></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarGasto"><i class="fa-solid fa-plus"></i> Registrar gasto</button>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <div id="listaGastos"><p class="empty">Todavía no has registrado gastos.</p></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-file-invoice-dollar"></i> Informe financiero</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con ingresos, gastos por categoría y la utilidad del periodo — la vista completa de las finanzas del club.</p>
+        <div class="field-row">
+          <div class="field"><label>Periodo</label>
+            <select id="repFinPeriodo">
+              <option value="mesActual" selected>Mes actual</option>
+              <option value="mesAnterior">Mes anterior</option>
+              <option value="personalizado">Rango personalizado</option>
+            </select>
+          </div>
+          <div class="field" id="repFinDesdeBox" style="display:none"><label>Desde</label><input type="date" id="repFinDesde"></div>
+        </div>
+        <div class="field" id="repFinHastaBox" style="display:none"><label>Hasta</label><input type="date" id="repFinHasta"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteFinanciero"><i class="fa-solid fa-file-pdf"></i> Generar informe financiero</button>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -1391,6 +1433,7 @@ Promise.resolve({ user: DEMO_USER_MOCK, cliente: DEMO_CLUB }).then(function (r) 
   escucharSocios();
   escucharLlave();
   escucharPatrocinadores();
+  escucharGastos();
   escucharSedes();
   escucharHorarios();
   escucharExcepciones();
@@ -2922,7 +2965,193 @@ function pintarResumenPagos() {
     '<div class="stat bad"><div class="n">' + vencidos + '</div><div class="l">Vencidos</div></div>' +
     '<div class="stat warn"><div class="n">' + porVencer + '</div><div class="l">Por vencer (5 días)</div></div>' +
     '<div class="stat"><div class="n">' + becados + '</div><div class="l">Becados</div></div>';
+  pintarControlFinanciero();
 }
+
+// ── Control financiero: ingresos reales vs. gastos del club ──
+function formatFechaCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return fechaISO;
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+// Rango de un mes calendario completo: offsetMeses 0 = mes actual, -1 = mes anterior.
+function rangoMes(offsetMeses) {
+  const hoy = new Date();
+  const base = new Date(hoy.getFullYear(), hoy.getMonth() + offsetMeses, 1);
+  const fin = new Date(base.getFullYear(), base.getMonth() + 1, 0);
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  return {
+    desde: base.getFullYear() + "-" + pad(base.getMonth() + 1) + "-01",
+    hasta: fin.getFullYear() + "-" + pad(fin.getMonth() + 1) + "-" + pad(fin.getDate())
+  };
+}
+
+// Ingresos REALES (no "esperado"): suma de los pagos ya registrados en el
+// historial de cada socio, dentro del rango de fechas dado.
+function ingresosEnRango(desde, hasta) {
+  let total = 0;
+  SOCIOS.forEach(function (s) {
+    (s.historialPagosSocio || []).forEach(function (h) {
+      if (h.fecha >= desde && h.fecha <= hasta) total += Number(h.valor) || 0;
+    });
+  });
+  return total;
+}
+
+function gastosEnRango(desde, hasta) {
+  return GASTOS.filter(function (g) { return g.fecha >= desde && g.fecha <= hasta; });
+}
+
+function pintarControlFinanciero() {
+  const cont = document.getElementById("finanzasResumen");
+  if (!cont) return;
+  const r = rangoMes(0);
+  const ingresos = ingresosEnRango(r.desde, r.hasta);
+  const gastosTotal = gastosEnRango(r.desde, r.hasta).reduce(function (acc, g) { return acc + (Number(g.valor) || 0); }, 0);
+  const utilidad = ingresos - gastosTotal;
+  cont.innerHTML =
+    '<div class="stat ok"><div class="n">' + formatMoneda(ingresos, clubActual.moneda) + '</div><div class="l">Ingresos este mes</div></div>' +
+    '<div class="stat bad"><div class="n">' + formatMoneda(gastosTotal, clubActual.moneda) + '</div><div class="l">Gastos este mes</div></div>' +
+    '<div class="stat ' + (utilidad >= 0 ? "warn" : "bad") + '"><div class="n">' + formatMoneda(utilidad, clubActual.moneda) + '</div><div class="l">Utilidad este mes</div></div>';
+}
+
+let GASTOS = [];
+
+const CATEGORIAS_GASTO = [
+  { value: "Nómina y honorarios", icon: "fa-user-tie" },
+  { value: "Arriendo y sede", icon: "fa-building" },
+  { value: "Implementos y uniformes", icon: "fa-shirt" },
+  { value: "Arbitraje y torneos", icon: "fa-whistle" },
+  { value: "Transporte", icon: "fa-bus" },
+  { value: "Servicios públicos", icon: "fa-bolt" },
+  { value: "Marketing y publicidad", icon: "fa-bullhorn" },
+  { value: "Otros", icon: "fa-ellipsis" }
+];
+
+function llenarSelectCategoriasGasto() {
+  const sel = document.getElementById("gastoCategoria");
+  if (!sel) return;
+  sel.innerHTML = CATEGORIAS_GASTO.map(function (c) { return '<option value="' + c.value + '">' + c.value + '</option>'; }).join("");
+}
+llenarSelectCategoriasGasto();
+
+function iconoCategoriaGasto(categoria) {
+  const c = CATEGORIAS_GASTO.find(function (x) { return x.value === categoria; });
+  return c ? c.icon : "fa-receipt";
+}
+
+function escucharGastos() {
+  db.collection("clientes").doc(clubActual.id).collection("gastos").onSnapshot(function (snap) {
+    GASTOS = [];
+    snap.forEach(function (d) { GASTOS.push(Object.assign({ id: d.id }, d.data())); });
+    GASTOS.sort(function (a, b) { return (b.fecha || "").localeCompare(a.fecha || ""); });
+    pintarGastos();
+    pintarControlFinanciero();
+  });
+}
+
+function pintarGastos() {
+  const box = document.getElementById("listaGastos");
+  if (!box) return;
+  if (!GASTOS.length) { box.innerHTML = '<p class="empty">Todavía no has registrado gastos.</p>'; return; }
+  box.innerHTML = GASTOS.map(function (g) {
+    return '<div class="pat-card">' +
+      '<div class="pat-logo-empty" style="background:rgba(255,92,92,.14);color:var(--red)"><i class="fa-solid ' + iconoCategoriaGasto(g.categoria) + '"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(g.concepto || "Sin concepto") + '</div>' +
+      '<div class="pat-meta">' + esc(g.categoria || "Otros") + ' · ' + formatFechaCorta(g.fecha) + (g.notas ? " · " + esc(g.notas) : "") + '</div></div>' +
+      '<div style="text-align:right;flex-shrink:0;font-weight:800;color:var(--red)">' + formatMoneda(g.valor, clubActual.moneda) + '</div>' +
+      '<div class="pat-actions"><button type="button" class="btn btn-ghost btn-sm" onclick="eliminarGasto(\'' + g.id + '\')"><i class="fa-solid fa-trash"></i></button></div>' +
+      '</div>';
+  }).join("");
+}
+
+function eliminarGasto(id) {
+  if (!confirm("¿Eliminar este gasto?")) return;
+  db.collection("clientes").doc(clubActual.id).collection("gastos").doc(id).delete().then(function () {
+    registrarAuditoria("Gasto eliminado", clubActual.id, clubActual.clubNombre);
+  }).catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarGasto").addEventListener("click", function () {
+  const concepto = document.getElementById("gastoConcepto").value.trim();
+  const categoria = document.getElementById("gastoCategoria").value;
+  const valor = Number(document.getElementById("gastoValor").value) || 0;
+  const fecha = document.getElementById("gastoFecha").value;
+  const notas = document.getElementById("gastoNotas").value.trim();
+  if (!concepto) { mostrarError("Ingresa el concepto del gasto."); return; }
+  if (!valor) { mostrarError("Ingresa el valor del gasto."); return; }
+  if (!fecha) { mostrarError("Ingresa la fecha del gasto."); return; }
+  const btn = this;
+  btn.disabled = true;
+  db.collection("clientes").doc(clubActual.id).collection("gastos").add({
+    concepto: concepto, categoria: categoria, valor: valor, fecha: fecha, notas: notas,
+    fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function () {
+    document.getElementById("gastoConcepto").value = "";
+    document.getElementById("gastoValor").value = "";
+    document.getElementById("gastoFecha").value = "";
+    document.getElementById("gastoNotas").value = "";
+    document.getElementById("gastoCategoria").value = CATEGORIAS_GASTO[0].value;
+    registrarAuditoria("Gasto registrado", clubActual.id, clubActual.clubNombre, concepto);
+    mostrarExito("Gasto registrado.");
+    btn.disabled = false;
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); btn.disabled = false; });
+});
+
+document.getElementById("repFinPeriodo").addEventListener("change", function () {
+  const personalizado = this.value === "personalizado";
+  document.getElementById("repFinDesdeBox").style.display = personalizado ? "block" : "none";
+  document.getElementById("repFinHastaBox").style.display = personalizado ? "block" : "none";
+});
+
+document.getElementById("btnReporteFinanciero").addEventListener("click", function () {
+  const periodo = document.getElementById("repFinPeriodo").value;
+  let desde, hasta, periodoTexto;
+  if (periodo === "mesAnterior") {
+    const r = rangoMes(-1);
+    desde = r.desde; hasta = r.hasta;
+    periodoTexto = "Mes anterior (" + formatFechaCorta(desde) + " a " + formatFechaCorta(hasta) + ")";
+  } else if (periodo === "personalizado") {
+    desde = document.getElementById("repFinDesde").value;
+    hasta = document.getElementById("repFinHasta").value;
+    if (!desde || !hasta) { mostrarError("Ingresa la fecha desde y hasta."); return; }
+    periodoTexto = "Del " + formatFechaCorta(desde) + " al " + formatFechaCorta(hasta);
+  } else {
+    const r = rangoMes(0);
+    desde = r.desde; hasta = r.hasta;
+    periodoTexto = "Mes actual (" + formatFechaCorta(desde) + " a " + formatFechaCorta(hasta) + ")";
+  }
+
+  const ingresos = ingresosEnRango(desde, hasta);
+  const gastosPeriodo = gastosEnRango(desde, hasta);
+  const gastosTotal = gastosPeriodo.reduce(function (acc, g) { return acc + (Number(g.valor) || 0); }, 0);
+  const utilidad = ingresos - gastosTotal;
+
+  const porCategoriaMap = {};
+  gastosPeriodo.forEach(function (g) {
+    const cat = g.categoria || "Otros";
+    porCategoriaMap[cat] = (porCategoriaMap[cat] || 0) + (Number(g.valor) || 0);
+  });
+  const porCategoria = Object.keys(porCategoriaMap)
+    .map(function (cat) { return { categoria: cat, total: porCategoriaMap[cat] }; })
+    .sort(function (a, b) { return b.total - a.total; });
+
+  const filas = gastosPeriodo.slice()
+    .sort(function (a, b) { return (a.fecha || "").localeCompare(b.fecha || ""); })
+    .map(function (g) { return { fecha: g.fecha, concepto: g.concepto, categoria: g.categoria, valor: g.valor }; });
+
+  const doc = generarInformeFinancieroPDF({
+    club: clubActual,
+    periodoTexto: periodoTexto,
+    resumen: { ingresos: ingresos, gastos: gastosTotal, utilidad: utilidad },
+    porCategoria: porCategoria,
+    filas: filas
+  });
+  doc.save("informe-financiero-" + (clubActual.clubNombre || "biofutbol").replace(/\s+/g, "-").toLowerCase() + ".pdf");
+  registrarAuditoria("Informe financiero generado", clubActual.id, clubActual.clubNombre, periodoTexto);
+});
 
 function filaPago(s, cat) {
   const ep = estadoPagoSocioCrm(s);
@@ -4518,6 +4747,7 @@ function actualizarUIporPaisClub() {
   const esColombia = pais === "Colombia";
   const moneda = clubActual.moneda || monedaDePais(pais);
   document.getElementById("mcMensualidadLabel").textContent = "Mensualidad por socio (" + moneda + ")";
+  document.getElementById("gastoValorLabel").textContent = "Valor (" + moneda + ")";
   document.getElementById("mcBancoDocumentoLabel").textContent = (esColombia ? "Cédula o NIT" : "Documento") + " del titular (opcional)";
   document.getElementById("mcWompiLabel").textContent = esColombia ? "Wompi, PSE, tarjeta u otro" : "Pasarela de pago (Mercado Pago, PayU, PayPal, tarjeta...)";
   document.getElementById("listaBancos").innerHTML = bancosDePais(pais).map(function (b) { return '<option value="' + b + '">'; }).join("");
