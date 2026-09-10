@@ -104,6 +104,9 @@
 .socio-row-arrow{color:var(--gray-d);font-size:.8rem;flex-shrink:0}
 .crm-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .crm-toolbar .search-input{flex:1;min-width:160px}
+.socio-group-header{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--green-l);padding:16px 4px 8px}
+.socio-group-header:first-child{padding-top:2px}
+.socio-group-header .n{background:rgba(24,168,58,.14);background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l);font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0;text-transform:none}
 .ficha-box{display:none}
 .ficha-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .ficha-hdr img{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--card2);flex-shrink:0}
@@ -537,6 +540,7 @@
 
       <div class="crm-toolbar">
         <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
+        <button type="button" class="btn btn-ghost btn-sm" id="btnOrdenarCategoria"><i class="fa-solid fa-layer-group"></i> Agrupar por categoría</button>
       </div>
       <div class="detail-grid">
         <div class="card" style="margin-bottom:0">
@@ -2730,22 +2734,57 @@ function escucharSocios() {
   });
 }
 
+let agruparSociosPorCategoria = false;
+
+function filaSocioRow(s) {
+  const ep = estadoPagoSocioCrm(s);
+  const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
+  return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
+    '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
+    '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small>' +
+    '<span class="pill ' + ep.clase + '" style="margin-top:5px">' + ep.texto + '</span></div>' +
+    '<i class="fa-solid fa-chevron-right socio-row-arrow"></i></div>';
+}
+
 function pintarListaSocios() {
   const box = document.getElementById("listaSocios");
   const q = (document.getElementById("crmBuscar").value || "").toLowerCase().trim();
   let lista = SOCIOS.filter(function (s) { return !q || (s.nombre || "").toLowerCase().includes(q); });
 
   if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
-  box.innerHTML = lista.map(function (s) {
-    const ep = estadoPagoSocioCrm(s);
-    const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
-    return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
-      '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
-      '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small>' +
-      '<span class="pill ' + ep.clase + '" style="margin-top:5px">' + ep.texto + '</span></div>' +
-      '<i class="fa-solid fa-chevron-right socio-row-arrow"></i></div>';
+
+  if (!agruparSociosPorCategoria) {
+    box.innerHTML = lista.map(filaSocioRow).join("");
+    return;
+  }
+
+  // Agrupados por categoría, en el orden natural del fútbol formativo
+  // (Sub-6, Sub-7... Mayores) y las personalizadas del club al final —
+  // "Sin categoría" siempre queda de último.
+  const extra = clubActual.categoriasPersonalizadas || [];
+  const baseOverride = clubActual.categoriasEstandar || [];
+  const grupos = {};
+  lista.forEach(function (s) {
+    const cat = s.categoria || "Sin categoría";
+    (grupos[cat] = grupos[cat] || []).push(s);
+  });
+  const categoriasOrdenadas = Object.keys(grupos).sort(function (a, b) {
+    if (a === "Sin categoría") return 1;
+    if (b === "Sin categoría") return -1;
+    return ordenCategoria(a, extra, baseOverride) - ordenCategoria(b, extra, baseOverride);
+  });
+  box.innerHTML = categoriasOrdenadas.map(function (cat) {
+    return '<div class="socio-group-header">' + esc(cat) + ' <span class="n">' + grupos[cat].length + '</span></div>' +
+      grupos[cat].map(filaSocioRow).join("");
   }).join("");
 }
+
+document.getElementById("btnOrdenarCategoria").addEventListener("click", function () {
+  agruparSociosPorCategoria = !agruparSociosPorCategoria;
+  this.classList.toggle("btn-primary", agruparSociosPorCategoria);
+  this.classList.toggle("btn-ghost", !agruparSociosPorCategoria);
+  pintarListaSocios();
+});
 
 function seleccionarSocio(id) {
   socioSeleccionado = SOCIOS.find(function (s) { return s.id === id; }) || null;
