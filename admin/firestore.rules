@@ -73,7 +73,15 @@ service cloud.firestore {
     match /clientes/{clienteId}/documentosSocios/{documento} {
       allow get: if true;
       allow create: if true;
-      allow update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      // Además del club dueño, cualquiera puede actualizar/borrar un índice
+      // ya "huérfano" (su socio fue eliminado en algún momento, por ejemplo
+      // desde la ficha del socio) — así registro-socio.html se autorepara
+      // sola cuando alguien intenta volver a registrarse con ese mismo
+      // documento, en vez de quedar bloqueada para siempre con un "ya estás
+      // registrado" sin que exista ningún socio real detrás. Nunca permite
+      // tocar un índice que sí apunta a un socio real.
+      allow update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId) ||
+        (resource != null && !exists(/databases/$(database)/documents/clientes/$(clienteId)/socios/$(resource.data.socioId)));
     }
 
     // Módulos activados por club (equipos, fixture, tabla, etc.) y sus

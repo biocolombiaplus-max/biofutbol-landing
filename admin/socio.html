@@ -1188,7 +1188,21 @@ document.getElementById("btnBorrarSocio").addEventListener("click", function () 
   const btn = this;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Eliminando...';
-  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).delete().then(function () {
+
+  // Además de borrar el socio, hay que limpiar el índice por documento y el
+  // de acceso al portal (si tenía) — si no quedan "fantasmas": el número de
+  // documento sigue marcado como registrado para siempre, y si la familia
+  // vuelve a intentar registrarse por el link el formulario les muestra "ya
+  // estás registrado" sin que exista ningún socio real detrás.
+  const batch = db.batch();
+  batch.delete(db.collection("clientes").doc(clienteId).collection("socios").doc(socioId));
+  if (socioActual.documento) {
+    batch.delete(db.collection("clientes").doc(clienteId).collection("documentosSocios").doc(String(socioActual.documento)));
+  }
+  if (socioActual.authUid) {
+    batch.delete(db.collection("sociosIndex").doc(socioActual.authUid));
+  }
+  batch.commit().then(function () {
     registrarAuditoria("Socio eliminado", clienteId, socioActual.nombre);
     window.location.href = volverA;
   }).catch(function (err) {

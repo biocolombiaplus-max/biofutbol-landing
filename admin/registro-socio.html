@@ -319,17 +319,28 @@ document.getElementById("regForm").addEventListener("submit", function (e) {
 
   const docIndice = db.collection("clientes").doc(clubId).collection("documentosSocios").doc(documento);
 
-  docIndice.get().then(function (indiceDoc) {
-    if (indiceDoc.exists) {
-      document.getElementById("formCard").style.display = "none";
-      document.getElementById("yaRegistradoCard").style.display = "block";
-      return null;
-    }
+  function crearSocioNuevo() {
     return db.collection("clientes").doc(clubId).collection("socios").add(data).then(function (ref) {
       return docIndice.set({ socioId: ref.id, nombre: data.nombre }).catch(function () { /* el registro ya quedó guardado igual */ });
     }).then(function () {
       document.getElementById("formCard").style.display = "none";
       document.getElementById("successCard").style.display = "block";
+    });
+  }
+
+  docIndice.get().then(function (indiceDoc) {
+    if (!indiceDoc.exists) return crearSocioNuevo();
+    // Puede que este número de documento haya quedado marcado como
+    // registrado, pero el socio real ya no exista (por ejemplo, si el club
+    // lo eliminó en algún momento) — en ese caso el índice quedó "huérfano"
+    // y no debe bloquear un registro genuino nuevo.
+    return db.collection("clientes").doc(clubId).collection("socios").doc(indiceDoc.data().socioId).get().then(function (socioDoc) {
+      if (socioDoc.exists) {
+        document.getElementById("formCard").style.display = "none";
+        document.getElementById("yaRegistradoCard").style.display = "block";
+        return null;
+      }
+      return docIndice.delete().then(crearSocioNuevo);
     });
   }).catch(function (err) {
     errorBox.textContent = "No se pudo enviar el registro: " + err.message;
