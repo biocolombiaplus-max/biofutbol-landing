@@ -787,6 +787,16 @@
           <div class="field"><label>Selecciona el socio (opcional)</label><select id="cumImgSocio"><option value="">— Escribir a mano —</option></select></div>
           <div class="field"><label>Nombre</label><input type="text" id="cumImgNombre" placeholder="Ej: Juan Pérez"></div>
           <div class="field"><label>Categoría (opcional)</label><input type="text" id="cumImgCategoria" placeholder="Ej: Sub-12"></div>
+          <div class="field">
+            <label>Foto del cumpleañero (opcional)</label>
+            <div class="upload-box" id="cumImgFotoBox" style="height:110px" onclick="document.getElementById('cumImgFotoInput').click()">
+              <img id="cumImgFotoPreview" class="upload-preview logo-preview" style="display:none">
+              <div class="upload-empty" id="cumImgFotoEmpty"><i class="fa-solid fa-image"></i><span>Subir foto</span></div>
+            </div>
+            <input type="file" id="cumImgFotoInput" accept="image/*" style="display:none">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnQuitarFotoCumple" style="display:none;margin-top:8px">Quitar foto</button>
+            <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-top:6px">Reemplaza el círculo de la imagen. Si no subes una, se usa la foto de perfil del socio (si tiene) o sus iniciales.</small>
+          </div>
         </div>
 
         <div id="form-torneo" class="tpl-form" style="display:none">
@@ -3232,6 +3242,37 @@ document.getElementById("cumImgSocio").addEventListener("change", function () {
   document.getElementById("cumImgNombre").value = s.nombre || "";
   document.getElementById("cumImgCategoria").value = s.categoria || "";
   cumImgFotoUrl = s.fotoUrl || "";
+  document.getElementById("cumImgFotoInput").value = "";
+  if (cumImgFotoUrl) {
+    document.getElementById("cumImgFotoPreview").src = cumImgFotoUrl;
+    document.getElementById("cumImgFotoPreview").style.display = "block";
+    document.getElementById("cumImgFotoEmpty").style.display = "none";
+    document.getElementById("btnQuitarFotoCumple").style.display = "inline-flex";
+  } else {
+    document.getElementById("cumImgFotoPreview").style.display = "none";
+    document.getElementById("cumImgFotoEmpty").style.display = "flex";
+    document.getElementById("btnQuitarFotoCumple").style.display = "none";
+  }
+});
+
+document.getElementById("cumImgFotoInput").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  subirACloudinary(file, "cumpleanos", clubActual.id + "-cumple-" + Date.now() + "." + (file.name.split(".").pop() || "jpg")).then(function (url) {
+    cumImgFotoUrl = url;
+    document.getElementById("cumImgFotoPreview").src = url;
+    document.getElementById("cumImgFotoPreview").style.display = "block";
+    document.getElementById("cumImgFotoEmpty").style.display = "none";
+    document.getElementById("btnQuitarFotoCumple").style.display = "inline-flex";
+  }).catch(function (err) { mostrarError("No se pudo subir la foto: " + err.message); });
+});
+
+document.getElementById("btnQuitarFotoCumple").addEventListener("click", function () {
+  cumImgFotoUrl = "";
+  document.getElementById("cumImgFotoInput").value = "";
+  document.getElementById("cumImgFotoPreview").style.display = "none";
+  document.getElementById("cumImgFotoEmpty").style.display = "flex";
+  this.style.display = "none";
 });
 
 document.getElementById("entImgHorario").addEventListener("change", function () {
