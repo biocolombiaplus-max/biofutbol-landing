@@ -106,6 +106,7 @@
 .crm-toolbar .search-input{flex:1;min-width:160px}
 .socio-group-header{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--green-l);padding:16px 4px 8px}
 .socio-group-header:first-child{padding-top:2px}
+.socio-group-header i{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px rgba(255,255,255,.1)}
 .socio-group-header .n{background:rgba(24,168,58,.14);background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green-l);font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0;text-transform:none}
 .ficha-box{display:none}
 .ficha-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -2736,12 +2737,12 @@ function escucharSocios() {
 
 let agruparSociosPorCategoria = false;
 
-function filaSocioRow(s) {
+function filaSocioRow(s, extra, baseOverride) {
   const ep = estadoPagoSocioCrm(s);
   const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
   return '<div class="socio-row' + (socioSeleccionado && socioSeleccionado.id === s.id ? ' sel' : '') + '" onclick="seleccionarSocio(\'' + s.id + '\')">' +
     '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
-    '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small>' +
+    '<div class="sn"><b>' + esc(s.nombre || "Sin nombre") + '</b>' + chipCategoria(s.categoria, extra, baseOverride) +
     '<span class="pill ' + ep.clase + '" style="margin-top:5px">' + ep.texto + '</span></div>' +
     '<i class="fa-solid fa-chevron-right socio-row-arrow"></i></div>';
 }
@@ -2753,16 +2754,17 @@ function pintarListaSocios() {
 
   if (!lista.length) { box.innerHTML = '<p class="empty">No hay socios para mostrar.</p>'; return; }
 
+  const extra = clubActual.categoriasPersonalizadas || [];
+  const baseOverride = clubActual.categoriasEstandar || [];
+
   if (!agruparSociosPorCategoria) {
-    box.innerHTML = lista.map(filaSocioRow).join("");
+    box.innerHTML = lista.map(function (s) { return filaSocioRow(s, extra, baseOverride); }).join("");
     return;
   }
 
   // Agrupados por categoría, en el orden natural del fútbol formativo
   // (Sub-6, Sub-7... Mayores) y las personalizadas del club al final —
   // "Sin categoría" siempre queda de último.
-  const extra = clubActual.categoriasPersonalizadas || [];
-  const baseOverride = clubActual.categoriasEstandar || [];
   const grupos = {};
   lista.forEach(function (s) {
     const cat = s.categoria || "Sin categoría";
@@ -2774,8 +2776,11 @@ function pintarListaSocios() {
     return ordenCategoria(a, extra, baseOverride) - ordenCategoria(b, extra, baseOverride);
   });
   box.innerHTML = categoriasOrdenadas.map(function (cat) {
-    return '<div class="socio-group-header">' + esc(cat) + ' <span class="n">' + grupos[cat].length + '</span></div>' +
-      grupos[cat].map(filaSocioRow).join("");
+    const color = cat === "Sin categoría" ? null : colorCategoria(cat, extra, baseOverride);
+    return '<div class="socio-group-header"' + (color ? ' style="color:' + color.hex + '"' : '') + '>' +
+      '<i style="background:' + (color ? color.hex : "var(--gray-d)") + '"></i>' + esc(cat) +
+      ' <span class="n"' + (color ? ' style="background:' + color.bg + ';color:' + color.hex + '"' : '') + '>' + grupos[cat].length + '</span></div>' +
+      grupos[cat].map(function (s) { return filaSocioRow(s, extra, baseOverride); }).join("");
   }).join("");
 }
 
@@ -2804,7 +2809,7 @@ function pintarFicha() {
 
   aplicarAvatarOFoto(document.getElementById("fichaFoto"), socioSeleccionado.fotoUrl, clubActual, socioSeleccionado.camiseta);
   document.getElementById("fichaNombre").textContent = socioSeleccionado.nombre || "Sin nombre";
-  document.getElementById("fichaCategoria").textContent = socioSeleccionado.categoria || "—";
+  document.getElementById("fichaCategoria").innerHTML = chipCategoria(socioSeleccionado.categoria, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar);
   document.getElementById("fichaTelefono").textContent = socioSeleccionado.telefono || "—";
   document.getElementById("fichaCorreo").textContent = socioSeleccionado.correo || "—";
   document.getElementById("btnFichaEditar").href = "socio.html?cliente=" + clubActual.id + "&id=" + socioSeleccionado.id;

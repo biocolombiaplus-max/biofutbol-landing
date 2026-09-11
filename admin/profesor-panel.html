@@ -29,7 +29,6 @@ body{background:radial-gradient(900px 480px at 50% -10%,rgba(24,168,58,.16),tran
 .pcard{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:22px;margin-bottom:18px}
 .pcard h3{font-size:.98rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .cat-chips{display:flex;flex-wrap:wrap;gap:8px}
-.cat-chip{background:var(--card2);border:1px solid var(--card-b2);color:var(--green-l);font-weight:800;font-size:.78rem;padding:6px 14px;border-radius:999px}
 .disc-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--card-b2)}
 .disc-row:last-child{border-bottom:none}
 .disc-row .dr-info{flex:1;min-width:0}
@@ -163,8 +162,10 @@ requireAccesoProfesor().then(function (r) {
   document.title = (profesorActual.nombre || "Profesor") + " | Panel del profesor - BioFutbol";
 
   const categorias = profesorActual.categorias || [];
+  const catExtra = clubActual.categoriasPersonalizadas || [];
+  const catBase = clubActual.categoriasEstandar || [];
   document.getElementById("misCategoriasChips").innerHTML = categorias.length
-    ? categorias.map(function (c) { return '<span class="cat-chip">' + esc(c) + '</span>'; }).join("")
+    ? categorias.map(function (c) { return chipCategoria(c, catExtra, catBase); }).join("")
     : '<p class="empty">Todavía no tienes categorías asignadas. Pídele al club que te las asigne desde el panel.</p>';
 
   document.getElementById("asistCategoria").innerHTML = categorias.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join("");
@@ -215,7 +216,7 @@ function pintarMiHorarioProfesor(horarios, categorias, sedes, opts) {
       if (resultado.horario.sedeId && sedes[resultado.horario.sedeId]) meta += " · " + sedes[resultado.horario.sedeId];
       if (resultado.esExtra) meta += " · Entrenamiento especial";
     }
-    return '<div class="disc-row"><div class="dr-info"><b>' + esc(cat) + '</b><small>' + esc(meta) + '</small></div></div>';
+    return '<div class="disc-row"><div class="dr-info">' + chipCategoria(cat, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar) + '<small>' + esc(meta) + '</small></div></div>';
   }).join("");
 }
 
@@ -233,7 +234,7 @@ function pintarAlumnos() {
     const asistidos = s.entrenamientosAsistidos || 0, total = s.entrenamientosProgramados || 0;
     const asistTxt = total ? asistidos + "/" + total + " entrenamientos" : "Sin asistencia registrada";
     return '<div>' +
-      '<div class="alum-row" onclick="toggleAlumno(\'' + s.id + '\')"><img src="' + foto + '"><div class="ar-info"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "") + ' · ' + esc(asistTxt) + '</small></div><i class="fa-solid fa-chevron-down" style="color:var(--gray)"></i></div>' +
+      '<div class="alum-row" onclick="toggleAlumno(\'' + s.id + '\')"><img src="' + foto + '"><div class="ar-info"><b>' + esc(s.nombre || "Sin nombre") + '</b>' + chipCategoria(s.categoria, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar) + '<small>' + esc(asistTxt) + '</small></div><i class="fa-solid fa-chevron-down" style="color:var(--gray)"></i></div>' +
       '<div class="alum-detalle" id="alumDet-' + s.id + '">' +
       '<div class="ad-row"><span class="k">Posición</span><span>' + esc(s.posicion || "—") + '</span></div>' +
       '<div class="ad-row"><span class="k">Pie hábil</span><span>' + esc(s.pieHabil || "—") + '</span></div>' +
@@ -283,7 +284,9 @@ function pintarSesionAsistencia() {
   }
   sinSesion.style.display = "none";
   conSesion.style.display = "block";
-  document.getElementById("asistCategoriaActiva").textContent = SESION_ACTIVA.categoria || "Todas mis categorías";
+  document.getElementById("asistCategoriaActiva").innerHTML = SESION_ACTIVA.categoria
+    ? chipCategoria(SESION_ACTIVA.categoria, clubActual.categoriasPersonalizadas, clubActual.categoriasEstandar)
+    : "Todas mis categorías";
   pintarAsistLista();
 }
 
