@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CRM de cobros | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.auto-banner{display:none;align-items:center;gap:10px;background:rgba(24,168,58,.1);border:1px solid rgba(24,168,58,.35);color:var(--green-l);border-radius:12px;padding:12px 18px;margin:18px 0;font-size:.86rem;font-weight:700}
+.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+@media (max-width:900px){.pipeline{grid-template-columns:1fr}}
+.pipe-col{background:var(--card2);border:1px solid var(--card-b2);border-radius:var(--radius);padding:16px;min-width:0}
+.pipe-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 4px}
+.pipe-head h3{font-size:.86rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.pipe-head h3 i{font-size:.74rem}
+.pipe-col.bad .pipe-head h3{color:var(--red)}
+.pipe-col.warn .pipe-head h3{color:var(--gold)}
+.pipe-col.ok .pipe-head h3{color:var(--green-l)}
+.pipe-count{background:rgba(255,255,255,.08);color:var(--white);font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:999px}
+.pipe-cards{display:flex;flex-direction:column;gap:12px;max-height:640px;overflow-y:auto;padding-right:2px}
+.cobro-card{background:var(--card);border:1px solid var(--card-b);border-radius:13px;padding:14px 16px}
+.cobro-card .cc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.cobro-card b{font-size:.9rem;display:block}
+.cobro-card .cc-rep{font-size:.76rem;color:var(--gray);margin-bottom:10px}
+.cobro-card .cc-meta{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--gray-d);margin-bottom:12px}
+.cobro-card .cc-meta i{width:13px;text-align:center}
+.cobro-card .cc-btns{display:flex;gap:8px;flex-wrap:wrap}
+.cobro-card .cc-btns .btn{flex:1;padding:8px 10px;font-size:.72rem;white-space:nowrap}
+.cc-empty{text-align:center;color:var(--gray-d);font-size:.8rem;padding:20px 6px}
+.setup-warn{background:rgba(255,201,51,.1);border:1px solid rgba(255,201,51,.35);color:var(--gold);border-radius:12px;padding:14px 18px;margin:18px 0;font-size:.82rem;line-height:1.6}
+.setup-warn code{background:rgba(0,0,0,.25);padding:2px 6px;border-radius:5px;font-size:.78rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">CRM de cobros</span>
+    </div>
+    <div class="top-actions">
+      <a href="index.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Clientes</a>
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:28px">
+    <h2>Cobros a clubes</h2>
+  </div>
+
+  <div id="setupWarn" class="setup-warn" style="display:none">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    Los recordatorios automáticos por correo todavía no están activos: falta configurar EmailJS en <code>js/firebase-config.js</code>
+    (<code>EMAILJS_PUBLIC_KEY</code>, <code>EMAILJS_SERVICE_ID</code> y <code>EMAILJS_TEMPLATE_ID_COBRO</code>). Mientras tanto,
+    puedes usar el botón de WhatsApp de cada club para escribirles tú mismo.
+  </div>
+
+  <div id="autoBanner" class="auto-banner"><i class="fa-solid fa-circle-check"></i> <span id="autoBannerTxt"></span></div>
+
+  <div class="stat-grid">
+    <div class="stat bad"><div class="n" id="statVencidos">—</div><div class="l">Clubes en mora</div></div>
+    <div class="stat warn"><div class="n" id="statPorVencer">—</div><div class="l">Por vencer (3 días)</div></div>
+    <div class="stat ok"><div class="n" id="statAlDia">—</div><div class="l">Al día</div></div>
+    <div class="stat"><div class="n" id="statEnviadosHoy">—</div><div class="l">Recordatorios hoy</div></div>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipe-col bad">
+      <div class="pipe-head"><h3><i class="fa-solid fa-circle-exclamation"></i> Vencidos</h3><span class="pipe-count" id="cntVencidos">0</span></div>
+      <div class="pipe-cards" id="colVencidos"></div>
+    </div>
+    <div class="pipe-col warn">
+      <div class="pipe-head"><h3><i class="fa-solid fa-clock"></i> Por vencer</h3><span class="pipe-count" id="cntPorVencer">0</span></div>
+      <div class="pipe-cards" id="colPorVencer"></div>
+    </div>
+    <div class="pipe-col ok">
+      <div class="pipe-head"><h3><i class="fa-solid fa-circle-check"></i> Al día</h3><span class="pipe-count" id="cntAlDia">0</span></div>
+      <div class="pipe-cards" id="colAlDia"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/audit.js"></script>
+<script>
+const WHATSAPP_COBRO_NUM = "573505457420";
+let TODOS = [];
+
+requireSuperAdmin().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY" || typeof EMAILJS_TEMPLATE_ID_COBRO === "undefined" || EMAILJS_TEMPLATE_ID_COBRO === "TU_TEMPLATE_ID_COBRO") {
+    document.getElementById("setupWarn").style.display = "block";
+  }
+  escucharClientes();
+});
+
+function escucharClientes() {
+  db.collection("clientes").orderBy("clubNombre").onSnapshot(function (snap) {
+    TODOS = [];
+    snap.forEach(function (doc) { TODOS.push(Object.assign({ id: doc.id }, doc.data())); });
+    const activos = TODOS.filter(function (c) { return esClientePagando(c) && c.estado !== "inactivo"; });
+    pintarPipeline(activos);
+    enviarRecordatoriosAutomaticos(activos);
+  }, function (err) {
+    document.getElementById("colVencidos").innerHTML = '<p class="cc-empty">Error cargando datos: ' + err.message + '</p>';
+  });
+}
+
+function esClientePagando(c) {
+  return Array.isArray(c.pagos) && c.pagos.length > 0;
+}
+
+function hoyStr() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+function estadoTexto(dias) {
+  if (dias < 0) return "Venció hace " + Math.abs(dias) + (Math.abs(dias) === 1 ? " día" : " días");
+  if (dias === 0) return "Vence hoy";
+  return "Vence en " + dias + (dias === 1 ? " día" : " días");
+}
+
+function pintarPipeline(activos) {
+  const vencidos = [], porVencer = [], alDia = [];
+  activos.forEach(function (c) {
+    const dias = diasHasta(c.proximoPago);
+    if (dias === null) { alDia.push(c); return; }
+    if (dias < 0) vencidos.push(c);
+    else if (dias <= 3) porVencer.push(c);
+    else alDia.push(c);
+  });
+  vencidos.sort(function (a, b) { return diasHasta(a.proximoPago) - diasHasta(b.proximoPago); });
+  porVencer.sort(function (a, b) { return diasHasta(a.proximoPago) - diasHasta(b.proximoPago); });
+
+  document.getElementById("statVencidos").textContent = vencidos.length;
+  document.getElementById("statPorVencer").textContent = porVencer.length;
+  document.getElementById("statAlDia").textContent = alDia.length;
+  document.getElementById("cntVencidos").textContent = vencidos.length;
+  document.getElementById("cntPorVencer").textContent = porVencer.length;
+  document.getElementById("cntAlDia").textContent = alDia.length;
+
+  const hoy = hoyStr();
+  document.getElementById("statEnviadosHoy").textContent = activos.filter(function (c) { return c.ultimoRecordatorioFecha === hoy; }).length;
+
+  document.getElementById("colVencidos").innerHTML = vencidos.length ? vencidos.map(tarjetaCobro).join("") : '<p class="cc-empty">Ningún club en mora.</p>';
+  document.getElementById("colPorVencer").innerHTML = porVencer.length ? porVencer.map(tarjetaCobro).join("") : '<p class="cc-empty">Nadie vence en los próximos 3 días.</p>';
+  document.getElementById("colAlDia").innerHTML = alDia.length ? alDia.map(tarjetaCobro).join("") : '<p class="cc-empty">—</p>';
+}
+
+function tarjetaCobro(c) {
+  const dias = diasHasta(c.proximoPago);
+  const hoy = hoyStr();
+  const correoHoy = c.ultimoRecordatorioFecha === hoy;
+  const metaCorreo = c.repEmail
+    ? (correoHoy ? '<span><i class="fa-solid fa-envelope-circle-check" style="color:var(--green-l)"></i> Correo enviado hoy</span>' : '<span><i class="fa-regular fa-envelope"></i> Sin correo hoy</span>')
+    : '<span><i class="fa-solid fa-triangle-exclamation"></i> Sin correo registrado</span>';
+  return '<div class="cobro-card">' +
+    '<div class="cc-top"><b>' + esc(c.clubNombre || "Sin nombre") + '</b></div>' +
+    '<div class="cc-rep">' + esc(c.repNombre || "Sin representante") + (dias !== null ? ' · ' + estadoTexto(dias) : '') + '</div>' +
+    '<div class="cc-meta">' + metaCorreo + '</div>' +
+    '<div class="cc-btns">' +
+    '<button type="button" class="btn btn-primary btn-sm" onclick="enviarWhatsappRecordatorio(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" onclick="enviarCorreoManual(\'' + c.id + '\', this)" ' + (c.repEmail ? '' : 'disabled') + '><i class="fa-regular fa-paper-plane"></i> Correo</button>' +
+    '<a href="cliente.html?id=' + c.id + '" class="btn btn-ghost btn-sm" style="flex:1;text-align:center"><i class="fa-solid fa-eye"></i> Ver</a>' +
+    '</div></div>';
+}
+
+function mensajeRecordatorioWhatsapp(c, dias) {
+  const nombreClub = c.clubNombre || "tu club";
+  let msg = "Hola, te escribimos de BioFutbol. El pago mensual de la app de " + nombreClub +
+    (dias !== null ? " " + estadoTexto(dias).toLowerCase() : " está pendiente") + ".\n\n" +
+    "Puedes coordinar el pago respondiendo este mensaje";
+  if (esColombiaPais(c.clubPais)) {
+    msg += ", o pagar directamente por Llave (Bre-B) @OTO262 a nombre de Juan Carlos Caceres";
+  }
+  msg += ".\n\nQuedamos atentos, gracias por confiar en BioFutbol.";
+  return msg;
+}
+
+function enviarWhatsappRecordatorio(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  let tel = (c.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) { tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, ""); if (!tel) return; }
+  const dias = diasHasta(c.proximoPago);
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRecordatorioWhatsapp(c, dias)), "_blank");
+  registrarAuditoria("Recordatorio de cobro enviado por WhatsApp", c.id, c.clubNombre, tel);
+  db.collection("clientes").doc(c.id).update({ ultimoRecordatorioWhatsappFecha: hoyStr() }).catch(function () {});
+}
+
+function pagoExtraHtml(c) {
+  if (!esColombiaPais(c.clubPais)) return "";
+  return '<div style="background:#f8fafc;border:1px solid #e3e8ee;border-radius:8px;padding:16px 20px;margin:0 0 24px">' +
+    '<p style="margin:0;color:#0B1626;font-size:14px;line-height:1.6"><strong>También puedes pagar por Llave (Bre-B):</strong><br>' +
+    '@OTO262 &middot; A nombre de Juan Carlos Caceres</p></div>';
+}
+
+function emailjsListo() {
+  return EMAILJS_PUBLIC_KEY !== "TU_PUBLIC_KEY" && EMAILJS_SERVICE_ID !== "TU_SERVICE_ID" &&
+    typeof EMAILJS_TEMPLATE_ID_COBRO !== "undefined" && EMAILJS_TEMPLATE_ID_COBRO !== "TU_TEMPLATE_ID_COBRO";
+}
+
+function enviarCorreoRecordatorio(c) {
+  const dias = diasHasta(c.proximoPago);
+  const params = {
+    to_email: c.repEmail,
+    to_name: c.repNombre || c.clubNombre || "",
+    club_nombre: c.clubNombre || "",
+    estado_texto: dias !== null ? estadoTexto(dias).toLowerCase() : "está pendiente de pago",
+    whatsapp_link: "https://wa.me/" + WHATSAPP_COBRO_NUM + "?text=" + encodeURIComponent("Quiero hacer el pago de mi app Biofutbol - " + (c.clubNombre || "")),
+    pago_extra_html: pagoExtraHtml(c),
+    fecha_hoy: new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" })
+  };
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_COBRO, params).then(function () {
+    return db.collection("clientes").doc(c.id).update({
+      ultimoRecordatorioFecha: hoyStr(),
+      recordatoriosCobroEnviados: firebase.firestore.FieldValue.increment(1)
+    });
+  });
+}
+
+function enviarCorreoManual(id, btn) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c || !c.repEmail) return;
+  if (!emailjsListo()) { alert("Falta configurar EmailJS en js/firebase-config.js para poder enviar correos."); return; }
+  const original = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  enviarCorreoRecordatorio(c).then(function () {
+    registrarAuditoria("Recordatorio de cobro enviado por correo", c.id, c.clubNombre, c.repEmail);
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    setTimeout(function () { btn.disabled = false; btn.innerHTML = original; }, 2200);
+  }).catch(function (err) {
+    alert("No se pudo enviar el correo: " + (err && err.text ? err.text : err));
+    btn.disabled = false; btn.innerHTML = original;
+  });
+}
+
+function enviarRecordatoriosAutomaticos(activos) {
+  if (!emailjsListo()) return;
+  const hoy = hoyStr();
+  const pendientes = activos.filter(function (c) {
+    const dias = diasHasta(c.proximoPago);
+    return dias !== null && dias <= 3 && c.repEmail && c.ultimoRecordatorioFecha !== hoy;
+  });
+  if (!pendientes.length) return;
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  let enviados = 0;
+  Promise.all(pendientes.map(function (c) {
+    return enviarCorreoRecordatorio(c).then(function () {
+      enviados++;
+      registrarAuditoria("Recordatorio de cobro enviado automáticamente por correo", c.id, c.clubNombre, c.repEmail);
+    }).catch(function (err) { console.error("No se pudo enviar recordatorio a " + c.clubNombre, err); });
+  })).then(function () {
+    if (enviados) {
+      const banner = document.getElementById("autoBanner");
+      document.getElementById("autoBannerTxt").textContent = "Se enviaron " + enviados + " recordatorio" + (enviados === 1 ? "" : "s") + " automático" + (enviados === 1 ? "" : "s") + " por correo.";
+      banner.style.display = "flex";
+    }
+  });
+}
+</script>
+</body>
+</html>

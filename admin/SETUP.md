@@ -54,6 +54,17 @@ Si quieres que el botón "Enviar por correo" funcione:
 
 Si no lo configuras, el botón de correo simplemente te avisa que falta configurarlo — el resto del panel funciona igual.
 
+### 6.1. Segunda plantilla: recordatorios automáticos de cobro (CRM de cobros)
+
+`admin/crm-cobros.html` (el CRM de cobros del súper-admin, enlazado desde "CRM de cobros" en `index.html`) envía un correo de recordatorio de pago distinto — con su propio diseño — a cada club que esté a 3 días o menos de su fecha de pago (o ya vencido) y no haya recibido un recordatorio ese mismo día. Se envía solo mientras tengas el panel abierto (no es un servidor corriendo solo, así que conviene abrir el CRM de cobros al menos una vez al día).
+
+1. En tu cuenta de EmailJS crea una **segunda plantilla** (Email Template) — con el mismo "Email Service" que ya conectaste.
+2. En el editor de la plantilla, activa la vista de código (HTML) y pega el contenido de `admin/js/email-template-cobro.html` de este repo tal cual (usa `{{to_name}}`, `{{club_nombre}}`, `{{estado_texto}}`, `{{whatsapp_link}}`, `{{fecha_hoy}}` y el bloque en crudo `{{{pago_extra_html}}}` para la nota de pago por Llave, que solo se llena para clubes de Colombia).
+3. En "To Email" de la plantilla pon `{{to_email}}` y en "Subject" algo como `Recordatorio de pago - BioFutbol - {{club_nombre}}` (sin emojis, para no activar filtros de spam).
+4. Copia el **Template ID** de esta segunda plantilla y pégalo en `admin/js/firebase-config.js`, en la variable `EMAILJS_TEMPLATE_ID_COBRO`.
+
+Mientras `EMAILJS_TEMPLATE_ID_COBRO` quede sin configurar, el CRM de cobros muestra un aviso y solo te deja usar el botón de WhatsApp de cada club (no envía correos).
+
 ## 7. Probar
 
 1. Abre `https://biocolombiaplus-max.github.io/biofutbol-landing/admin/login.html`

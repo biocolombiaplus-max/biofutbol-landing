@@ -29,3 +29,7 @@ try { storage = firebase.storage(); } catch (e) { /* no cargado en esta página,
 const EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY";
 const EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
 const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
+// Plantilla separada para los recordatorios automáticos de cobro del CRM
+// del súper-admin (admin/crm-cobros.html) — es un diseño de correo distinto
+// al del contrato/recibo, así que necesita su propio Template ID en EmailJS.
+const EMAILJS_TEMPLATE_ID_COBRO = "TU_TEMPLATE_ID_COBRO";
