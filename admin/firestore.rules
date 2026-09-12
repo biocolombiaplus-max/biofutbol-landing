@@ -187,5 +187,13 @@ service cloud.firestore {
     match /cotizaciones/{docId} {
       allow read, write: if esSuperAdmin();
     }
+
+    // Gastos propios de BioFutbol/Biomarketing (publicidad, servidores,
+    // herramientas...) para el panel financiero del súper-admin — no tiene
+    // nada que ver con las finanzas de ningún club, así que es exclusivo
+    // del súper-admin.
+    match /finanzasBio/{docId} {
+      allow read, write: if esSuperAdmin();
+    }
   }
 }

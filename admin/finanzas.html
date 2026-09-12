@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Finanzas | BioFutbol</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="admin.css">
+<style>
+.fin-charts{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:8px}
+@media (max-width:900px){.fin-charts{grid-template-columns:1fr}}
+.fin-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.fin-legend{width:100%;display:flex;flex-direction:column;gap:8px}
+.fin-legend-row{display:flex;align-items:center;gap:8px;font-size:.78rem}
+.fin-legend-row i{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.fin-legend-row span.v{margin-left:auto;font-weight:800;color:var(--white)}
+.pat-card{display:flex;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--card-b2);border-radius:14px;padding:14px;margin-bottom:10px}
+.pat-logo-empty{width:56px;height:56px;border-radius:12px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:1.2rem;flex-shrink:0}
+.pat-info{flex:1;min-width:0}
+.pat-name{font-weight:800;font-size:.94rem}
+.pat-meta{font-size:.76rem;color:var(--gray);margin-top:2px}
+.pat-actions{display:flex;gap:6px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 100 140"><rect x="4" y="4" width="92" height="132" rx="24" fill="#0B1626" stroke="#18A83A" stroke-width="5"/><rect x="16" y="26" width="68" height="90" rx="6" fill="#18A83A"/><line x1="16" y1="71" x2="84" y2="71" stroke="#fff" stroke-width="2.4" opacity=".85"/><circle cx="50" cy="71" r="15" fill="none" stroke="#fff" stroke-width="2.4" opacity=".85"/></svg>
+      <span class="bio">Bio</span>Futbol
+      <span class="badge-admin">Finanzas</span>
+    </div>
+    <div class="top-actions">
+      <a href="crm-cobros.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-sack-dollar"></i> CRM de cobros</a>
+      <a href="index.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Clientes</a>
+      <span class="user-email" id="userLabel">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:28px">
+    <h2>Finanzas de BioFutbol</h2>
+  </div>
+  <p style="font-size:.84rem;color:var(--gray);margin:-10px 0 4px">Lo que genera la app: ingresos reales de los pagos de los clubes, gastos del negocio, y la utilidad — todo en un solo lugar.</p>
+
+  <div class="stat-grid">
+    <div class="stat ok"><div class="n" id="statIngTotal">—</div><div class="l">Ingresos históricos</div></div>
+    <div class="stat bad"><div class="n" id="statGasTotal">—</div><div class="l">Gastos históricos</div></div>
+    <div class="stat" id="statUtiTotalCard"><div class="n" id="statUtiTotal">—</div><div class="l">Utilidad histórica</div></div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat ok"><div class="n" id="statIngMes">—</div><div class="l">Ingresos este mes</div></div>
+    <div class="stat bad"><div class="n" id="statGasMes">—</div><div class="l">Gastos este mes</div></div>
+    <div class="stat" id="statUtiMesCard"><div class="n" id="statUtiMes">—</div><div class="l">Utilidad este mes</div></div>
+  </div>
+
+  <div class="card" style="margin-top:8px">
+    <h3><i class="fa-solid fa-chart-column"></i> Ingresos vs. gastos</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">Últimos 6 meses.</p>
+    <div class="fin-charts">
+      <div>
+        <canvas id="finBarras"></canvas>
+      </div>
+      <div class="fin-donut-wrap">
+        <canvas id="finDonut" width="180" height="180"></canvas>
+        <div class="fin-legend" id="finLeyenda"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3><i class="fa-solid fa-receipt"></i> Gastos de BioFutbol</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Publicidad, servidores, herramientas y todo lo que cuesta operar la app — para tener el control financiero real del negocio.</p>
+    <div class="field-row">
+      <div class="field"><label>Concepto</label><input type="text" id="gastoConcepto" placeholder="Ej: Campaña en Meta Ads"></div>
+      <div class="field"><label>Categoría</label><select id="gastoCategoria"></select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Valor (COP)</label><input type="number" id="gastoValor" min="0" step="1000" placeholder="Ej: 250000"></div>
+      <div class="field"><label>Fecha</label><input type="date" id="gastoFecha"></div>
+    </div>
+    <div class="field"><label>Notas (opcional)</label><input type="text" id="gastoNotas" placeholder="Ej: Factura #..."></div>
+    <button type="button" class="btn btn-primary btn-sm" id="btnGuardarGasto"><i class="fa-solid fa-plus"></i> Registrar gasto</button>
+
+    <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+      <div id="listaGastos"><p class="empty">Todavía no has registrado gastos.</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Informe financiero</h3>
+    <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con ingresos, gastos por categoría y la utilidad del periodo.</p>
+    <div class="field-row">
+      <div class="field"><label>Periodo</label>
+        <select id="repFinPeriodo">
+          <option value="mesActual" selected>Mes actual</option>
+          <option value="mesAnterior">Mes anterior</option>
+          <option value="personalizado">Rango personalizado</option>
+        </select>
+      </div>
+      <div class="field" id="repFinDesdeBox" style="display:none"><label>Desde</label><input type="date" id="repFinDesde"></div>
+    </div>
+    <div class="field" id="repFinHastaBox" style="display:none"><label>Hasta</label><input type="date" id="repFinHasta"></div>
+    <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteFinanciero"><i class="fa-solid fa-file-pdf"></i> Generar informe financiero</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
+<script src="js/informes.js"></script>
+<script src="js/audit.js"></script>
+<script>
+let CLIENTES = [];
+let GASTOS = [];
+
+requireSuperAdmin().then(function (user) {
+  document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
+  escucharClientes();
+  escucharGastosBio();
+});
+
+function escucharClientes() {
+  db.collection("clientes").onSnapshot(function (snap) {
+    CLIENTES = [];
+    snap.forEach(function (d) { CLIENTES.push(Object.assign({ id: d.id }, d.data())); });
+    pintarResumenYGraficas();
+  });
+}
+
+function escucharGastosBio() {
+  db.collection("finanzasBio").onSnapshot(function (snap) {
+    GASTOS = [];
+    snap.forEach(function (d) { GASTOS.push(Object.assign({ id: d.id }, d.data())); });
+    GASTOS.sort(function (a, b) { return (b.fecha || "").localeCompare(a.fecha || ""); });
+    pintarGastos();
+    pintarResumenYGraficas();
+  });
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+  });
+}
+
+function formatFechaCorta(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return fechaISO;
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+// Todos los pagos ya registrados de todos los clubes, como una sola lista
+// — son ingresos REALES (no proyectados), siempre en COP.
+function todosLosPagos() {
+  const lista = [];
+  CLIENTES.forEach(function (c) {
+    (c.pagos || []).forEach(function (p) {
+      const d = p.fecha && p.fecha.toDate ? p.fecha.toDate() : (p.fecha ? new Date(p.fecha) : null);
+      if (!d || isNaN(d.getTime())) return;
+      lista.push({ valor: Number(p.valor) || 0, fecha: d });
+    });
+  });
+  return lista;
+}
+
+function inicioMes(offset) {
+  const d = new Date();
+  d.setDate(1); d.setHours(0, 0, 0, 0); d.setMonth(d.getMonth() + offset);
+  return d;
+}
+
+function ingresosEnRango(desde, hasta) {
+  return todosLosPagos().filter(function (p) { return p.fecha >= desde && p.fecha < hasta; })
+    .reduce(function (acc, p) { return acc + p.valor; }, 0);
+}
+
+function gastosEnRango(desde, hasta) {
+  return GASTOS.filter(function (g) {
+    if (!g.fecha) return false;
+    const d = new Date(g.fecha + "T12:00:00");
+    return d >= desde && d < hasta;
+  });
+}
+
+const CATEGORIAS_GASTO_BIO = [
+  { value: "Publicidad y marketing", icon: "fa-bullhorn", color: "#FFC933" },
+  { value: "Servidores y hosting", icon: "fa-server", color: "#2563eb" },
+  { value: "Herramientas y software", icon: "fa-toolbox", color: "#7c3aed" },
+  { value: "Nómina y freelancers", icon: "fa-user-tie", color: "#0ea5a0" },
+  { value: "Comisiones de pasarela de pago", icon: "fa-credit-card", color: "#ea580c" },
+  { value: "Impuestos y legal", icon: "fa-scale-balanced", color: "#dc2626" },
+  { value: "Otros", icon: "fa-ellipsis", color: "#9fb0a7" }
+];
+
+function catGastoBio(categoria) {
+  return CATEGORIAS_GASTO_BIO.find(function (c) { return c.value === categoria; }) || CATEGORIAS_GASTO_BIO[CATEGORIAS_GASTO_BIO.length - 1];
+}
+
+(function llenarSelectGasto() {
+  document.getElementById("gastoCategoria").innerHTML = CATEGORIAS_GASTO_BIO.map(function (c) { return '<option value="' + c.value + '">' + c.value + '</option>'; }).join("");
+})();
+
+function pintarGastos() {
+  const box = document.getElementById("listaGastos");
+  if (!GASTOS.length) { box.innerHTML = '<p class="empty">Todavía no has registrado gastos.</p>'; return; }
+  box.innerHTML = GASTOS.map(function (g) {
+    const cat = catGastoBio(g.categoria);
+    return '<div class="pat-card">' +
+      '<div class="pat-logo-empty" style="background:' + cat.color + '26;color:' + cat.color + '"><i class="fa-solid ' + cat.icon + '"></i></div>' +
+      '<div class="pat-info"><div class="pat-name">' + esc(g.concepto || "Sin concepto") + '</div>' +
+      '<div class="pat-meta">' + esc(g.categoria || "Otros") + ' · ' + formatFechaCorta(g.fecha) + (g.notas ? " · " + esc(g.notas) : "") + '</div></div>' +
+      '<div style="text-align:right;flex-shrink:0;font-weight:800;color:var(--red)">' + formatCOP(g.valor) + '</div>' +
+      '<div class="pat-actions"><button type="button" class="btn btn-ghost btn-sm" onclick="eliminarGasto(\'' + g.id + '\')"><i class="fa-solid fa-trash"></i></button></div>' +
+      '</div>';
+  }).join("");
+}
+
+function eliminarGasto(id) {
+  if (!confirm("¿Eliminar este gasto?")) return;
+  db.collection("finanzasBio").doc(id).delete().then(function () {
+    registrarAuditoria("Gasto de BioFutbol eliminado", null, "BioFutbol");
+  }).catch(function (err) { alert("No se pudo eliminar: " + err.message); });
+}
+
+document.getElementById("btnGuardarGasto").addEventListener("click", function () {
+  const concepto = document.getElementById("gastoConcepto").value.trim();
+  const categoria = document.getElementById("gastoCategoria").value;
+  const valor = Number(document.getElementById("gastoValor").value) || 0;
+  const fecha = document.getElementById("gastoFecha").value;
+  const notas = document.getElementById("gastoNotas").value.trim();
+  if (!concepto) { alert("Ingresa el concepto del gasto."); return; }
+  if (!valor) { alert("Ingresa el valor del gasto."); return; }
+  if (!fecha) { alert("Ingresa la fecha del gasto."); return; }
+  const btn = this;
+  btn.disabled = true;
+  db.collection("finanzasBio").add({
+    concepto: concepto, categoria: categoria, valor: valor, fecha: fecha, notas: notas,
+    fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function () {
+    document.getElementById("gastoConcepto").value = "";
+    document.getElementById("gastoValor").value = "";
+    document.getElementById("gastoFecha").value = "";
+    document.getElementById("gastoNotas").value = "";
+    document.getElementById("gastoCategoria").value = CATEGORIAS_GASTO_BIO[0].value;
+    registrarAuditoria("Gasto de BioFutbol registrado", null, "BioFutbol", concepto);
+    btn.disabled = false;
+  }).catch(function (err) { alert("No se pudo guardar: " + err.message); btn.disabled = false; });
+});
+
+function pintarResumenYGraficas() {
+  const inicioHist = new Date(2020, 0, 1);
+  const finHist = new Date(8640000000000000);
+  const ingTotal = ingresosEnRango(inicioHist, finHist);
+  const gasTotal = gastosEnRango(inicioHist, finHist).reduce(function (a, g) { return a + (Number(g.valor) || 0); }, 0);
+  const utiTotal = ingTotal - gasTotal;
+
+  const m0 = inicioMes(0), m1 = inicioMes(1);
+  const ingMes = ingresosEnRango(m0, m1);
+  const gasMesLista = gastosEnRango(m0, m1);
+  const gasMes = gasMesLista.reduce(function (a, g) { return a + (Number(g.valor) || 0); }, 0);
+  const utiMes = ingMes - gasMes;
+
+  document.getElementById("statIngTotal").textContent = formatCOP(ingTotal);
+  document.getElementById("statGasTotal").textContent = formatCOP(gasTotal);
+  document.getElementById("statUtiTotal").textContent = formatCOP(utiTotal);
+  document.getElementById("statUtiTotalCard").className = "stat " + (utiTotal >= 0 ? "ok" : "bad");
+  document.getElementById("statIngMes").textContent = formatCOP(ingMes);
+  document.getElementById("statGasMes").textContent = formatCOP(gasMes);
+  document.getElementById("statUtiMes").textContent = formatCOP(utiMes);
+  document.getElementById("statUtiMesCard").className = "stat " + (utiMes >= 0 ? "ok" : "bad");
+
+  dibujarBarrasMeses();
+  dibujarDonutCategorias(gasMesLista);
+}
+
+function abreviarCOP(v) {
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return (v / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+  if (abs >= 1e3) return (v / 1e3).toFixed(0) + "K";
+  return String(Math.round(v));
+}
+
+function dibujarBarrasMeses() {
+  const canvas = document.getElementById("finBarras");
+  const meses = [];
+  for (let i = 5; i >= 0; i--) {
+    const desde = inicioMes(-i), hasta = inicioMes(-i + 1);
+    meses.push({
+      label: desde.toLocaleDateString("es-CO", { month: "short" }).replace(".", ""),
+      ingresos: ingresosEnRango(desde, hasta),
+      gastos: gastosEnRango(desde, hasta).reduce(function (a, g) { return a + (Number(g.valor) || 0); }, 0)
+    });
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = Math.max((canvas.parentElement && canvas.parentElement.clientWidth) || 300, 240);
+  const alto = 220;
+  canvas.style.width = cssW + "px";
+  canvas.style.height = alto + "px";
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(alto * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, alto);
+
+  const padL = 10, padR = 10, padT = 14, padB = 30;
+  const plotW = cssW - padL - padR, plotH = alto - padT - padB;
+  const maxV = Math.max.apply(null, meses.map(function (m) { return Math.max(m.ingresos, m.gastos); }).concat([1]));
+  const grupoW = plotW / meses.length;
+  const barW = Math.min(22, grupoW * 0.32);
+
+  meses.forEach(function (m, i) {
+    const cx = padL + grupoW * i + grupoW / 2;
+    const hIng = maxV ? (m.ingresos / maxV) * plotH : 0;
+    const hGas = maxV ? (m.gastos / maxV) * plotH : 0;
+
+    ctx.fillStyle = "#18A83A";
+    ctx.beginPath();
+    ctx.roundRect(cx - barW - 3, padT + plotH - hIng, barW, hIng || 1, 3);
+    ctx.fill();
+
+    ctx.fillStyle = "#ff5c5c";
+    ctx.beginPath();
+    ctx.roundRect(cx + 3, padT + plotH - hGas, barW, hGas || 1, 3);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(255,255,255,.45)";
+    ctx.font = "600 10px Poppins, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(m.label, cx, alto - 8);
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.font = "700 9px Poppins, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#18A83A"; ctx.fillRect(padL, 0, 8, 8);
+  ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillText("Ingresos", padL + 12, 8);
+  ctx.fillStyle = "#ff5c5c"; ctx.fillRect(padL + 78, 0, 8, 8);
+  ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillText("Gastos", padL + 90, 8);
+}
+
+function dibujarDonutCategorias(gastosDelMes) {
+  const canvas = document.getElementById("finDonut");
+  const porCategoria = {};
+  gastosDelMes.forEach(function (g) {
+    const cat = g.categoria || "Otros";
+    porCategoria[cat] = (porCategoria[cat] || 0) + (Number(g.valor) || 0);
+  });
+  const segmentos = Object.keys(porCategoria).map(function (cat) {
+    return { label: cat, valor: porCategoria[cat], color: catGastoBio(cat).color };
+  });
+  const total = segmentos.reduce(function (a, s) { return a + s.valor; }, 0);
+
+  const dpr = window.devicePixelRatio || 1;
+  const size = 180;
+  canvas.style.width = size + "px"; canvas.style.height = size + "px";
+  canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  const cx = size / 2, cy = size / 2, rOut = size / 2 - 6, rIn = rOut * 0.62;
+  if (!total) {
+    ctx.beginPath(); ctx.arc(cx, cy, rOut, 0, Math.PI * 2); ctx.arc(cx, cy, rIn, 0, Math.PI * 2, true);
+    ctx.closePath(); ctx.fillStyle = "rgba(255,255,255,.06)"; ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.font = "600 11px Poppins, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Sin gastos", cx, cy);
+    ctx.fillText("este mes", cx, cy + 14);
+  } else {
+    let ang = -Math.PI / 2;
+    segmentos.forEach(function (s) {
+      if (!s.valor) return;
+      const slice = (s.valor / total) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rOut, ang, ang + slice);
+      ctx.arc(cx, cy, rIn, ang + slice, ang, true);
+      ctx.closePath();
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      ang += slice;
+    });
+    ctx.fillStyle = "#fff"; ctx.font = "800 13px Poppins, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(abreviarCOP(total), cx, cy + 2);
+    ctx.font = "700 9px Poppins, sans-serif"; ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText("gastos", cx, cy + 16);
+  }
+
+  const leyenda = document.getElementById("finLeyenda");
+  leyenda.innerHTML = segmentos.length ? segmentos.map(function (s) {
+    return '<div class="fin-legend-row"><i style="background:' + s.color + '"></i>' + esc(s.label) + '<span class="v">' + formatCOP(s.valor) + '</span></div>';
+  }).join("") : '<p class="empty" style="font-size:.76rem">Sin gastos registrados este mes.</p>';
+}
+
+document.getElementById("repFinPeriodo").addEventListener("change", function () {
+  const personalizado = this.value === "personalizado";
+  document.getElementById("repFinDesdeBox").style.display = personalizado ? "block" : "none";
+  document.getElementById("repFinHastaBox").style.display = personalizado ? "block" : "none";
+});
+
+document.getElementById("btnReporteFinanciero").addEventListener("click", function () {
+  const periodo = document.getElementById("repFinPeriodo").value;
+  let desde, hasta, periodoTexto;
+  if (periodo === "mesAnterior") {
+    desde = inicioMes(-1); hasta = inicioMes(0);
+    periodoTexto = "Mes anterior (" + formatFechaCorta(desde.toISOString().slice(0, 10)) + " a " + formatFechaCorta(new Date(hasta - 1).toISOString().slice(0, 10)) + ")";
+  } else if (periodo === "personalizado") {
+    const dStr = document.getElementById("repFinDesde").value;
+    const hStr = document.getElementById("repFinHasta").value;
+    if (!dStr || !hStr) { alert("Ingresa la fecha desde y hasta."); return; }
+    desde = new Date(dStr + "T00:00:00");
+    hasta = new Date(hStr + "T23:59:59.999");
+    periodoTexto = "Del " + formatFechaCorta(dStr) + " al " + formatFechaCorta(hStr);
+  } else {
+    desde = inicioMes(0); hasta = inicioMes(1);
+    periodoTexto = "Mes actual (" + formatFechaCorta(desde.toISOString().slice(0, 10)) + " a " + formatFechaCorta(new Date(hasta - 1).toISOString().slice(0, 10)) + ")";
+  }
+
+  const ingresos = ingresosEnRango(desde, hasta);
+  const gastosPeriodo = gastosEnRango(desde, hasta);
+  const gastosTotal = gastosPeriodo.reduce(function (acc, g) { return acc + (Number(g.valor) || 0); }, 0);
+  const utilidad = ingresos - gastosTotal;
+
+  const porCategoriaMap = {};
+  gastosPeriodo.forEach(function (g) {
+    const cat = g.categoria || "Otros";
+    porCategoriaMap[cat] = (porCategoriaMap[cat] || 0) + (Number(g.valor) || 0);
+  });
+  const porCategoria = Object.keys(porCategoriaMap).map(function (cat) { return { categoria: cat, total: porCategoriaMap[cat] }; })
+    .sort(function (a, b) { return b.total - a.total; });
+
+  const filas = gastosPeriodo.map(function (g) {
+    return { fecha: formatFechaCorta(g.fecha), concepto: g.concepto, categoria: g.categoria, valor: g.valor };
+  });
+
+  const doc = generarInformeFinancieroPDF({
+    club: { clubNombre: "BioFutbol", moneda: "COP" },
+    periodoTexto: periodoTexto,
+    resumen: { ingresos: ingresos, gastos: gastosTotal, utilidad: utilidad },
+    porCategoria: porCategoria,
+    filas: filas
+  });
+  doc.save("informe-financiero-biofutbol-" + new Date().toISOString().slice(0, 10) + ".pdf");
+  registrarAuditoria("Informe financiero de BioFutbol generado", null, "BioFutbol", periodoTexto);
+});
+</script>
+</body>
+</html>
