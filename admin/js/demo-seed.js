@@ -185,8 +185,8 @@ function demoSeedColeccion(path, filas) {
   ]);
 
   demoSeedColeccion(base + "/uniformes", [
-    { id: "u1", nombre: "Titular", color: "#18A83A", fotoUrl: "" },
-    { id: "u2", nombre: "Alterno", color: "#FFC933", fotoUrl: "" }
+    { id: "u1", nombre: "Titular", colorCamiseta: "#18A83A", colorPantaloneta: "#0B1626", colorMedias: "#18A83A", fotoUrl: "" },
+    { id: "u2", nombre: "Alterno", colorCamiseta: "#FFC933", colorPantaloneta: "#0B1626", colorMedias: "#0B1626", colorOtros: "Detalles verdes en el cuello", fotoUrl: "" }
   ]);
 
   demoSeedColeccion(base + "/torneos", [

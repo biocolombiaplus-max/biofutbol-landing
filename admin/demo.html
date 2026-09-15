@@ -294,6 +294,8 @@
 .pat-tier.plata{background:rgba(203,213,225,.18);color:#cbd5e1}
 .pat-tier.bronce{background:rgba(217,119,6,.2);color:#d97706}
 .pat-actions{display:flex;gap:6px;flex-shrink:0}
+.uni-swatches{display:flex;align-items:center;gap:5px}
+.uni-swatches span{width:13px;height:13px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(255,255,255,.25)}
 .pill.muted{background:rgba(255,255,255,.08);color:var(--gray);border:1px solid rgba(255,255,255,.14)}
 .torneo-tarjetas{display:flex;gap:6px;align-items:center;font-size:.72rem;font-weight:800;margin-top:5px}
 .torneo-tarjetas .tj-am{color:#FFC933}
@@ -1343,9 +1345,14 @@
       <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-shirt"></i> <span id="uniFormTitulo">Agregar uniforme</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Crea los uniformes del club (titular, alterno, portero...) para elegir rápido cuál usar en cada partido. Puedes agregar los que necesites.</p>
+        <div class="field"><label>Nombre</label><input type="text" id="uniNombre" placeholder="Ej: Titular verde"></div>
         <div class="field-row">
-          <div class="field"><label>Nombre</label><input type="text" id="uniNombre" placeholder="Ej: Titular verde"></div>
-          <div class="field"><label>Color principal</label><input type="color" id="uniColor" value="#18A83A" style="height:46px;padding:4px"></div>
+          <div class="field"><label>Color de camiseta</label><input type="color" id="uniColorCamiseta" value="#18A83A" style="height:46px;padding:4px"></div>
+          <div class="field"><label>Color de pantaloneta</label><input type="color" id="uniColorPantaloneta" value="#0B1626" style="height:46px;padding:4px"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Color de medias</label><input type="color" id="uniColorMedias" value="#0B1626" style="height:46px;padding:4px"></div>
+          <div class="field"><label>Otros colores (opcional)</label><input type="text" id="uniColorOtros" placeholder="Ej: detalles dorados en el cuello"></div>
         </div>
         <div class="field">
           <label>Foto (opcional)</label>
@@ -1901,13 +1908,24 @@ function pintarSelectUniformes() {
   sel.value = actual;
 }
 
+function colorCamisetaUniforme(u) {
+  return u.colorCamiseta || u.color || "#18A83A";
+}
+
 function pintarUniformes() {
   const box = document.getElementById("listaUniformes");
   if (!UNIFORMES.length) { box.innerHTML = '<p class="empty">Todavía no has creado uniformes.</p>'; return; }
   box.innerHTML = UNIFORMES.map(function (u) {
+    const cCamiseta = colorCamisetaUniforme(u);
+    const cPanta = u.colorPantaloneta || cCamiseta;
+    const cMedias = u.colorMedias || cCamiseta;
     return '<div class="pat-card">' +
-      (u.fotoUrl ? '<img class="pat-logo" src="' + u.fotoUrl + '">' : '<div class="pat-logo-empty" style="background:' + (u.color || "#18A83A") + '"><i class="fa-solid fa-shirt" style="color:#fff"></i></div>') +
-      '<div class="pat-info"><div class="pat-name">' + esc(u.nombre) + '</div></div>' +
+      (u.fotoUrl ? '<img class="pat-logo" src="' + u.fotoUrl + '">' : '<div class="pat-logo-empty" style="background:' + cCamiseta + '"><i class="fa-solid fa-shirt" style="color:#fff"></i></div>') +
+      '<div class="pat-info"><div class="pat-name">' + esc(u.nombre) + '</div>' +
+      '<div class="uni-swatches" title="Camiseta / pantaloneta / medias">' +
+      '<span style="background:' + cCamiseta + '"></span><span style="background:' + cPanta + '"></span><span style="background:' + cMedias + '"></span></div>' +
+      (u.colorOtros ? '<div class="pat-meta">' + esc(u.colorOtros) + '</div>' : '') +
+      '</div>' +
       '<div class="pat-actions">' +
       '<button class="btn btn-ghost btn-sm" onclick="editarUniforme(\'' + u.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
       '<button class="btn btn-ghost btn-sm" onclick="borrarUniforme(\'' + u.id + '\')"><i class="fa-solid fa-trash"></i></button>' +
@@ -1930,7 +1948,10 @@ function limpiarFormUniforme() {
   uniformeEnEdicion = null;
   uniFotoUrl = "";
   document.getElementById("uniNombre").value = "";
-  document.getElementById("uniColor").value = "#18A83A";
+  document.getElementById("uniColorCamiseta").value = "#18A83A";
+  document.getElementById("uniColorPantaloneta").value = "#0B1626";
+  document.getElementById("uniColorMedias").value = "#0B1626";
+  document.getElementById("uniColorOtros").value = "";
   document.getElementById("uniFotoPreview").style.display = "none";
   document.getElementById("uniFotoEmpty").style.display = "flex";
   document.getElementById("uniFormTitulo").textContent = "Agregar uniforme";
@@ -1944,7 +1965,10 @@ function editarUniforme(id) {
   uniformeEnEdicion = id;
   uniFotoUrl = u.fotoUrl || "";
   document.getElementById("uniNombre").value = u.nombre || "";
-  document.getElementById("uniColor").value = u.color || "#18A83A";
+  document.getElementById("uniColorCamiseta").value = colorCamisetaUniforme(u);
+  document.getElementById("uniColorPantaloneta").value = u.colorPantaloneta || "#0B1626";
+  document.getElementById("uniColorMedias").value = u.colorMedias || "#0B1626";
+  document.getElementById("uniColorOtros").value = u.colorOtros || "";
   if (u.fotoUrl) {
     document.getElementById("uniFotoPreview").src = u.fotoUrl;
     document.getElementById("uniFotoPreview").style.display = "block";
@@ -1971,7 +1995,10 @@ function borrarUniforme(id) {
 document.getElementById("btnGuardarUniforme").addEventListener("click", function () {
   const data = {
     nombre: document.getElementById("uniNombre").value.trim(),
-    color: document.getElementById("uniColor").value,
+    colorCamiseta: document.getElementById("uniColorCamiseta").value,
+    colorPantaloneta: document.getElementById("uniColorPantaloneta").value,
+    colorMedias: document.getElementById("uniColorMedias").value,
+    colorOtros: document.getElementById("uniColorOtros").value.trim(),
     fotoUrl: uniFotoUrl
   };
   if (!data.nombre) { mostrarError("Ingresa el nombre del uniforme."); return; }
