@@ -86,7 +86,10 @@ function mostrarBloqueoAcceso(titulo, cuerpoHtml, uid, cerrarFn) {
 }
 
 // Protege el panel de un club: exige sesión y que esa cuenta sea la dueña
-// (authUid) de algún club. Devuelve una promesa con { user, cliente }.
+// (authUid) de algún club, O un profesor de ese club con acceso limitado
+// (equipos, fixture y torneos — club-panel.html restringe el resto de la
+// interfaz cuando esProfesor es true). Devuelve una promesa con
+// { user, cliente, esProfesor }.
 function requireClub() {
   return new Promise(function (resolve, reject) {
     auth.onAuthStateChanged(function (user) {
@@ -94,15 +97,35 @@ function requireClub() {
       db.collection("clientes").where("authUid", "==", user.uid).limit(1).get().then(function (snap) {
         if (!snap.empty) {
           const doc = snap.docs[0];
-          resolve({ user: user, cliente: Object.assign({ id: doc.id }, doc.data()) });
+          resolve({ user: user, cliente: Object.assign({ id: doc.id }, doc.data()), esProfesor: false });
           return;
         }
-        // No es dueño de ningún club: si es el súper-admin de BioFutbol
-        // (por ejemplo, entró aquí por error), lo mandamos a su panel real
-        // en vez de dejarlo rebotando en el login del club.
-        db.collection("admins").doc(user.uid).get().then(function (adminDoc) {
-          window.location.href = adminDoc.exists ? "index.html" : "club-login.html";
-          reject(new Error("sin-club"));
+        // No es dueño de ningún club: puede ser un profesor con acceso
+        // limitado, o el súper-admin de BioFutbol entrando por error — en
+        // ese caso lo mandamos a su panel real en vez de dejarlo rebotando
+        // en el login del club.
+        db.collection("profesoresIndex").doc(user.uid).get().then(function (profDoc) {
+          if (profDoc.exists) {
+            db.collection("clientes").doc(profDoc.data().clienteId).get().then(function (clienteDoc) {
+              if (clienteDoc.exists) {
+                resolve({ user: user, cliente: Object.assign({ id: clienteDoc.id }, clienteDoc.data()), esProfesor: true });
+              } else {
+                window.location.href = "club-login.html";
+                reject(new Error("sin-club"));
+              }
+            }).catch(function () {
+              window.location.href = "club-login.html";
+              reject(new Error("sin-club"));
+            });
+            return;
+          }
+          db.collection("admins").doc(user.uid).get().then(function (adminDoc) {
+            window.location.href = adminDoc.exists ? "index.html" : "club-login.html";
+            reject(new Error("sin-club"));
+          }).catch(function () {
+            window.location.href = "club-login.html";
+            reject(new Error("sin-club"));
+          });
         }).catch(function () {
           window.location.href = "club-login.html";
           reject(new Error("sin-club"));

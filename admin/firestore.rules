@@ -91,13 +91,18 @@ service cloud.firestore {
       allow read: if true;
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
+    // Equipos y partidos (fixture): además del dueño, un profesor del club
+    // también puede crearlos/editarlos — es lo deportivo del día a día
+    // (armar equipos, programar partidos, cargar el resultado y las
+    // tarjetas), a diferencia de las inscripciones pagadas de un torneo,
+    // que siguen siendo solo del dueño.
     match /clientes/{clienteId}/equipos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
     }
     match /clientes/{clienteId}/partidos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
     }
     match /clientes/{clienteId}/llave/{docId} {
       allow read: if true;
@@ -140,9 +145,13 @@ service cloud.firestore {
       allow create: if true;
       allow update, delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
+    // Torneos: un profesor también puede crear el torneo, ver/editar su
+    // información y registrar resultados y tarjetas (eso último ocurre en
+    // /partidos). Las inscripciones pagadas del torneo, en cambio, son
+    // exclusivas del dueño del club.
     match /clientes/{clienteId}/torneos/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
     }
     match /clientes/{clienteId}/torneos/{torneoId}/inscripciones/{socioId} {
       allow read: if true;

@@ -337,8 +337,9 @@
       </div>
     </div>
     <div class="top-actions">
+      <a href="profesor-panel.html" class="btn btn-ghost btn-sm" id="btnVolverProfesor" style="display:none"><i class="fa-solid fa-arrow-left"></i> Mi panel</a>
       <span class="user-email" id="userLabel">—</span>
-      <button class="btn btn-ghost btn-sm" onclick="cerrarSesion(); window.location.href='club-login.html'"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+      <button class="btn btn-ghost btn-sm" id="btnSalirClub" onclick="cerrarSesion(); window.location.href='club-login.html'"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
     </div>
   </div>
 
@@ -1427,10 +1428,33 @@ let ultimaClaveProfCreada = "";
 let socioSeleccionado = null;
 let filtroPagos = "todos";
 let moduloEquiposActivo = false;
+let accesoProfesorLimitado = false;
 const TABS_MODULO_EQUIPOS = ["equipos", "fixture", "tabla", "goleadores", "llave", "torneos"];
+
+// Un profesor solo entra a Equipos, Fixture y Torneos — el resto del panel
+// (Socios, Pagos, Mi club, Informes, etc.) es exclusivo del dueño del club.
+// Firestore ya lo hace cumplir (esProfesorDelClub en las reglas), esto solo
+// simplifica la interfaz para que no se pierda entre pestañas que no puede
+// usar.
+function restringirAccesoProfesor() {
+  document.getElementById("tabGroups").style.display = "none";
+  ["entrenamientos", "tabla", "goleadores", "llave"].forEach(function (tab) {
+    const btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+    if (btn) btn.remove();
+  });
+  // "Ir a Mi club" no le sirve a un profesor — esa pestaña es del dueño.
+  const avisoUniformes = document.getElementById("uniFormAviso");
+  if (avisoUniformes) avisoUniformes.style.display = "none";
+  document.querySelector(".club-hdr-sub").textContent = "Acceso de profesor · BioFutbol";
+  const btnSalir = document.getElementById("btnSalirClub");
+  btnSalir.setAttribute("onclick", "cerrarSesion(); window.location.href='profesor-login.html'");
+  document.getElementById("btnVolverProfesor").style.display = "inline-flex";
+  irATab("equipos");
+}
 
 requireClub().then(function (r) {
   clubActual = r.cliente;
+  accesoProfesorLimitado = !!r.esProfesor;
   document.getElementById("userLabel").textContent = r.user.email;
   document.getElementById("clubHdrNombre").textContent = clubActual.clubNombre || "Mi club";
   if (clubActual.logoUrl) {
@@ -1442,6 +1466,7 @@ requireClub().then(function (r) {
   aplicarIconoDelClub(r.cliente);
   aplicarTemaDelClub(r.cliente);
   moduloEquiposActivo = !!(clubActual.modulosActivos && clubActual.modulosActivos.equipos);
+  if (accesoProfesorLimitado) restringirAccesoProfesor();
 
   document.getElementById("panelContent").style.display = "block";
   escucharEquipos();
