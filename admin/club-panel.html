@@ -1029,26 +1029,10 @@
     </div>
 
     <div class="tab-panel" id="tab-fixture">
-      <div class="card">
-        <h3><i class="fa-solid fa-shirt"></i> <span id="uniFormTitulo">Agregar uniforme</span></h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Crea los uniformes del club (titular, alterno, portero...) para elegir rápido cuál usar en cada partido.</p>
-        <div class="field-row">
-          <div class="field"><label>Nombre</label><input type="text" id="uniNombre" placeholder="Ej: Titular verde"></div>
-          <div class="field"><label>Color principal</label><input type="color" id="uniColor" value="#18A83A" style="height:46px;padding:4px"></div>
-        </div>
-        <div class="field">
-          <label>Foto (opcional)</label>
-          <div class="upload-box" id="uniFotoBox" style="height:100px" onclick="document.getElementById('uniFotoInput').click()">
-            <img id="uniFotoPreview" class="upload-preview" style="display:none;object-fit:contain">
-            <div class="upload-empty" id="uniFotoEmpty"><i class="fa-solid fa-shirt"></i><span>Subir foto</span></div>
-          </div>
-          <input type="file" id="uniFotoInput" accept="image/*" style="display:none">
-        </div>
-        <div style="display:flex;gap:8px">
-          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarUniforme"><i class="fa-solid fa-plus"></i> Guardar uniforme</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionUni" style="display:none">Cancelar edición</button>
-        </div>
-        <div id="listaUniformes" style="margin-top:16px"></div>
+      <div class="card" id="uniFormAviso">
+        <h3><i class="fa-solid fa-shirt"></i> Uniformes del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Mi club</b> — ahí puedes agregar el titular, el alterno, el de portero y todos los que necesites.</p>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;miclub&quot;]').click()"><i class="fa-solid fa-gear"></i> Ir a Mi club</button>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -1343,6 +1327,28 @@
         </div>
         <div class="field"><label>Color terciario (opcional)</label><input type="color" id="mcColorTerciario" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
         <div id="mcColorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-shirt"></i> <span id="uniFormTitulo">Agregar uniforme</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Crea los uniformes del club (titular, alterno, portero...) para elegir rápido cuál usar en cada partido. Puedes agregar los que necesites.</p>
+        <div class="field-row">
+          <div class="field"><label>Nombre</label><input type="text" id="uniNombre" placeholder="Ej: Titular verde"></div>
+          <div class="field"><label>Color principal</label><input type="color" id="uniColor" value="#18A83A" style="height:46px;padding:4px"></div>
+        </div>
+        <div class="field">
+          <label>Foto (opcional)</label>
+          <div class="upload-box" id="uniFotoBox" style="height:100px" onclick="document.getElementById('uniFotoInput').click()">
+            <img id="uniFotoPreview" class="upload-preview" style="display:none;object-fit:contain">
+            <div class="upload-empty" id="uniFotoEmpty"><i class="fa-solid fa-shirt"></i><span>Subir foto</span></div>
+          </div>
+          <input type="file" id="uniFotoInput" accept="image/*" style="display:none">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarUniforme"><i class="fa-solid fa-plus"></i> Guardar uniforme</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionUni" style="display:none">Cancelar edición</button>
+        </div>
+        <div id="listaUniformes" style="margin-top:16px"></div>
       </div>
 
       <div class="card" style="margin-top:18px">
