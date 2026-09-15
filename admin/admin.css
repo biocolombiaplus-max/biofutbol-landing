@@ -160,7 +160,11 @@ tbody tr:hover{background:rgba(24,168,58,.05);background:color-mix(in srgb,var(-
   .logo{font-size:.98rem;gap:7px;flex-wrap:wrap;row-gap:6px}
   .logo-icon{width:26px;height:32px}
   .badge-admin{font-size:.6rem;padding:3px 8px;margin-left:2px}
-  .top-actions{width:100%;justify-content:space-between;gap:8px}
+  /* En páginas con varios botones (ej. index.html) que ya no caben en una
+     sola fila, se pasan a la siguiente en vez de cortarse fuera de la
+     pantalla — el celular no hace scroll horizontal (ver overscroll-behavior
+     más abajo), así que sin wrap, botones como "Salir" quedaban inalcanzables. */
+  .top-actions{width:100%;flex-wrap:wrap;justify-content:flex-start;gap:8px}
   .user-email{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}
   .section-head{margin:24px 0 14px}
   .card{padding:18px}
