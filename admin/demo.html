@@ -993,49 +993,10 @@
         <div id="listaHistorialEntrenamientos"><p class="empty">Todavía no has finalizado ningún entrenamiento.</p></div>
       </div>
 
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario.</p>
-        <div class="field-row">
-          <div class="field"><label>Nombre de la sede</label><input type="text" id="sedeNombre" placeholder="Ej: Cancha Municipal"></div>
-          <div class="field"><label>Dirección (opcional)</label><input type="text" id="sedeDireccion" placeholder="Ej: Cra 5 # 10-20"></div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarSede"><i class="fa-solid fa-plus"></i> Guardar sede</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionSede" style="display:none">Cancelar edición</button>
-        </div>
-        <div id="listaSedes" style="margin-top:16px"></div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-calendar-week"></i> <span id="horarioFormTitulo">Agregar horario de entrenamiento</span></h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Se muestra a los padres y deportistas en su panel y en el de inicio del club.</p>
-        <div class="field-row">
-          <div class="field"><label>Categoría</label>
-            <select id="horarioCategoria"><option value="">Todas las categorías</option></select>
-          </div>
-          <div class="field"><label>Día</label>
-            <select id="horarioDia">
-              <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Hora de inicio</label><input type="time" id="horarioInicio"></div>
-          <div class="field"><label>Hora de fin (opcional)</label><input type="time" id="horarioFin"></div>
-        </div>
-        <div class="field"><label>Sede</label>
-          <select id="horarioSede"><option value="">— Sin definir —</option></select>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarHorario"><i class="fa-solid fa-plus"></i> Guardar horario</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionHorario" style="display:none">Cancelar edición</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-calendar-days"></i> Horario semanal</h3>
-        <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
+      <div class="card" style="margin-top:18px" id="entSedesHorariosAviso">
+        <h3><i class="fa-solid fa-map-location-dot"></i> Sedes y horario semanal</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Mi club</b> — ahí agregas las sedes donde entrenan y el horario semanal fijo.</p>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;miclub&quot;]').click()"><i class="fa-solid fa-gear"></i> Ir a Mi club</button>
       </div>
 
       <div class="card" style="margin-top:18px" id="festivosCard">
@@ -1316,6 +1277,51 @@
         </div>
         <div class="field"><label>Dirección</label><input type="text" id="mcDireccion"></div>
         <button type="button" class="btn btn-primary btn-sm" id="btnGuardarDatosClub"><i class="fa-solid fa-floppy-disk"></i> Guardar datos</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario. Se configura una sola vez.</p>
+        <div class="field-row">
+          <div class="field"><label>Nombre de la sede</label><input type="text" id="sedeNombre" placeholder="Ej: Cancha Municipal"></div>
+          <div class="field"><label>Dirección (opcional)</label><input type="text" id="sedeDireccion" placeholder="Ej: Cra 5 # 10-20"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarSede"><i class="fa-solid fa-plus"></i> Guardar sede</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionSede" style="display:none">Cancelar edición</button>
+        </div>
+        <div id="listaSedes" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-week"></i> <span id="horarioFormTitulo">Agregar horario de entrenamiento</span></h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Se muestra a los padres y deportistas en su panel y en el de inicio del club. Se configura una sola vez; los ajustes del día a día (cancelar un entrenamiento puntual, agregar uno extra) se hacen desde Entrenamientos.</p>
+        <div class="field-row">
+          <div class="field"><label>Categoría</label>
+            <select id="horarioCategoria"><option value="">Todas las categorías</option></select>
+          </div>
+          <div class="field"><label>Día</label>
+            <select id="horarioDia">
+              <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Hora de inicio</label><input type="time" id="horarioInicio"></div>
+          <div class="field"><label>Hora de fin (opcional)</label><input type="time" id="horarioFin"></div>
+        </div>
+        <div class="field"><label>Sede</label>
+          <select id="horarioSede"><option value="">— Sin definir —</option></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" id="btnGuardarHorario"><i class="fa-solid fa-plus"></i> Guardar horario</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCancelarEdicionHorario" style="display:none">Cancelar edición</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-calendar-days"></i> Horario semanal</h3>
+        <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
       </div>
 
       <div class="card" style="margin-top:18px">
