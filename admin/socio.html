@@ -10,6 +10,17 @@
 <link rel="stylesheet" href="admin.css?v=20260916">
 <link rel="stylesheet" href="carnet.css">
 <style>
+.pago-row{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--card-b2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.pago-row-info{flex:1;min-width:0}
+.pago-row-valor{font-weight:800;color:var(--white);font-size:.86rem}
+.pago-row-fecha{color:var(--gray-d);font-size:.72rem;margin-top:2px}
+.pago-row-btn{flex:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--card-b2);background:var(--card);color:var(--gray);display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;font-size:.8rem}
+.pago-row-btn:hover{border-color:var(--green-l);color:var(--green-l)}
+.pago-row-del:hover{border-color:var(--red);color:var(--red)}
+.pago-row-eliminado{opacity:.7;background:rgba(255,92,92,.06);border-color:rgba(255,92,92,.25)}
+.pago-row-eliminado .pago-row-valor{text-decoration:line-through;color:var(--gray)}
+.pago-row-motivo{font-size:.72rem;color:var(--red);margin-top:3px}
+.pago-row-meta{font-size:.68rem;color:var(--gray-d);margin-top:2px}
 .growth-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:10px}
 .growth-table th{text-align:left;color:var(--gray);font-weight:700;font-size:.72rem;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--card-b2)}
 .growth-table td{padding:8px;border-bottom:1px solid var(--card-b2)}
@@ -491,14 +502,144 @@ function pintarPago() {
     ? "Último recordatorio enviado: " + formatFecha(new Date(socioActual.fechaUltimoRecordatorio))
     : "";
 
+  pintarHistorialPagosSocio();
+}
+
+let pagoEnEdicion = null;
+let pagoEnEliminacion = null;
+
+// Cada fila de historialPagosSocio se identifica por su posición dentro del
+// arreglo (no tienen id propio) — igual que borrarPago() en cliente.html,
+// corregir/eliminar reescriben el arreglo completo con ese índice cambiado.
+function filaPagoSocio(p, i) {
+  if (pagoEnEdicion === i) {
+    return '<div class="pago-row" style="flex-direction:column;align-items:stretch;gap:10px">' +
+      '<div class="field-row" style="margin:0">' +
+        '<div class="field" style="margin:0"><label>Fecha</label><input type="date" id="editPagoFecha-' + i + '" value="' + esc(p.fecha) + '"></div>' +
+        '<div class="field" style="margin:0"><label>Valor</label><input type="number" id="editPagoValor-' + i + '" value="' + Number(p.valor || 0) + '" min="0" step="1000"></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button type="button" class="btn btn-primary btn-sm" onclick="guardarEdicionPago(' + i + ')"><i class="fa-solid fa-check"></i> Guardar corrección</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="cancelarEdicionPago()">Cancelar</button>' +
+      '</div></div>';
+  }
+  if (pagoEnEliminacion === i) {
+    return '<div class="pago-row" style="flex-direction:column;align-items:stretch;gap:10px">' +
+      '<div class="pago-row-info">' +
+        '<div class="pago-row-valor">' + formatMoneda(p.valor || 0, clubActual.moneda) + '</div>' +
+        '<div class="pago-row-fecha">' + formatFecha(p.fecha) + '</div>' +
+      '</div>' +
+      '<div class="field" style="margin:0"><label style="color:var(--red)">Motivo de la eliminación (obligatorio)</label><input type="text" id="motivoEliminarPago-' + i + '" placeholder="Ej: se registró por error, monto duplicado..." maxlength="140"></div>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacionPago(' + i + ')"><i class="fa-solid fa-trash"></i> Confirmar eliminación</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" onclick="cancelarEliminacionPago()">Cancelar</button>' +
+      '</div></div>';
+  }
+  return '<div class="pago-row">' +
+    '<div class="pago-row-info">' +
+      '<div class="pago-row-valor">' + formatMoneda(p.valor || 0, clubActual.moneda) + '</div>' +
+      '<div class="pago-row-fecha">' + formatFecha(p.fecha) + '</div>' +
+    '</div>' +
+    '<button type="button" class="pago-row-btn" title="Corregir este pago" onclick="editarPagoSocio(' + i + ')"><i class="fa-solid fa-pen"></i></button>' +
+    '<button type="button" class="pago-row-btn pago-row-del" title="Eliminar este pago" onclick="eliminarPagoSocio(' + i + ')"><i class="fa-solid fa-trash"></i></button>' +
+  '</div>';
+}
+
+function filaPagoEliminado(e) {
+  const cuando = e.eliminadoEn ? new Date(e.eliminadoEn) : null;
+  const cuandoTxt = cuando && !isNaN(cuando.getTime())
+    ? cuando.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) + " a las " + cuando.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })
+    : "—";
+  return '<div class="pago-row pago-row-eliminado">' +
+    '<div class="pago-row-info">' +
+      '<div class="pago-row-valor">' + formatMoneda(e.valor || 0, clubActual.moneda) + '</div>' +
+      '<div class="pago-row-fecha">' + formatFecha(e.fecha) + '</div>' +
+      '<div class="pago-row-motivo"><i class="fa-solid fa-circle-info"></i> ' + esc(e.motivo || "Sin motivo") + '</div>' +
+      '<div class="pago-row-meta">Eliminado por ' + esc(e.eliminadoPor || "—") + ' · ' + cuandoTxt + '</div>' +
+    '</div></div>';
+}
+
+function pintarHistorialPagosSocio() {
+  const box = document.getElementById("historialPagosSocio");
+  if (socioActual.becado) { box.innerHTML = "Becado — no genera cobros."; return; }
+
   const historial = socioActual.historialPagosSocio || [];
-  document.getElementById("historialPagosSocio").innerHTML = esBecado
-    ? "Becado — no genera cobros."
-    : (historial.length
-      ? "<strong style='color:var(--white)'>Historial:</strong><br>" + historial.slice().reverse().slice(0, 6).map(function (p) {
-          return formatFecha(new Date(p.fecha)) + " — " + formatMoneda(p.valor || 0, clubActual.moneda);
-        }).join("<br>")
-      : "Sin pagos registrados todavía.");
+  const eliminados = socioActual.historialPagosEliminados || [];
+  if (!historial.length && !eliminados.length) { box.innerHTML = "Sin pagos registrados todavía."; return; }
+
+  let html = "";
+  if (historial.length) {
+    const filas = historial.map(function (p, i) { return { p: p, i: i }; }).reverse().slice(0, 8);
+    html += "<strong style='display:block;margin-bottom:8px;color:var(--white);font-size:.8rem'>Historial de pagos</strong>" +
+      filas.map(function (f) { return filaPagoSocio(f.p, f.i); }).join("");
+  } else {
+    html += "Sin pagos registrados todavía.";
+  }
+
+  if (eliminados.length) {
+    html += '<details style="margin-top:14px"><summary style="cursor:pointer;font-size:.76rem;font-weight:700;color:var(--red);padding:4px 0">' +
+      '<i class="fa-solid fa-trash"></i> Recibos eliminados (' + eliminados.length + ')</summary>' +
+      '<div style="margin-top:8px">' + eliminados.slice().reverse().slice(0, 8).map(filaPagoEliminado).join("") + '</div></details>';
+  }
+
+  box.innerHTML = html;
+}
+
+function editarPagoSocio(i) { pagoEnEdicion = i; pagoEnEliminacion = null; pintarHistorialPagosSocio(); }
+function cancelarEdicionPago() { pagoEnEdicion = null; pintarHistorialPagosSocio(); }
+
+function guardarEdicionPago(i) {
+  const historial = (socioActual.historialPagosSocio || []).slice();
+  const p = historial[i];
+  if (!p) return;
+  const nuevaFecha = document.getElementById("editPagoFecha-" + i).value;
+  const nuevoValor = Number(document.getElementById("editPagoValor-" + i).value) || 0;
+  if (!nuevaFecha) { mostrarError("Ingresa la fecha del pago."); return; }
+  if (!nuevoValor) { mostrarError("Ingresa el valor del pago."); return; }
+  const anterior = { fecha: p.fecha, valor: p.valor };
+  historial[i] = { fecha: nuevaFecha, valor: nuevoValor };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    historialPagosSocio: historial
+  }).then(function () {
+    socioActual.historialPagosSocio = historial;
+    pagoEnEdicion = null;
+    pintarPago();
+    registrarAuditoria("Recibo de pago corregido", clienteId, socioActual.nombre,
+      "De " + formatMoneda(anterior.valor, clubActual.moneda) + " (" + anterior.fecha + ") a " +
+      formatMoneda(nuevoValor, clubActual.moneda) + " (" + nuevaFecha + ")");
+    mostrarExito("Pago corregido.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+}
+
+function eliminarPagoSocio(i) { pagoEnEliminacion = i; pagoEnEdicion = null; pintarHistorialPagosSocio(); }
+function cancelarEliminacionPago() { pagoEnEliminacion = null; pintarHistorialPagosSocio(); }
+
+function confirmarEliminacionPago(i) {
+  const historial = (socioActual.historialPagosSocio || []).slice();
+  const p = historial[i];
+  if (!p) return;
+  const motivo = (document.getElementById("motivoEliminarPago-" + i).value || "").trim();
+  if (!motivo) { mostrarError("Escribe el motivo por el que vas a eliminar este pago."); return; }
+  historial.splice(i, 1);
+  const registroEliminado = {
+    fecha: p.fecha,
+    valor: p.valor,
+    motivo: motivo,
+    eliminadoPor: (auth.currentUser && auth.currentUser.email) || "—",
+    eliminadoEn: new Date().toISOString()
+  };
+  db.collection("clientes").doc(clienteId).collection("socios").doc(socioId).update({
+    historialPagosSocio: historial,
+    historialPagosEliminados: firebase.firestore.FieldValue.arrayUnion(registroEliminado)
+  }).then(function () {
+    socioActual.historialPagosSocio = historial;
+    socioActual.historialPagosEliminados = (socioActual.historialPagosEliminados || []).concat([registroEliminado]);
+    pagoEnEliminacion = null;
+    pintarPago();
+    registrarAuditoria("Recibo de pago eliminado", clienteId, socioActual.nombre,
+      formatMoneda(p.valor, clubActual.moneda) + " del " + p.fecha + " — Motivo: " + motivo);
+    mostrarExito("Pago eliminado. Queda el registro con el motivo.");
+  }).catch(function (err) { mostrarError("No se pudo eliminar: " + err.message); });
 }
 
 // Busca otros socios del club con el mismo teléfono o el mismo acudiente,
