@@ -33,3 +33,7 @@ const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
 // del súper-admin (admin/crm-cobros.html) — es un diseño de correo distinto
 // al del contrato/recibo, así que necesita su propio Template ID en EmailJS.
 const EMAILJS_TEMPLATE_ID_COBRO = "TU_TEMPLATE_ID_COBRO";
+// Plantilla separada para los recordatorios automáticos de pago que cada
+// club le envía a sus propios socios/acudientes (admin/club-panel.html) —
+// también es un diseño de correo distinto, con su propio Template ID.
+const EMAILJS_TEMPLATE_ID_SOCIO = "TU_TEMPLATE_ID_SOCIO";

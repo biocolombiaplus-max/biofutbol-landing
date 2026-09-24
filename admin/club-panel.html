@@ -707,6 +707,24 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-robot"></i> Recordatorios automáticos por correo</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Actívalos y olvídate de escribirle a cada papá — cada vez que abras el panel, se envía solo a quien le toque ese día, con el valor y a dónde pagar. No tienes que hacer nada manual.</p>
+        <label class="pay-method-toggle" style="margin-bottom:14px">
+          <input type="checkbox" id="recAutoActivo">
+          <span>Activar recordatorios automáticos por correo</span>
+        </label>
+        <div class="field-row">
+          <div class="field"><label>Empezar (días antes del vencimiento)</label><input type="number" id="recAutoDiasAntes" min="0" max="30" placeholder="Ej: 3"></div>
+          <div class="field"><label>Dejar de enviar (días después)</label><input type="number" id="recAutoDiasDespues" min="0" max="60" placeholder="Ej: 5"></div>
+        </div>
+        <small style="color:var(--gray-d);font-size:.72rem;display:block;margin-bottom:14px" id="recAutoResumen"></small>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarRecAuto"><i class="fa-solid fa-floppy-disk"></i> Guardar configuración</button>
+        <div id="recAutoSetupWarn" style="display:none;margin-top:12px;font-size:.76rem;color:var(--gold);background:rgba(255,201,51,.1);border:1px solid rgba(255,201,51,.3);border-radius:10px;padding:10px 12px">
+          <i class="fa-solid fa-triangle-exclamation"></i> Falta que BioFutbol configure el correo (EmailJS) para que los recordatorios automáticos empiecen a salir.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-brands fa-whatsapp"></i> CRM de cobro</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A quién le debes recordar el pago y a quién enviarle el soporte de lo que ya pagó — todo por WhatsApp primero, correo como respaldo.</p>
         <div class="crm-toolbar">
@@ -2778,6 +2796,7 @@ function escucharSocios() {
     SOCIOS.sort(function (a, b) { return (a.nombre || "").localeCompare(b.nombre || ""); });
     pintarListaSocios();
     pintarListaPagos();
+    enviarRecordatoriosAutomaticosSocios();
     pintarInicio();
     pintarSelectSociosImg();
     pintarAlertaCumpleanos();
@@ -2913,6 +2932,52 @@ function textoPagoEfectivo(club) {
   return "En efectivo" + (club.pagoEfectivoNota ? " — " + club.pagoEfectivoNota : "");
 }
 
+function estadoTextoRecordatorio(dias) {
+  if (dias === null) return "";
+  if (dias < 0) return "Venció hace " + Math.abs(dias) + (Math.abs(dias) === 1 ? " día" : " días");
+  if (dias === 0) return "Vence hoy";
+  return "Vence en " + dias + (dias === 1 ? " día" : " días");
+}
+
+// Bloque de HTML (crudo, {{{...}}} en la plantilla) con los métodos de pago
+// configurados por el club, listo para insertar en el correo de recordatorio.
+function metodosPagoHtml(club) {
+  const filas = [];
+  if (club.pagoNequiNumero) {
+    filas.push('<tr><td style="padding:10px 0;border-bottom:1px solid #e3e8ee;color:#0B1626;font-size:14px"><strong>' +
+      esc(club.pagoNequiApp || "Nequi") + ':</strong> ' + esc(club.pagoNequiNumero) +
+      (club.pagoNequiTitular ? ' (' + esc(club.pagoNequiTitular) + ')' : '') + '</td></tr>');
+  }
+  const banco = textoCuentaBancaria(club);
+  if (banco) filas.push('<tr><td style="padding:10px 0;border-bottom:1px solid #e3e8ee;color:#0B1626;font-size:14px"><strong>Transferencia:</strong> ' + esc(banco) + '</td></tr>');
+  const efectivo = textoPagoEfectivo(club);
+  if (efectivo) filas.push('<tr><td style="padding:10px 0;color:#0B1626;font-size:14px"><strong>Efectivo:</strong> ' + esc(efectivo) + '</td></tr>');
+  if (!filas.length) return "";
+  return '<table role="presentation" width="100%" style="border-collapse:collapse;margin:18px 0;background:#f8fafc;border:1px solid #e3e8ee;border-radius:8px;padding:4px 16px">' + filas.join("") + '</table>';
+}
+
+// Botón de pago en línea (crudo, {{{...}}}) — solo aparece si el club tiene
+// configurado un link de pago (Wompi/PSE).
+function botonPagoHtml(club) {
+  if (!club.pagoWompiLink) return "";
+  return '<div style="text-align:center;margin:26px 0">' +
+    '<a href="' + esc(club.pagoWompiLink) + '" style="display:inline-block;background:#18A83A;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 34px;border-radius:8px;font-size:15px">Pagar ahora</a></div>';
+}
+
+function actualizarResumenRecAuto() {
+  const activo = document.getElementById("recAutoActivo").checked;
+  const resumen = document.getElementById("recAutoResumen");
+  if (!activo) { resumen.textContent = "Recordatorios automáticos desactivados — no se envía ningún correo solo."; return; }
+  const antes = Number(document.getElementById("recAutoDiasAntes").value) || 0;
+  const despues = Number(document.getElementById("recAutoDiasDespues").value) || 0;
+  resumen.textContent = "Se enviará un correo automático desde " + antes + " día" + (antes === 1 ? "" : "s") +
+    " antes del vencimiento, hasta " + despues + " día" + (despues === 1 ? "" : "s") +
+    " después de vencido — máximo una vez al día por deportista.";
+}
+document.getElementById("recAutoActivo").addEventListener("change", actualizarResumenRecAuto);
+document.getElementById("recAutoDiasAntes").addEventListener("input", actualizarResumenRecAuto);
+document.getElementById("recAutoDiasDespues").addEventListener("input", actualizarResumenRecAuto);
+
 function mensajeRecordatorioWhatsapp(socio) {
   const valor = valorCobroSocio(socio, clubActual);
   let msg = "¡Hola! Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " +
@@ -2986,27 +3051,48 @@ document.getElementById("btnCopiarLinkProf").addEventListener("click", function 
 
 document.getElementById("crmBuscar").addEventListener("input", pintarListaSocios);
 
+function emailjsListoSocio() {
+  return EMAILJS_PUBLIC_KEY !== "TU_PUBLIC_KEY" && EMAILJS_SERVICE_ID !== "TU_SERVICE_ID" &&
+    typeof EMAILJS_TEMPLATE_ID_SOCIO !== "undefined" && EMAILJS_TEMPLATE_ID_SOCIO !== "TU_TEMPLATE_ID_SOCIO";
+}
+
 function enviarRecordatorioCorreo(socio) {
-  if (EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
+  if (!emailjsListoSocio()) return Promise.reject(new Error("Falta configurar el correo (EmailJS) en BioFutbol. Avísale a BioFutbol para activarlo."));
   const valor = valorCobroSocio(socio, clubActual);
-  let mensaje = "Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " + (clubActual.clubNombre || "tu club") + (valor ? ": " + formatMoneda(valor, clubActual.moneda) : "") + ".";
-  if (clubActual.pagoNequiNumero) mensaje += " Puedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
-  const bancoCorreo = textoCuentaBancaria(clubActual);
-  if (bancoCorreo) mensaje += " O por transferencia — " + bancoCorreo + ".";
-  const efectivoCorreo = textoPagoEfectivo(clubActual);
-  if (efectivoCorreo) mensaje += " También recibimos pago " + efectivoCorreo.charAt(0).toLowerCase() + efectivoCorreo.slice(1) + ".";
+  const dias = socio.pagoProximo ? diasHasta(socio.pagoProximo) : null;
   emailjs.init(EMAILJS_PUBLIC_KEY);
-  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_SOCIO, {
     to_email: socio.correo,
     to_name: socio.nombre || "",
     club_nombre: clubActual.clubNombre || "",
-    asunto: "Recordatorio de pago — " + (clubActual.clubNombre || "BioFutbol"),
-    mensaje: mensaje,
-    boton_texto: clubActual.pagoWompiLink ? "Pagar ahora" : "",
-    boton_url: clubActual.pagoWompiLink || "",
-    contrato_url: clubActual.pagoWompiLink || ""
+    estado_texto: estadoTextoRecordatorio(dias),
+    monto_texto: valor ? formatMoneda(valor, clubActual.moneda) : "",
+    metodos_pago_html: metodosPagoHtml(clubActual),
+    boton_pago_html: botonPagoHtml(clubActual),
+    fecha_hoy: new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" })
   }).then(function () {
     return registrarComunicacion(socio.id, "correo", "Recordatorio de pago enviado por correo");
+  });
+}
+
+// Recorre a todos los socios y le envía correo solo a quien le toque hoy —
+// dentro de la ventana configurada (días antes/después del vencimiento) y
+// que no haya recibido ya un recordatorio por correo hoy mismo. Se llama
+// cada vez que se refresca la lista de socios, así que es segura de invocar
+// repetidamente: si ya se envió, no hace nada.
+function enviarRecordatoriosAutomaticosSocios() {
+  if (!clubActual || !clubActual.recordatoriosAutoActivo || !emailjsListoSocio()) return;
+  const diasAntes = clubActual.recordatoriosAutoDiasAntes != null ? clubActual.recordatoriosAutoDiasAntes : 3;
+  const diasDespues = clubActual.recordatoriosAutoDiasDespues != null ? clubActual.recordatoriosAutoDiasDespues : 5;
+  const hoy = new Date().toISOString().slice(0, 10);
+  const pendientes = SOCIOS.filter(function (s) {
+    if (s.becado || !s.correo || !s.pagoProximo || s.fechaUltimoRecordatorio === hoy) return false;
+    const dias = diasHasta(s.pagoProximo);
+    return dias !== null && dias <= diasAntes && dias >= -diasDespues;
+  });
+  if (!pendientes.length) return;
+  pendientes.forEach(function (s) {
+    enviarRecordatorioCorreo(s).catch(function (err) { console.error("No se pudo enviar el recordatorio automático a " + s.nombre, err); });
   });
 }
 
@@ -4851,6 +4937,13 @@ function precargarFormMiClub() {
   document.getElementById("mcEfectivo").checked = !!clubActual.pagoEfectivo;
   document.getElementById("mcEfectivoNota").value = clubActual.pagoEfectivoNota || "";
   document.getElementById("mcWompiLink").value = clubActual.pagoWompiLink || "";
+  document.getElementById("recAutoActivo").checked = !!clubActual.recordatoriosAutoActivo;
+  document.getElementById("recAutoDiasAntes").value = clubActual.recordatoriosAutoDiasAntes != null ? clubActual.recordatoriosAutoDiasAntes : 3;
+  document.getElementById("recAutoDiasDespues").value = clubActual.recordatoriosAutoDiasDespues != null ? clubActual.recordatoriosAutoDiasDespues : 5;
+  actualizarResumenRecAuto();
+  if (typeof EMAILJS_TEMPLATE_ID_SOCIO === "undefined" || EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY" || EMAILJS_TEMPLATE_ID_SOCIO === "TU_TEMPLATE_ID_SOCIO") {
+    document.getElementById("recAutoSetupWarn").style.display = "block";
+  }
   if (clubActual.logoUrl) { document.getElementById("mcLogoPreview").src = clubActual.logoUrl; document.getElementById("mcLogoPreview").style.display = "block"; document.getElementById("mcLogoEmpty").style.display = "none"; }
   if (clubActual.bannerUrl) { document.getElementById("mcBannerPreview").src = clubActual.bannerUrl; document.getElementById("mcBannerPreview").style.display = "block"; document.getElementById("mcBannerEmpty").style.display = "none"; }
   pintarCategoriasEstandar();
@@ -5054,6 +5147,20 @@ document.getElementById("btnGuardarCobro").addEventListener("click", function ()
     sincronizarMarca(clubActual.id, data);
     registrarAuditoria("Datos de cobro editados por el club", clubActual.id, clubActual.clubNombre);
     mostrarExito("Datos de cobro guardados.");
+  }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+document.getElementById("btnGuardarRecAuto").addEventListener("click", function () {
+  const data = {
+    recordatoriosAutoActivo: document.getElementById("recAutoActivo").checked,
+    recordatoriosAutoDiasAntes: Number(document.getElementById("recAutoDiasAntes").value) || 0,
+    recordatoriosAutoDiasDespues: Number(document.getElementById("recAutoDiasDespues").value) || 0
+  };
+  db.collection("clientes").doc(clubActual.id).update(data).then(function () {
+    clubActual = Object.assign(clubActual, data);
+    registrarAuditoria("Recordatorios automáticos de pago configurados", clubActual.id, clubActual.clubNombre, data.recordatoriosAutoActivo ? "Activados" : "Desactivados");
+    mostrarExito("Configuración guardada.");
+    enviarRecordatoriosAutomaticosSocios();
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
 });
 </script>

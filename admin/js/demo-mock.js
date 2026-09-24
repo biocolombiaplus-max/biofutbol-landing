@@ -238,6 +238,7 @@ function subirACloudinary(file) {
 const EMAILJS_PUBLIC_KEY = "demo";
 const EMAILJS_SERVICE_ID = "demo";
 const EMAILJS_TEMPLATE_ID = "demo";
+const EMAILJS_TEMPLATE_ID_SOCIO = "demo";
 const emailjs = {
   init: function () {},
   send: function () { return new Promise(function (resolve) { setTimeout(function () { resolve({ status: 200, text: "OK (demo)" }); }, 500); }); }

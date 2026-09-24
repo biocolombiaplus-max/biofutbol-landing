@@ -65,6 +65,17 @@ Si no lo configuras, el botón de correo simplemente te avisa que falta configur
 
 Mientras `EMAILJS_TEMPLATE_ID_COBRO` quede sin configurar, el CRM de cobros muestra un aviso y solo te deja usar el botón de WhatsApp de cada club (no envía correos).
 
+### 6.2. Tercera plantilla: recordatorios automáticos de pago a socios (cada club)
+
+Desde la pestaña "Pagos" de `admin/club-panel.html`, cualquier club puede activar en la tarjeta "Recordatorios automáticos por correo" el envío 100% automático de recordatorios a sus propios socios/acudientes — sin que el club tenga que escribirle a nadie. Cada club define su propia ventana de días (por ejemplo, "empezar 3 días antes del vencimiento" y "dejar de enviar 5 días después"), y el correo lleva el valor a pagar y a dónde pagar (Nequi, transferencia, efectivo o el link de pago del club). Igual que el CRM de cobros, se envía cada vez que un admin del club abre el panel (no hay servidor corriendo solo), así que el correo sale apenas alguien del club entra ese día — y solo una vez por socio por día.
+
+1. En tu cuenta de EmailJS crea una **tercera plantilla** (Email Template) — con el mismo "Email Service".
+2. En el editor de la plantilla, activa la vista de código (HTML) y pega el contenido de `admin/js/email-template-recordatorio-socio.html` de este repo tal cual (usa `{{to_name}}`, `{{club_nombre}}`, `{{estado_texto}}`, `{{monto_texto}}`, `{{fecha_hoy}}` y los bloques en crudo `{{{metodos_pago_html}}}` y `{{{boton_pago_html}}}`).
+3. En "To Email" de la plantilla pon `{{to_email}}` y en "Subject" algo como `Recordatorio de pago - {{club_nombre}}` (sin emojis, para no activar filtros de spam).
+4. Copia el **Template ID** de esta tercera plantilla y pégalo en `admin/js/firebase-config.js`, en la variable `EMAILJS_TEMPLATE_ID_SOCIO`.
+
+Mientras `EMAILJS_TEMPLATE_ID_SOCIO` quede sin configurar, la tarjeta de recordatorios automáticos de cada club muestra un aviso y no envía nada (tampoco afecta el botón manual "Recordar por correo a todos los pendientes", que solo funciona una vez esté configurada).
+
 ## 7. Probar
 
 1. Abre `https://biocolombiaplus-max.github.io/biofutbol-landing/admin/login.html`
