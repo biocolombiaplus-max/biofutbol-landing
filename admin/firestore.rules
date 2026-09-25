@@ -179,16 +179,22 @@ service cloud.firestore {
     // basta a socio-login.html para encontrar su ficha sin exponer las de
     // los demás. Solo el súper-admin o el dueño del club (quien crea el
     // acceso desde socio.html) pueden escribirla.
+    // Autoservicio (admin/socio-acceso.html): un deportista puede crear O
+    // volver a escribir (si por alguna razón quedó a medias y hay que
+    // repararla) su propia entrada de índice, pero solo DESPUÉS de haber
+    // quedado como dueño de esa ficha (ver puedeAutoreclamarSocio arriba) —
+    // así que este get() ya confirma que esa ficha es legítimamente suya.
+    // Al ser siempre su propio uid como ID del documento, nunca puede tocar
+    // el índice de otra persona.
+    function puedeAutoreclamarSociosIndex(uid) {
+      return request.auth != null && request.auth.uid == uid &&
+        get(/databases/$(database)/documents/clientes/$(request.resource.data.clienteId)/socios/$(request.resource.data.socioId)).data.authUid == request.auth.uid;
+    }
+
     match /sociosIndex/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      // Autoservicio (admin/socio-acceso.html): un deportista puede crear su
-      // propia entrada de índice, pero solo DESPUÉS de haber quedado como
-      // dueño de esa ficha (ver puedeAutoreclamarSocio arriba) — así que este
-      // get() ya confirma que esa ficha es legítimamente suya.
-      allow create: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId) ||
-        (request.auth != null && request.auth.uid == uid &&
-         get(/databases/$(database)/documents/clientes/$(request.resource.data.clienteId)/socios/$(request.resource.data.socioId)).data.authUid == request.auth.uid);
-      allow update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
+      allow create: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId) || puedeAutoreclamarSociosIndex(uid);
+      allow update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId) || puedeAutoreclamarSociosIndex(uid);
       allow delete: if esSuperAdmin() || (resource != null && esDuenoDelClub(resource.data.clienteId));
     }
 

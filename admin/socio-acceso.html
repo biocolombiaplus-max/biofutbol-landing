@@ -55,15 +55,20 @@
       </div>
     </div>
 
-    <!-- Paso 2b: ya tiene acceso creado -->
+    <!-- Paso 2b: ya tiene acceso creado — confirmamos la clave aquí mismo
+         (en vez de mandar a socio-login.html) para poder terminar de activar
+         el acceso si quedó a medias, sin importar en qué dispositivo esté. -->
     <div class="step" id="stepYaTiene">
       <div class="acceso-tieneacceso">
         <i class="fa-solid fa-circle-check"></i>
         <p style="font-size:.9rem;color:var(--white);margin-bottom:6px">Este deportista ya tiene un acceso creado.</p>
         <p style="font-size:.82rem;color:var(--gray);margin-bottom:22px">Usuario: <b id="yaTieneCorreo"></b></p>
       </div>
-      <a href="socio-login.html" class="btn btn-primary btn-block"><i class="fa-solid fa-right-to-bracket"></i> Ir a iniciar sesión</a>
-      <p class="center-note">¿No recuerdas la clave? Desde esa misma pantalla puedes recuperarla con "¿Olvidaste tu contraseña?".</p>
+      <form id="formIniciarSesion">
+        <div class="field"><label>Clave</label><input type="password" id="claveExistente" required placeholder="••••••••"></div>
+        <button type="submit" class="btn btn-primary btn-block" id="btnIniciarSesion"><i class="fa-solid fa-right-to-bracket"></i> Entrar y activar mi acceso</button>
+      </form>
+      <p class="center-note"><a href="#" id="btnOlvideClave">¿Olvidaste tu contraseña?</a></p>
       <p class="center-note"><a href="#" id="btnVolverBuscar1">Buscar otro deportista</a></p>
     </div>
 
@@ -207,6 +212,52 @@ document.getElementById("btnVolverBuscar2").addEventListener("click", function (
 
 document.getElementById("btnSiSoyYo").addEventListener("click", function () {
   mostrarPaso("stepCrear");
+});
+
+document.getElementById("formIniciarSesion").addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (!socioEncontrado) { mostrarError("Vuelve a buscar tu ficha."); mostrarPaso("stepBuscar"); return; }
+
+  const d = socioEncontrado.data;
+  const clave = document.getElementById("claveExistente").value;
+  if (!clave) return;
+
+  const btn = document.getElementById("btnIniciarSesion");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Entrando...';
+
+  auth.signInWithEmailAndPassword(d.correoAcceso, clave).then(function (cred) {
+    const uid = cred.user.uid;
+    // Nos aseguramos de que el índice exista — si el acceso quedó a medias
+    // en algún momento (por ejemplo, un intento anterior en otro
+    // dispositivo), esto lo termina de activar aquí mismo, sin importar
+    // dónde estés entrando ahora.
+    return db.collection("sociosIndex").doc(uid).set({ clienteId: clubId, socioId: socioEncontrado.id });
+  }).then(function () {
+    mostrarPaso("stepListo");
+    setTimeout(function () { window.location.href = "mi-panel.html"; }, 800);
+  }).catch(function (err) {
+    let msg = "Correo o contraseña incorrectos.";
+    if (err.code === "auth/too-many-requests") msg = "Demasiados intentos. Espera unos minutos e intenta de nuevo.";
+    else if (err.code === "permission-denied" || /PERMISSION_DENIED/.test(err.message)) msg = "No se pudo terminar de activar tu acceso. Contacta a tu club.";
+    mostrarError(msg);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar y activar mi acceso';
+  });
+});
+
+document.getElementById("btnOlvideClave").addEventListener("click", function (e) {
+  e.preventDefault();
+  if (!socioEncontrado) return;
+  const correo = socioEncontrado.data.correoAcceso;
+  if (!correo) { mostrarError("Este deportista no tiene un correo de acceso registrado. Contacta a tu club."); return; }
+  auth.sendPasswordResetEmail(correo).then(function () {
+    mostrarError("");
+    document.getElementById("errorBox").style.display = "none";
+    alert("Te enviamos un correo a " + correo + " para que definas una nueva clave. Luego vuelve aquí y entra con la nueva.");
+  }).catch(function (err) {
+    mostrarError("No se pudo enviar el correo: " + err.message);
+  });
 });
 
 document.getElementById("formCrear").addEventListener("submit", function (e) {
