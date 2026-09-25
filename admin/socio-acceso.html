@@ -151,6 +151,17 @@ document.getElementById("formBuscar").addEventListener("submit", function (e) {
     socioEncontrado = { id: socioDoc.id, data: socioDoc.data() };
     const d = socioEncontrado.data;
     if (d.authUid) {
+      // Si esta misma cuenta ya es la dueña de esta ficha (por ejemplo, un
+      // intento anterior se quedó a medias: se creó la cuenta pero no
+      // terminó de conectarse), lo reparamos solos en vez de mandarlo a
+      // iniciar sesión con datos que puede que ni recuerde.
+      if (auth.currentUser && auth.currentUser.uid === d.authUid) {
+        btn.innerHTML = '<span class="spinner"></span> Activando tu acceso...';
+        return db.collection("sociosIndex").doc(d.authUid).set({ clienteId: clubId, socioId: socioEncontrado.id }).then(function () {
+          mostrarPaso("stepListo");
+          setTimeout(function () { window.location.href = "mi-panel.html"; }, 1000);
+        });
+      }
       document.getElementById("yaTieneCorreo").textContent = d.correoAcceso || "";
       mostrarPaso("stepYaTiene");
       return;
@@ -215,7 +226,7 @@ document.getElementById("formCrear").addEventListener("submit", function (e) {
     if (err.code === "auth/email-already-in-use") msg = "Ese correo ya tiene una cuenta creada (de otro socio, club o administrador) — usa otro correo.";
     else if (err.code === "auth/invalid-email") msg = "El correo no es válido.";
     else if (err.code === "auth/weak-password") msg = "La clave es muy débil — usa al menos 6 caracteres.";
-    else if (err.code === "permission-denied" || /PERMISSION_DENIED/.test(msg)) msg = "Este deportista ya tiene un acceso creado. Recarga la página y vuelve a buscarlo.";
+    else if (err.code === "permission-denied" || /PERMISSION_DENIED/.test(msg)) msg = "Tu cuenta se creó, pero algo se cortó a mitad de camino. No hay problema: busca de nuevo el mismo documento y se termina de activar solo.";
     mostrarError(msg);
   }).finally(function () {
     btn.disabled = false;
