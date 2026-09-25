@@ -120,6 +120,19 @@ if (!clubId) {
 
 let socioEncontrado = null; // { id, data }
 
+// Firebase tarda un instante en confirmar si el navegador ya tenía una
+// sesión abierta (auth.currentUser puede llegar en null hasta que dispare
+// este evento por primera vez). Esperamos esa confirmación antes de decidir
+// si hay que autoreparar un acceso a medias — si no, podríamos pensar por
+// error que nadie ha iniciado sesión.
+let usuarioActual = null;
+const listoAuth = new Promise(function (resolve) {
+  auth.onAuthStateChanged(function (user) {
+    usuarioActual = user;
+    resolve();
+  });
+});
+
 function mostrarPaso(id) {
   document.querySelectorAll(".step").forEach(function (s) { s.classList.remove("activo"); });
   document.getElementById(id).classList.add("activo");
@@ -141,7 +154,9 @@ document.getElementById("formBuscar").addEventListener("submit", function (e) {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Buscando...';
 
-  db.collection("clientes").doc(clubId).collection("documentosSocios").doc(documento).get().then(function (indiceDoc) {
+  listoAuth.then(function () {
+    return db.collection("clientes").doc(clubId).collection("documentosSocios").doc(documento).get();
+  }).then(function (indiceDoc) {
     if (!indiceDoc.exists) {
       throw new Error("no-encontrado");
     }
@@ -155,7 +170,7 @@ document.getElementById("formBuscar").addEventListener("submit", function (e) {
       // intento anterior se quedó a medias: se creó la cuenta pero no
       // terminó de conectarse), lo reparamos solos en vez de mandarlo a
       // iniciar sesión con datos que puede que ni recuerde.
-      if (auth.currentUser && auth.currentUser.uid === d.authUid) {
+      if (usuarioActual && usuarioActual.uid === d.authUid) {
         btn.innerHTML = '<span class="spinner"></span> Activando tu acceso...';
         return db.collection("sociosIndex").doc(d.authUid).set({ clienteId: clubId, socioId: socioEncontrado.id }).then(function () {
           mostrarPaso("stepListo");
