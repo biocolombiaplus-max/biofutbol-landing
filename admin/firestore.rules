@@ -51,18 +51,33 @@ service cloud.firestore {
       allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
+    // Autoservicio de acceso (admin/socio-acceso.html): un deportista que ya
+    // tiene ficha pero nunca recibió usuario/clave puede crear su propio
+    // acceso sin que el club tenga que hacerlo uno por uno. Solo puede tocar
+    // SU PROPIA ficha (nunca la de otro), solo mientras siga sin acceso
+    // (authUid nulo, primera vez), solo para ponerse a SÍ MISMO como dueño
+    // (nunca el uid de otra persona) y solo esos 3 campos — nada más del
+    // socio se puede editar por esta vía.
+    function puedeAutoreclamarSocio() {
+      return request.auth != null &&
+        resource.data.get("authUid", null) == null &&
+        request.resource.data.authUid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(["authUid", "correoAcceso", "claveDesactualizada"]);
+    }
+
     // Socios/jugadores de cada club: cualquiera puede CREAR (autorregistro
     // desde el celular) o LEER un socio puntual si tiene su link exacto
     // (portal del deportista, con el ID único como token). Pero listar
     // TODOS los socios de un club (para el panel admin), editar o borrar
-    // requiere ser el súper-admin o el propio club dueño.
+    // requiere ser el súper-admin, el propio club dueño, o (solo para
+    // reclamar su propio acceso) el mismo deportista — ver arriba.
     match /clientes/{clienteId}/socios/{socioId} {
       allow create: if true;
       allow get: if true;
       // Los profesores también pueden listar y actualizar (necesitan ver a
       // sus alumnos y, al finalizar la asistencia, sumar sus estadísticas de
       // entrenamientosAsistidos/Programados) — pero no borrar.
-      allow list, update: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId);
+      allow list, update: if esSuperAdmin() || esDuenoDelClub(clienteId) || esProfesorDelClub(clienteId) || puedeAutoreclamarSocio();
       allow delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
@@ -166,7 +181,14 @@ service cloud.firestore {
     // acceso desde socio.html) pueden escribirla.
     match /sociosIndex/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
+      // Autoservicio (admin/socio-acceso.html): un deportista puede crear su
+      // propia entrada de índice, pero solo DESPUÉS de haber quedado como
+      // dueño de esa ficha (ver puedeAutoreclamarSocio arriba) — así que este
+      // get() ya confirma que esa ficha es legítimamente suya.
+      allow create: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId) ||
+        (request.auth != null && request.auth.uid == uid &&
+         get(/databases/$(database)/documents/clientes/$(request.resource.data.clienteId)/socios/$(request.resource.data.socioId)).data.authUid == request.auth.uid);
+      allow update: if esSuperAdmin() || esDuenoDelClub(request.resource.data.clienteId);
       allow delete: if esSuperAdmin() || (resource != null && esDuenoDelClub(resource.data.clienteId));
     }
 

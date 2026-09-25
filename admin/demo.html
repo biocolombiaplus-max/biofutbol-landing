@@ -541,6 +541,15 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:18px">
+        <h3><i class="fa-solid fa-key"></i> Acceso para socios ya registrados</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Un solo link para que CADA socio o acudiente cree su propio usuario y clave — busca su ficha con el número de documento y define su correo y clave ahí mismo. No tienes que crearle el acceso uno por uno.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkAcceso"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkAcceso"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
+        </div>
+      </div>
+
       <div class="crm-toolbar">
         <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
         <button type="button" class="btn btn-ghost btn-sm" id="btnOrdenarCategoria"><i class="fa-solid fa-layer-group"></i> Agrupar por categoría</button>
@@ -3012,6 +3021,29 @@ document.getElementById("btnEnviarLinkSocio").addEventListener("click", function
 
 document.getElementById("btnCopiarLinkSocio").addEventListener("click", function () {
   navigator.clipboard.writeText(mensajeRegistroSocio()).then(function () { mostrarExito("Mensaje copiado. Ya lo puedes pegar en WhatsApp."); });
+});
+
+function linkAccesoSocios() {
+  // Misma precaución que linkRegistroSocio(): en la demo no apuntamos al
+  // formulario real de autoservicio (crearía una cuenta real de Firebase
+  // Auth bajo un club de mentira).
+  return location.origin + location.pathname.replace(/admin\/demo\.html$/, "") + "index.html";
+}
+
+function mensajeAccesoSocios() {
+  return "¡Hola! Ya puedes crear tu propio usuario y clave para entrar al panel de " + (clubActual.clubNombre || "nuestro club") +
+    " en BioFutbol (ahí ves el carnet, el estado de pago y los avisos importantes). Entra aquí, escribe el número de documento del deportista y sigue los pasos:\n" +
+    linkAccesoSocios() + "\n\n¡Gracias por hacer parte de nuestro club!";
+}
+
+document.getElementById("btnEnviarLinkAcceso").addEventListener("click", function () {
+  const tel = (prompt("¿A qué número de WhatsApp se lo enviamos? (con indicativo, ej: 573001234567)") || "").replace(/[^0-9]/g, "");
+  if (!tel) return;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeAccesoSocios()), "_blank");
+});
+
+document.getElementById("btnCopiarLinkAcceso").addEventListener("click", function () {
+  navigator.clipboard.writeText(mensajeAccesoSocios()).then(function () { mostrarExito("Mensaje copiado. Ya lo puedes pegar en WhatsApp, un grupo o tu estado."); });
 });
 
 function linkRegistroProfesor() {
