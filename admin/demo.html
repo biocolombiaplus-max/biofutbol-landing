@@ -1293,6 +1293,17 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-key"></i> Seguridad de la cuenta</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Cambia la clave con la que entras a este panel administrativo. Por seguridad, primero te pedimos tu clave actual.</p>
+        <div class="field"><label>Clave actual</label><input type="password" id="segClaveActual" autocomplete="current-password" placeholder="••••••••"></div>
+        <div class="field-row">
+          <div class="field"><label>Clave nueva (mínimo 6 caracteres)</label><input type="password" id="segClaveNueva" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
+          <div class="field"><label>Repite la clave nueva</label><input type="password" id="segClaveNuevaConfirmar" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnCambiarClave"><i class="fa-solid fa-key"></i> Cambiar clave</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario. Se configura una sola vez.</p>
         <div class="field-row">
@@ -5165,6 +5176,13 @@ document.getElementById("btnGuardarRecAuto").addEventListener("click", function 
 document.getElementById("btnFichaEditar").addEventListener("click", function (e) {
   e.preventDefault();
   mostrarExito("La ficha completa del deportista se ve igual de fácil en tu cuenta real — esto es solo una demo.");
+});
+
+// Cambiar la clave requiere Firebase Auth real (reautenticación) — en la
+// demo no hay una cuenta real detrás, así que mostramos un aviso amistoso
+// en vez de intentarlo.
+document.getElementById("btnCambiarClave").addEventListener("click", function () {
+  mostrarExito("En tu cuenta real puedes cambiar tu clave aquí mismo — esto es solo una demo.");
 });
 
 document.getElementById("btnVerRecorrido").addEventListener("click", function () {

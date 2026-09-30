@@ -1283,6 +1283,17 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-key"></i> Seguridad de la cuenta</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Cambia la clave con la que entras a este panel administrativo. Por seguridad, primero te pedimos tu clave actual.</p>
+        <div class="field"><label>Clave actual</label><input type="password" id="segClaveActual" autocomplete="current-password" placeholder="••••••••"></div>
+        <div class="field-row">
+          <div class="field"><label>Clave nueva (mínimo 6 caracteres)</label><input type="password" id="segClaveNueva" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
+          <div class="field"><label>Repite la clave nueva</label><input type="password" id="segClaveNuevaConfirmar" autocomplete="new-password" minlength="6" placeholder="••••••••"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnCambiarClave"><i class="fa-solid fa-key"></i> Cambiar clave</button>
+      </div>
+
+      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario. Se configura una sola vez.</p>
         <div class="field-row">
@@ -5099,6 +5110,42 @@ document.getElementById("btnGuardarDatosClub").addEventListener("click", functio
     registrarAuditoria("Datos del club editados por el club", clubActual.id, clubActual.clubNombre);
     mostrarExito("Datos guardados.");
   }).catch(function (err) { mostrarError("No se pudo guardar: " + err.message); });
+});
+
+document.getElementById("btnCambiarClave").addEventListener("click", function () {
+  const claveActual = document.getElementById("segClaveActual").value;
+  const claveNueva = document.getElementById("segClaveNueva").value;
+  const claveConfirmar = document.getElementById("segClaveNuevaConfirmar").value;
+
+  if (!claveActual) { mostrarError("Ingresa tu clave actual."); return; }
+  if (claveNueva.length < 6) { mostrarError("La clave nueva debe tener al menos 6 caracteres."); return; }
+  if (claveNueva !== claveConfirmar) { mostrarError("Las dos claves nuevas no coinciden."); return; }
+  if (claveNueva === claveActual) { mostrarError("La clave nueva debe ser diferente a la actual."); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Cambiando...';
+
+  const user = auth.currentUser;
+  const credential = firebase.auth.EmailAuthProvider.credential(user.email, claveActual);
+  user.reauthenticateWithCredential(credential).then(function () {
+    return user.updatePassword(claveNueva);
+  }).then(function () {
+    registrarAuditoria("Clave de acceso del club cambiada", clubActual.id, clubActual.clubNombre);
+    document.getElementById("segClaveActual").value = "";
+    document.getElementById("segClaveNueva").value = "";
+    document.getElementById("segClaveNuevaConfirmar").value = "";
+    mostrarExito("Clave actualizada correctamente.");
+  }).catch(function (err) {
+    let msg = "No se pudo cambiar la clave: " + err.message;
+    if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential" || err.code === "auth/invalid-login-credentials") msg = "La clave actual que ingresaste no es correcta.";
+    else if (err.code === "auth/too-many-requests") msg = "Demasiados intentos. Espera unos minutos e intenta de nuevo.";
+    else if (err.code === "auth/weak-password") msg = "La clave nueva es muy débil — usa al menos 6 caracteres.";
+    mostrarError(msg);
+  }).finally(function () {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-key"></i> Cambiar clave';
+  });
 });
 
 function mcMostrarPreview(tipo, url) {
