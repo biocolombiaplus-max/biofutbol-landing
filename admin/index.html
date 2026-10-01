@@ -152,8 +152,18 @@ function filaCliente(c) {
   const registrados = SOCIOS_COUNT[c.id];
   const plan = PLANES_TODOS[c.plan] ? PLANES_TODOS[c.plan].label : (c.plan || "—");
   const esCliente = esClientePagando(c);
-  const accion = esCliente ? "—" :
-    '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
+  let accion;
+  if (!esCliente) {
+    accion = '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
+  } else {
+    // Solo mostramos el recordatorio de cobro si ya venció o está por
+    // vencer (igual que el CRM de cobros) — un cliente al día no necesita
+    // que lo molestemos.
+    const dias = diasHasta(c.proximoPago);
+    accion = (dias !== null && dias <= 5)
+      ? '<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); enviarWhatsappRecordatorio(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Recordar pago</button>'
+      : "—";
+  }
   const referido = c.referidoPorNombre ?
     '<div style="font-size:.68rem;color:var(--gold);font-weight:700;margin-top:2px"><i class="fa-solid fa-gift"></i> Referido por ' + esc(c.referidoPorNombre) + '</div>' : "";
   return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
@@ -231,6 +241,43 @@ function animarProspecto(id) {
     "Quedamos atentos por este mismo chat.";
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Mensaje de ánimo a pagar enviado por WhatsApp", id, nombreClub, tel);
+}
+
+function hoyStr() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function estadoTexto(dias) {
+  if (dias < 0) return "Venció hace " + Math.abs(dias) + (Math.abs(dias) === 1 ? " día" : " días");
+  if (dias === 0) return "Vence hoy";
+  return "Vence en " + dias + (dias === 1 ? " día" : " días");
+}
+
+// Mismo mensaje que usa el CRM de cobros — el texto se adapta solo según
+// esté vencido o por vencer, para que suene siempre al día sin tener que
+// redactarlo cada vez.
+function mensajeRecordatorioWhatsapp(c, dias) {
+  const nombreClub = c.clubNombre || "tu club";
+  let msg = "Hola, te escribimos de BioFutbol. El pago mensual de la app de " + nombreClub +
+    (dias !== null ? " " + estadoTexto(dias).toLowerCase() : " está pendiente") + ".\n\n" +
+    "Puedes coordinar el pago respondiendo este mensaje";
+  if (esColombiaPais(c.clubPais)) {
+    msg += ", o pagar directamente por Llave (Bre-B) @OTO262 a nombre de Juan Carlos Caceres";
+  }
+  msg += ".\n\nQuedamos atentos, gracias por confiar en BioFutbol.";
+  return msg;
+}
+
+function enviarWhatsappRecordatorio(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  let tel = (c.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) { tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, ""); if (!tel) return; }
+  const dias = diasHasta(c.proximoPago);
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensajeRecordatorioWhatsapp(c, dias)), "_blank");
+  registrarAuditoria("Recordatorio de cobro enviado por WhatsApp", c.id, c.clubNombre, tel);
+  db.collection("clientes").doc(c.id).update({ ultimoRecordatorioWhatsappFecha: hoyStr() }).catch(function () {});
 }
 
 function esc(s) {
