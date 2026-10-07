@@ -1257,7 +1257,7 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
   if (!valor) { mostrarError("Ingresa el valor recibido antes de registrar el pago."); return; }
   const fechaStr = document.getElementById("fechaPago").value || new Date().toISOString().slice(0, 10);
   const fechaPago = new Date(fechaStr + "T12:00:00");
-  const proximo = new Date(fechaPago); proximo.setDate(proximo.getDate() + 30);
+  const proximo = calcularProximoPago(clienteActual.proximoPago, fechaPago);
 
   registrandoPago = true;
   const btn = this;

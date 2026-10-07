@@ -128,3 +128,27 @@ function estadoPago(cliente) {
   if (dias <= 5) return { texto: `Vence en ${dias}d`, clase: "warn" };
   return { texto: `Al día (${dias}d)`, clase: "ok" };
 }
+
+// Calcula el siguiente vencimiento al registrar un pago, SIN dejar que un
+// pago atrasado corra el ciclo de cobro del cliente: si ya tenía una fecha
+// de vencimiento, avanza de 30 en 30 días desde ESA fecha (nunca desde el
+// día en que pagó) hasta quedar después de hoy y después del pago — así el
+// día de cobro del cliente se mantiene siempre igual, sin importar qué tan
+// tarde haya pagado esta vez (incluso si quedó debiendo varios meses). Si
+// es su primer pago (todavía no tiene vencimiento), sí arranca desde la
+// fecha de este pago.
+function calcularProximoPago(proximoPagoActual, fechaPago) {
+  const base = proximoPagoActual ? (proximoPagoActual.toDate ? proximoPagoActual.toDate() : new Date(proximoPagoActual)) : null;
+  if (!base || isNaN(base.getTime())) {
+    const proximo = new Date(fechaPago);
+    proximo.setDate(proximo.getDate() + 30);
+    return proximo;
+  }
+  const hoy = new Date();
+  const umbral = fechaPago > hoy ? fechaPago : hoy;
+  const proximo = new Date(base);
+  while (proximo <= umbral) {
+    proximo.setDate(proximo.getDate() + 30);
+  }
+  return proximo;
+}

@@ -11,9 +11,16 @@
 <style>
 .group-row td{background:rgba(255,255,255,.03);color:var(--gray-d);font-size:.72rem;font-weight:800;letter-spacing:.04em;padding:9px 16px;cursor:default}
 .group-row:hover td{background:rgba(255,255,255,.03)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,6,.72);backdrop-filter:blur(3px);z-index:9998;align-items:center;justify-content:center;padding:20px}
+.modal-card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.modal-card h3{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.modal-pago-info{background:rgba(24,168,58,.08);border:1px solid rgba(24,168,58,.3);border-radius:10px;padding:10px 14px;font-size:.8rem;color:var(--gray);margin-bottom:18px;line-height:1.5}
+.modal-pago-info b{color:var(--green-l)}
 </style>
 </head>
 <body>
+<div class="error-box" id="errorBox"></div>
+<div class="success-box" id="successBox"></div>
 <div class="container">
   <div class="topbar">
     <div class="logo">
@@ -77,16 +84,39 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modalPago">
+  <div class="modal-card">
+    <h3><i class="fa-solid fa-circle-check"></i> Confirmar pago</h3>
+    <p id="modalPagoClub" style="color:var(--gray);font-size:.86rem;margin-bottom:18px">—</p>
+    <div class="field-row">
+      <div class="field"><label>Valor recibido (COP)</label><input type="number" id="modalPagoValor" min="0" step="1000"></div>
+      <div class="field"><label>Fecha en que pagó</label><input type="date" id="modalPagoFecha"></div>
+    </div>
+    <div class="modal-pago-info" id="modalPagoInfo"></div>
+    <div style="display:flex;gap:10px">
+      <button type="button" class="btn btn-ghost btn-block" id="btnCancelarPago">Cancelar</button>
+      <button type="button" class="btn btn-primary btn-block" id="btnConfirmarPago"><i class="fa-solid fa-check-double"></i> Confirmar y generar recibo</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/cloudinary-config.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/paises.js"></script>
 <script src="js/audit.js"></script>
+<script src="js/recibo.js"></script>
 <script>
 let TODOS = [];
 let SOCIOS_COUNT = {};
+
+function mostrarError(msg) { const b = document.getElementById("errorBox"); b.textContent = msg; b.style.display = "block"; setTimeout(function () { b.style.display = "none"; }, 5000); }
+function mostrarExito(msg) { const b = document.getElementById("successBox"); b.textContent = msg; b.style.display = "block"; setTimeout(function () { b.style.display = "none"; }, 3000); }
 
 requireSuperAdmin().then(function (user) {
   document.getElementById("userLabel").textContent = nombreAdmin(user.email) + " (" + user.email + ")";
@@ -156,13 +186,17 @@ function filaCliente(c) {
   if (!esCliente) {
     accion = '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
   } else {
-    // Solo mostramos el recordatorio de cobro si ya venció o está por
+    // El recordatorio de cobro solo se muestra si ya venció o está por
     // vencer (igual que el CRM de cobros) — un cliente al día no necesita
-    // que lo molestemos.
+    // que lo molestemos. El botón de confirmar pago, en cambio, siempre
+    // está disponible: puede llegar un pago en cualquier momento, incluso
+    // adelantado.
     const dias = diasHasta(c.proximoPago);
-    accion = (dias !== null && dias <= 5)
-      ? '<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); enviarWhatsappRecordatorio(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Recordar pago</button>'
-      : "—";
+    const recordar = (dias !== null && dias <= 5)
+      ? '<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); enviarWhatsappRecordatorio(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Recordar</button>'
+      : "";
+    const confirmar = '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); abrirModalPago(\'' + c.id + '\')"><i class="fa-solid fa-circle-check"></i> Confirmar pago</button>';
+    accion = '<div style="display:flex;gap:6px;flex-wrap:wrap">' + confirmar + recordar + '</div>';
   }
   const referido = c.referidoPorNombre ?
     '<div style="font-size:.68rem;color:var(--gold);font-weight:700;margin-top:2px"><i class="fa-solid fa-gift"></i> Referido por ' + esc(c.referidoPorNombre) + '</div>' : "";
@@ -279,6 +313,92 @@ function enviarWhatsappRecordatorio(id) {
   registrarAuditoria("Recordatorio de cobro enviado por WhatsApp", c.id, c.clubNombre, tel);
   db.collection("clientes").doc(c.id).update({ ultimoRecordatorioWhatsappFecha: hoyStr() }).catch(function () {});
 }
+
+// ── Confirmar pago (desde la lista, sin entrar a la ficha del cliente) ──
+let pagoClienteId = null;
+let registrandoPagoLista = false;
+
+function abrirModalPago(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  pagoClienteId = id;
+  document.getElementById("modalPagoClub").textContent = c.clubNombre || "Cliente";
+  const ultimoPago = (c.pagos && c.pagos.length) ? c.pagos[c.pagos.length - 1] : null;
+  document.getElementById("modalPagoValor").value = ultimoPago ? ultimoPago.valor : "";
+  document.getElementById("modalPagoFecha").value = new Date().toISOString().slice(0, 10);
+  actualizarInfoModalPago();
+  document.getElementById("modalPago").style.display = "flex";
+}
+
+function cerrarModalPago() {
+  document.getElementById("modalPago").style.display = "none";
+  pagoClienteId = null;
+}
+
+// Muestra en vivo cuál va a quedar el próximo vencimiento, para que quede
+// claro que un pago atrasado NO corre el ciclo del cliente — se nota antes
+// de confirmar, no después.
+function actualizarInfoModalPago() {
+  const c = TODOS.find(function (x) { return x.id === pagoClienteId; });
+  const fechaStr = document.getElementById("modalPagoFecha").value;
+  const info = document.getElementById("modalPagoInfo");
+  if (!c || !fechaStr) { info.innerHTML = ""; return; }
+  const fechaPago = new Date(fechaStr + "T12:00:00");
+  const proximo = calcularProximoPago(c.proximoPago, fechaPago);
+  const diasAntesDelCicloActual = c.proximoPago ? diasHasta(c.proximoPago) : null;
+  const atrasado = diasAntesDelCicloActual !== null && diasAntesDelCicloActual < 0;
+  info.innerHTML = "El próximo vencimiento va a quedar el <b>" + proximo.toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" }) + "</b>" +
+    (atrasado ? " — este pago llegó tarde, pero el ciclo de cobro del club se mantiene igual, sin correrse." : ".");
+}
+document.getElementById("modalPagoFecha").addEventListener("input", actualizarInfoModalPago);
+document.getElementById("btnCancelarPago").addEventListener("click", cerrarModalPago);
+document.getElementById("modalPago").addEventListener("click", function (e) { if (e.target === this) cerrarModalPago(); });
+
+document.getElementById("btnConfirmarPago").addEventListener("click", function () {
+  if (!pagoClienteId || registrandoPagoLista) return;
+  const c = TODOS.find(function (x) { return x.id === pagoClienteId; });
+  if (!c) return;
+  const valor = Number(document.getElementById("modalPagoValor").value) || 0;
+  if (!valor) { mostrarError("Ingresa el valor recibido antes de confirmar el pago."); return; }
+  const fechaStr = document.getElementById("modalPagoFecha").value || new Date().toISOString().slice(0, 10);
+  const fechaPago = new Date(fechaStr + "T12:00:00");
+  const proximo = calcularProximoPago(c.proximoPago, fechaPago);
+
+  registrandoPagoLista = true;
+  const btn = document.getElementById("btnConfirmarPago");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generando recibo...';
+
+  const pdf = generarReciboPDF({
+    emisorNombre: "BioFutbol",
+    colorPrimario: "#18A83A",
+    pagadorNombre: c.clubNombre || "—",
+    pagadorDoc: c.clubNit || "",
+    concepto: "Mensualidad de la app BioFutbol",
+    valor: valor,
+    fecha: fechaPago,
+    numSocios: c.numSocios || SOCIOS_COUNT[c.id] || 0
+  });
+
+  subirReciboPDF(pdf, "recibo-" + c.id + "-" + Date.now() + ".pdf").then(function (url) {
+    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
+    return db.collection("clientes").doc(c.id).update({
+      proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
+      estado: "activo",
+      pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+    });
+  }).then(function () {
+    registrarAuditoria("Pago registrado desde la lista de clientes", c.id, c.clubNombre, formatCOP(valor));
+    mostrarExito("Pago confirmado y recibo generado.");
+    cerrarModalPago();
+  }).catch(function (err) {
+    mostrarError("No se pudo registrar el pago: " + err.message);
+  }).finally(function () {
+    registrandoPagoLista = false;
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Confirmar y generar recibo';
+  });
+});
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, function (m) {
