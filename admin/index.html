@@ -314,6 +314,17 @@ function enviarWhatsappRecordatorio(id) {
   db.collection("clientes").doc(c.id).update({ ultimoRecordatorioWhatsappFecha: hoyStr() }).catch(function () {});
 }
 
+// Abre WhatsApp con el recibo ya armado — se llama sola apenas se confirma
+// un pago, para que el administrador no tenga que ir a buscarlo después.
+function enviarReciboWhatsapp(c, reciboUrl) {
+  if (!reciboUrl) return;
+  let tel = (c.repTelefono || "").replace(/[^0-9]/g, "");
+  if (!tel) { tel = (prompt("El recibo ya quedó listo. ¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, ""); if (!tel) return; }
+  const mensaje = "¡Hola! Aquí tienes el recibo de tu pago a BioFutbol: " + reciboUrl;
+  window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
+  registrarAuditoria("Recibo enviado por WhatsApp", c.id, c.clubNombre, tel);
+}
+
 // ── Confirmar pago (desde la lista, sin entrar a la ficha del cliente) ──
 let pagoClienteId = null;
 let registrandoPagoLista = false;
@@ -380,7 +391,9 @@ document.getElementById("btnConfirmarPago").addEventListener("click", function (
     numSocios: c.numSocios || SOCIOS_COUNT[c.id] || 0
   });
 
+  let reciboUrl = null;
   subirReciboPDF(pdf, "recibo-" + c.id + "-" + Date.now() + ".pdf").then(function (url) {
+    reciboUrl = url;
     const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
     return db.collection("clientes").doc(c.id).update({
       proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
@@ -389,8 +402,9 @@ document.getElementById("btnConfirmarPago").addEventListener("click", function (
     });
   }).then(function () {
     registrarAuditoria("Pago registrado desde la lista de clientes", c.id, c.clubNombre, formatCOP(valor));
-    mostrarExito("Pago confirmado y recibo generado.");
+    mostrarExito("Pago confirmado. Abriendo WhatsApp para enviar el recibo...");
     cerrarModalPago();
+    enviarReciboWhatsapp(c, reciboUrl);
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
   }).finally(function () {

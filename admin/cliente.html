@@ -1277,7 +1277,9 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
     numSocios: numSociosRecibo
   });
 
+  let reciboUrl = null;
   subirReciboPDF(pdf, "recibo-" + clienteId + "-" + Date.now() + ".pdf").then(function (url) {
+    reciboUrl = url;
     btn.innerHTML = '<span class="spinner"></span> Guardando...';
     const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
     return db.collection("clientes").doc(clienteId).update({
@@ -1287,11 +1289,12 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
     });
   }).then(function () {
     registrarAuditoria("Pago registrado", clienteId, clienteActual.clubNombre, formatCOP(valor));
-    mostrarExito("Pago registrado y recibo generado.");
+    mostrarExito("Pago registrado. Abriendo WhatsApp para enviar el recibo...");
     mostrarPagoGuardado("Pago de " + formatCOP(valor) + " guardado y recibo generado.");
     registrandoPago = false;
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
     cargarCliente();
+    enviarReciboWhatsapp(reciboUrl);
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
     registrandoPago = false;
@@ -1299,14 +1302,18 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
   });
 });
 
-document.getElementById("btnReciboWhatsapp").addEventListener("click", function () {
-  if (!ultimoReciboUrl) return;
+function enviarReciboWhatsapp(url) {
+  if (!url) return;
   let tel = (clienteActual.repTelefono || "").replace(/[^0-9]/g, "");
-  if (!tel) tel = (prompt("¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
+  if (!tel) tel = (prompt("El recibo ya quedó listo. ¿A qué número de WhatsApp se lo enviamos?") || "").replace(/[^0-9]/g, "");
   if (!tel) return;
-  const mensaje = "¡Hola! Aquí tienes el recibo de tu pago a BioFutbol: " + ultimoReciboUrl;
+  const mensaje = "¡Hola! Aquí tienes el recibo de tu pago a BioFutbol: " + url;
   window.open("https://wa.me/" + tel + "?text=" + encodeURIComponent(mensaje), "_blank");
   registrarAuditoria("Recibo enviado por WhatsApp", clienteId, clienteActual.clubNombre, tel);
+}
+
+document.getElementById("btnReciboWhatsapp").addEventListener("click", function () {
+  enviarReciboWhatsapp(ultimoReciboUrl);
 });
 
 document.getElementById("btnReciboCorreo").addEventListener("click", function () {
