@@ -105,33 +105,36 @@
       </div>
 
       <div class="card">
-        <h3><i class="fa-solid fa-tags"></i> Plan y socios</h3>
-        <div class="plan-grid" id="planGrid"></div>
-        <p class="center-note" id="contadorClubesIntl" style="display:none"></p>
-        <div class="field"><label>Número de socios/deportistas (estimado)</label><input type="number" id="numSocios" min="1"></div>
-
-        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
-          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
-            <input type="checkbox" id="planNegociadoActivo" checked style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
-            <span style="font-weight:700;font-size:.86rem">Este club tiene un plan negociado (precio y mínimo pautado por deportista)</span>
-          </label>
-          <div id="planNegociadoBox" style="display:block">
-            <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Define el valor por deportista y el mínimo de deportistas pautado con este club. Nunca se sugiere cobrar menos de ese mínimo — y si ya tiene registrados más deportistas de los pautados, el excedente se calcula solo, al mismo valor pautado.</p>
-            <div class="field-row">
-              <div class="field"><label>Deportistas pautados (mínimo)</label><input type="number" id="deportistasPautados" min="1" placeholder="Ej: 60"></div>
-              <div class="field"><label>Valor pautado por deportista (COP)</label><input type="number" id="valorPorDeportista" min="0" step="500" placeholder="Ej: 2500"></div>
-            </div>
-            <div class="status-row" style="margin-top:4px"><span class="k">Deportistas registrados ahora</span><span id="pnConteoReal" class="pill muted">—</span></div>
-            <div class="status-row"><span class="k">Cobro mínimo mensual</span><span id="pnMinimo" class="pill muted">—</span></div>
-            <div class="status-row" id="pnExcedenteRow" style="display:none"><span class="k">Excedente sobre lo pautado</span><span id="pnExcedente" class="pill warn">—</span></div>
-            <div class="status-row" id="pnReferidosRow" style="display:none"><span class="k">Descuento por referidos (<span id="pnReferidosCount">0</span> activo/s)</span><span id="pnReferidosDesc" class="pill ok">-10%</span></div>
-            <div class="status-row" style="margin-top:6px;border-top:1px solid var(--card-b2);padding-top:10px"><span class="k" style="font-weight:800">Total sugerido a cobrar</span><span id="pnTotal" class="pill ok" style="font-size:.9rem">—</span></div>
-            <button type="button" class="btn btn-ghost btn-sm btn-block" id="btnUsarValorPautado" style="margin-top:12px"><i class="fa-solid fa-arrow-down"></i> Usar este valor en "Valor recibido"</button>
-            <button type="button" class="btn btn-primary btn-sm btn-block" id="btnEnviarPlanWhatsapp" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviar resumen de pago por WhatsApp</button>
+        <h3><i class="fa-solid fa-sack-dollar"></i> Cobro a este club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Esto es lo que de verdad determina cuánto se le cobra cada mes. La mayoría de clubes tienen un precio negociado — si en cambio este club paga uno de los planes estándar de BioFutbol, desactiva la casilla.</p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
+          <input type="checkbox" id="planNegociadoActivo" checked style="width:20px;height:20px;accent-color:var(--green-l);flex-shrink:0">
+          <span style="font-weight:700;font-size:.86rem">Este club tiene un plan negociado (precio y mínimo pautado por deportista)</span>
+        </label>
+        <div id="planNegociadoBox" style="display:block">
+          <p style="font-size:.78rem;color:var(--gray);margin-bottom:14px">Define el valor por deportista y el mínimo de deportistas pautado con este club. Nunca se sugiere cobrar menos de ese mínimo — y si ya tiene registrados más deportistas de los pautados, el excedente se calcula solo, al mismo valor pautado.</p>
+          <div class="field-row">
+            <div class="field"><label>Deportistas pautados (mínimo)</label><input type="number" id="deportistasPautados" min="1" placeholder="Ej: 60"></div>
+            <div class="field"><label>Valor pautado por deportista (COP)</label><input type="number" id="valorPorDeportista" min="0" step="500" placeholder="Ej: 2500"></div>
           </div>
+          <div class="status-row" style="margin-top:4px"><span class="k">Deportistas registrados ahora</span><span id="pnConteoReal" class="pill muted">—</span></div>
+          <div class="status-row"><span class="k">Cobro mínimo mensual</span><span id="pnMinimo" class="pill muted">—</span></div>
+          <div class="status-row" id="pnExcedenteRow" style="display:none"><span class="k">Excedente sobre lo pautado</span><span id="pnExcedente" class="pill warn">—</span></div>
+          <div class="status-row" id="pnReferidosRow" style="display:none"><span class="k">Descuento por referidos (<span id="pnReferidosCount">0</span> activo/s)</span><span id="pnReferidosDesc" class="pill ok">-10%</span></div>
+          <div class="status-row" style="margin-top:6px;border-top:1px solid var(--card-b2);padding-top:10px"><span class="k" style="font-weight:800">Total sugerido a cobrar</span><span id="pnTotal" class="pill ok" style="font-size:.9rem">—</span></div>
+          <button type="button" class="btn btn-ghost btn-sm btn-block" id="btnUsarValorPautado" style="margin-top:12px"><i class="fa-solid fa-arrow-down"></i> Usar este valor en "Valor recibido"</button>
+          <button type="button" class="btn btn-primary btn-sm btn-block" id="btnEnviarPlanWhatsapp" style="margin-top:8px"><i class="fa-brands fa-whatsapp"></i> Enviar resumen de pago por WhatsApp</button>
         </div>
 
         <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <h4 style="font-size:.86rem;font-weight:800;margin-bottom:4px"><i class="fa-solid fa-tags"></i> Categoría de plan</h4>
+          <p style="font-size:.76rem;color:var(--gray-d);margin-bottom:12px">Solo para clasificar al club en los reportes — elige el que más se parezca. No cambia lo que se le cobra arriba.</p>
+          <div class="plan-grid" id="planGrid"></div>
+          <p class="center-note" id="contadorClubesIntl" style="display:none"></p>
+        </div>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <div class="field"><label>Número de socios/deportistas (estimado)</label><input type="number" id="numSocios" min="1"></div>
           <div class="field">
             <label><i class="fa-solid fa-gift"></i> ¿Quién refirió a este club? (opcional)</label>
             <select id="referidoPor"><option value="">— Llegó directo, nadie lo refirió —</option></select>

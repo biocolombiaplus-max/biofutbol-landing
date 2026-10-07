@@ -360,7 +360,8 @@
         <button class="tab-btn on" data-tab="inicio" data-group="inicio"><i class="fa-solid fa-house"></i> Inicio</button>
         <button class="tab-btn" data-tab="socios" data-group="socios"><i class="fa-solid fa-users"></i> Socios</button>
         <button class="tab-btn" data-tab="profesores" data-group="socios"><i class="fa-solid fa-whistle"></i> Profesores</button>
-        <button class="tab-btn" data-tab="pagos" data-group="pagos"><i class="fa-solid fa-sack-dollar"></i> Pagos</button>
+        <button class="tab-btn" data-tab="cobros" data-group="pagos"><i class="fa-solid fa-sack-dollar"></i> Cobros</button>
+        <button class="tab-btn" data-tab="finanzas" data-group="pagos"><i class="fa-solid fa-scale-balanced"></i> Finanzas</button>
         <button class="tab-btn" data-tab="imagenes" data-group="comunicacion"><i class="fa-solid fa-image"></i> Imágenes</button>
         <button class="tab-btn" data-tab="patrocinadores" data-group="comunicacion"><i class="fa-solid fa-handshake"></i> Patrocinadores</button>
         <button class="tab-btn" data-tab="entrenamientos" data-group="deportivo"><i class="fa-solid fa-stopwatch"></i> Entrenamientos</button>
@@ -372,6 +373,7 @@
         <button class="tab-btn" data-tab="torneos" data-group="deportivo"><i class="fa-solid fa-medal"></i> Torneos</button>
         <button class="tab-btn" data-tab="informes" data-group="administracion"><i class="fa-solid fa-file-lines"></i> Informes</button>
         <button class="tab-btn" data-tab="miclub" data-group="administracion"><i class="fa-solid fa-gear"></i> Mi club</button>
+        <button class="tab-btn" data-tab="configuracion" data-group="administracion"><i class="fa-solid fa-sliders"></i> Configuración</button>
       </div>
     </div>
 
@@ -437,9 +439,9 @@
 
       <div class="section-label">Acceso rápido</div>
       <div class="quick-grid">
-        <button type="button" class="quick-tile qt-12" data-goto="pagos">
+        <button type="button" class="quick-tile qt-12" data-goto="cobros">
           <div class="qt-ico"><i class="fa-solid fa-sack-dollar"></i></div>
-          <div class="qt-title">Pagos</div>
+          <div class="qt-title">Cobros</div>
           <div class="qt-sub" id="qtPagosSub">—</div>
         </button>
         <button type="button" class="quick-tile qt-1" data-goto="socios">
@@ -545,7 +547,7 @@
             <div class="status-row"><span class="k">Teléfono</span><span id="fichaTelefono">—</span></div>
             <div class="status-row"><span class="k">Correo</span><span id="fichaCorreo">—</span></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-              <button class="btn btn-primary btn-sm" id="btnFichaIrPagos"><i class="fa-solid fa-sack-dollar"></i> Ir a Gestión de pagos</button>
+              <button class="btn btn-primary btn-sm" id="btnFichaIrPagos"><i class="fa-solid fa-sack-dollar"></i> Ir a Cobros</button>
               <a href="#" id="btnFichaEditar" class="btn btn-ghost btn-sm"><i class="fa-solid fa-id-card"></i> Ver ficha completa</a>
             </div>
             <div style="margin-top:18px">
@@ -615,17 +617,11 @@
       </div>
     </div>
 
-    <div class="tab-panel" id="tab-pagos">
+    <div class="tab-panel" id="tab-cobros">
       <div class="card">
         <h3><i class="fa-solid fa-chart-pie"></i> Resumen de cartera</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">De un vistazo, cómo va la cartera del club este mes.</p>
         <div class="stat-grid" id="pagosResumen" style="margin:16px 0 0"></div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-scale-balanced"></i> Control financiero</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">Ingresos reales (pagos ya registrados) contra gastos registrados este mes — así vas viendo la ganancia del club, sin complicarte.</p>
-        <div class="stat-grid" id="finanzasResumen" style="margin:16px 0 0"></div>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -680,42 +676,6 @@
       </div>
 
       <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-receipt"></i> Gastos del club</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Registra cada gasto (arriendo, implementos, arbitraje, transporte...) para tener control financiero real, no solo de lo que entra.</p>
-        <div class="field-row">
-          <div class="field"><label>Concepto</label><input type="text" id="gastoConcepto" placeholder="Ej: Arriendo cancha municipal"></div>
-          <div class="field"><label>Categoría</label><select id="gastoCategoria"></select></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label id="gastoValorLabel">Valor (COP)</label><input type="number" id="gastoValor" min="0" step="1000" placeholder="Ej: 150000"></div>
-          <div class="field"><label>Fecha</label><input type="date" id="gastoFecha"></div>
-        </div>
-        <div class="field"><label>Notas (opcional)</label><input type="text" id="gastoNotas" placeholder="Ej: Pago a nombre de..."></div>
-        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarGasto"><i class="fa-solid fa-plus"></i> Registrar gasto</button>
-
-        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
-          <div id="listaGastos"><p class="empty">Todavía no has registrado gastos.</p></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-file-invoice-dollar"></i> Informe financiero</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con ingresos, gastos por categoría y la utilidad del periodo — la vista completa de las finanzas del club.</p>
-        <div class="field-row">
-          <div class="field"><label>Periodo</label>
-            <select id="repFinPeriodo">
-              <option value="mesActual" selected>Mes actual</option>
-              <option value="mesAnterior">Mes anterior</option>
-              <option value="personalizado">Rango personalizado</option>
-            </select>
-          </div>
-          <div class="field" id="repFinDesdeBox" style="display:none"><label>Desde</label><input type="date" id="repFinDesde"></div>
-        </div>
-        <div class="field" id="repFinHastaBox" style="display:none"><label>Hasta</label><input type="date" id="repFinHasta"></div>
-        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteFinanciero"><i class="fa-solid fa-file-pdf"></i> Generar informe financiero</button>
-      </div>
-
-      <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-robot"></i> Recordatorios automáticos por correo</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Actívalos y olvídate de escribirle a cada papá — cada vez que abras el panel, se envía solo a quien le toque ese día, con el valor y a dónde pagar. No tienes que hacer nada manual.</p>
         <label class="pay-method-toggle" style="margin-bottom:14px">
@@ -765,6 +725,50 @@
         </div>
         <div class="field"><label>Vence hasta (opcional)</label><input type="date" id="repCarHasta"></div>
         <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteCartera"><i class="fa-solid fa-file-pdf"></i> Generar PDF de cartera</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-finanzas">
+      <div class="card">
+        <h3><i class="fa-solid fa-scale-balanced"></i> Control financiero</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">Ingresos reales (pagos ya registrados) contra gastos registrados este mes — así vas viendo la ganancia del club, sin complicarte.</p>
+        <div class="stat-grid" id="finanzasResumen" style="margin:16px 0 0"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-receipt"></i> Gastos del club</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Registra cada gasto (arriendo, implementos, arbitraje, transporte...) para tener control financiero real, no solo de lo que entra.</p>
+        <div class="field-row">
+          <div class="field"><label>Concepto</label><input type="text" id="gastoConcepto" placeholder="Ej: Arriendo cancha municipal"></div>
+          <div class="field"><label>Categoría</label><select id="gastoCategoria"></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label id="gastoValorLabel">Valor (COP)</label><input type="number" id="gastoValor" min="0" step="1000" placeholder="Ej: 150000"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="gastoFecha"></div>
+        </div>
+        <div class="field"><label>Notas (opcional)</label><input type="text" id="gastoNotas" placeholder="Ej: Pago a nombre de..."></div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnGuardarGasto"><i class="fa-solid fa-plus"></i> Registrar gasto</button>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--card-b2)">
+          <div id="listaGastos"><p class="empty">Todavía no has registrado gastos.</p></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-file-invoice-dollar"></i> Informe financiero</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">PDF con ingresos, gastos por categoría y la utilidad del periodo — la vista completa de las finanzas del club.</p>
+        <div class="field-row">
+          <div class="field"><label>Periodo</label>
+            <select id="repFinPeriodo">
+              <option value="mesActual" selected>Mes actual</option>
+              <option value="mesAnterior">Mes anterior</option>
+              <option value="personalizado">Rango personalizado</option>
+            </select>
+          </div>
+          <div class="field" id="repFinDesdeBox" style="display:none"><label>Desde</label><input type="date" id="repFinDesde"></div>
+        </div>
+        <div class="field" id="repFinHastaBox" style="display:none"><label>Hasta</label><input type="date" id="repFinHasta"></div>
+        <button type="button" class="btn btn-primary btn-block btn-sm" id="btnReporteFinanciero"><i class="fa-solid fa-file-pdf"></i> Generar informe financiero</button>
       </div>
     </div>
 
@@ -993,8 +997,8 @@
 
       <div class="card" style="margin-top:18px" id="entSedesHorariosAviso">
         <h3><i class="fa-solid fa-map-location-dot"></i> Sedes y horario semanal</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Mi club</b> — ahí agregas las sedes donde entrenan y el horario semanal fijo.</p>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;miclub&quot;]').click()"><i class="fa-solid fa-gear"></i> Ir a Mi club</button>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Configuración</b> — ahí agregas las sedes donde entrenan y el horario semanal fijo.</p>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;configuracion&quot;]').click()"><i class="fa-solid fa-sliders"></i> Ir a Configuración</button>
       </div>
 
       <div class="card" style="margin-top:18px" id="festivosCard">
@@ -1061,8 +1065,8 @@
     <div class="tab-panel" id="tab-fixture">
       <div class="card" id="uniFormAviso">
         <h3><i class="fa-solid fa-shirt"></i> Uniformes del club</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Mi club</b> — ahí puedes agregar el titular, el alterno, el de portero y todos los que necesites.</p>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;miclub&quot;]').click()"><i class="fa-solid fa-gear"></i> Ir a Mi club</button>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se configuran una sola vez desde <b>Configuración</b> — ahí puedes agregar el titular, el alterno, el de portero y todos los que necesites.</p>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelector('.tab-btn[data-tab=&quot;configuracion&quot;]').click()"><i class="fa-solid fa-sliders"></i> Ir a Configuración</button>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -1294,6 +1298,40 @@
       </div>
 
       <div class="card" style="margin-top:18px">
+        <h3><i class="fa-solid fa-image"></i> Escudo, imagen y colores</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se usan en el carnet digital, el fixture, las imágenes para redes y el panel del club.</p>
+        <div class="field-row">
+          <div class="field">
+            <label>Escudo del club</label>
+            <div class="upload-box" id="mcLogoBox" onclick="document.getElementById('mcLogoInput').click()">
+              <img id="mcLogoPreview" class="upload-preview logo-preview" style="display:none">
+              <div class="upload-empty" id="mcLogoEmpty"><i class="fa-solid fa-shield-halved"></i><span>Subir escudo</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="mcLogoInput" accept="image/*" style="display:none">
+          </div>
+          <div class="field">
+            <label>Imagen destacada (portada)</label>
+            <div class="upload-box banner" id="mcBannerBox" onclick="document.getElementById('mcBannerInput').click()">
+              <img id="mcBannerPreview" class="upload-preview banner-preview" style="display:none">
+              <div class="upload-empty" id="mcBannerEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen</span></div>
+              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
+            </div>
+            <input type="file" id="mcBannerInput" accept="image/*" style="display:none">
+          </div>
+        </div>
+        <div id="mcUploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Color principal</label><input type="color" id="mcColorPrimario" style="height:44px;padding:4px;cursor:pointer"></div>
+          <div class="field"><label>Color secundario</label><input type="color" id="mcColorSecundario" style="height:44px;padding:4px;cursor:pointer"></div>
+        </div>
+        <div class="field"><label>Color terciario (opcional)</label><input type="color" id="mcColorTerciario" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
+        <div id="mcColorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-configuracion">
+      <div class="card">
         <h3><i class="fa-solid fa-map-location-dot"></i> <span id="sedeFormTitulo">Agregar sede / lugar de entrenamiento</span></h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:16px">Si entrenan en más de un sitio, agrégalos aquí para poder elegirlos al crear un horario. Se configura una sola vez.</p>
         <div class="field-row">
@@ -1336,38 +1374,6 @@
       <div class="card" style="margin-top:18px">
         <h3><i class="fa-solid fa-calendar-days"></i> Horario semanal</h3>
         <div id="listaHorarios"><p class="empty">Todavía no has programado horarios de entrenamiento.</p></div>
-      </div>
-
-      <div class="card" style="margin-top:18px">
-        <h3><i class="fa-solid fa-image"></i> Escudo, imagen y colores</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Se usan en el carnet digital, el fixture, las imágenes para redes y el panel del club.</p>
-        <div class="field-row">
-          <div class="field">
-            <label>Escudo del club</label>
-            <div class="upload-box" id="mcLogoBox" onclick="document.getElementById('mcLogoInput').click()">
-              <img id="mcLogoPreview" class="upload-preview logo-preview" style="display:none">
-              <div class="upload-empty" id="mcLogoEmpty"><i class="fa-solid fa-shield-halved"></i><span>Subir escudo</span></div>
-              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
-            </div>
-            <input type="file" id="mcLogoInput" accept="image/*" style="display:none">
-          </div>
-          <div class="field">
-            <label>Imagen destacada (portada)</label>
-            <div class="upload-box banner" id="mcBannerBox" onclick="document.getElementById('mcBannerInput').click()">
-              <img id="mcBannerPreview" class="upload-preview banner-preview" style="display:none">
-              <div class="upload-empty" id="mcBannerEmpty"><i class="fa-solid fa-panorama"></i><span>Subir imagen</span></div>
-              <div class="upload-overlay"><i class="fa-solid fa-camera"></i> Cambiar</div>
-            </div>
-            <input type="file" id="mcBannerInput" accept="image/*" style="display:none">
-          </div>
-        </div>
-        <div id="mcUploadStatus" style="font-size:.78rem;color:var(--green-l);display:none;margin-top:4px"><span class="spinner"></span> Subiendo imagen...</div>
-        <div class="field-row" style="margin-top:14px">
-          <div class="field"><label>Color principal</label><input type="color" id="mcColorPrimario" style="height:44px;padding:4px;cursor:pointer"></div>
-          <div class="field"><label>Color secundario</label><input type="color" id="mcColorSecundario" style="height:44px;padding:4px;cursor:pointer"></div>
-        </div>
-        <div class="field"><label>Color terciario (opcional)</label><input type="color" id="mcColorTerciario" style="height:44px;padding:4px;cursor:pointer;max-width:200px"></div>
-        <div id="mcColorStatus" style="font-size:.76rem;color:var(--green-l);display:none;margin-top:4px"><i class="fa-solid fa-check"></i> Colores guardados</div>
       </div>
 
       <div class="card" style="margin-top:18px">
@@ -1480,7 +1486,7 @@ function restringirAccesoProfesor() {
     const btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
     if (btn) btn.remove();
   });
-  // "Ir a Mi club" no le sirve a un profesor — esa pestaña es del dueño.
+  // "Ir a Configuración" no le sirve a un profesor — esa pestaña es del dueño.
   const avisoUniformes = document.getElementById("uniFormAviso");
   if (avisoUniformes) avisoUniformes.style.display = "none";
   document.querySelector(".club-hdr-sub").textContent = "Acceso de profesor · BioFutbol";
@@ -1656,10 +1662,10 @@ function aplicarIconoDelClub(cliente) {
 const TAB_GRUPOS = {
   inicio: ["inicio"],
   socios: ["socios", "profesores"],
-  pagos: ["pagos"],
+  pagos: ["cobros", "finanzas"],
   deportivo: ["entrenamientos", "equipos", "fixture", "tabla", "goleadores", "llave", "torneos"],
   comunicacion: ["imagenes", "patrocinadores"],
-  administracion: ["informes", "miclub"]
+  administracion: ["informes", "miclub", "configuracion"]
 };
 
 function grupoDeTab(tab) {
@@ -3014,7 +3020,7 @@ function mensajeRecordatorioWhatsapp(socio) {
 
 document.getElementById("btnFichaIrPagos").addEventListener("click", function () {
   if (!socioSeleccionado) return;
-  irATab("pagos");
+  irATab("cobros");
   document.getElementById("pagosBuscar").value = socioSeleccionado.nombre || "";
   pintarListaPagos();
 });
