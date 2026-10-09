@@ -35,20 +35,38 @@ service cloud.firestore {
     // Clientes: cualquiera puede CREAR (formulario público de registro).
     // Leer/editar: el súper-admin de BioFutbol, o el propio club dueño de
     // ese documento (una vez tiene su login real). Borrar: solo súper-admin.
+    // accesoSuspendido (bloqueo de toda la app por falta de pago) es la
+    // única excepción: solo el súper-admin puede cambiarlo — si el club
+    // dueño pudiera tocarlo, podría reactivarse solo escribiendo
+    // directamente a Firestore sin pasar por la interfaz.
     match /clientes/{clienteId} {
       allow create: if true;
-      allow read, update: if esSuperAdmin() ||
-        (request.auth != null && resource.data.authUid == request.auth.uid);
+      // Un profesor también puede leer el documento completo de su club:
+      // requireClub() (club-panel.html) lo necesita para mostrarle equipos,
+      // fixture y torneos (colores, módulos activos, categorías...), igual
+      // que ya puede escribir en esas mismas colecciones.
+      allow read: if esSuperAdmin() ||
+        (request.auth != null && resource.data.authUid == request.auth.uid) ||
+        esProfesorDelClub(clienteId);
+      allow update: if esSuperAdmin() ||
+        (request.auth != null && resource.data.authUid == request.auth.uid &&
+         request.resource.data.get("accesoSuspendido", false) == resource.data.get("accesoSuspendido", false));
       allow delete: if esSuperAdmin();
     }
 
     // Marca pública del club (nombre, escudo, colores) — sin datos
     // administrativos ni de contacto. Cualquiera puede leerla (la necesita
     // el carnet digital público de cada socio). Solo el súper-admin o el
-    // propio club dueño pueden escribirla.
+    // propio club dueño pueden escribirla — con la misma excepción de
+    // accesoSuspendido que en /clientes (es de donde socios y profesores
+    // leen si su club está suspendido, así que solo el súper-admin lo toca).
     match /clientes/{clienteId}/publico/{docId} {
       allow read: if true;
-      allow write: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      allow create: if esSuperAdmin() || esDuenoDelClub(clienteId);
+      allow update: if esSuperAdmin() ||
+        (esDuenoDelClub(clienteId) &&
+         request.resource.data.get("accesoSuspendido", false) == resource.data.get("accesoSuspendido", false));
+      allow delete: if esSuperAdmin() || esDuenoDelClub(clienteId);
     }
 
     // Autoservicio de acceso (admin/socio-acceso.html): un deportista que ya

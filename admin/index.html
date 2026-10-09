@@ -182,6 +182,7 @@ function filaCliente(c) {
   const registrados = SOCIOS_COUNT[c.id];
   const plan = PLANES_TODOS[c.plan] ? PLANES_TODOS[c.plan].label : (c.plan || "—");
   const esCliente = esClientePagando(c);
+  const suspendido = !!c.accesoSuspendido;
   let accion;
   if (!esCliente) {
     accion = '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); animarProspecto(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Animar a pagar</button>';
@@ -190,18 +191,26 @@ function filaCliente(c) {
     // vencer (igual que el CRM de cobros) — un cliente al día no necesita
     // que lo molestemos. El botón de confirmar pago, en cambio, siempre
     // está disponible: puede llegar un pago en cualquier momento, incluso
-    // adelantado.
+    // adelantado. Suspender acceso solo aparece si ya está vencido — es un
+    // último recurso, no algo para usar con cualquier atraso leve.
     const dias = diasHasta(c.proximoPago);
     const recordar = (dias !== null && dias <= 5)
       ? '<button type="button" class="btn btn-ghost btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); enviarWhatsappRecordatorio(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i> Recordar</button>'
       : "";
     const confirmar = '<button type="button" class="btn btn-primary btn-sm" style="padding:6px 10px;font-size:.72rem" onclick="event.stopPropagation(); abrirModalPago(\'' + c.id + '\')"><i class="fa-solid fa-circle-check"></i> Confirmar pago</button>';
-    accion = '<div style="display:flex;gap:6px;flex-wrap:wrap">' + confirmar + recordar + '</div>';
+    const suspension = suspendido
+      ? '<button type="button" class="btn btn-sm" style="padding:6px 10px;font-size:.72rem;background:rgba(24,168,58,.15);border:1px solid rgba(24,168,58,.4);color:var(--green-l)" onclick="event.stopPropagation(); reactivarAcceso(\'' + c.id + '\')"><i class="fa-solid fa-lock-open"></i> Reactivar acceso</button>'
+      : ((dias !== null && dias < 0)
+        ? '<button type="button" class="btn btn-sm" style="padding:6px 10px;font-size:.72rem;background:rgba(255,92,92,.1);border:1px solid rgba(255,92,92,.4);color:var(--red)" onclick="event.stopPropagation(); suspenderAcceso(\'' + c.id + '\')"><i class="fa-solid fa-ban"></i> Suspender acceso</button>'
+        : "");
+    accion = '<div style="display:flex;gap:6px;flex-wrap:wrap">' + confirmar + recordar + suspension + '</div>';
   }
   const referido = c.referidoPorNombre ?
     '<div style="font-size:.68rem;color:var(--gold);font-weight:700;margin-top:2px"><i class="fa-solid fa-gift"></i> Referido por ' + esc(c.referidoPorNombre) + '</div>' : "";
+  const suspendidoTag = suspendido ?
+    '<div style="font-size:.68rem;color:var(--red);font-weight:800;margin-top:2px"><i class="fa-solid fa-ban"></i> ACCESO SUSPENDIDO</div>' : "";
   return '<tr onclick="location.href=\'cliente.html?id=' + c.id + '\'">' +
-    '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong>' + referido + '</td>' +
+    '<td><strong>' + esc(c.clubNombre || "Sin nombre") + '</strong>' + referido + suspendidoTag + '</td>' +
     '<td>' + esc(c.repNombre || "—") + '</td>' +
     '<td>' + esc(plan) + '</td>' +
     '<td>' + (c.numSocios || "—") + '</td>' +
@@ -325,6 +334,39 @@ function enviarReciboWhatsapp(c, reciboUrl) {
   registrarAuditoria("Recibo enviado por WhatsApp", c.id, c.clubNombre, tel);
 }
 
+// ── Suspender/reactivar acceso por falta de pago ──
+// Al suspender, TODA la app del club deja de funcionar para el dueño, los
+// profesores y los socios — cada uno ve un aviso de "suspendido por falta
+// de pago" al intentar entrar (requireClub/requireAccesoSocio/
+// requireAccesoProfesor en js/audit.js lo revisan). Se guarda tanto en el
+// documento del cliente como en su doc público "marca" (de ahí lo leen
+// socios y profesores, que no pueden leer el documento completo del
+// cliente).
+function suspenderAcceso(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  if (!confirm("¿Suspender el acceso de " + (c.clubNombre || "este club") + "?\n\nNi el administrador, ni los profesores, ni los socios van a poder entrar a la app hasta que reactives el acceso o confirmes un pago.")) return;
+  Promise.all([
+    db.collection("clientes").doc(id).update({ accesoSuspendido: true }),
+    db.collection("clientes").doc(id).collection("publico").doc("marca").set({ accesoSuspendido: true }, { merge: true })
+  ]).then(function () {
+    registrarAuditoria("Acceso suspendido por falta de pago", id, c.clubNombre);
+    mostrarExito("Acceso suspendido.");
+  }).catch(function (err) { mostrarError("No se pudo suspender el acceso: " + err.message); });
+}
+
+function reactivarAcceso(id) {
+  const c = TODOS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  Promise.all([
+    db.collection("clientes").doc(id).update({ accesoSuspendido: false }),
+    db.collection("clientes").doc(id).collection("publico").doc("marca").set({ accesoSuspendido: false }, { merge: true })
+  ]).then(function () {
+    registrarAuditoria("Acceso reactivado", id, c.clubNombre);
+    mostrarExito("Acceso reactivado.");
+  }).catch(function (err) { mostrarError("No se pudo reactivar el acceso: " + err.message); });
+}
+
 // ── Confirmar pago (desde la lista, sin entrar a la ficha del cliente) ──
 let pagoClienteId = null;
 let registrandoPagoLista = false;
@@ -391,18 +433,25 @@ document.getElementById("btnConfirmarPago").addEventListener("click", function (
     numSocios: c.numSocios || SOCIOS_COUNT[c.id] || 0
   });
 
+  const estabaSuspendido = !!c.accesoSuspendido;
   let reciboUrl = null;
   subirReciboPDF(pdf, "recibo-" + c.id + "-" + Date.now() + ".pdf").then(function (url) {
     reciboUrl = url;
     const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
-    return db.collection("clientes").doc(c.id).update({
-      proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
-      estado: "activo",
-      pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
-    });
+    const writes = [
+      db.collection("clientes").doc(c.id).update({
+        proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
+        estado: "activo",
+        accesoSuspendido: false,
+        pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
+      })
+    ];
+    if (estabaSuspendido) writes.push(db.collection("clientes").doc(c.id).collection("publico").doc("marca").set({ accesoSuspendido: false }, { merge: true }));
+    return Promise.all(writes);
   }).then(function () {
     registrarAuditoria("Pago registrado desde la lista de clientes", c.id, c.clubNombre, formatCOP(valor));
-    mostrarExito("Pago confirmado. Abriendo WhatsApp para enviar el recibo...");
+    if (estabaSuspendido) registrarAuditoria("Acceso reactivado automáticamente al confirmar el pago", c.id, c.clubNombre);
+    mostrarExito("Pago confirmado" + (estabaSuspendido ? " y acceso reactivado" : "") + ". Abriendo WhatsApp para enviar el recibo...");
     cerrarModalPago();
     enviarReciboWhatsapp(c, reciboUrl);
   }).catch(function (err) {
