@@ -241,6 +241,25 @@
 .next-training-card .nt-body{font-size:.92rem;font-weight:800}
 .next-training-card .nt-sub{font-size:.78rem;color:var(--gray);margin-top:2px}
 
+/* ── Centro de cobros: la tarjeta más visible al entrar — lo que más
+   le quita tiempo y plata a un club si no se gestiona bien. ── */
+.cobros-hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,201,51,.14),rgba(24,168,58,.06));border:1px solid rgba(255,201,51,.35);border-radius:18px;padding:18px;margin-top:18px;animation:chGlow 2.8s ease-in-out infinite}
+@keyframes chGlow{0%,100%{box-shadow:0 0 0 rgba(255,201,51,0)}50%{box-shadow:0 0 26px rgba(255,201,51,.3)}}
+.cobros-hero-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);animation:ntShine 3.6s ease-in-out infinite}
+.ch-top{position:relative;z-index:1;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ch-ico{width:44px;height:44px;border-radius:12px;background:linear-gradient(150deg,var(--gold),#c98f00);color:#1a1200;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 6px 16px rgba(255,201,51,.3)}
+.ch-title{font-size:.96rem;font-weight:900}
+.ch-sub{font-size:.78rem;color:var(--gray);margin-top:2px}
+.ch-stats{position:relative;z-index:1;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ch-stat{background:rgba(255,255,255,.06);border:1px solid var(--card-b2);border-radius:12px;padding:8px 14px;flex:1;min-width:90px}
+.ch-stat b{display:block;font-size:1.05rem;font-weight:900}
+.ch-stat span{font-size:.66rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.ch-stat.bad b{color:var(--red)}
+.ch-stat.warn b{color:var(--gold)}
+.ch-stat.ok b{color:var(--green-l)}
+.ch-cta{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c3e);color:#fff;font-weight:900;font-size:.86rem;padding:12px 20px;border-radius:999px;border:none;cursor:pointer;width:100%;box-shadow:0 10px 22px rgba(37,211,102,.3);transition:transform .15s}
+.ch-cta:active{transform:scale(.97)}
+
 /* ── Banner de referidos: invita al club a recomendar BioFutbol y ganar
    descuento — grande, con movimiento, estilo publicitario premium. ── */
 .refer-banner{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;padding:24px 22px;margin-top:24px;background:linear-gradient(135deg,#0B1626,#123322 55%,#1a4a1f);border:1px solid rgba(255,201,51,.35);box-shadow:0 16px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);animation:referGlow 3s ease-in-out infinite}
@@ -421,6 +440,18 @@
         <div class="hero-pills" id="heroPills"></div>
         <div class="hero-stats" id="heroStats"></div>
         <div class="hero-progress" id="heroProgressWrap" style="display:none"><div class="hero-progress-fill" id="heroProgressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="cobros-hero-card" id="cobrosHeroCard">
+        <div class="ch-top">
+          <div class="ch-ico"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="ch-title">Centro de cobros</div>
+            <div class="ch-sub" id="chSub">Cargando...</div>
+          </div>
+        </div>
+        <div class="ch-stats" id="chStats"></div>
+        <button type="button" class="ch-cta" data-goto="cobros"><i class="fa-brands fa-whatsapp"></i> Gestionar cobros ahora</button>
       </div>
 
       <div class="refer-banner" id="referBanner">
@@ -1703,7 +1734,7 @@ document.querySelectorAll(".tab-group-btn").forEach(function (btn) {
 
 aplicarFiltroGrupo("inicio");
 
-document.querySelectorAll(".quick-tile[data-goto]").forEach(function (btn) {
+document.querySelectorAll(".quick-tile[data-goto], .ch-cta[data-goto]").forEach(function (btn) {
   btn.addEventListener("click", function () { irATab(btn.dataset.goto); });
 });
 
@@ -1778,6 +1809,32 @@ function pintarInicio() {
   document.getElementById("qtGoleadoresSub").textContent = moduloEquiposActivo ? (totalGoles + " goles") : "Módulo inactivo";
   document.getElementById("qtPatrocinadoresSub").textContent = PATROCINADORES.length ? (PATROCINADORES.length + " aliados") : "Súmalos aquí";
   pintarPlanPautado();
+  pintarCobrosHero();
+}
+
+// ── Centro de cobros (tarjeta de Inicio): el resumen de plata que más le
+// importa al dueño del club, visible apenas entra — sin tener que ir a
+// buscarlo en la pestaña de Cobros. ──
+function pintarCobrosHero() {
+  const sub = document.getElementById("chSub");
+  const stats = document.getElementById("chStats");
+  if (!sub || !stats) return;
+  const vencidos = SOCIOS.filter(function (s) { return categoriaPago(s) === "vencidos"; });
+  const porVencer = SOCIOS.filter(function (s) { return categoriaPago(s) === "porvencer"; });
+  const enMora = vencidos.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
+  const hoy = new Date().toISOString().slice(0, 10);
+  const contactadosHoy = SOCIOS.filter(function (s) { return s.fechaUltimoRecordatorio === hoy; }).length;
+
+  if (!vencidos.length && !porVencer.length) {
+    sub.textContent = "Todos los socios están al día con su mensualidad. 🎉";
+  } else {
+    sub.textContent = "Así está la cartera del club hoy — mantén el cobro al día en un solo lugar.";
+  }
+  stats.innerHTML =
+    '<div class="ch-stat bad"><b>' + formatMoneda(enMora, clubActual.moneda) + '</b><span>En mora</span></div>' +
+    '<div class="ch-stat bad"><b>' + vencidos.length + '</b><span>Vencidos</span></div>' +
+    '<div class="ch-stat warn"><b>' + porVencer.length + '</b><span>Por vencer</span></div>' +
+    '<div class="ch-stat ok"><b>' + contactadosHoy + '</b><span>Contactados hoy</span></div>';
 }
 
 // ── Plan pautado por deportista: nunca se cobra menos del mínimo
@@ -3001,8 +3058,11 @@ document.getElementById("recAutoDiasDespues").addEventListener("input", actualiz
 
 function mensajeRecordatorioWhatsapp(socio) {
   const valor = valorCobroSocio(socio, clubActual);
+  const dias = socio.pagoProximo ? diasHasta(socio.pagoProximo) : null;
+  const estado = estadoTextoRecordatorio(dias);
   let msg = "¡Hola! Te recordamos la mensualidad de " + (socio.nombre || "tu deportista") + " en " +
     (clubActual.clubNombre || "tu club") + (valor ? ": " + formatMoneda(valor, clubActual.moneda) : "") + ".";
+  if (estado) msg += "\n" + (dias !== null && dias < 0 ? "⚠️ " : "⏰ ") + estado + ".";
   if (clubActual.pagoNequiNumero) msg += "\n\nPuedes pagar por " + (clubActual.pagoNequiApp || "Nequi") + " al " + clubActual.pagoNequiNumero + (clubActual.pagoNequiTitular ? " (" + clubActual.pagoNequiTitular + ")" : "") + ".";
   const banco = textoCuentaBancaria(clubActual);
   if (banco) msg += "\n\nO por transferencia — " + banco + ".";
@@ -3187,13 +3247,17 @@ function pintarResumenPagos() {
   if (!cont) return;
   const conCobro = SOCIOS.filter(function (s) { return !s.becado && !!s.pagoProximo; });
   const esperado = conCobro.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
-  const vencidos = SOCIOS.filter(function (s) { return categoriaPago(s) === "vencidos"; }).length;
+  const socioVencidos = SOCIOS.filter(function (s) { return categoriaPago(s) === "vencidos"; });
+  const enMora = socioVencidos.reduce(function (acc, s) { return acc + valorCobroSocio(s, clubActual); }, 0);
   const porVencer = SOCIOS.filter(function (s) { return categoriaPago(s) === "porvencer"; }).length;
   const becados = SOCIOS.filter(function (s) { return s.becado; }).length;
+  const hoy = new Date().toISOString().slice(0, 10);
+  const contactadosHoy = SOCIOS.filter(function (s) { return s.fechaUltimoRecordatorio === hoy; }).length;
   cont.innerHTML =
     '<div class="stat ok"><div class="n">' + formatMoneda(esperado, clubActual.moneda) + '</div><div class="l">Esperado este mes</div></div>' +
-    '<div class="stat bad"><div class="n">' + vencidos + '</div><div class="l">Vencidos</div></div>' +
+    '<div class="stat bad"><div class="n">' + formatMoneda(enMora, clubActual.moneda) + '</div><div class="l">En mora (' + socioVencidos.length + ')</div></div>' +
     '<div class="stat warn"><div class="n">' + porVencer + '</div><div class="l">Por vencer (5 días)</div></div>' +
+    '<div class="stat ok"><div class="n">' + contactadosHoy + '</div><div class="l">Contactados hoy</div></div>' +
     '<div class="stat"><div class="n">' + becados + '</div><div class="l">Becados</div></div>';
   pintarControlFinanciero();
 }
@@ -3387,6 +3451,7 @@ function filaPago(s, cat) {
   const ep = estadoPagoSocioCrm(s);
   const foto = s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta);
   const valor = valorCobroSocio(s, clubActual);
+  const contactadoHoy = s.fechaUltimoRecordatorio === new Date().toISOString().slice(0, 10);
   let acciones;
   if (cat === "vencidos" || cat === "porvencer") {
     acciones = '<button type="button" class="btn btn-primary btn-sm" onclick="enviarRecordatorioWhatsapp(\'' + s.id + '\',this)"><i class="fa-brands fa-whatsapp"></i> Recordar por WhatsApp</button>' +
@@ -3405,7 +3470,7 @@ function filaPago(s, cat) {
   return '<div class="pago-item">' +
     '<div class="pago-item-top">' +
       '<img class="socio-row-avatar" src="' + foto + '" alt="">' +
-      '<div class="pago-item-info"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + '</small></div>' +
+      '<div class="pago-item-info"><b>' + esc(s.nombre || "Sin nombre") + '</b><small>' + esc(s.categoria || "—") + (contactadoHoy ? ' · <span style="color:var(--green)"><i class="fa-solid fa-check"></i> Contactado hoy</span>' : '') + '</small></div>' +
       '<div class="pago-item-right"><span class="pill ' + ep.clase + '">' + ep.texto + '</span>' + (valor ? '<span class="pago-item-valor">' + formatMoneda(valor, clubActual.moneda) + '</span>' : '') + '</div>' +
     '</div>' +
     '<div class="pago-item-actions">' + acciones + '<a class="btn btn-ghost btn-sm" href="socio.html?cliente=' + clubActual.id + '&id=' + s.id + '"><i class="fa-solid fa-id-card"></i> Ficha</a></div>' +
@@ -3477,10 +3542,12 @@ function pintarColaWhatsapp() {
   }
   const s = colaWhatsappLista[colaWhatsappIdx];
   const ep = estadoPagoSocioCrm(s);
+  const contactadoHoy = s.fechaUltimoRecordatorio === new Date().toISOString().slice(0, 10);
   document.getElementById("colaWhatsappTitulo").textContent = "Recordatorio " + (colaWhatsappIdx + 1) + " de " + total;
   document.getElementById("colaWhatsappSocio").innerHTML =
     '<img class="socio-row-avatar" src="' + (s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta)) + '" alt="">' +
-    '<div><b>' + esc(s.nombre || "Sin nombre") + '</b><br><span class="pill ' + ep.clase + '">' + ep.texto + '</span></div>';
+    '<div><b>' + esc(s.nombre || "Sin nombre") + '</b><br><span class="pill ' + ep.clase + '">' + ep.texto + '</span>' +
+    (contactadoHoy ? '<br><small style="color:var(--gold)"><i class="fa-solid fa-triangle-exclamation"></i> Ya se le escribió hoy</small>' : '') + '</div>';
   document.getElementById("btnColaWhatsappEnviar").innerHTML = '<i class="fa-brands fa-whatsapp"></i> Enviar a ' + esc((s.nombre || "este socio").split(" ")[0]);
 }
 
