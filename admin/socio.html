@@ -706,7 +706,7 @@ document.getElementById("btnMarcarPagado").addEventListener("click", function ()
   if (socioActual.becado) return;
   const valor = Number(document.getElementById("pagoValor").value) || 0;
   const hoy = new Date();
-  const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  const proximo = calcularProximoPago(socioActual.pagoProximo, hoy);
   const hoyStr = hoy.toISOString().slice(0, 10);
   const proximoStr = proximo.toISOString().slice(0, 10);
 
@@ -726,7 +726,7 @@ document.getElementById("btnMarcarPagado").addEventListener("click", function ()
     document.getElementById("pagoProximo").value = proximoStr;
     pintarPago();
     registrarAuditoria("Pago de socio registrado", clienteId, socioActual.nombre, formatMoneda(valor, clubActual.moneda));
-    mostrarExito("Pago registrado. Próximo vencimiento actualizado.");
+    mostrarExito("Pago registrado. La fecha de cobro se mantiene en su ciclo original.");
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
   });

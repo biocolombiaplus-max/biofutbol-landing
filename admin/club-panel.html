@@ -3479,12 +3479,12 @@ function enviarRecordatorioCorreoLista(id, btn) {
 function marcarPagadoDesdeLista(id, btn) {
   const s = socioPorId(id);
   if (!s || s.becado) return;
-  const hoy = new Date(); const proximo = new Date(hoy); proximo.setDate(proximo.getDate() + 30);
+  const hoy = new Date(); const proximo = calcularProximoPago(s.pagoProximo, hoy);
   db.collection("clientes").doc(clubActual.id).collection("socios").doc(s.id).update({
     pagoProximo: proximo.toISOString().slice(0, 10),
     pagoUltimo: hoy.toISOString().slice(0, 10),
     historialPagosSocio: firebase.firestore.FieldValue.arrayUnion({ fecha: hoy.toISOString().slice(0, 10), valor: valorCobroSocio(s, clubActual) })
-  }).then(function () { mostrarExito("Pago registrado."); });
+  }).then(function () { mostrarExito("Pago registrado. La fecha de cobro se mantiene en su ciclo original."); });
 }
 
 function generarSoporteSocio(s) {
