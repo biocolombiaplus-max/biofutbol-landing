@@ -729,7 +729,19 @@
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">A quién le debes recordar el pago y a quién enviarle el soporte de lo que ya pagó — todo por WhatsApp primero, correo como respaldo.</p>
         <div class="crm-toolbar">
           <input type="text" class="search-input" id="pagosBuscar" placeholder="Buscar socio por nombre...">
-          <button class="btn btn-primary btn-sm" id="btnRecordarMasivoCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes</button>
+          <button class="btn btn-primary btn-sm" id="btnColaWhatsapp"><i class="fa-brands fa-whatsapp"></i> Enviar recordatorios pendientes</button>
+          <button class="btn btn-ghost btn-sm" id="btnRecordarMasivoCorreo"><i class="fa-solid fa-envelope"></i> Recordar por correo a todos los pendientes</button>
+        </div>
+        <div id="colaWhatsapp" class="card" style="display:none;margin-bottom:14px;border:1px solid rgba(24,168,58,.35);background:rgba(24,168,58,.08)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <b style="font-size:.82rem" id="colaWhatsappTitulo">Recordatorio 1 de 1</b>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnColaWhatsappCerrar" style="padding:4px 10px"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div id="colaWhatsappSocio" style="display:flex;align-items:center;gap:10px;margin-bottom:14px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn btn-primary btn-sm" id="btnColaWhatsappEnviar"><i class="fa-brands fa-whatsapp"></i> Enviar</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnColaWhatsappSaltar">Saltar</button>
+          </div>
         </div>
         <div class="tpl-pills">
           <button type="button" class="tpl-pill on" data-pagofiltro="todos">Todos</button>
@@ -3436,6 +3448,56 @@ document.querySelectorAll(".tpl-pill[data-pagofiltro]").forEach(function (btn) {
     filtroPagos = btn.dataset.pagofiltro;
     pintarListaPagos();
   });
+});
+
+// ── Cola de WhatsApp: un socio pendiente a la vez, sin buscar fila por fila ──
+let colaWhatsappLista = [];
+let colaWhatsappIdx = 0;
+let colaWhatsappEnviados = 0;
+
+document.getElementById("btnColaWhatsapp").addEventListener("click", function () {
+  colaWhatsappLista = SOCIOS.filter(function (s) {
+    return !s.becado && (categoriaPago(s) === "vencidos" || categoriaPago(s) === "porvencer");
+  });
+  if (!colaWhatsappLista.length) { mostrarExito("No hay recordatorios pendientes por enviar."); return; }
+  colaWhatsappIdx = 0;
+  colaWhatsappEnviados = 0;
+  const cola = document.getElementById("colaWhatsapp");
+  cola.style.display = "block";
+  pintarColaWhatsapp();
+  cola.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
+function pintarColaWhatsapp() {
+  const total = colaWhatsappLista.length;
+  if (colaWhatsappIdx >= total) {
+    document.getElementById("colaWhatsapp").style.display = "none";
+    mostrarExito("Listo: " + colaWhatsappEnviados + " de " + total + " recordatorios enviados por WhatsApp.");
+    return;
+  }
+  const s = colaWhatsappLista[colaWhatsappIdx];
+  const ep = estadoPagoSocioCrm(s);
+  document.getElementById("colaWhatsappTitulo").textContent = "Recordatorio " + (colaWhatsappIdx + 1) + " de " + total;
+  document.getElementById("colaWhatsappSocio").innerHTML =
+    '<img class="socio-row-avatar" src="' + (s.fotoUrl || avatarJerseyDataUrl(clubActual, s.camiseta)) + '" alt="">' +
+    '<div><b>' + esc(s.nombre || "Sin nombre") + '</b><br><span class="pill ' + ep.clase + '">' + ep.texto + '</span></div>';
+  document.getElementById("btnColaWhatsappEnviar").innerHTML = '<i class="fa-brands fa-whatsapp"></i> Enviar a ' + esc((s.nombre || "este socio").split(" ")[0]);
+}
+
+document.getElementById("btnColaWhatsappEnviar").addEventListener("click", function () {
+  const s = colaWhatsappLista[colaWhatsappIdx];
+  if (s) { enviarRecordatorioWhatsapp(s.id); colaWhatsappEnviados++; }
+  colaWhatsappIdx++;
+  pintarColaWhatsapp();
+});
+
+document.getElementById("btnColaWhatsappSaltar").addEventListener("click", function () {
+  colaWhatsappIdx++;
+  pintarColaWhatsapp();
+});
+
+document.getElementById("btnColaWhatsappCerrar").addEventListener("click", function () {
+  document.getElementById("colaWhatsapp").style.display = "none";
 });
 
 function enviarRecordatorioWhatsapp(id, btn) {
