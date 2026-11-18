@@ -7,7 +7,11 @@
 const CLOUDINARY_CLOUD_NAME = "lx52fybs";
 const CLOUDINARY_UPLOAD_PRESET = "zugtzfz1";
 
-function subirACloudinary(file, folder, filename) {
+// forzarTipo (opcional): fuerza el resource_type de Cloudinary ("raw",
+// "image", "video", "auto") en vez de decidirlo automáticamente — lo usa
+// subirReciboPDF() para reintentar con otro tipo si el primero falla,
+// porque cada cuenta de Cloudinary puede tener restringido uno u otro.
+function subirACloudinary(file, folder, filename, forzarTipo) {
   if (CLOUDINARY_CLOUD_NAME === "TU_CLOUD_NAME") {
     return Promise.reject(new Error("Falta configurar Cloudinary (js/cloudinary-config.js)."));
   }
@@ -18,17 +22,23 @@ function subirACloudinary(file, folder, filename) {
   // ese filtro, los PDF siempre se pueden ver/descargar sin tocar nada en
   // la cuenta de Cloudinary.
   const esPdf = (filename || file.name || "").toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
-  const tipoRecurso = esPdf ? "raw" : "auto";
+  const tipoRecurso = forzarTipo || (esPdf ? "raw" : "auto");
   const url = "https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/" + tipoRecurso + "/upload";
   const formData = new FormData();
   formData.append("file", file, filename || file.name || "archivo");
   formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
   if (folder) formData.append("folder", folder);
   return fetch(url, { method: "POST", body: formData }).then(function (res) {
-    if (!res.ok) throw new Error("No se pudo subir el archivo (revisa el preset de Cloudinary).");
-    return res.json();
-  }).then(function (data) {
-    if (!data.secure_url) throw new Error("Cloudinary no devolvió una URL válida.");
-    return data.secure_url;
+    // Siempre se intenta leer el cuerpo de la respuesta — así, si Cloudinary
+    // rechaza la subida, el mensaje de error real (ej. "preset no permite
+    // archivos raw") queda visible en vez de un genérico "revisa el preset".
+    return res.json().catch(function () { return {}; }).then(function (data) {
+      if (!res.ok) {
+        const motivo = (data && data.error && data.error.message) || ("HTTP " + res.status);
+        throw new Error("No se pudo subir el archivo a Cloudinary: " + motivo);
+      }
+      if (!data.secure_url) throw new Error("Cloudinary no devolvió una URL válida.");
+      return data.secure_url;
+    });
   });
 }

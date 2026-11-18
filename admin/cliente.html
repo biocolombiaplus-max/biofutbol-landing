@@ -1280,24 +1280,36 @@ document.getElementById("btnRegistrarPago").addEventListener("click", function (
     numSocios: numSociosRecibo
   });
 
-  let reciboUrl = null;
+  // El recibo (PDF subido para compartir el link por WhatsApp) es un paso
+  // adicional: si falla por un problema temporal subiendo el archivo, el
+  // pago se registra IGUAL — nunca se bloquea el registro de un pago real
+  // por eso.
   subirReciboPDF(pdf, "recibo-" + clienteId + "-" + Date.now() + ".pdf").then(function (url) {
-    reciboUrl = url;
+    return { url: url, fallo: false };
+  }).catch(function (err) {
+    console.error("No se pudo generar el link del recibo:", err);
+    return { url: null, fallo: true };
+  }).then(function (recibo) {
     btn.innerHTML = '<span class="spinner"></span> Guardando...';
-    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
+    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor };
+    if (recibo.url) nuevoPago.reciboUrl = recibo.url;
     return db.collection("clientes").doc(clienteId).update({
       proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
       estado: "activo",
       pagos: firebase.firestore.FieldValue.arrayUnion(nuevoPago)
-    });
-  }).then(function () {
+    }).then(function () { return recibo; });
+  }).then(function (recibo) {
     registrarAuditoria("Pago registrado", clienteId, clienteActual.clubNombre, formatCOP(valor));
-    mostrarExito("Pago registrado. Abriendo WhatsApp para enviar el recibo...");
-    mostrarPagoGuardado("Pago de " + formatCOP(valor) + " guardado y recibo generado.");
     registrandoPago = false;
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Registrar pago y generar recibo (+30 días)';
     cargarCliente();
-    enviarReciboWhatsapp(reciboUrl);
+    if (recibo.fallo) {
+      mostrarExito("Pago registrado. No se pudo generar el link del recibo para WhatsApp — puedes reintentarlo más tarde.");
+    } else {
+      mostrarExito("Pago registrado. Abriendo WhatsApp para enviar el recibo...");
+      mostrarPagoGuardado("Pago de " + formatCOP(valor) + " guardado y recibo generado.");
+      enviarReciboWhatsapp(recibo.url);
+    }
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
     registrandoPago = false;

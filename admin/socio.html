@@ -796,15 +796,19 @@ document.getElementById("btnRecibo").addEventListener("click", function () {
 
   const btn = this;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...';
+  // El PDF se descarga siempre, de una vez — así el admin nunca se queda
+  // sin el recibo aunque la subida para compartirlo por WhatsApp/correo
+  // falle por un problema temporal de Cloudinary.
+  pdf.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
   subirReciboPDF(pdf, "recibo-" + socioId + "-" + Date.now() + ".pdf").then(function (url) {
     ultimoReciboSocioUrl = url;
     document.getElementById("btnReciboSocioWhatsapp").disabled = false;
     document.getElementById("btnReciboSocioCorreo").disabled = false;
-    pdf.save("recibo-" + (socioActual.nombre || "socio").replace(/\s+/g, "-").toLowerCase() + ".pdf");
     registrarAuditoria("Recibo de socio generado", clienteId, socioActual.nombre, formatMoneda(valor, clubActual.moneda));
-    mostrarExito("Recibo generado. Ya lo puedes enviar por WhatsApp o correo.");
+    mostrarExito("Recibo descargado. Ya lo puedes enviar por WhatsApp o correo.");
   }).catch(function (err) {
-    mostrarError("No se pudo generar el recibo: " + err.message);
+    console.error("No se pudo generar el link del recibo:", err);
+    mostrarError("El recibo se descargó, pero no se pudo preparar para enviarlo por WhatsApp o correo (intenta de nuevo en un momento). Puedes adjuntar el PDF descargado manualmente.");
   }).finally(function () {
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar recibo del último pago';
   });

@@ -78,8 +78,14 @@ function generarReciboPDF(opts) {
   return doc;
 }
 
-// Sube el PDF a Cloudinary y devuelve la URL (requiere cloudinary-config.js)
+// Sube el PDF a Cloudinary y devuelve la URL (requiere cloudinary-config.js).
+// Si falla subido como "raw" (algunas cuentas de Cloudinary lo restringen),
+// reintenta una sola vez forzando "image" antes de rendirse — así una
+// configuración distinta de la cuenta no le falla al cliente.
 function subirReciboPDF(doc, nombreArchivo) {
   const blob = doc.output("blob");
-  return subirACloudinary(blob, "recibos", nombreArchivo);
+  return subirACloudinary(blob, "recibos", nombreArchivo).catch(function (err) {
+    console.warn("Falló la subida del recibo como 'raw', reintentando como imagen:", err.message);
+    return subirACloudinary(blob, "recibos", nombreArchivo, "image");
+  });
 }

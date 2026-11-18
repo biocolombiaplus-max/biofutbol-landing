@@ -434,10 +434,19 @@ document.getElementById("btnConfirmarPago").addEventListener("click", function (
   });
 
   const estabaSuspendido = !!c.accesoSuspendido;
-  let reciboUrl = null;
+
+  // El recibo (PDF subido para compartir el link por WhatsApp) es un paso
+  // adicional: si falla por un problema temporal subiendo el archivo, el
+  // pago se registra y el acceso se reactiva IGUAL — nunca se bloquea la
+  // confirmación de un pago real por eso.
   subirReciboPDF(pdf, "recibo-" + c.id + "-" + Date.now() + ".pdf").then(function (url) {
-    reciboUrl = url;
-    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor, reciboUrl: url };
+    return { url: url, fallo: false };
+  }).catch(function (err) {
+    console.error("No se pudo generar el link del recibo:", err);
+    return { url: null, fallo: true };
+  }).then(function (recibo) {
+    const nuevoPago = { fecha: firebase.firestore.Timestamp.fromDate(fechaPago), valor: valor };
+    if (recibo.url) nuevoPago.reciboUrl = recibo.url;
     const writes = [
       db.collection("clientes").doc(c.id).update({
         proximoPago: firebase.firestore.Timestamp.fromDate(proximo),
@@ -447,13 +456,17 @@ document.getElementById("btnConfirmarPago").addEventListener("click", function (
       })
     ];
     if (estabaSuspendido) writes.push(db.collection("clientes").doc(c.id).collection("publico").doc("marca").set({ accesoSuspendido: false }, { merge: true }));
-    return Promise.all(writes);
-  }).then(function () {
+    return Promise.all(writes).then(function () { return recibo; });
+  }).then(function (recibo) {
     registrarAuditoria("Pago registrado desde la lista de clientes", c.id, c.clubNombre, formatCOP(valor));
     if (estabaSuspendido) registrarAuditoria("Acceso reactivado automáticamente al confirmar el pago", c.id, c.clubNombre);
-    mostrarExito("Pago confirmado" + (estabaSuspendido ? " y acceso reactivado" : "") + ". Abriendo WhatsApp para enviar el recibo...");
     cerrarModalPago();
-    enviarReciboWhatsapp(c, reciboUrl);
+    if (recibo.fallo) {
+      mostrarExito("Pago confirmado" + (estabaSuspendido ? " y acceso reactivado" : "") + ". No se pudo generar el link del recibo para WhatsApp — puedes intentarlo de nuevo desde la ficha del cliente.");
+    } else {
+      mostrarExito("Pago confirmado" + (estabaSuspendido ? " y acceso reactivado" : "") + ". Abriendo WhatsApp para enviar el recibo...");
+      enviarReciboWhatsapp(c, recibo.url);
+    }
   }).catch(function (err) {
     mostrarError("No se pudo registrar el pago: " + err.message);
   }).finally(function () {
