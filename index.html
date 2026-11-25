@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BioFutbol PRO | App con IA para clubes y escuelas de fútbol</title>
-<meta name="description" content="Gestiona tu club o escuela de fútbol con Inteligencia Artificial desde 2 mil pesitos por socio. App 100% personalizada, lista en 7 días. Fixture con IA, cobros, socios y reportes mensuales.">
+<meta name="description" content="Gestiona tu club o escuela de fútbol con Inteligencia Artificial y cobros 100% automáticos. App 100% personalizada, lista en 7 días. Fixture con IA, cobros, socios y reportes mensuales.">
 <meta name="keywords" content="app clubes de futbol, gestion de socios futbol, software escuela de futbol Colombia, cobros mensualidad club futbol, BioFutbol, app deportiva personalizada, fixture con inteligencia artificial">
-<meta property="og:title" content="BioFutbol PRO | Gestiona tu club de fútbol con IA desde 2 mil pesitos por socio">
+<meta property="og:title" content="BioFutbol PRO | Gestiona tu club de fútbol con IA y cobros 100% automáticos">
 <meta property="og:description" content="App 100% personalizada para tu club o escuela de fútbol. Fixture con IA, cobros, socios y reportes mensuales en un solo lugar. Lista en 7 días.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://biocolombiaplus-max.github.io/biofutbol-landing/">
@@ -15,7 +15,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="BioFutbol - Gestiona tu club de fútbol con IA">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="BioFutbol PRO | Gestiona tu club de fútbol con IA desde 2 mil pesitos por socio">
+<meta name="twitter:title" content="BioFutbol PRO | Gestiona tu club de fútbol con IA y cobros 100% automáticos">
 <meta name="twitter:description" content="App 100% personalizada para tu club o escuela de fútbol. Fixture con IA, cobros, socios y reportes mensuales en un solo lugar. Lista en 7 días.">
 <meta name="twitter:image" content="https://biocolombiaplus-max.github.io/biofutbol-landing/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -446,6 +446,31 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .launch-banner i{font-size:1.35rem;color:var(--gold);flex:none}
 .launch-banner strong{display:block;color:var(--gold);font-size:.96rem;font-weight:900}
 .launch-banner span{color:var(--gray);font-size:.86rem}
+
+/* ── Promo de fin de año: $120 USD todo 2027, sin importar el N° de socios.
+   Pensada para destacar por encima de los planes normales, con urgencia
+   real de "solo hoy" — se puede quitar quitando esta sección cuando la
+   promoción termine. ── */
+.promo-annual{position:relative;overflow:hidden;background:linear-gradient(145deg,#0B1626,#0f2a18 55%,#123322);border:1px solid rgba(255,201,51,.45);border-radius:28px;padding:46px 36px;margin-bottom:56px;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);animation:promoGlow 3s ease-in-out infinite;text-align:center}
+@keyframes promoGlow{0%,100%{box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06),0 0 0 rgba(255,201,51,0)}50%{box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06),0 0 50px rgba(255,201,51,.35)}}
+.promo-annual::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 10% 15%,rgba(255,201,51,.18),transparent 45%),radial-gradient(circle at 90% 100%,rgba(24,168,58,.3),transparent 50%)}
+.promo-annual::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;z-index:0;pointer-events:none;background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);animation:promoShine 4s ease-in-out infinite}
+@keyframes promoShine{0%{left:-60%}55%{left:130%}100%{left:130%}}
+.promo-annual>*{position:relative;z-index:1}
+.promo-annual-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ff3b1f,#ff8a00);color:#fff;font-weight:900;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase;padding:8px 18px;border-radius:999px;margin-bottom:20px;box-shadow:0 8px 22px rgba(255,59,31,.45);animation:pulse-urgency 2s infinite}
+.promo-annual h2{font-size:clamp(1.5rem,3.4vw,2.3rem);font-weight:900;color:var(--white);margin-bottom:10px}
+.promo-annual h2 b{color:var(--gold)}
+.promo-annual-sub{color:var(--gray);font-size:1rem;max-width:620px;margin:0 auto 28px}
+.promo-annual-price-row{display:flex;align-items:baseline;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.promo-annual-old{font-size:1.4rem;color:var(--gray-d);text-decoration:line-through;font-weight:700}
+.promo-annual-new{font-size:clamp(2.6rem,7vw,4.2rem);font-weight:900;color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(255,201,51,.4)}
+.promo-annual-new small{font-size:1.1rem;color:var(--white);font-weight:800;display:block;margin-top:4px}
+.promo-annual-permonth{display:inline-block;background:rgba(24,168,58,.14);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-weight:800;font-size:.9rem;padding:8px 18px;border-radius:999px;margin-bottom:30px}
+.promo-annual-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#25d366,#128c3e);color:#fff;font-weight:900;font-size:1.02rem;padding:18px 34px;border-radius:999px;text-decoration:none;box-shadow:0 14px 32px rgba(37,211,102,.4),0 0 0 1px rgba(255,255,255,.1);transition:transform .15s}
+.promo-annual-cta:hover{transform:scale(1.03)}
+.promo-annual-note{margin-top:18px;color:var(--gray);font-size:.8rem}
+.promo-annual-note b{color:var(--gold)}
+@media(max-width:600px){.promo-annual{padding:34px 20px;border-radius:22px}}
 .pricing-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
 .intl-plan .price{margin-bottom:2px}
 .intl-plan-note{color:var(--gray);font-size:.76rem;line-height:1.5;flex:1;margin:14px 0 20px}
@@ -615,9 +640,9 @@ fbq('track', 'PageView');
   <div class="ribbon br"><i><span></span><span></span><span></span></i></div>
   <div class="container hero-grid">
     <div>
-      <span class="urgency-badge"><i class="fa-solid fa-fire"></i> Escríbenos hoy y llevate 1 mes GRATIS</span>
+      <a href="#promo-anual" class="urgency-badge"><i class="fa-solid fa-fire"></i> Promo de fin de año: todo 2027 por $120 USD — ¡Solo hoy!</a>
       <span class="pro-badge"><i class="fa-solid fa-crown"></i> APP 100% PRO &amp; PREMIUM</span>
-      <h1>Gestiona tu <span class="accent">club o escuela de fútbol</span> con Inteligencia Artificial desde <span class="price">2 mil pesitos</span> por socio</h1>
+      <h1>Gestiona tu <span class="accent">club o escuela de fútbol</span> con Inteligencia Artificial y <span class="price">cobros 100% automáticos</span></h1>
       <p class="lead">La app 100% personalizada a las características de tu club: socios, cobros, fixture con IA, resultados en vivo y reportes mensuales, todo desde el celular. Entregada en <strong>solo 7 días</strong>.</p>
       <div class="hero-actions">
         <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20cotizar%20BioFutbol%20para%20mi%20club%20y%20aprovechar%20el%20mes%20gratis" class="btn-mega" target="_blank" rel="noopener">
@@ -1193,6 +1218,34 @@ fbq('track', 'PageView');
   </div>
 </section>
 
+<!-- ── PROMO DE FIN DE AÑO: $120 USD todo 2027, sin importar el N° de socios ── -->
+<section id="promo-anual">
+  <div class="container">
+    <div class="promo-annual reveal">
+      <span class="promo-annual-badge"><i class="fa-solid fa-fire"></i> Promoción de fin de año · solo por hoy</span>
+      <h2>Empieza el <b>2027</b> con todo resuelto</h2>
+      <p class="promo-annual-sub">Matrículas, cobros automáticos y la gestión completa de tu club o escuela — sin importar cuántos socios o deportistas tengas.</p>
+      <div class="promo-annual-price-row">
+        <span class="promo-annual-old">desde $30 USD/mes</span>
+        <div class="promo-annual-new">$120 USD<small>Todo el año 2027 · un solo pago</small></div>
+      </div>
+      <div><span class="promo-annual-permonth"><i class="fa-solid fa-calculator"></i> Equivale a solo $10 USD al mes</span></div>
+      <div style="margin-top:14px">
+        <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20aprovechar%20la%20promoci%C3%B3n%20de%20fin%20de%20a%C3%B1o%20de%20BioFutbol%3A%20%24120%20USD%20por%20todo%20el%20a%C3%B1o%202027%2C%20sin%20importar%20el%20n%C3%BAmero%20de%20socios." class="promo-annual-cta" target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i> Quiero esta promoción de fin de año
+        </a>
+      </div>
+      <p class="promo-annual-note">Oferta válida <b>solo hoy, <span id="promoFechaHoy">hoy</span></b> — sin importar el tamaño de tu club. Mañana vuelve el precio normal.</p>
+    </div>
+  </div>
+</section>
+<script>
+  (function () {
+    var el = document.getElementById('promoFechaHoy');
+    if (el) el.textContent = new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+  })();
+</script>
+
 <!-- ── PRICING ── -->
 <section id="planes">
   <div class="container">
@@ -1473,19 +1526,25 @@ document.addEventListener('click', function(e){
     el.style.setProperty('--bg-photo', 'url("' + url + '")');
     el.classList.add('has-photo');
   }
+  // Si la URL guardada ya no carga (imagen borrada, cuenta de Cloudinary con
+  // problemas, etc.), se oculta en vez de mostrar el ícono de "imagen rota" —
+  // la landing pública nunca debe verse así.
   function setImgPhoto(wrapEl, imgEl, url) {
     if (!wrapEl || !imgEl || !url) return;
+    imgEl.onerror = function () { wrapEl.style.display = 'none'; };
     imgEl.src = url;
     wrapEl.style.display = 'block';
   }
   function swapMock(mockEl, imgEl, url) {
     if (!mockEl || !imgEl || !url) return;
+    imgEl.onerror = function () { imgEl.style.display = 'none'; mockEl.style.display = 'block'; };
     imgEl.src = url;
     imgEl.style.display = 'block';
     mockEl.style.display = 'none';
   }
   function setSimpleImg(imgEl, url) {
     if (!imgEl || !url) return;
+    imgEl.onerror = function () { imgEl.style.display = 'none'; };
     imgEl.src = url;
     imgEl.style.display = 'block';
   }
@@ -1496,7 +1555,7 @@ document.addEventListener('click', function(e){
     return logos.map(function (l) {
       var name = (l && l.name) ? l.name : 'Club que usa BioFutbol';
       var url = l && l.url ? l.url : l;
-      return '<div class="trust-logo"><div class="trust-logo-imgbox"><img src="' + url + '" alt="' + escTrust(name) + '" loading="lazy"></div><span class="trust-name">' + escTrust(name) + '</span></div>';
+      return '<div class="trust-logo"><div class="trust-logo-imgbox"><img src="' + url + '" alt="' + escTrust(name) + '" loading="lazy" onerror="this.closest(\'.trust-logo\').style.display=\'none\'"></div><span class="trust-name">' + escTrust(name) + '</span></div>';
     }).join('');
   }
   function placeholderLogosHtml() {
