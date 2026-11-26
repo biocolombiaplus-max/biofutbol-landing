@@ -1,8 +1,14 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --green:#18A83A;--green-d:#0e7d29;--green-l:#2ecc55;
-  --navy:#0B1626;--bg:#070b10;--bg2:#0c1218;--card:#101a14;--card2:#0f1720;
-  --card-b:#1e2b23;--card-b2:#1c2733;--white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;
+  /* Paleta oscura "premium" más clara y aireada: antes el fondo (#070b10)
+     y las tarjetas (#101a14) casi no se diferenciaban entre sí y además
+     tenían matices distintos (fondo azulado, tarjetas verdosas), lo que
+     hacía sentir todo como una sola masa oscura. Ahora todo usa un mismo
+     tono navy-gris, con más salto de luminosidad entre fondo → tarjeta →
+     campo interno → borde, para que la jerarquía se note de un vistazo. */
+  --navy:#0B1626;--bg:#0c1420;--bg2:#101a28;--card:#17222f;--card2:#1c2838;
+  --card-b:#2a3d50;--card-b2:#314759;--white:#f6f8f7;--gray:#a9b9c4;--gray-d:#7c8fa0;
   --gold:#FFC933;--red:#ff5c5c;--radius:16px;
   --shadow:0 14px 40px rgba(0,0,0,.5);--cta-shadow:0 10px 26px rgba(24,168,58,.4);
 }
