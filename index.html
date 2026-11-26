@@ -27,8 +27,11 @@
 :root{
   --green:#18A83A;--green-d:#0e7d29;--green-l:#2ecc55;--green-xl:#7CF5A0;
   --navy:#0B1626;--navy2:#0f1e33;
-  --bg:#070b10;--bg2:#0c1218;--card:#101a14;--card2:#0f1720;--card-b:#1e2b23;--card-b2:#1c2733;
-  --white:#f6f8f7;--gray:#9fb0a7;--gray-d:#6d8079;--gold:#FFC933;--red:#ff5c5c;
+  /* Mismo ajuste que el panel administrativo: fondo y tarjeta antes casi
+     no se diferenciaban (y tenían matices distintos entre sí) — ahora un
+     mismo tono navy-gris con más salto de luminosidad entre cada nivel. */
+  --bg:#0c1420;--bg2:#101a28;--card:#17222f;--card2:#1c2838;--card-b:#2a3d50;--card-b2:#314759;
+  --white:#f6f8f7;--gray:#a9b9c4;--gray-d:#7c8fa0;--gold:#FFC933;--red:#ff5c5c;
   --radius:18px;--shadow:0 14px 40px rgba(0,0,0,.5);
   --cta-shadow:0 12px 32px rgba(24,168,58,.45);--cta-shadow-lg:0 20px 50px rgba(24,168,58,.6);
   --glass:rgba(255,255,255,.04);
@@ -216,8 +219,11 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .sec-photo{border-radius:22px;overflow:hidden;margin-bottom:40px;box-shadow:var(--shadow);max-height:360px}
 .sec-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:44px}
-.pain-card{background:var(--card2);border:1px solid #2a1a1a;border-radius:var(--radius);padding:26px 22px}
-.pain-card i{color:#ff5c5c;font-size:1.4rem;margin-bottom:12px}
+.pain-card{background:var(--card2);border:1px solid var(--card-b2);border-radius:var(--radius);padding:28px 22px;transition:.25s}
+.pain-card:hover{transform:translateY(-5px);border-color:rgba(255,92,92,.5);box-shadow:0 16px 32px rgba(255,92,92,.14)}
+.pain-card .ic{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:linear-gradient(160deg,#ff7a7a,#c92a2a);box-shadow:0 10px 22px -6px rgba(255,92,92,.45);position:relative;isolation:isolate}
+.pain-card .ic::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,rgba(255,255,255,.35),transparent 55%)}
+.pain-card .ic i{position:relative;z-index:1;color:#fff;font-size:1.25rem;margin:0}
 .pain-card h3{font-size:1.02rem;margin-bottom:8px}
 .pain-card p{color:var(--gray);font-size:.9rem;line-height:1.55}
 .pain-flip{text-align:center}
@@ -430,8 +436,11 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 /* ── PROCESS ── */
 .process{background:var(--bg2)}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;position:relative}
-.step{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:28px 22px;position:relative}
-.step .n{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;margin-bottom:16px;box-shadow:var(--cta-shadow)}
+.step{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:28px 22px;position:relative;transition:.25s}
+.step:hover{transform:translateY(-5px);border-color:var(--green);box-shadow:var(--shadow)}
+.step:not(:last-child)::after{content:"";position:absolute;top:50px;left:100%;width:22px;height:2px;background:linear-gradient(90deg,var(--green),rgba(24,168,58,.15))}
+.step .n{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;margin-bottom:16px;box-shadow:var(--cta-shadow);position:relative;isolation:isolate}
+.step .n::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(155deg,rgba(255,255,255,.4),transparent 55%)}
 .step h3{font-size:1rem;margin-bottom:8px}
 .step p{color:var(--gray);font-size:.86rem;line-height:1.55}
 
@@ -523,11 +532,13 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 
 /* ── TESTIMONIALS (illustrative) ── */
 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.testi-card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:26px 24px}
-.testi-card .stars{color:var(--gold);margin-bottom:12px;font-size:.9rem}
-.testi-card p{color:var(--gray);font-size:.92rem;line-height:1.6;margin-bottom:16px}
+.testi-card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:28px 24px;transition:.25s}
+.testi-card:hover{transform:translateY(-5px);border-color:rgba(255,201,51,.4);box-shadow:var(--shadow)}
+.testi-card::before{content:"\f10d";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;top:18px;right:20px;font-size:1.6rem;color:var(--card-b2);opacity:.6}
+.testi-card .stars{color:var(--gold);margin-bottom:12px;font-size:.82rem;display:flex;gap:3px}
+.testi-card p{position:relative;color:var(--gray);font-size:.92rem;line-height:1.6;margin-bottom:18px}
 .testi-who{display:flex;align-items:center;gap:12px}
-.testi-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.testi-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(160deg,var(--green-l),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;box-shadow:0 8px 18px -4px rgba(24,168,58,.45);flex-shrink:0}
 .testi-who strong{font-size:.88rem}
 .testi-who span{display:block;color:var(--gray);font-size:.76rem}
 .testi-disclaimer{text-align:center;color:var(--gray-d);font-size:.76rem;margin-top:22px;font-style:italic}
@@ -578,6 +589,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
   .hero-actions,.hero-badges{justify-content:center}
   .hero-visual{margin-top:36px}
   .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid,.pricing-grid-5{grid-template-columns:repeat(2,1fr)}
+  .step::after{display:none}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .launch-banner{text-align:center;flex-direction:column}
   .spotlight-row,.spotlight-row.rev{grid-template-columns:1fr}
@@ -790,17 +802,17 @@ fbq('track', 'PageView');
     </div>
     <div class="pain-grid">
       <div class="pain-card reveal">
-        <i class="fa-solid fa-file-excel"></i>
+        <div class="ic"><i class="fa-solid fa-file-excel"></i></div>
         <h3>Planillas y Excel desactualizados</h3>
         <p>Datos de socios regados en cuadernos, hojas de cálculo y chats que nadie actualiza a tiempo.</p>
       </div>
       <div class="pain-card reveal">
-        <i class="fa-solid fa-money-bill-transfer"></i>
+        <div class="ic"><i class="fa-solid fa-money-bill-transfer"></i></div>
         <h3>Mensualidades sin control</h3>
         <p>No sabes con certeza quién pagó, quién debe y cuánto se ha recaudado este mes.</p>
       </div>
       <div class="pain-card reveal">
-        <i class="fa-solid fa-comment-slash"></i>
+        <div class="ic"><i class="fa-solid fa-comment-slash"></i></div>
         <h3>Comunicación desorganizada</h3>
         <p>Avisos importantes que se pierden entre grupos de WhatsApp y llamadas sin respuesta.</p>
       </div>
@@ -1423,17 +1435,17 @@ fbq('track', 'PageView');
     </div>
     <div class="testi-grid">
       <div class="testi-card reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p>"Dejar de perseguir pagos por WhatsApp y tener todo controlado en una app sería un cambio total para nuestra escuela."</p>
         <div class="testi-who"><div class="testi-avatar">D</div><div><strong>Director técnico</strong><span>Escuela de fútbol formativa</span></div></div>
       </div>
       <div class="testi-card reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p>"Tener reportes claros del recaudo mensual sin armar Excel a mano le ahorraría horas a cualquier directiva de club."</p>
         <div class="testi-who"><div class="testi-avatar">P</div><div><strong>Presidente de club</strong><span>Club amateur categorías menores</span></div></div>
       </div>
       <div class="testi-card reveal">
-        <div class="stars">★★★★★</div>
+        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
         <p>"Que los papás reciban recordatorios automáticos de pago mejoraría muchísimo la puntualidad en las mensualidades."</p>
         <div class="testi-who"><div class="testi-avatar">C</div><div><strong>Coordinador deportivo</strong><span>Liga infantil de fútbol</span></div></div>
       </div>
