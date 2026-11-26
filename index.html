@@ -373,6 +373,40 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 .portal-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.8rem}
 .ok-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(24,168,58,.16);border:1px solid rgba(24,168,58,.4);color:var(--green-l);font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px}
 .portal-pay{width:100%;margin-top:6px;justify-content:center;padding:12px;font-size:.85rem}
+
+/* ── Demo interactiva: Cobros ── */
+.cobro-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.cobro-tab{background:var(--card);border:1px solid var(--card-b);color:var(--gray);font-weight:800;font-size:.74rem;padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.cobro-tab:hover{border-color:var(--green)}
+.cobro-tab.on[data-cobro="vencidos"]{background:rgba(255,92,92,.16);border-color:rgba(255,92,92,.5);color:#ff8080}
+.cobro-tab.on[data-cobro="porvencer"]{background:rgba(255,201,51,.16);border-color:rgba(255,201,51,.5);color:var(--gold)}
+.cobro-tab.on[data-cobro="aldia"]{background:rgba(24,168,58,.16);border-color:rgba(24,168,58,.5);color:var(--green-l)}
+.cobro-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:10px 12px;margin-bottom:8px;animation:matriIn .25s ease}
+.cobro-item .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,var(--green),var(--green-d));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.76rem;flex:none;color:#fff}
+.cobro-item .nm{flex:1;min-width:0}
+.cobro-item .nm b{display:block;font-size:.82rem}
+.cobro-item .nm span{font-size:.7rem}
+.cobro-item .nm span.bad{color:#ff8080}
+.cobro-item .nm span.warn{color:var(--gold)}
+.cobro-item .nm span.ok{color:var(--green-l)}
+.cobro-item .btn-mini{flex:none;background:linear-gradient(135deg,#25d366,#128c3e);color:#fff;font-size:.68rem;font-weight:800;padding:8px 12px;border-radius:999px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.2s}
+.cobro-item .btn-mini.sent{background:var(--card2);color:var(--green-l);border:1px solid var(--green);cursor:default}
+.cobro-hint{font-size:.7rem;color:var(--gray-d);text-align:center;margin-top:8px}
+
+/* ── Demo interactiva: Matrículas ── */
+.matri-steps{min-height:170px}
+.matri-step{display:none;animation:matriIn .3s ease}
+.matri-step.on{display:block}
+@keyframes matriIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.matri-step .ico{width:46px;height:46px;border-radius:14px;background:rgba(24,168,58,.14);border:1px solid rgba(24,168,58,.4);color:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px}
+.matri-step h4{font-size:.95rem;margin-bottom:6px;color:var(--white)}
+.matri-step p{font-size:.8rem;color:var(--gray)}
+.matri-mock{background:var(--card2);border:1px solid var(--card-b);border-radius:12px;padding:12px;margin-top:12px;font-size:.78rem;line-height:1.7}
+.matri-nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.matri-dots{display:flex;gap:7px}
+.matri-dot{width:8px;height:8px;border-radius:50%;background:var(--card-b2);cursor:pointer;transition:.2s;border:none;padding:0}
+.matri-dot.on{background:var(--green-l);width:22px;border-radius:4px}
+.matri-next{background:linear-gradient(135deg,#25d366,#128c3e);color:#fff;font-weight:800;font-size:.78rem;padding:10px 16px;border-radius:999px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 /* monthly AI report panel */
 .report-panel{position:relative;overflow:hidden;border-radius:16px;padding:18px;
   background:
@@ -425,6 +459,7 @@ nav.bg{background:rgba(7,11,16,.92);backdrop-filter:blur(12px);box-shadow:0 2px 
 
 /* ── PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.pricing-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:760px;margin:0 auto}
 .plan{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);padding:30px 24px;display:flex;flex-direction:column;transition:.25s;position:relative}
 .plan:hover{transform:translateY(-7px);border-color:var(--green);box-shadow:var(--shadow)}
 .plan.featured{border-color:var(--green);box-shadow:var(--cta-shadow);background:linear-gradient(180deg,rgba(24,168,58,.1),var(--card))}
@@ -555,7 +590,7 @@ footer{background:#050807;padding:48px 0 96px;border-top:1px solid var(--card-b)
 }
 @media(max-width:560px){
   section{padding:70px 0}
-  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.testi-grid,.pricing-grid-5{grid-template-columns:1fr}
+  .pain-grid,.feat-grid,.steps,.showcase-grid,.pricing-grid,.pricing-grid-2,.testi-grid,.pricing-grid-5{grid-template-columns:1fr}
   .hero{padding-top:130px}
   .container.nav-inner{padding:0 12px}
   .logo{font-size:1.1rem;gap:6px}
@@ -724,7 +759,7 @@ fbq('track', 'PageView');
   <div class="container stat-grid">
     <div><div class="num">Inmediato</div><div class="lbl">Accedes apenas confirmas tu pago</div></div>
     <div><div class="num">100%</div><div class="lbl">Personalizada para tu club</div></div>
-    <div><div class="num">4</div><div class="lbl">Planes según tu N° de socios</div></div>
+    <div><div class="num">$10</div><div class="lbl">USD al mes, pagando el plan anual</div></div>
     <div><div class="num">24/7</div><div class="lbl">Disponible desde el celular</div></div>
   </div>
 </div>
@@ -845,6 +880,75 @@ fbq('track', 'PageView');
       <span class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Tecnología que marca la diferencia</span>
       <h2>Funciones PRO que llevan tu club al siguiente nivel</h2>
       <p>Herramientas avanzadas pensadas para que tu club se vea, se sienta y funcione como un club profesional.</p>
+    </div>
+
+    <div class="spotlight-row">
+      <div class="spot-text reveal">
+        <span class="spot-tag live"><i class="fa-solid fa-sack-dollar"></i> El dolor n.° 1 de todo club</span>
+        <h3>Cobros automáticos que se organizan solos</h3>
+        <p>Olvídate de perseguir papás por WhatsApp uno por uno. El Centro de Cobros te muestra quién debe, quién está por vencer y quién ya pagó — y el mensaje avisa con el día exacto: "vence hoy", "vence en 1 día" o "lleva 3 días de atraso".</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Centro de cobros con el estado de cada socio en vivo</li>
+          <li><i class="fa-solid fa-check"></i> Mensajes de WhatsApp con el día exacto de vencimiento</li>
+          <li><i class="fa-solid fa-check"></i> Marca a quién ya le escribiste, para no repetirle</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="cobro-tabs">
+            <button type="button" class="cobro-tab on" data-cobro="vencidos"><i class="fa-solid fa-triangle-exclamation"></i> Vencidos (2)</button>
+            <button type="button" class="cobro-tab" data-cobro="porvencer"><i class="fa-solid fa-clock"></i> Por vencer (1)</button>
+            <button type="button" class="cobro-tab" data-cobro="aldia"><i class="fa-solid fa-circle-check"></i> Al día (2)</button>
+          </div>
+          <div id="cobroDemoList"></div>
+          <p class="cobro-hint"><i class="fa-solid fa-hand-pointer"></i> Pestañas y botones interactivos — pruébalos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="spotlight-row rev">
+      <div class="spot-text reveal">
+        <span class="spot-tag auto"><i class="fa-solid fa-calendar-check"></i> Ideal para enero y febrero</span>
+        <h3>Matrículas sin filas, sin papeleo y sin digitar nada</h3>
+        <p>La temporada de matrículas ya no significa planillas ni carpetas. Comparte un solo link por WhatsApp y cada padre matricula a su hijo desde el celular — tú solo revisas la lista.</p>
+        <ul class="spot-list">
+          <li><i class="fa-solid fa-check"></i> Un solo link de matrícula para todo tu club</li>
+          <li><i class="fa-solid fa-check"></i> El padre lo completa en minutos, sin ayuda</li>
+          <li><i class="fa-solid fa-check"></i> Aparece directo en tu lista de socios, listo para usar</li>
+        </ul>
+      </div>
+      <div class="spot-visual reveal">
+        <div class="spot-panel">
+          <div class="matri-steps">
+            <div class="matri-step on" data-step="1">
+              <div class="ico"><i class="fa-brands fa-whatsapp"></i></div>
+              <h4>1. Comparte tu link de matrícula</h4>
+              <p>Un solo link por WhatsApp — el padre completa los datos del deportista desde su celular.</p>
+              <div class="matri-mock">💬 "¡Hola! Matricula a tu hijo en 2 minutos aquí: biofutbol.app/registro/halconesfc"</div>
+            </div>
+            <div class="matri-step" data-step="2">
+              <div class="ico"><i class="fa-solid fa-mobile-screen-button"></i></div>
+              <h4>2. El padre la completa desde el celular</h4>
+              <p>Nombre, documento, categoría y datos de contacto — en un formulario simple, sin apps que instalar.</p>
+              <div class="matri-mock">✅ Nombre completo<br>✅ Documento<br>✅ Categoría<br>✅ Teléfono y correo</div>
+            </div>
+            <div class="matri-step" data-step="3">
+              <div class="ico"><i class="fa-solid fa-circle-check"></i></div>
+              <h4>3. Aparece solo en tu lista de socios</h4>
+              <p>Sin digitar nada tú — el nuevo deportista ya queda listo para asignar categoría y empezar a cobrar.</p>
+              <div class="matri-mock">🟢 Nuevo socio registrado: <b>Mateo Castro</b> · Sub-10</div>
+            </div>
+          </div>
+          <div class="matri-nav">
+            <div class="matri-dots">
+              <button type="button" class="matri-dot on" data-goto="1" aria-label="Paso 1"></button>
+              <button type="button" class="matri-dot" data-goto="2" aria-label="Paso 2"></button>
+              <button type="button" class="matri-dot" data-goto="3" aria-label="Paso 3"></button>
+            </div>
+            <button type="button" class="matri-next" id="matriNextBtn">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="spotlight-row">
@@ -1251,107 +1355,34 @@ fbq('track', 'PageView');
   <div class="container">
     <div class="sec-head reveal">
       <span class="eyebrow"><i class="fa-solid fa-tags"></i> Inversión clara, sin sorpresas</span>
-      <h2>Planes para clubes en Colombia</h2>
-      <p>Pagas una sola vez la implementación de tu app y luego un valor fijo mensual por socio activo. Así de simple.</p>
+      <h2>Un solo plan, simple y sin complicaciones</h2>
+      <p>Sin importar cuántos socios o deportistas tenga tu club — todas las funciones incluidas, sin letra pequeña.</p>
     </div>
-    <div class="pricing-grid">
-      <div class="plan reveal">
-        <span class="members">Hasta 100 socios</span>
-        <div class="setup">Implementación única: $350.000</div>
-        <div class="price">$2.500 <small>/socio/mes</small></div>
+    <div class="pricing-grid pricing-grid-2">
+      <div class="plan featured reveal">
+        <span class="members"><i class="fa-solid fa-star"></i> Plan anual · Recomendado</span>
+        <div class="setup">Sin importar el número de socios o deportistas</div>
+        <div class="price">$120 USD <small>/año</small></div>
+        <p class="intl-plan-note">Equivale a solo $10 USD al mes, pagando una sola vez al año.</p>
         <ul>
           <li><i class="fa-solid fa-check"></i> App 100% personalizada</li>
-          <li><i class="fa-solid fa-check"></i> Gestión de socios y cobros</li>
+          <li><i class="fa-solid fa-check"></i> Matrículas y cobros 100% automáticos</li>
           <li><i class="fa-solid fa-check"></i> Comunicación por WhatsApp</li>
           <li><i class="fa-solid fa-check"></i> Acceso inmediato al pagar</li>
         </ul>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20hasta%20100%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan featured reveal">
-        <span class="members">101 a 200 socios</span>
-        <div class="setup">Implementación única: $450.000</div>
-        <div class="price">$2.000 <small>/socio/mes</small></div>
-        <ul>
-          <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
-          <li><i class="fa-solid fa-check"></i> Reportes de recaudo</li>
-          <li><i class="fa-solid fa-check"></i> Soporte prioritario</li>
-          <li><i class="fa-solid fa-check"></i> Acceso inmediato al pagar</li>
-        </ul>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20101%20a%20200%20socios%20de%20BioFutbol" class="btn-primary" target="_blank" rel="noopener">Elegir plan</a>
+        <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20el%20plan%20anual%20de%20BioFutbol%3A%20%24120%20USD%20por%20todo%20el%20a%C3%B1o." class="btn-primary" target="_blank" rel="noopener">Elegir plan anual</a>
       </div>
       <div class="plan reveal">
-        <span class="members">201 a 500 socios</span>
-        <div class="setup">Implementación única: $490.000</div>
-        <div class="price">$1.500 <small>/socio/mes</small></div>
+        <span class="members">Plan mensual</span>
+        <div class="setup">Para clubes que prefieren pagar mes a mes</div>
+        <div class="price">Cotización <small>por WhatsApp</small></div>
+        <p class="intl-plan-note">Te cotizamos el valor mensual por WhatsApp, según el tamaño de tu club.</p>
         <ul>
-          <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
-          <li><i class="fa-solid fa-check"></i> Multi-sede</li>
-          <li><i class="fa-solid fa-check"></i> Roles y permisos</li>
+          <li><i class="fa-solid fa-check"></i> Mismas funciones que el plan anual</li>
+          <li><i class="fa-solid fa-check"></i> Sin permanencia — cancelas cuando quieras</li>
           <li><i class="fa-solid fa-check"></i> Acceso inmediato al pagar</li>
         </ul>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20201%20a%20500%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan reveal">
-        <span class="members">Más de 500 socios</span>
-        <div class="setup">Implementación única: $750.000</div>
-        <div class="price">$1.000 <small>/socio/mes</small></div>
-        <ul>
-          <li><i class="fa-solid fa-check"></i> Todo lo del plan anterior</li>
-          <li><i class="fa-solid fa-check"></i> Integraciones a medida</li>
-          <li><i class="fa-solid fa-check"></i> Atención prioritaria</li>
-          <li><i class="fa-solid fa-check"></i> Acceso inmediato al pagar</li>
-        </ul>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20me%20interesa%20el%20plan%20de%20m%C3%A1s%20de%20500%20socios%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── PRICING (INTERNATIONAL) ── -->
-<section id="planes-intl" class="planes-intl">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="eyebrow"><i class="fa-solid fa-earth-americas"></i> Resto de Suramérica y Centroamérica</span>
-      <h2>Planes para clubes fuera de Colombia</h2>
-      <p>Un valor fijo mensual en dólares, sin importar el número exacto de deportistas dentro del rango de tu plan — sin implementación ni costos ocultos.</p>
-    </div>
-    <div class="launch-banner reveal">
-      <i class="fa-solid fa-bolt"></i>
-      <div>
-        <strong>Precio de lanzamiento</strong>
-        <span>Válido para los primeros 10 clubes o escuelas de fuera de Colombia que se registren en BioFutbol.</span>
-      </div>
-    </div>
-    <div class="pricing-grid-5">
-      <div class="plan intl-plan reveal">
-        <span class="members">Hasta 50 deportistas</span>
-        <div class="price">$30 <small>USD/mes</small></div>
-        <p class="intl-plan-note">Equivalente aproximado en tu moneda local, calculado al registrar tu club.</p>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20hasta%2050%20deportistas%20y%20est%C3%A1%20fuera%20de%20Colombia%2C%20quiero%20el%20precio%20de%20lanzamiento%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan intl-plan reveal">
-        <span class="members">51 a 100 deportistas</span>
-        <div class="price">$50 <small>USD/mes</small></div>
-        <p class="intl-plan-note">Equivalente aproximado en tu moneda local, calculado al registrar tu club.</p>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20entre%2051%20y%20100%20deportistas%20y%20est%C3%A1%20fuera%20de%20Colombia%2C%20quiero%20el%20precio%20de%20lanzamiento%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan intl-plan featured reveal">
-        <span class="members">101 a 200 deportistas</span>
-        <div class="price">$70 <small>USD/mes</small></div>
-        <p class="intl-plan-note">Equivalente aproximado en tu moneda local, calculado al registrar tu club.</p>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20entre%20101%20y%20200%20deportistas%20y%20est%C3%A1%20fuera%20de%20Colombia%2C%20quiero%20el%20precio%20de%20lanzamiento%20de%20BioFutbol" class="btn-primary" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan intl-plan reveal">
-        <span class="members">201 a 500 deportistas</span>
-        <div class="price">$95 <small>USD/mes</small></div>
-        <p class="intl-plan-note">Equivalente aproximado en tu moneda local, calculado al registrar tu club.</p>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20entre%20201%20y%20500%20deportistas%20y%20est%C3%A1%20fuera%20de%20Colombia%2C%20quiero%20el%20precio%20de%20lanzamiento%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
-      </div>
-      <div class="plan intl-plan reveal">
-        <span class="members">Más de 501 deportistas</span>
-        <div class="price">$120 <small>USD/mes</small></div>
-        <p class="intl-plan-note">Equivalente aproximado en tu moneda local, calculado al registrar tu club.</p>
-        <a href="https://wa.me/573505457420?text=Hola%2C%20mi%20club%20tiene%20m%C3%A1s%20de%20501%20deportistas%20y%20est%C3%A1%20fuera%20de%20Colombia%2C%20quiero%20el%20precio%20de%20lanzamiento%20de%20BioFutbol" class="btn-ghost" target="_blank" rel="noopener">Elegir plan</a>
+        <a href="https://wa.me/573505457420?text=Hola%2C%20quiero%20el%20plan%20mensual%20de%20BioFutbol." class="btn-ghost" target="_blank" rel="noopener">Elegir plan mensual</a>
       </div>
     </div>
   </div>
@@ -1420,12 +1451,12 @@ fbq('track', 'PageView');
     </div>
     <div class="faq reveal">
       <details>
-        <summary>¿Qué incluye el pago de implementación?</summary>
-        <p>Incluye el diseño y desarrollo de tu app 100% personalizada con el logo y colores de tu club, la configuración de socios, cobros y comunicación, y la puesta en marcha completa.</p>
+        <summary>¿Qué incluye el pago del plan?</summary>
+        <p>Incluye tu app 100% personalizada con el logo y colores de tu club, matrículas, cobros automáticos, comunicación por WhatsApp y todas las funciones de BioFutbol — sin módulos extra que cobrar después.</p>
       </details>
       <details>
-        <summary>¿Por qué se cobra un valor mensual por socio?</summary>
-        <p>Ese valor cubre el mantenimiento, soporte y funcionamiento continuo de tu app. Solo pagas por los socios activos que realmente gestionas cada mes.</p>
+        <summary>¿Por qué el plan anual sale más barato que el mensual?</summary>
+        <p>Porque pagas una sola vez todo el año en vez de hacer un pago cada mes — por eso el anual equivale a solo $10 USD al mes. Si prefieres pagar mes a mes, también puedes elegir el plan mensual.</p>
       </details>
       <details>
         <summary>¿En cuánto tiempo tengo mi app lista?</summary>
@@ -1437,11 +1468,11 @@ fbq('track', 'PageView');
       </details>
       <details>
         <summary>¿Qué pasa si mi club crece?</summary>
-        <p>Puedes pasar al siguiente plan en cualquier momento según el número de socios activos de tu club.</p>
+        <p>Nada cambia en el precio: no importa cuántos socios o deportistas tengas, el plan es el mismo sin importar el tamaño de tu club.</p>
       </details>
       <details>
         <summary>¿Hay contrato de permanencia?</summary>
-        <p>No, los planes son flexibles y se ajustan mes a mes según tu cantidad real de socios.</p>
+        <p>No, puedes cancelar cuando quieras. El plan anual se paga una sola vez al año; el mensual lo puedes dejar cuando lo necesites.</p>
       </details>
       <details>
         <summary>¿Es fácil de mantener?</summary>
@@ -1602,6 +1633,74 @@ document.addEventListener('click', function(e){
       fillTrustBar(data.clientLogos);
     }).catch(function () { /* silencioso: la landing se ve bien igual sin imágenes */ });
   } catch (e) { /* silencioso: nunca debe romper la landing pública */ }
+})();
+</script>
+
+<!-- ── Demos interactivas: Cobros y Matrículas (solo front-end, sin backend) ── -->
+<script>
+(function () {
+  // Cobros: pestañas que cambian la lista de socios de ejemplo
+  var COBRO_DEMO = {
+    vencidos: [
+      { nombre: 'Andrés Ruiz', ini: 'AR', texto: 'Venció hace 3 días', clase: 'bad' },
+      { nombre: 'Camila Díaz', ini: 'CD', texto: 'Venció hace 8 días', clase: 'bad' }
+    ],
+    porvencer: [
+      { nombre: 'Juan Pérez', ini: 'JP', texto: 'Vence en 1 día', clase: 'warn' }
+    ],
+    aldia: [
+      { nombre: 'Laura Gómez', ini: 'LG', texto: 'Al día', clase: 'ok' },
+      { nombre: 'Samuel Torres', ini: 'ST', texto: 'Al día', clase: 'ok' }
+    ]
+  };
+  var cobroTabs = document.querySelectorAll('.cobro-tab');
+  var cobroList = document.getElementById('cobroDemoList');
+  function pintarCobroDemo(cat) {
+    if (!cobroList) return;
+    var items = COBRO_DEMO[cat] || [];
+    cobroList.innerHTML = items.map(function (s) {
+      var boton = cat === 'aldia'
+        ? '<span class="ok-pill"><i class="fa-solid fa-check"></i> Sin pendientes</span>'
+        : '<button type="button" class="btn-mini" data-demo-send="1"><i class="fa-brands fa-whatsapp"></i> Recordar</button>';
+      return '<div class="cobro-item"><div class="av">' + s.ini + '</div>' +
+        '<div class="nm"><b>' + s.nombre + '</b><span class="' + s.clase + '">' + s.texto + '</span></div>' +
+        boton + '</div>';
+    }).join('');
+    cobroList.querySelectorAll('[data-demo-send]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Enviado';
+        btn.classList.add('sent');
+        btn.disabled = true;
+      });
+    });
+  }
+  cobroTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      cobroTabs.forEach(function (t) { t.classList.remove('on'); });
+      tab.classList.add('on');
+      pintarCobroDemo(tab.dataset.cobro);
+    });
+  });
+  pintarCobroDemo('vencidos');
+
+  // Matrículas: stepper de 3 pasos, con botón "Siguiente" y puntos clicables
+  var matriSteps = document.querySelectorAll('.matri-step');
+  var matriDots = document.querySelectorAll('.matri-dot');
+  var matriNext = document.getElementById('matriNextBtn');
+  var matriActual = 1;
+  function irAPasoMatricula(n) {
+    matriActual = n;
+    matriSteps.forEach(function (s) { s.classList.toggle('on', Number(s.dataset.step) === n); });
+    matriDots.forEach(function (d) { d.classList.toggle('on', Number(d.dataset.goto) === n); });
+  }
+  matriDots.forEach(function (dot) {
+    dot.addEventListener('click', function () { irAPasoMatricula(Number(dot.dataset.goto)); });
+  });
+  if (matriNext) {
+    matriNext.addEventListener('click', function () {
+      irAPasoMatricula(matriActual >= 3 ? 1 : matriActual + 1);
+    });
+  }
 })();
 </script>
 </body>
