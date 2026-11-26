@@ -565,17 +565,18 @@
     </div>
 
     <div class="tab-panel" id="tab-socios">
+      <div class="section-label"><i class="fa-solid fa-clipboard-list"></i> Matrículas</div>
       <div class="card" style="margin-bottom:18px">
-        <h3><i class="fa-solid fa-user-plus"></i> Registrar un nuevo socio o jugador</h3>
-        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envía este link para que el jugador, su acudiente o el profesor complete los datos desde el celular. Se guarda directo en esta lista.</p>
+        <h3><i class="fa-solid fa-user-plus"></i> Matricular un nuevo socio o jugador</h3>
+        <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Envía este link para que el jugador, su acudiente o el profesor complete la matrícula desde el celular. Apenas la llenan, queda directo en tu lista de socios — sin que tengas que digitar nada.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkSocio"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkSocio"><i class="fa-brands fa-whatsapp"></i> Enviar link de matrícula por WhatsApp</button>
           <button type="button" class="btn btn-ghost btn-sm" id="btnCopiarLinkSocio"><i class="fa-solid fa-copy"></i> Copiar mensaje</button>
         </div>
       </div>
 
       <div class="card" style="margin-bottom:18px">
-        <h3><i class="fa-solid fa-key"></i> Acceso para socios ya registrados</h3>
+        <h3><i class="fa-solid fa-key"></i> Acceso para socios ya matriculados</h3>
         <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Un solo link para que CADA socio o acudiente cree su propio usuario y clave — busca su ficha con el número de documento y define su correo y clave ahí mismo. No tienes que crearle el acceso uno por uno.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" class="btn btn-primary btn-sm" id="btnEnviarLinkAcceso"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
@@ -583,6 +584,7 @@
         </div>
       </div>
 
+      <div class="section-label"><i class="fa-solid fa-users"></i> Tu lista de socios</div>
       <div class="crm-toolbar">
         <input type="text" class="search-input" id="crmBuscar" placeholder="Buscar socio por nombre...">
         <button type="button" class="btn btn-ghost btn-sm" id="btnOrdenarCategoria"><i class="fa-solid fa-layer-group"></i> Agrupar por categoría</button>
